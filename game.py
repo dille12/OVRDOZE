@@ -5,6 +5,7 @@ import random
 import time
 import mixer
 from classtest import *
+from _thread import *
 import copy
 import los
 from network import Network
@@ -114,6 +115,72 @@ def give_weapon(gun):
 
 full_screen_mode = True
 
+def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors):
+
+
+    try:
+        print("THREADING")
+        x_pos_1 = round(player_pos[0])
+        y_pos_1 = round(player_pos[1])
+        angle_1 = round(player_Angle)
+        string = ":"
+        for bull in bullets_new:
+            string += bull.get_string()
+            string += ","
+        if grenade_throw_string != "":
+            string += ":"
+            string += grenade_throw_string
+        print("string:", grenade_throw_string)
+        player_info = net.send("pl_i:" + str(x_pos_1) + "_" + str(y_pos_1) + "_" + str(angle_1) + "_" + str(round(player_actor.get_hp())) + string)
+        if not player_info == "%/":
+            info = player_info.strip(" ").split("#")
+            #print(info)
+            client_info = info[0]
+            if len(info) == 2 or len(info) == 3:
+                print("Bullet info received")
+                bullets = info[1]
+                for bullet in bullets.split("%"):
+                    #print(bullet)
+                    try:
+                        x1,y1,a1,d1,s1 = bullet.split("_")
+                        bullet_list.append(classes.Bullet(camera_pos, [int(x1), int(y1)],int(a1),int(d1), speed = int(s1)))
+                        #print("Bullet created")
+                    except Exception as e:
+                        #print("BULLET CREATING ERROR:")
+                        #print(traceback.print_exc())
+                        pass
+            if len(info) == 3:
+                print("Grenade info received")
+                grenades = info[2]
+                print(grenades)
+                for grenade in grenades.split("%"):
+                    try:
+                        x1,y1,a1,d1 = grenade.split("_")
+                        grenade_list.append(classes.Grenade([int(x1), int(y1)], [int(a1),int(d1)]))
+                    except:
+                        pass
+
+
+
+            for client_info in player_info.split("%"):
+                try:
+                    info = client_info.split("_")
+                    multiplayer_actors[info[0]].set_values(info[1], info[2], info[3], info[4])
+                    print("SETTING VALUES")
+                except Exception as e:
+                    print(e)
+
+
+
+
+    except Exception as e:
+        print("CLIENT ERROR:", traceback.print_exc())
+        pass
+
+
+
+
+
 def main(multiplayer = False, net = None, host = False, players = None, self_name = None):
     player_pos = [50,50]
     camera_pos = [0,0]
@@ -123,6 +190,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     multi_kill_ticks = 0
     multi_kill = 0
     kills = 0
+    player_Angle = 0
+    bullets_new = []
 
     respawn_ticks = 0
     pygame.init()
@@ -428,62 +497,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             x.tick(screen, camera_pos)
 
         if multiplayer:
-            try:
-                x_pos_1 = round(player_pos[0])
-                y_pos_1 = round(player_pos[1])
-                angle_1 = round(player_Angle)
-                string = ":"
-                for bull in bullets_new:
-                    string += bull.get_string()
-                    string += ","
-                if grenade_throw_string != "":
-                    string += ":"
-                    string += grenade_throw_string
-                print("string:", grenade_throw_string)
-                player_info = net.send("pl_i:" + str(x_pos_1) + "_" + str(y_pos_1) + "_" + str(angle_1) + "_" + str(round(player_actor.get_hp())) + string)
-                if not player_info == "%/":
-                    info = player_info.strip(" ").split("#")
-                    #print(info)
-                    client_info = info[0]
-                    if len(info) == 2 or len(info) == 3:
-                        print("Bullet info received")
-                        bullets = info[1]
-                        for bullet in bullets.split("%"):
-                            #print(bullet)
-                            try:
-                                x1,y1,a1,d1,s1 = bullet.split("_")
-                                bullet_list.append(classes.Bullet(camera_pos, [int(x1), int(y1)],int(a1),int(d1), speed = int(s1)))
-                                #print("Bullet created")
-                            except Exception as e:
-                                #print("BULLET CREATING ERROR:")
-                                #print(traceback.print_exc())
-                                pass
-                    if len(info) == 3:
-                        print("Grenade info received")
-                        grenades = info[2]
-                        print(grenades)
-                        for grenade in grenades.split("%"):
-                            try:
-                                x1,y1,a1,d1 = grenade.split("_")
-                                grenade_list.append(classes.Grenade([int(x1), int(y1)], [int(a1),int(d1)]))
-                            except:
-                                pass
 
+            print("Trying to thread")
+            start_new_thread(thread_data_collect, (net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors))
+            print("Success")
 
-
-                    for client_info in player_info.split("%"):
-                        try:
-                            info = client_info.split("_")
-                            multiplayer_actors[info[0]].set_values(info[1], info[2], info[3], info[4])
-                        except:
-                            pass
-
-
-
-
-            except Exception as e:
-                print("CLIENT ERROR:", traceback.print_exc())
-                pass
             for x in multiplayer_actors:
                 multiplayer_actors[x].tick(screen, player_pos, camera_pos, walls_filtered)
 

@@ -101,7 +101,7 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
 class Inventory:
     def __init__(self, list, player = False):
         self.inventory_open = False
-        self.contents = {1: {"item": items["45 ACP"], "amount": 99}, 2: {"item": items["50 CAL"], "amount": 99}, 3: {"item": items["7.62x39MM"], "amount": 99}, 4: {"item": items["12 GAUGE"], "amount": 99}, 5: {"item": items["9MM"], "amount": 99} ,6 : {"item": items["HE Grenade"], "amount": 99}}
+        self.contents = {1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}}
         self.search_obj = None
         self.item_in_hand = None
         self.hand_tick = 0

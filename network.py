@@ -1,6 +1,7 @@
 import socket
+import sys
 
-ip_address = "localhost"
+ip_address = "25.65.144.154"
 port = 5555
 print("Network init:")
 print("ip:",ip_address)

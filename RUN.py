@@ -28,7 +28,7 @@ terminal = pygame.font.Font('texture/terminal.ttf', 20)
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 #print(socket.gethostbyname('DESKTOP-4KPI1C4')) # IP adress of remote computer
-ip = "localhost"
+ip = "25.65.144.154"
 port = 5555
 def lobby_host(thread, ip):
     print("SERVER STARTING")
@@ -150,6 +150,8 @@ while 1:
     if menu_status == "start":
         text = terminal.render("MAIN MENU", False, [255,255,255])
         screen.blit(text, [400,20])
+
+        screen.blit(info, [20,150])
 
         s1 = button.tick(screen, mouse_pos, mouse_single_tick)
         s2= button2.tick(screen, mouse_pos, mouse_single_tick)

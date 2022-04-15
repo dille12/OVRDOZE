@@ -119,6 +119,9 @@ grenade_pickup = pygame.mixer.Sound("sound/grenade_pickup.wav")
 needle_pickup = pygame.mixer.Sound("sound/needle_pickup.wav")
 pill_pickup = pygame.mixer.Sound("sound/pill_pickup.wav")
 sniff_sound = pygame.mixer.Sound("sound/sinff.wav")
+info = pygame.image.load("texture/info.png").convert_alpha()
+
+player_Angle = 0
 
 
 inv_click = pygame.mixer.Sound("sound/inv_click.wav")
