@@ -41,14 +41,19 @@ def threaded_client(conn):
                 break
 
             if reply[:4] == "pl_i":
+                print(reply)
 
-                split = reply[5:].split(":")
+                reply2 = "pl_i:" + reply.split("l_i:")[1]
+
+                split = reply2[5:].split(":")
                 grenade_info = None
                 if len(split) == 2:
 
                     player_info, bullet_info = split
                 else:
-                    player_info, bullet_info, grenade_info = split
+                    player_info, bullet_info, grenade_info = split[0], split[1], split[2]
+
+
                 li = player_info.split("_")
 
                 players[conn]["x"] = li[0]
@@ -61,26 +66,24 @@ def threaded_client(conn):
                         continue
                     try:
                         xp, yp, ang, dam, speed = x.strip().split("_")
-                        print("success")
                     except Exception as e:
                         print("Cant parse", x)
-                        print(e)
                         continue
                     for connection in players:
                         if connection == conn:
                             continue
-                        print("SERVER SAVED BULLET:", [xp, yp, ang, dam, speed], "TO",players[connection]["username"])
                         players[connection]["bullets"].append([xp, yp, ang, dam, speed])
-
                 if grenade_info != None:
-                    for connection in players:
-                        if connection == conn:
-                            continue
-                        players[connection]["grenades"].append(grenade_info)
+                    if len(grenade_info) > 2:
+                        for connection in players:
+                            if connection == conn:
+                                continue
+
+                            players[connection]["grenades"].append(grenade_info)
 
 
 
-                string = "%"
+                string = "REPLY%"
                 for connection in players:
                     if connection == conn:
                         continue
@@ -96,7 +99,6 @@ def threaded_client(conn):
                         for i in bullet:
                             string += i + "_"
                         string = string[:-1] + "%"
-                    print("BULLET STRING TO", players[conn]["username"], ":", string)
 
                 string += "#"
                 if players[conn]["grenades"] != []:
@@ -105,11 +107,9 @@ def threaded_client(conn):
                         print(players[conn]["grenades"])
                         string += grenade + "%"
                     players[conn]["grenades"] = []
-                    print("GRENADE STRING TO", players[conn]["username"], ":", string)
                 conn.send(str.encode(string))
 
             if (reply == "un" and game_stage == "start_game") or reply == "start_game" :
-                print("STARTING GAME FOR CLIENT")
                 game_stage = "start_game"
                 conn.send(str.encode("start_game"))
 
@@ -134,7 +134,6 @@ def threaded_client(conn):
             print("SERVER ERROR", e)
             print(traceback.print_exc())
             break
-
     print("Connection Closed")
     del players[conn]
     conn.close()
@@ -146,7 +145,7 @@ def server_run():
 
     global players, running, stop_threads
 
-
+    print("Starting host")
 
     print(socket.gethostbyname(socket.gethostname()))
 
@@ -158,14 +157,15 @@ def server_run():
 
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
-
-    server = "25.65.144.154"
+    print(ip_address)
+    #server = "25.65.144.154"
     port = 5555
 
-    server_ip = socket.gethostbyname(server)
-
+    #server_ip = socket.gethostbyname(server)
+    print("INITTING")
     try:
-        s.bind((server, port))
+        print("Trying")
+        s.bind((ip_address, port))
 
     except socket.error as e:
         print(str(e))

@@ -6,6 +6,7 @@ import time
 import mixer
 from classtest import *
 from _thread import *
+import threading
 import copy
 import los
 from network import Network
@@ -89,7 +90,7 @@ weapons = {
                         clip_s = 10,
                         fire_r = 50,
                         spread = 1,
-                        spread_r = 0.98,
+                        spread_r = 0.975,
                         spread_per_bullet = 25,
                         reload_r = 120,
                         damage = 150,
@@ -115,11 +116,8 @@ def give_weapon(gun):
 
 full_screen_mode = True
 
-def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors):
-
-
+def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors, current_threading):
     try:
-        print("THREADING")
         x_pos_1 = round(player_pos[0])
         y_pos_1 = round(player_pos[1])
         angle_1 = round(player_Angle)
@@ -130,14 +128,13 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
         if grenade_throw_string != "":
             string += ":"
             string += grenade_throw_string
-        print("string:", grenade_throw_string)
+
         player_info = net.send("pl_i:" + str(x_pos_1) + "_" + str(y_pos_1) + "_" + str(angle_1) + "_" + str(round(player_actor.get_hp())) + string)
+        player_info = player_info.split("REPLY")[1]
         if not player_info == "%/":
             info = player_info.strip(" ").split("#")
-            #print(info)
             client_info = info[0]
             if len(info) == 2 or len(info) == 3:
-                print("Bullet info received")
                 bullets = info[1]
                 for bullet in bullets.split("%"):
                     #print(bullet)
@@ -150,7 +147,6 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
                         #print(traceback.print_exc())
                         pass
             if len(info) == 3:
-                print("Grenade info received")
                 grenades = info[2]
                 print(grenades)
                 for grenade in grenades.split("%"):
@@ -166,7 +162,6 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
                 try:
                     info = client_info.split("_")
                     multiplayer_actors[info[0]].set_values(info[1], info[2], info[3], info[4])
-                    print("SETTING VALUES")
                 except Exception as e:
                     print(e)
 
@@ -176,7 +171,7 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
     except Exception as e:
         print("CLIENT ERROR:", traceback.print_exc())
         pass
-
+    current_threading = False
 
 
 
@@ -192,6 +187,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     kills = 0
     player_Angle = 0
     bullets_new = []
+    current_threading = False
+    data_collector = None
+
+    tick_rate = 1
+    server_tick = 0
 
     respawn_ticks = 0
     pygame.init()
@@ -218,7 +218,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 continue
             multiplayer_actors[y] = classes.Player_Multi(y)
     else:
-        enemy_count = 3
+        enemy_count = 0
 
 
 
@@ -436,6 +436,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             grenade_throw = False
 
 
+
         if pressed[pygame.K_TAB] and tab_pressed == False and player_actor.get_hp() > 0:
 
             tab_pressed = True
@@ -498,9 +499,20 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         if multiplayer:
 
-            print("Trying to thread")
-            start_new_thread(thread_data_collect, (net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors))
-            print("Success")
+            if server_tick == tick_rate:
+
+                if data_collector == None or data_collector.is_alive() == False:
+                    print("Trying to thread")
+                    data_collector = threading.Thread(target = thread_data_collect, args = (net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors, current_threading))
+                    data_collector.start()
+                    last_thread = time.time()
+                    server_tick = 1
+
+                else:
+                    print("CURRENTLY THREADING CANT GET NEW INFO")
+            else:
+                server_tick += 1
+
 
             for x in multiplayer_actors:
                 multiplayer_actors[x].tick(screen, player_pos, camera_pos, walls_filtered)
@@ -596,6 +608,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         bullets_new = tuple(i2)
 
+
         for x in grenade_list:
             x.tick(screen, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls_filtered)
         mp = multi_kill
@@ -661,6 +674,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             pass
 
         func.print_s(screen, "KILLS: " + str(kills), 2)
+        try:
+            if multiplayer:
+                func.print_s(screen, "PING: " + str(round((time.time()-last_thread)*1000)) + "ms (" + str(round(1/(time.time()-last_thread))) + "frames)", 3)
+        except Exception as e:
+            print(e)
+
 
         if draw_los:
 

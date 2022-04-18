@@ -1,14 +1,19 @@
 import socket
 import sys
 
-ip_address = "25.65.144.154"
+
 port = 5555
-print("Network init:")
-print("ip:",ip_address)
+
 
 class Network:
 
-    def __init__(self):
+
+
+    def __init__(self, ip_address):
+
+        print("Network init:")
+        print("ip:",ip_address)
+
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host = ip_address # For this to work on your machine this must be equal to the ipv4 address of the machine running the server
                                     # You can find this address by typing ipconfig in CMD and copying the ipv4 address. Again this must be the servers

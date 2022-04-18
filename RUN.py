@@ -7,6 +7,7 @@ from values import *
 from _thread import *
 from network import Network
 import socket
+import classes
 
 import time
 import server
@@ -24,11 +25,17 @@ menu_status = "start"
 
 name = "CLIENT" + str(random.randint(1,109))
 
+
+
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 #print(socket.gethostbyname('DESKTOP-4KPI1C4')) # IP adress of remote computer
-ip = "25.65.144.154"
+ip = ""
+
+textbox_name = classes.text_box((10,250), name)
+textbox_ip = classes.text_box((640,415), ip)
+
 port = 5555
 def lobby_host(thread, ip):
     print("SERVER STARTING")
@@ -42,9 +49,10 @@ def start_mp_game(arg):
 
 def host_game(arg):
     print("HOSTING GAME")
+    ip = ip_address
     try:
         start_new_thread(lobby_host, ("1", ip) )
-        return join_game(arg, True)
+        return join_game(ip, True)
     except:
         return "start", None, None
 
@@ -54,7 +62,7 @@ def start_multiplayer_client():
 
 def join_game(arg, host = False):
     try:
-        net = Network()
+        net = Network(ip)
 
         print("CLIENT: STARTING SEARCH")
 
@@ -135,7 +143,12 @@ net = None
 
 while 1:
     clock.tick(60)
-    for event in pygame.event.get():
+
+    name = textbox_name.__dict__["text"]
+    ip = textbox_ip.__dict__["text"]
+    events = pygame.event.get()
+
+    for event in events:
         if event.type == pygame.QUIT: sys.exit()
     mouse_single_tick = False
     if pygame.mouse.get_pressed()[0] and clicked == False:
@@ -157,12 +170,18 @@ while 1:
         s2= button2.tick(screen, mouse_pos, mouse_single_tick)
         button3.tick(screen, mouse_pos, mouse_single_tick)
 
+        textbox_name.tick(screen, mouse_single_tick, mouse_pos, events)
+
+
         if s1 != None:
             menu_status = s1
             mouse_single_tick = False
         if s2 != None:
             menu_status  = s2
             mouse_single_tick = False
+
+    if menu_status in ["start", "mp_start"]:
+        textbox_ip.tick(screen, mouse_single_tick, mouse_pos, events)
 
 
     if menu_status == "mp_start":
@@ -199,9 +218,16 @@ while 1:
     if menu_status == "lobby":
         if host:
             text = terminal.render("LOBBY (HOSTING)", False, [255,255,255])
+            screen.blit(text, [400,20])
+            text = terminal.render("HOSTED AT:" + ip_address, False, [255,255,255])
+            screen.blit(text, [500,420])
+
         else:
             text = terminal.render("LOBBY", False, [255,255,255])
-        screen.blit(text, [400,20])
+            screen.blit(text, [400,20])
+            text = terminal.render("HOSTED AT:" + ip, False, [255,255,255])
+            screen.blit(text, [500,420])
+        #screen.blit(text, [400,20])
         text = terminal.render("Players:", False, [255,255,255])
 
         screen.blit(text, [20,40])
@@ -220,7 +246,7 @@ while 1:
 
         i = 60
         for y in players.split("/"):
-            if y == "":
+            if y == "" or y == "clients":
                 continue
             i += 20
             text = terminal.render(y, False, [255,255,255])
@@ -231,13 +257,16 @@ while 1:
         if s8 != None:
             menu_status  = s8
 
+    if menu_status != "lobby":
+
+        text = terminal.render("Your IP: " + ip_address, False, [255,255,255])
+        screen.blit(text, [30,420])
+
+        text = terminal.render("Joining to:", False, [255,255,255])
+        screen.blit(text, [500,420])
 
 
-    text = terminal.render(ip_address, False, [255,255,255])
-    screen.blit(text, [30,420])
 
-    text = terminal.render("Joining to:" + ip, False, [255,255,255])
-    screen.blit(text, [520,420])
 
 
     #print(thread.active_count())

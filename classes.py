@@ -8,6 +8,7 @@ import func
 from values import *
 import classtest
 import los
+import pyperclip
 width, height = size
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
@@ -15,7 +16,58 @@ terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
 
 
+class text_box:
+    def __init__(self, pos, default):
+        self.pos = pos
+        self.box = pygame.Rect(self.pos[0], self.pos[1], 140, 32)
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color = self.color_inactive
+        self.font = terminal
+        self.text = default
+        self.active = False
 
+    def tick(self, screen, clicked, mouse_pos, events):
+        if clicked:
+            # If the user clicked on the input_box rect.
+            if self.box.collidepoint(mouse_pos) or pygame.key.get_pressed()[pygame.K_RETURN]:
+
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = self.color_active if self.active else self.color_inactive
+        if self.active:
+            paste_ticks = 0
+            if pygame.key.get_pressed()[pygame.K_BACKSPACE]:
+                self.backspace_tick += 1
+                print(self.backspace_tick)
+                if self.backspace_tick > 30:
+                    self.text = self.text[:-1]
+            else:
+                self.backspace_tick = 0
+            for event in events:
+                if event.type == pygame.KEYDOWN:
+                    if self.active:
+                        if pygame.key.get_pressed()[pygame.K_v] and pygame.key.get_pressed()[pygame.K_LCTRL]:
+                            self.text = pyperclip.paste()
+                            print("PASTED")
+                            break
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.text = self.text[:-1]
+                        else:
+                            self.text += event.unicode
+
+        # Render the current text.
+        txt_surface = self.font.render(self.text, True, (255,255,255))
+        # Resize the box if the text is too long.
+        width = max(200, txt_surface.get_width()+10)
+        self.box.w = width
+        # Blit the text.
+        screen.blit(txt_surface, (self.pos[0]+5, self.pos[1]+5))
+        # Blit the input_box rect.
+        pygame.draw.rect(screen, self.color, self.box, 2)
 
 
 class Item:
@@ -1139,6 +1191,9 @@ class Player_Multi:
         self.player_blit = player
         self.killed = False
         self.name_text  = prompt.render(self.name,False, [255,255,255])
+        self.last_tick = time.time()
+        self.vel = [0,0]
+        self.last_tick_pos = [0,0]
 
     def check_if_alive(self):
         if self.killed:
@@ -1184,6 +1239,11 @@ class Player_Multi:
         return False
 
     def tick(self, screen, player_pos,camera_pos, walls):
+
+        self.pos = [self.pos[0] - self.vel[0], self.pos[1] - self.vel[1]]
+
+
+
         if los.get_dist_points(player_pos, self.pos) > 1000 or self.hp <= 0 or los.check_los(player_pos, self.pos, walls) == False:
             return
 
@@ -1199,9 +1259,22 @@ class Player_Multi:
         screen.blit(self.name_text, func.minus_list(self.pos,camera_pos))
 
     def set_values(self, x, y, a, hp):
+        if int(x) != self.pos[0] or int(y) != self.pos[1]:
+
+            interpolation = (time.time() - self.last_tick)
+            self.last_tick = time.time()
+            print("INTERP:", interpolation)
+            self.vel = [(self.last_tick_pos[0] - int(x)) * (interpolation), (self.last_tick_pos[1] - int(y))  * (interpolation)]
+            print("VELO:", self.vel)
+            self.last_tick_pos = [int(x),int(y)]
+        else:
+            self.vel = [0,0]
+
         self.pos = [int(x), int(y)]
         self.angle = int(a)
         self.hp = int(hp)
+
+
 
 
 
