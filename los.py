@@ -407,6 +407,7 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
     calcs = 0
 
     point_intersections = {}
+    wall_points_set = {}
 
 
 
@@ -466,6 +467,7 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
             potential_point.append(angle_point)
             closest = 10000
             closest_point = None
+            closest_wall = None
             for wall_1 in point_intersections[angle]:
                 point_1,point_2 = wall_1.get_points()
                 if angle_point in [point_1, point_2]:
@@ -476,11 +478,32 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
                     if dist < closest:
                         closest_point = inter_point
                         closest = dist
+                        closest_wall = wall_1
 
 
             if closest_point != None:
                 if get_dist_points(angle_point, closest_point) > 10:
                     intersects_visible[angle] = [closest_point, point_1, point_2]
+                    p1, p2 = closest_wall.get_points()
+
+                    if math.atan2(p1[1] - player_pos[1],p1[0] - player_pos[0]) > math.atan2(p2[1] - player_pos[1],p2[0] - player_pos[0]):
+                        p_1 = p1
+                        p_2 = p2
+                    else:
+                        p_2 = p1
+                        p_1 = p2
+
+                    if angle_spes_inter[2] == 0: #
+
+                        wall_points_set[angle] = [closest_wall,p_1, closest_point]
+                    else:
+                        wall_points_set[angle] = [closest_wall,p_2, closest_point]
+
+
+                    #     closest_wall.set_new_points(p_1, closest_point)
+                    # else:
+                    #     closest_wall.set_new_points(p_2, closest_point)
+
 
 
 
@@ -522,13 +545,16 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
         else:
             if angle in intersects_visible:
                 del intersects_visible[angle]
+                del wall_points_set[angle]
 
 
 
 
 
 
-
+    for angle in wall_points_set:
+        wall_1, p1, p2 = wall_points_set[angle]
+        wall_1.set_new_points(p1, p2)
 
 
 
@@ -561,11 +587,17 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
 
 
     draw_point_list = drawable_point.values()
+    wall_points = []
+    for wall_1 in walls:
+        wall_points.append(wall_1.get_points())
+
+
 
 
 ##############################################################################################################################################################################################
     last_point_intersected = False
     last_intersect_wp = None
+    angle_completed_wall = []
     for i in sorted_angles:
         next_point = None
         if i in intersects_visible:
@@ -576,20 +608,21 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
             if (p1,point2) in wall_points or (point2, p1) in wall_points:
                 point = p1
                 next_point = i1
+                angle_completed_wall.append(i)
             else:
-                if last_intersect_wp != None:
-                    if last_intersect_wp[0][0] <= i1[0] <= last_intersect_wp[1][0] and last_intersect_wp[0][1] <= i1[1] <= last_intersect_wp[1][1]:
-                        point = i1
-                        next_point = p1
-
-                    else:
-
-                        point = p1
-                        next_point = i1
-
-                else:
-                    point = i1
-                    next_point = p1
+                # if last_intersect_wp != None:
+                #     if last_intersect_wp[0][0] <= i1[0] <= last_intersect_wp[1][0] and last_intersect_wp[0][1] <= i1[1] <= last_intersect_wp[1][1]:
+                #         point = i1
+                #         next_point = p1
+                #
+                #     else:
+                #
+                #         point = p1
+                #         next_point = i1
+                #
+                # else:
+                point = i1
+                next_point = p1
 
         else:
             point = drawable_point[i]
@@ -646,16 +679,32 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
 
     res_key = min(drawable_point.keys(), key=lambda x: abs(debug_angle - x))
 
+    if phase == 2:
+        for point1, point2 in wall_points:
+            pygame.draw.circle(los, [255,0,0], point1, 5)
+            pygame.draw.circle(los, [255,0,0], point2, 5)
+        pygame.draw.line(los,[255,0,0],start_pos,point_dict[res_key])
+        try:
+            for wall_1 in angle_possible_intersections[res_key]:
+                wall_1.highlight(los)
 
-    if phase == 1 or phase == 3:
+        except Exception as e:
+            print("exception")
+            print(e)
+
+
+    if phase == 1:
 
 
         for aids in drawable_point:
             point = drawable_point[aids]
             if aids == first_angle:
-                color = [0,0,0]
+                color = [200,200,200]
             elif aids in intersects_visible:
-                color = [255,0,0]
+                if aids in angle_completed_wall:
+                    color = [255,0,255]
+                else:
+                    color = [255,0,0]
             elif aids in point_dict_dist:
                 color = [0,255,0]
             else:
@@ -675,19 +724,12 @@ def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None,
 
         for aids in intersects_visible:
             point = intersects_visible[aids][0]
+
             pygame.draw.line(los,[255,0,0],start_pos,point)
             pygame.draw.rect(los,[255,0,0],[point[0],point[1],10,10])
 
-    elif phase == 2:
 
-        pygame.draw.line(los,[255,0,0],start_pos,point_dict[res_key])
-        try:
-            for wall_1 in angle_possible_intersections[res_key]:
-                wall_1.highlight(los)
 
-        except Exception as e:
-            print("exception")
-            print(e)
 
 
     time_stamps["draw"] = time.time() - t

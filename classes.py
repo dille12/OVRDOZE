@@ -638,7 +638,7 @@ class Grenade:
 
         self.target_pos = target_pos
 
-        self.lifetime = 120
+        self.lifetime = 60
         self.angle = random.randint(0,360)
         self.direction = func.pick_random_from_list([-1,1])
         self.height = 0
@@ -651,11 +651,11 @@ class Grenade:
         return string
 
 
-    def tick(self,screen, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
+    def tick(self,screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
         self.last_pos = self.pos.copy()
         self.pos = [self.pos[0] + math.cos(self.angle_rad) * self.velocity, self.pos[1] + math.sin(self.angle_rad) *self.velocity - self.vert_vel ]
 
-        coll_pos, vert_coll, hor_coll = map.check_collision(self.pos.copy(), collision_box = 5, dir_coll = True)
+        coll_pos, vert_coll, hor_coll = map.check_collision(self.pos.copy(), map_boundaries, collision_box = 5, dir_coll = True)
         if coll_pos:
             print("HIT")
             if vert_coll:
@@ -809,13 +809,14 @@ class Particle:
             particle_list.remove(self)
 
 class Weapon:
-    def __init__(self,name,clip_s,fire_r,spread,spread_r,reload_r,damage, bullets_at_once = 1, shotgun = False, spread_per_bullet = 1, semi_auto = False, bullet_speed = 20, ammo_cap_lvlup = 5, ammo = "9MM", image = "", enemy_weapon = False, sounds = {"fire": weapon_fire_Sounds, "reload": reload}):
+    def __init__(self,name,clip_s,fire_r,spread,spread_r,reload_r,damage, bullets_at_once = 1, shotgun = False, spread_per_bullet = 1, semi_auto = False, bullet_speed = 20, piercing = False, ammo_cap_lvlup = 5, ammo = "9MM", image = "", enemy_weapon = False, sounds = {"fire": weapon_fire_Sounds, "reload": reload}):
         self.__clip_size = clip_s
         self.__bullets_in_clip = 0
         self.__bullet_per_min = fire_r
         self.__firerate = tick_count/(fire_r/60)
 
         self.spread_per_bullet = spread_per_bullet
+        self.piercing_bullets = piercing
 
         self.__name = name
         self.__spread = spread
@@ -867,7 +868,8 @@ class Weapon:
         ammo_cap_lvlup = self.__ammo_cap_lvlup,
         image = self.image_dir,
         semi_auto = self.semi_auto,
-        ammo = self.ammo)
+        ammo = self.ammo,
+        piercing = self.piercing_bullets)
 
 
 
@@ -901,7 +903,7 @@ class Weapon:
 
 
             if self.__bullets_in_clip > 0:
-                bullet_list.append(Bullet(camera_pos, bul_pos,angle+random.uniform(-self.__spread-self.__c_bullet_spread,self.__spread+self.__c_bullet_spread),self.__damage * multiplier, team = self.team, speed = self.bullet_speed))   #BULLET
+                bullet_list.append(Bullet(camera_pos, bul_pos,angle+random.uniform(-self.__spread-self.__c_bullet_spread,self.__spread+self.__c_bullet_spread),self.__damage * multiplier, team = self.team, speed = self.bullet_speed, piercing = self.piercing_bullets))   #BULLET
                 for x in range(random.randint(8,16)):
                     particle_list.append(Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self.__damage**0.1- 0.5, screen = screen))
 
@@ -1015,11 +1017,175 @@ def player_hit_detection(pos, lastpos, player, damage):
 
     if los.intersect(pos, lastpos, points_1[0], points_1[1]) or los.intersect(pos, lastpos, points_2[0], points_2[1]):
         player.set_hp(damage, reduce = True)
-        func.list_play(hit_sounds)
+        func.list_play(pl_hit)
         return True
 
 
     return False
+
+
+class Zombie:
+    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls):
+        self.pos = pos
+        self.target_pos = pos
+        self.moving_speed = random.uniform(1.5,2.75)
+        self.detection_range = random.randint(400,600)
+        self.detection_rate = 0.05
+        self.target_angle = 0
+        self.detected = False
+
+        self.route = func.calc_route(pos, player_pos, NAV_MESH, walls)
+
+
+
+        self.knockback_tick = 0
+        self.knockback_angle = 0
+
+        self.hp = 100
+
+
+        self.inventory = Inventory(interctables)
+        # for i in range(random.randint(2,3)):
+        #     self.inventory.append_to_inv(items[self.weapon.__dict__["ammo"]], items[self.weapon.__dict__["ammo"]].__dict__["max_stack"])
+
+
+        self.angle = 0
+
+    def kill(self, camera_pos, list, draw_blood_parts):
+        list.remove(self)
+        func.list_play(death_sounds)
+        func.list_play(kill_sounds)
+
+        #self.inventory.drop_inventory(self.pos)
+
+        for i in range(5):
+            particle_list.append(Particle(func.minus(self.pos,camera_pos), type = "blood_particle", magnitude = 1, screen = draw_blood_parts))
+        print("KILLED")
+
+
+    def set_hp(self, hp, reduce = False):
+        if reduce:
+            self.hp -= hp
+        else:
+            self.hp = hp
+
+    def get_hp(self):
+        return self.hp
+
+    def get_hitbox(self):
+        return [25,25]
+
+    def get_pos(self):
+        return self.pos
+
+    def knockback(self,amount,angle):
+
+        self.knockback_tick = amount
+        self.knockback_angle = angle
+
+
+
+
+
+    def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render):
+        points_1 = [[self.pos[0], self.pos[1] -25], [self.pos[0], self.pos[1] + 25]]
+        points_2 = [[self.pos[0]-25, self.pos[1]], [self.pos[0]+25, self.pos[1]]]
+
+        if los.intersect(pos, lastpos, points_1[0], points_1[1]) or los.intersect(pos, lastpos, points_2[0], points_2[1]):
+
+            self.hp -= damage
+            if self.hp < 0:
+                self.kill(camera_pos, enemy_list, map_render)
+
+
+            else:
+                func.list_play(hit_sounds)
+
+            return True
+        return False
+
+    def check_if_alive(self):
+        if self.hp > 0:
+            return True
+        else:
+            return False
+
+
+
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH):
+
+        self.temp_pos = func.minus_list(self.pos,camera_pos)
+        player_pos = player_actor.get_pos()
+        pl_temp_pos = func.minus_list(player_pos,camera_pos)
+
+        if self.knockback_tick != 0:
+
+            self.pos = [self.pos[0] + math.cos(self.knockback_angle) * self.knockback_tick, self.pos[1] - math.sin(self.knockback_angle) *self.knockback_tick]
+            self.knockback_tick -= 1
+
+
+
+        #pygame.draw.rect(screen, [255,255,255],[self.temp_pos[0], self.temp_pos[1], 20, 20])
+
+
+
+        self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - self.target_pos[1], self.pos[0] - self.target_pos[0]))
+
+
+        if los.check_los(player_pos, self.pos, walls):  ## Render
+
+            rot, rect= func.rot_center(player, self.angle, self.temp_pos[0], self.temp_pos[1])
+            rect = rot.get_rect().center
+            screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
+
+            dist = los.get_dist_points(self.pos, player_pos)
+
+            if dist < self.detection_range and player_actor.get_hp() > 0:
+
+                if random.uniform(0,1) < (1 - dist/self.detection_range)*self.detection_rate:
+                    self.detected = True
+
+                if self.detected:
+                    self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
+                    if dist > 50:
+
+                        self.target_pos = player_pos
+
+                    else:
+                        self.target_pos = self.pos
+
+            else:
+                self.detected = False
+
+        # if player_actor.get_hp() < 0:
+        #     self.target_pos = self.pos
+
+        if self.angle != self.target_angle:
+
+            if abs(self.target_angle - self.angle) > 1:
+                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*0.1
+            else:
+                self.angle = self.target_angle
+
+        if self.target_pos != self.pos:
+
+            self.angle_rad = math.pi*2 - math.atan2(self.target_pos[1] - self.pos[1], self.target_pos[0] - self.pos[0])
+            self.pos = [self.pos[0] + math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed]
+            coll_pos = map.check_collision(self.pos, map_boundaries, collision_box = 10)
+            if coll_pos:
+                self.pos = coll_pos
+            if los.get_dist_points(self.pos,self.target_pos) < 10:
+                self.target_pos = self.pos
+
+        else:
+            if self.route != []:
+                self.target_pos = self.route[0]
+                self.route.remove(self.route[0])
+
+            else:
+                self.route = func.calc_route(self.pos, player_pos, NAV_MESH, walls)
+
+
 
 class Enemy:
     def __init__(self,pos, weapons, interctables):
@@ -1038,7 +1204,7 @@ class Enemy:
 
         self.hp = 100
 
-        self.weapon = func.pick_random_from_dict(weapons)
+        self.weapon = func.pick_random_from_dict(weapons).copy()
 
         self.inventory = Inventory(interctables)
         for i in range(random.randint(2,3)):
@@ -1108,7 +1274,7 @@ class Enemy:
 
 
 
-    def tick(self, screen, player_actor, camera_pos, map, walls):
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls):
         self.temp_pos = func.minus_list(self.pos,camera_pos)
         player_pos = player_actor.get_pos()
         pl_temp_pos = func.minus_list(player_pos,camera_pos)
@@ -1167,7 +1333,7 @@ class Enemy:
 
             self.angle_rad = math.pi*2 - math.atan2(self.target_pos[1] - self.pos[1], self.target_pos[0] - self.pos[0])
             self.pos = [self.pos[0] + math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed]
-            coll_pos = map.check_collision(self.pos, collision_box = 10)
+            coll_pos = map.check_collision(self.pos, map_boundaries, collision_box = 10)
             if coll_pos:
                 self.pos = coll_pos
             if los.get_dist_points(self.pos,self.target_pos) < 10:
@@ -1344,7 +1510,7 @@ class Player:
 
 
 class Bullet:
-    def __init__(self, camera_pos ,pos,angle,damage, deal_damage_to_player = False, team = "hostile",speed = 20):
+    def __init__(self, camera_pos ,pos,angle,damage, deal_damage_to_player = False, team = "hostile",speed = 20, piercing = False):
         self.__pos = pos.copy()
 
         self.__deal_damage_to_player = deal_damage_to_player
@@ -1354,6 +1520,8 @@ class Bullet:
         self.im = bullet_length[round(self.speed)]
 
         self.team = team
+        self.piercing = piercing
+        self.actors_hit = []
 
 
         self.__angle = angle
@@ -1370,7 +1538,7 @@ class Bullet:
     def get_string(self):
         string = str(round(self.__pos[0])) + "_" + str(round(self.__pos[1])) + "_"+ str(round(self.__angle)) + "_"+ str(round(self.__damage)) + "_"+ str(round(self.speed))
         return string
-    def move_and_draw_Bullet(self,screen,camera_pos, map, enemy_list, player, draw_blood_parts = screen, dummies = {}):
+    def move_and_draw_Bullet(self,screen,camera_pos, map_boundaries, map, enemy_list, player, draw_blood_parts = screen, dummies = {}):
         self.lifetime -= 1
         if self.lifetime == 0:
             print("Bullet deleted")
@@ -1383,7 +1551,7 @@ class Bullet:
         self.__pos[0] += math.sin(self.__angle_radians)*self.speed
         self.__pos[1] += math.cos(self.__angle_radians)*self.speed
         try:
-            angle_coll = map.check_collision(self.__pos, return_only_collision = True, collision_box = 0)
+            angle_coll = map.check_collision(self.__pos, map_boundaries, return_only_collision = True, collision_box = 0)
             if angle_coll != False:
                 func.list_play(rico_sounds)
                 bullet_list.remove(self)
@@ -1391,7 +1559,7 @@ class Bullet:
                     particle_list.append(Particle(angle_coll, magnitude = 1, pre_defined_angle = True, angle = 90-self.__angle, screen = screen))
 
         except Exception as e:
-            pass
+            print(e)
 
         rot_bullet, rot_bullet_rect = func.rot_center(self.im,self.__angle,self.__pos[0],self.__pos[1])
 
@@ -1404,7 +1572,8 @@ class Bullet:
                 for i in range(3):
                     particle_list.append(Particle(func.minus(self.__pos, camera_pos), type = "blood_particle", magnitude = 0.5, pre_defined_angle = True, screen = draw_blood_parts, angle = self.__angle + random.randint(45,135)))
                 try:
-                    bullet_list.remove(self)
+                    if not self.piercing:
+                        bullet_list.remove(self)
                 except:
                     pass
 
@@ -1413,7 +1582,8 @@ class Bullet:
                 if dummies[x].hit_detection(camera_pos, self.__pos, self.__last_pos,self.__damage, dummies, draw_blood_parts) == True:
                     particle_list.append(Particle(func.minus(self.__pos, camera_pos), type = "blood_particle", magnitude = 0.5, pre_defined_angle = True, screen = draw_blood_parts, angle = self.__angle + random.randint(45,135)))
                     try:
-                        bullet_list.remove(self)
+                        if not self.piercing:
+                            bullet_list.remove(self)
                     except:
                         pass
 
@@ -1441,7 +1611,8 @@ class Bullet:
                 except:
                     print("")
                 try:
-                    bullet_list.remove(self)
+                    if not self.piercing:
+                        bullet_list.remove(self)
                 except:
                     pass
                 if dead:
@@ -1450,6 +1621,7 @@ class Bullet:
                     return False
 
         bullet_draw_pos = [rot_bullet_rect[0] , rot_bullet_rect[1] ]
+
         screen.blit(rot_bullet,func.draw_pos(self.__pos,camera_pos))
         return player_hp
 
@@ -1481,12 +1653,16 @@ class Turret:
         self.__tick = 0
         self.__aiming_at = 0
 
+        self.size = turret.get_rect().size[0]/2
+
         self.__damage = damage
 
-    def scan_for_enemies(self,enemy_list):
+    def scan_for_enemies(self,enemy_list, walls):
         lowest = 99999
         closest_enemy = [0,0]
         for x in enemy_list:
+            if not los.check_los(self.__pos, x.get_pos(), walls):
+                continue
             hb_s = x.get_hitbox()
             enemy_pos = x.get_pos()
             enemy_pos = [enemy_pos[0]  + hb_s[0] / 4,enemy_pos[1]  + hb_s[1] / 4]
@@ -1498,11 +1674,11 @@ class Turret:
                 closest_enemy = enemy_pos
         return closest_enemy
 
-    def tick(self, screen ,camera_pos,enemy_list,tick):
+    def tick(self, screen ,camera_pos,enemy_list,tick, walls):
         if func.check_for_render(camera_pos, self.__pos):
             return
         shoot = False
-        aim_at = self.scan_for_enemies(enemy_list)
+        aim_at = self.scan_for_enemies(enemy_list, walls)
         if aim_at != [0,0]:
             self.__aiming_at = func.get_angle(self.__pos,aim_at)
             shoot = True
@@ -1542,11 +1718,11 @@ class Turret:
             turret_fire2.stop()
             turret_fire3.stop()
 
-            pick_random_from_list(turret_fire).play()
-            bullet_list.append(Bullet([self.__pos[0]+35, self.__pos[1]+35],self.__angle+random.uniform(-10,10),self.__damage))
+            func.pick_random_from_list(turret_fire).play()
+            bullet_list.append(Bullet(camera_pos, [self.__pos[0], self.__pos[1]],self.__angle+random.uniform(-10,10),self.__damage))
 
             for x in range(random.randint(4,6)):
-                particle_list.append(Particle([self.__pos[0]+35, self.__pos[1]+35], pre_defined_angle = True, angle = self.__angle+90, magnitude = 2))
+                particle_list.append(Particle([self.__pos[0], self.__pos[1]], pre_defined_angle = True, angle = self.__angle+90, magnitude = 2))
 
             self.__lifetime -= 1
 
@@ -1557,16 +1733,12 @@ class Turret:
         rad = math.radians(360-self.__angle)
 
         dp = func.draw_pos(self.__pos,camera_pos)
-        screen.blit(turret_leg, dp)
-        screen.blit(turret2,func.draw_pos(turret_rect,camera_pos,35,35))
+        screen.blit(turret_leg, [dp[0] - self.size, dp[1] - self.size])
+        screen.blit(turret2,func.draw_pos(turret_rect,camera_pos))
 
-        if tick <= 5:
-            line_width = round(3 - 2 * (tick/5) )
-
-            pygame.draw.line(screen, [255 - 50/(tick+1),255/(tick+1),255/(tick+1)],[dp[0]+35 - math.cos(rad) * 13 , dp[1]+35 - math.sin(rad) * 13], [dp[0]+35 + math.cos(rad) * self.__range, dp[1]+35 + math.sin(rad) * self.__range], width = line_width)
 
         if self.__lifetime == 0:
             turret_list.remove(self)
         elif self.__lifetime/self.__lifetime2 <= 0.2:
-            render_cool(huuto,[turret_rect[0]+35, turret_rect[1]+35],self.__tick,16,True)
+            func.render_cool(huuto,[turret_rect[0]+35-camera_pos[0], turret_rect[1]+35-camera_pos[1]],self.__tick,16,True, screen = screen)
             self.__tick += 1

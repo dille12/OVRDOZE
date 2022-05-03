@@ -10,6 +10,7 @@ import threading
 import copy
 import los
 from network import Network
+import ast
 
 from values import *
 import classes
@@ -38,7 +39,24 @@ weapons = {
                         sounds = assault_rifle_sounds,
                         ammo_cap_lvlup = 1,
                         image = "ak.png",
-                        ammo = "7.62x39MM"),
+                        ammo = "7.62x39MM",
+                        piercing = True),
+
+"MINIGUN": classes.Weapon("MINIGUN",
+                        clip_s = 999,
+                        fire_r = 1000,
+                        spread = 2,
+                        spread_r = 0.93,
+                        bullet_speed = 45,
+                        reload_r = 60,
+                        damage = 34,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds,
+                        ammo_cap_lvlup = 1,
+                        image = "ak.png",
+                        ammo = "7.62x39MM",
+                        piercing = True),
 
 "SPAS": classes.Weapon("SPAS-12",
                         clip_s = 6,
@@ -90,17 +108,18 @@ weapons = {
                         clip_s = 10,
                         fire_r = 50,
                         spread = 1,
-                        spread_r = 0.975,
+                        spread_r = 0.965,
                         spread_per_bullet = 25,
                         reload_r = 120,
                         damage = 150,
                         bullets_at_once = 1,
                         sounds = sniper_rifle_sounds,
-                        bullet_speed = 50,
+                        bullet_speed = 55,
                         shotgun = False,
                         ammo_cap_lvlup = 1,
                         image = "awp.png",
-                        ammo = "50 CAL"),
+                        ammo = "50 CAL",
+                        piercing = True),
 }
 
 def give_weapon(gun):
@@ -189,6 +208,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     bullets_new = []
     current_threading = False
     data_collector = None
+    collision_check_player = True
 
     tick_rate = 1
     server_tick = 0
@@ -219,6 +239,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             multiplayer_actors[y] = classes.Player_Multi(y)
     else:
         enemy_count = 0
+        enemy_up_time = time.time()
 
 
 
@@ -239,45 +260,100 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-    map = Map("Paska", mouse_conversion, [2000,1500],
+    map1 = Map("Paska", "map.png", [0,0], mouse_conversion, [2000,1500],
     [ #x,y,width,height
     [2,470,125,186],
     [377,470,125,186],
     [502,376,125,561],
-    #[128,844,124,187],
     [501,2,125,95],
     [253,1219,1122,93], #
     [502,1124,123,93],
-    #[750,751,126,187],
     [1125,1030,124,189], #
     [1125,283,125,469],
     [1126,2,125,93],
     [1250,375,244,94],
     [1748,376,252,93],
-    #[1374,657,245,95],
-    #[1624,656,126,280],
     [1624,1218,376,93]
 
-
-
-    # [(377,656),(377,470),(502,470),(502,656)],
-    # [(502,376+561),(502,376), (502+125,376),(502+125,376+561)],
-    #[(300,500),(500,3 00),(700,500),(500,700)]
     ],
-    # [
-    #
-    # [(300,500),(500,300),(700,500),(500,700)]
-    # ],
-    #[[(200,200),"floor_tile_1",0],[(600,200),"floor_tile_1",0]]
+
     []
     )
+
+    map2 = Map("Paska2", "map2.png", [0,0], mouse_conversion, [2500,2500],
+    [ #x,y,width,height
+    [467,2,156,74],
+    [2,312,621,155],
+    [476,233,147,78],
+    [311,781,156,783],
+    [311,1565, 939, 156],
+    [2, 2034, 465, 156],
+    [781, 2034, 312, 156],
+    [937,2191,156, 290],
+    [1094, 311, 625, 156],
+    [1094, 466, 155, 313],
+    [1564, 467, 157, 1096],
+    [1094, 1095, 470, 155],
+    [1720, 1407, 470, 156],
+    [2034, 1562, 156, 627],
+    [1407, 2034, 628, 155],
+    [2034, 2, 146, 309],
+    [2034, 626, 157, 311],
+    [2190, 781, 311, 156]
+    ],
+
+    []
+    )
+
+    map = map2
+
+    active_maps = [map]
+
+
 
     fps = []
     block_movement_polygons = map.get_polygons()
 
-    NAV_MESH = map.compile_navmesh(mouse_conversion)
+    map.compile_navmesh(mouse_conversion)
+
+
     map_render = map.render(mouse_conversion).convert()
-    walls_filtered = map.generate_wall_structure()
+
+    # NAV_MESH = map2.compile_navmesh(mouse_conversion)
+    # map_render2 = map2.render(mouse_conversion).convert()
+
+    walls_filtered = []
+    global map_boundaries
+    map_boundaries = [0,0]
+
+    for map_1 in active_maps:
+        walls_filtered += map.generate_wall_structure()
+        for i in range(2):
+            end_point = (map_1.__dict__["pos"][i]*mouse_conversion + map_1.__dict__["size"][i])/mouse_conversion
+            if map_boundaries[i] < end_point:
+                map_boundaries[i] = end_point
+    print(map_boundaries)
+
+    NAV_MESH = []
+    try:
+        file = open("nav_mesh.txt", "r")
+        lines = file.readlines()
+        file.close()
+        for line in lines:
+            ref_point = {"point" : ast.literal_eval(line), "connected" : []}
+            NAV_MESH.append(ref_point)
+        for ref_point in NAV_MESH:
+            for point_dict in NAV_MESH:
+                point = point_dict["point"]
+                if point == ref_point["point"]:
+                    continue
+                if los.check_los(point, ref_point["point"], walls_filtered):
+                    ref_point["connected"].append(point)
+
+
+    except Exception as e:
+        print(e)
+
 
     interctables = []
 
@@ -306,15 +382,15 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     phase = 0
 
 
-    #turret_list.append(classes.Turret([random.randint(0,300),300],1,2,500,1,1000))
+    turret_list.append(classes.Turret([100,300],8,10,500,20,500))
 
-    player_weapons = [give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
+    player_weapons = [give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("MINIGUN"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
 
     c_weapon = (player_weapons[0])
     weapon_scroll = 0
 
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.75)
 
     pygame.mouse.set_visible(False)
 
@@ -330,7 +406,13 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             print("CLICK")
 
             phase += 1
+
+
             if phase == 4:
+                pygame.mouse.set_visible(True)
+            else:
+                pygame.mouse.set_visible(False)
+            if phase == 5:
                 phase = 0
 
 
@@ -468,7 +550,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             camera_pos = [camera_pos[0] + mouse_pos_var[0], camera_pos[1] + mouse_pos_var[1]]
 
-        screen.blit(map_render,[-camera_pos[0],-camera_pos[1]])
+        for active_map in active_maps:
+            #active_map.__dict__["map_rendered"]
+
+            screen.blit(map_render,[-camera_pos[0] + active_map.__dict__["pos"][0],-camera_pos[1] + active_map.__dict__["pos"][1]])
 
 
 
@@ -479,11 +564,16 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         if not multiplayer:
             if len(enemy_list) < enemy_count:
-                enemy_list.append(classes.Enemy(map.get_random_point(walls_filtered, p_pos = player_pos), weapons,interctables))
+                enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered))
+
+            if time.time() - enemy_up_time > 20 and enemy_count != 0:
+                enemy_up_time = time.time()
+                enemy_count += 1
+
 
 
         for x in turret_list:
-            x.tick(screen, camera_pos,enemy_list,0)
+            x.tick(screen, camera_pos,enemy_list,0, walls_filtered)
         delete_list = []
         for x in interctables:
             x.__dict__["inv_save"] = player_inventory
@@ -524,10 +614,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             player_Angle = func.render_player(screen, mouse_pos, player,player_pos, camera_pos)
 
             player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
-            angle_coll = map.check_collision(player_pos, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel)
-            if angle_coll:
-                #dddwwwfunc.debug_render(math.degrees(angle_coll))
-                player_pos = angle_coll
+            if collision_check_player:
+                angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
+                if angle_coll:
+                    #dddwwwfunc.debug_render(math.degrees(angle_coll))
+                    player_pos = angle_coll
 
             player_actor.set_pos(player_pos)
             player_actor.set_angle(player_Angle)
@@ -588,7 +679,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         for enemy in enemy_list:
-            enemy.tick(screen, player_actor, camera_pos, map, walls_filtered)
+            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH)
 
 
 
@@ -596,10 +687,13 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         for x in bullet_list:
             if x not in last_bullet_list:
                 i2.append(x)
-            kill = x.move_and_draw_Bullet(screen, camera_pos, map, enemy_list, player_actor, draw_blood_parts = map_render, dummies = multiplayer_actors)
+            kill = x.move_and_draw_Bullet(screen, camera_pos, map_boundaries, map, enemy_list, player_actor, draw_blood_parts = map_render, dummies = multiplayer_actors)
             if kill == True:
                 kills += 1
                 multi_kill += 1
+                if multi_kill > 10:
+                    multi_kill = 1
+
                 multi_kill_ticks = 120
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
@@ -610,7 +704,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         for x in grenade_list:
-            x.tick(screen, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls_filtered)
+            x.tick(screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls_filtered)
         mp = multi_kill
         for x in explosions:
             multi_kill, multi_kill_ticks = x.tick(screen, player_actor, enemy_list ,map_render,camera_pos,explosions, multi_kill, multi_kill_ticks, walls_filtered)
@@ -633,7 +727,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             #draw_time = 0
             start = time.time()
             los_image.convert()
-            if phase != 3:
+            if phase != 7:
                 los_image.set_colorkey((255,255,255))
                 #
                 los_image.set_alpha(200)
@@ -706,6 +800,66 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         if player_actor.get_hp() > 0:
             func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_actor, mouse_pos, clicked, r_click_tick)
             player_actor.set_sanity(0.005)
+
+
+            if phase == 3:
+                map_points = map.__dict__["points_inside_polygons"]
+                map_polygons = map.__dict__["polygons"]
+                for point in map_points:
+                    pygame.draw.circle(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], 5)
+
+                for a,b,c,d in map_polygons:
+                    for e,f in [[a,b], [b,c], [c,d], [d,a]]:
+                        pygame.draw.line(screen, [255,255,255], [e[0] - camera_pos[0], e[1] - camera_pos[1]], [f[0] - camera_pos[0], f[1] - camera_pos[1]])
+
+
+            if phase == 4:
+                mo_pos_real = [mouse_pos[0] + camera_pos[0], mouse_pos[1] + camera_pos[1]]
+                if r_click_tick:
+                    ref_point = {"point" : [int(mo_pos_real[0]), int(mo_pos_real[1])], "connected" : []}
+
+
+                    for point_dict in NAV_MESH:
+                        point = point_dict["point"]
+                        if point == ref_point["point"]:
+                            continue
+                        if los.check_los(point, ref_point["point"], walls_filtered):
+                            ref_point["connected"].append(point)
+
+                    NAV_MESH.append(ref_point)
+
+                    file = open("nav_mesh.txt", "a")
+                    file.write(str(ref_point["point"]) + "\n")
+                    file.close()
+
+
+
+                text = terminal3.render("APPARENT POS: " +str(round(mo_pos_real[0])) + " " +  str(round(mo_pos_real[1])), False, [255,255,255])
+                screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 20])
+                pygame.draw.line(screen, [255,255,255], mouse_pos, [mouse_pos[0] + 20, mouse_pos[1] + 20])
+                pos = [(mouse_pos[0] + camera_pos[0]) * mouse_conversion, (mouse_pos[1] + camera_pos[1]) * mouse_conversion]
+                text = terminal3.render("REAL POS: " + str(round(pos[0])) + " " +  str(round(pos[1])), False, [255,255,255])
+                screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 40])
+
+
+
+                for point_dict in NAV_MESH:
+                    point = point_dict["point"]
+                    pygame.draw.circle(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], 5)
+                    for point_2 in point_dict["connected"]:
+                        pygame.draw.line(screen, [255,255,255], [point[0] - camera_pos[0], point[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],1)
+
+                calc_time_1 = time.time()
+                route = func.calc_route(player_pos, mo_pos_real, NAV_MESH, walls_filtered)
+                calc_time_2 = time.time() - calc_time_1
+                point_2 = player_pos
+                for point in route:
+                    pygame.draw.line(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]], 4)
+                    point_2 = point
+                pygame.draw.line(screen, [255,0,0], [mo_pos_real[0] - camera_pos[0], mo_pos_real[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]], 4)
+
+                text = terminal3.render("CALC TIME: " + str(round(calc_time_2*1000,2)) + "ms", False, [255,255,255])
+                screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
 
         else:
             text = terminal.render("RESPAWN IN", False, [255,255,255])

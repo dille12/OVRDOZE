@@ -68,12 +68,12 @@ def colorize(image, newColor):
 def rgb_render(list, amount, pos, cam_delta, screen):
 
     #rect_pos = list[0].get_rect(center = list[0].get_rect(center = (pos[0], pos[1])).center)
+    amount = amount * 0.6
+    pos[1] = pos[1] + random.uniform(-amount,amount)
 
-    pos[1] = pos[1] + random.randint(-amount,amount)
 
 
-
-    screen.blit(pick_random_from_list(list[1:]),[pos[0] + 20 + random.randint(-amount,amount) + cam_delta[0]*2, pos[1] + random.randint(-amount,amount) + cam_delta[1]*2])
+    screen.blit(pick_random_from_list(list[1:]),[pos[0] + 20 + random.uniform(-amount,amount) + cam_delta[0]*2, pos[1] + random.uniform(-amount,amount) + cam_delta[1]*2])
 
     screen.blit(list[0], [pos[0] + 20 + cam_delta[0], pos[1] + cam_delta[1]])
 
@@ -128,11 +128,14 @@ def minus(list1,list2):
 def pick_random_from_list(list):
     return list[random.randint(0,len(list)-1)]
 
-def pick_random_from_dict(dict):
+def pick_random_from_dict(dict, key = False):
     print(dict)
     dict_keys = list(dict.keys())
     print(dict_keys)
-    return dict[dict_keys[random.randint(0,len(dict_keys)-1)]]
+    if key:
+        return dict_keys[random.randint(0,len(dict_keys)-1)]
+    else:
+        return dict[dict_keys[random.randint(0,len(dict_keys)-1)]]
 
 def minus_list(list1,list2):
     list3 = list1.copy()
@@ -474,10 +477,94 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, 
 
     return firing_tick
 
+def get_point_from_list(point,dict):
+    for point_2 in dict:
+        if point == point_2["point"]:
+            return point_2
+
+
+
+
+def calc_route(start_pos, end_pos, NAV_MESH, walls):
+
+    if los.check_los(start_pos, end_pos, walls):
+        return [end_pos]
+    dist_start = {}
+    dist_end = {}
+    for nav_point in NAV_MESH:
+        point = nav_point["point"]
+        if los.check_los(start_pos, point, walls):
+            dist_start[los.get_dist_points(start_pos, point)] = nav_point
+        if los.check_los(end_pos, point, walls):
+            dist_end[los.get_dist_points(end_pos, point)] = nav_point
+    try:
+        start_nav_point = dist_start[min(dist_start.keys())]
+        end_nav_point = dist_end[min(dist_end.keys())]
+    except:
+        return [end_pos]
+
+
+    complete_routes = []
+    routes = []
+    for conne in start_nav_point["connected"]:
+        routes.append([start_nav_point["point"], conne])
+
+    while routes != []:
+        if len(routes) > 200:
+            break
+        route = routes[0]
+        routes.remove(route)
+        point = route[-1]
+        point_2 = get_point_from_list(point, NAV_MESH)
+        if end_nav_point["point"] in point_2["connected"]:
+            route.append(end_nav_point["point"])
+            complete_routes.append(route)
+
+        else:
+            for point_3 in point_2["connected"]:
+                if point_3 in route:
+                    continue
+                if route.copy() + [point_3] in routes:
+                    continue
+                routes.append(route.copy() + [point_3])
+    shortest_route = {"dist" : 10000, "route" : []}
+    for route in complete_routes:
+        route_ref = {"dist" : 0, "route" : route}
+        last_pos = start_pos
+        for point in route:
+            route_ref["dist"] += los.get_dist_points(last_pos, point)
+
+        if route_ref["dist"] < shortest_route["dist"]:
+            shortest_route = route_ref
+
+    return shortest_route["route"]
+
+
+
+
+
+
+
 def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_actor, mouse_pos, clicked, r_click_tick):
+    global last_hp, damage_ticks
     x_d, y_d =cam_delta
     x_d = -x_d
     y_d = -y_d
+    hp = player_actor.__dict__["hp"]
+
+    try:
+        if hp < last_hp:
+            damage_ticks = round((last_hp-hp)**0.6)
+
+
+        if damage_ticks != 0:
+            mpl = 4
+            x_d += random.uniform(-damage_ticks*mpl, damage_ticks*mpl)
+            y_d += random.uniform(-damage_ticks*mpl, damage_ticks*mpl)
+            damage_ticks -= 1
+    except Exception as e:
+        print(e)
+
     clip_size = weapon.get_clip_size()
     clip = weapon.get_Ammo()
     pl_pos = minus_list(player_actor.get_pos(),camera_pos)
@@ -561,7 +648,9 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
 
-    hp = player_actor.__dict__["hp"]
+
+
+
     bars = round((hp-5)/10)
 
 
@@ -607,3 +696,5 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
     screen.blit(text, (15+x_d, 15+y_d)) #
 
     player_inventory.draw_inventory(screen, x_d, y_d, mouse_pos, clicked, player_actor.get_pos(), r_click_tick, player_actor)
+
+    last_hp = hp

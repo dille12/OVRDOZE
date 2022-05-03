@@ -92,13 +92,14 @@ def PolyArea(x,y):
 
 
 class Map:
-    def __init__(self,name, conv,size,polygons,objects):
+    def __init__(self,name, dir, pos, conv ,size,polygons,objects):
         self.name = name
         self.size = size
         self.polygons = []
         self.nav_mesh_available_spots = []
         self.conv = conv
         self.points_inside_polygons = []
+        self.pos = [pos[0] / conv, pos[1] / conv]
 
         # polygons.append([-100,0,100,size[1]])
         # polygons.append([size[0],0,100,size[1]])
@@ -108,10 +109,15 @@ class Map:
 
         for polygon in polygons:
             x,y,width,height = polygon
+
+            x += pos[0]
+            y += pos[1]
+
+
             self.polygons.append([[(x)/ conv, (y+height) / conv],[(x) / conv,(y) / conv],[(x+width) / conv,(y) / conv],[(x+width) / conv,(y+height) / conv]])
         self.objects = objects
 
-        self.background = pygame.transform.scale(pygame.image.load("texture/map.png"), [round(size[0] / conv), round(size[1] / conv)]).convert()
+        self.background = pygame.transform.scale(pygame.image.load("texture/" + dir), [round(size[0] / conv), round(size[1] / conv)]).convert()
 
     def get_polygons(self):
         return self.polygons
@@ -123,10 +129,10 @@ class Map:
     def generate_wall_structure(self):
         print("CHECKING POINTS INSIDE WALLS")
         polygons_temp = []
-        polygons_temp.append([pygame.Rect(0,0, 2000, 10), []])
-        polygons_temp.append([pygame.Rect(0,0, 10, 2000), []])
-        polygons_temp.append([pygame.Rect(1990/ self.conv ,0, 15, 2000/ self.conv ), []])
-        polygons_temp.append([pygame.Rect(0,1490/ self.conv , 2000/ self.conv , 14), []])
+        polygons_temp.append([pygame.Rect(0,0, self.size[0], 10), []])
+        polygons_temp.append([pygame.Rect(0,0, 10, self.size[1]), []])
+        polygons_temp.append([pygame.Rect((self.size[0]-10)/ self.conv ,0, 15, self.size[1]/ self.conv ), []])
+        polygons_temp.append([pygame.Rect(0,(self.size[1]-10)/ self.conv , self.size[0]/ self.conv , 14), []])
         for polygon in self.polygons:
             a,b,c,d = polygon
             x = [a[0],b[0],c[0],d[0]]
@@ -135,7 +141,7 @@ class Map:
 
             polygons_temp.append([poly,[a,b,c,d]])
 
-
+        self.connected_polygons = {}
         for polygon in self.polygons:
             for point in polygon:
                 for poly, points in polygons_temp:
@@ -145,6 +151,7 @@ class Map:
 
                     if poly.collidepoint(point):
                         self.points_inside_polygons.append(point)
+
                         break
 
 
@@ -194,7 +201,7 @@ class Map:
                         continue
                 if p1 in wall_points or p2 in wall_points:
                     continue
-                if los.intersect(wall_points[0], wall_points[1], func.minus(p1,[-1,-1]), func.minus(p2,[1,1])):
+                if los.intersect(wall_points[0], wall_points[1], func.minus(p1,[-2,-2]), func.minus(p2,[2,2])):
                     print("INTERSECTING LINE")
                     print(wall_points, [p1,p2])
                     intersecting_walls.append([wall_1, wall_2])
@@ -211,15 +218,101 @@ class Map:
                     print("SMALLER VALUES:",res_key, res_key2)
                     wall_1.set_new_points(res_key,res_key2)
                     wall_2.set_new_points(res_key_max,res_key_max2)
+        remove_list = []
+        # for wall_1 in walls:
+        #     a,b = wall_1.get_points()
+        #     if los.get_dist_points(a, b) < 2:
+        #         remove_list.append(wall_1)
 
+
+        for wall_1 in walls:
+            for wall_2 in walls:
+                if wall_2 in remove_list:
+                    continue
+                wall_1_points = wall_1.get_points()
+                interlink1 = None
+                interlink2 = None
+
+                for point in wall_1_points:
+                    for point2 in wall_2.get_points():
+                        if los.get_dist_points(point,point2) < 5:
+                            interlink1 = point
+                            interlink2 = point2
+
+
+
+                if interlink1 != None and interlink2 != None:
+                    wall_points = list(wall_1.get_points())
+                    wall_points_2 = list(wall_2.get_points())
+                    print("INTERSECT:", interlink1)
+                    print("WALL POINTS:", wall_points, wall_points_2)
+                    wall_points.remove(interlink1)
+                    wall_points_2.remove(interlink2)
+
+                    if los.intersect(wall_points[0], wall_points_2[0], func.minus(interlink1,[-2,-2]), func.minus(interlink1,[2,2])):
+                        print(wall_points[0], wall_points_2[0], func.minus(interlink1,[-2,-2]), func.minus(interlink1,[2,2]))
+                        print("COMBINING WALL")
+                        remove_list.append(wall_2)
+                        wall_1.set_new_points(wall_points[0], wall_points_2[0])
+
+
+        for wall_1 in remove_list:
+            walls.remove(wall_1)
 
         return walls
 
 
+    def check_collision2(self,player_pos, map_boundaries, return_only_collision = False, collision_box = 0, screen = screen ,x_vel = 0, y_vel = 0, dir_coll = False, phase = 0):
+        collision_box_size = collision_box
+
+        collide = False
+        collides = 0
+        vert_coll, hor_coll = False, False
+        closest_point = None
+        x5,y5 = player_pos
+
+        map_poly = pygame.Rect(collision_box_size,collision_box_size, map_boundaries[0] - collision_box_size, map_boundaries[1] - collision_box_size)
+        if not map_poly.collidepoint([x5,y5]):
+            if collision_box > player_pos[0]:
+                x5 = collision_box
+                collide = True
+                vert_coll = True
+
+            if map_boundaries[0] - collision_box < player_pos[0]:
+                x5 = map_boundaries[0] - collision_box
+                vert_coll = True
+                collide = True
+            if collision_box > player_pos[1]:
+                y5 = collision_box
+                collide = True
+                hor_coll = True
+            if map_boundaries[1] - collision_box < player_pos[1]:
+                y5 = map_boundaries[1] - collision_box
+                collide = True
+                hor_coll = True
+
+        player_pos_der = [x5,y5]
+
+        for polygon in self.polygons:
+            a,b,c,d = polygon
+            x = [a[0],b[0],c[0],d[0]]
+            y = [a[1],b[1],c[1],d[1]]
+
+            if player_pos[0] < min(x)-2*collision_box_size or player_pos[0] > max(x)+2*collision_box_size or player_pos[1] < min(y)-2*collision_box_size or player_pos[1] > max(y)+2*collision_box_size:
+                continue
+
+            poly = pygame.Rect(min(x)- collision_box_size,min(y) - collision_box_size, max(x)-min(x) + collision_box_size*2, max(y) - min(y) + collision_box_size*2)
+
+            if poly.collidepoint(player_pos_der):
+                pass
 
 
 
-    def check_collision(self,player_pos, return_only_collision = False, collision_box = 0, screen = screen ,x_vel = 0, y_vel = 0, dir_coll = False):
+
+
+
+
+    def check_collision(self,player_pos, map_boundaries, return_only_collision = False, collision_box = 0, screen = screen ,x_vel = 0, y_vel = 0, dir_coll = False, phase = 0):
 
         collision_box_size = collision_box
 
@@ -235,16 +328,16 @@ class Map:
             collide = True
             vert_coll = True
 
-        if self.size[0]/self.conv - collision_box < player_pos[0]:
-            x5 = self.size[0]/self.conv - collision_box
+        if map_boundaries[0] - collision_box < player_pos[0]:
+            x5 = map_boundaries[0] - collision_box
             vert_coll = True
             collide = True
         if collision_box > player_pos[1]:
             y5 = collision_box
             collide = True
             hor_coll = True
-        if self.size[1]/self.conv - collision_box < player_pos[1]:
-            y5 = self.size[1]/self.conv - collision_box
+        if map_boundaries[1] - collision_box < player_pos[1]:
+            y5 = map_boundaries[1] - collision_box
             collide = True
             hor_coll = True
 
@@ -260,7 +353,6 @@ class Map:
         #pygame.draw.rect(screen,[255,0,0], [player_pos[0]-collision_box_size,player_pos[1]-collision_box_size,collision_box_size,collision_box_size])
 
 
-
         for polygon in self.polygons:
             a,b,c,d = polygon
             x = [a[0],b[0],c[0],d[0]]
@@ -268,7 +360,6 @@ class Map:
 
             if player_pos[0] < min(x)-50 or player_pos[0] > max(x)+50 or player_pos[1] < min(y)-50 or player_pos[1] > max(y)+50:
                 continue
-
             poly = pygame.Rect(min(x)- collision_box_size,min(y) - collision_box_size, max(x)-min(x) + collision_box_size*2, max(y) - min(y) + collision_box_size*2)
 
             minx,maxx,miny,maxy = min(x) - collision_box_size, max(x) + collision_box_size, min(y) - collision_box_size, max(y) + collision_box_size
@@ -289,6 +380,7 @@ class Map:
 
                     if [x1,y1] in self.points_inside_polygons and [x2,y2] in self.points_inside_polygons:
                         continue
+
 
                     x3,y3 = player_pos_der
 
@@ -312,7 +404,6 @@ class Map:
 
 
 
-
                 if minx < player_pos_der[0] < maxx and closest_line[0][0] == closest_line[1][0]:
                     player_pos_der[0] = func.get_closest_value(player_pos_der[0],[minx, maxx])
                     vert_coll = True
@@ -321,7 +412,11 @@ class Map:
                     player_pos_der[1] = func.get_closest_value(player_pos_der[1],[miny, maxy])
                     hor_coll = True
 
+
+
+
         if dir_coll:
+
             if player_pos_der != player_pos:
 
                 return player_pos_der, vert_coll, hor_coll
@@ -332,6 +427,7 @@ class Map:
             return player_pos_der
         else:
             if collide:
+
                 return player_pos_der
             return False
 
@@ -366,8 +462,8 @@ class Map:
 
 
     def compile_navmesh(self, conv):
-        for x1 in range(21):
-            for y1 in range(16):
+        for x1 in range(round(self.size[0] / 100) + 1):
+            for y1 in range(round(self.size[1] / 100) + 1):
                 point = [x1*100/conv,y1*100/conv]
                 point[0] += 15
                 point[1] += 15

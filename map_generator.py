@@ -8,23 +8,130 @@ map_size = 30000, 20000
 x_division = 10
 screen = pygame.display.set_mode((900,600))
 clock = pygame.time.Clock()
+terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
+
 
 scale = 900/30000
 
-random.seed(10)
+random.seed(1000)
 
 
 class building:
     def __init__(self,x,y,w,h):
-        building_size_scale = 1000
+        self.building_size_scale = 1000
         self.x = x
         self.y = y
         self.w = w
         self.h = h
-        self.w_2 = w*building_size_scale
-        self.h_2 = h*building_size_scale
+        self.w_2 = w*self.building_size_scale
+        self.h_2 = h*self.building_size_scale
         self.rect = pygame.Rect(self.x, self.y, self.w_2, self.h_2)
+        self.sectors = []
 
+
+    def create_sectors(self):
+        matrix_x = list(range(self.w))
+        matrix_y = list(range(self.h))
+
+        matrix = {}
+        for aids in range(len(matrix_x)):
+            print(aids)
+            matrix[aids] = list(range(self.h))
+        print(matrix)
+
+
+        print("BUILDING SIZE:", self.w, self.h)
+
+        while True:
+            for y_1 in range(self.h):
+                print("    ", end="")
+                for aids in range(len(matrix)):
+                    if y_1 in matrix[aids]:
+                        print("X ", end="")
+                    else:
+                        print("O ", end="")
+                print()
+
+            keys = []
+            for key in matrix:
+                if matrix[key] != []:
+                    keys.append(key)
+
+
+            x = func.pick_random_from_list(keys)
+            y = func.pick_random_from_list(matrix[x])
+
+
+
+
+
+            print("ORIGIN", x, y)
+
+            adjacent_x = 0
+            adjacent_y = 0
+
+
+            for x_1 in range(x, self.w):
+
+                if y in matrix[x_1]:
+                    adjacent_x += 1
+                else:
+                    break
+
+
+            print("adjacent_x:", adjacent_x)
+
+            available = []
+            blocked_x = []
+            limit_x = 50
+            for y_1 in range(y, self.h):
+                for x_2 in range(x, self.w):
+
+                    if y_1 in matrix[x_2] and y_1 < limit_x:
+                        print("APPENDING", [x_2, y_1], "LIMIT:", limit_x)
+                        available.append([x_2, y_1])
+
+                    else:
+                        print("SKIPPING point", [x_2, y_1])
+                        if limit_x > x_2:
+                            print("Set new limit")
+                            limit_x = x_2
+                        break
+            print("AVAILABLE SHAPES:", available)
+            w, h = func.pick_random_from_list(available)
+            print("SELECTED:", w, h)
+
+            points = []
+            print(x,y,w,h)
+            for w_ in range(x, w+1):
+                for h_ in range(y, h+1):
+                    print(w_, h_)
+                    points.append([w_, h_])
+
+            print(points)
+
+            for point in points:
+                print("MATRIX:",matrix, "removing point", point)
+                matrix[point[0]].remove(point[1])
+
+                # if matrix[point[0]] == []:
+                #     del matrix[point[0]]
+
+            w = w - x + 1
+
+            h = h - y + 1
+
+            print("SECTOR:", [x,y,w,h], "\n\n")
+            self.sectors.append([x*self.building_size_scale,y*self.building_size_scale,w*self.building_size_scale,h*self.building_size_scale])
+            continual = True
+            for aids in matrix:
+                if matrix[aids] != []:
+                    continual = False
+                    break
+            if continual:
+                break
+
+        print("Building sectorinit done.", len(self.sectors))
     def collision_check(self,x,y):
         print(x,y)
         if self.rect.collidepoint([x,y]):
@@ -91,7 +198,7 @@ def generate():
             print("CLOSEST:",y)
 
         else:
-            x += building_size_x*building_size_scale +random.randint(0,2)*100
+            x += building_size_x*building_size_scale +random.randint(5,20)*100
             y += random.randint(-2,2)*100
             if y < 0:
                 y = 0
@@ -119,7 +226,9 @@ def generate():
                 collided = True
                 break
         if not collided:
-            buildings.append(building(x,y, building_size_x,building_size_y))
+            build = building(x,y, building_size_x,building_size_y)
+            build.create_sectors()
+            buildings.append(build)
             print(x,y)
         if len(buildings) > 40:
             break
@@ -145,10 +254,29 @@ while True:
     for x in map_tiles:
         for y in map_tiles[x]:
             pygame.draw.rect(screen,[50,50,50],[x*scale,y*scale, map_tiles[x][y]["width"]*scale, map_tiles[x][y]["height"]*scale], 1)
-
     for x in buildings:
 
-        pygame.draw.rect(screen,[255,255,50],[x.__dict__["x"]*scale,x.__dict__["y"]*scale, x.__dict__["w_2"]*scale, x.__dict__["h_2"]*scale], 1)
+        pygame.draw.rect(screen,[255 / (len(x.__dict__["sectors"])+1) ,255,50],[x.__dict__["x"]*scale,x.__dict__["y"]*scale, x.__dict__["w_2"]*scale, x.__dict__["h_2"]*scale], 1)
+
+        for xpos,ypos,w,h in x.__dict__["sectors"]:
+            pygame.draw.rect(screen,[255,0,0],[(x.__dict__["x"] + xpos)*scale,(x.__dict__["y"] + ypos)*scale, (w)*scale, (h)*scale], 1)
+        text = terminal3.render(str(len(x.__dict__["sectors"])), False, [255,255,255])
+        screen.blit(text, (x.__dict__["x"]*scale, x.__dict__["y"]*scale)) #
+
+
+
+        # for x_line in range(x.__dict__["w"]):
+        #     if x_line == 0:
+        #         continue
+        #     x_line *= x.__dict__["building_size_scale"]
+        #     pygame.draw.line(screen, [255,0,0], [(x.__dict__["x"] + x_line)*scale, x.__dict__["y"]*scale], [(x.__dict__["x"] + x_line)*scale, (x.__dict__["y"] + x.__dict__["h_2"])*scale], 3)
+        #
+        # for y_line in range(x.__dict__["h"]):
+        #     if y_line == 0:
+        #         continue
+        #     y_line *= x.__dict__["building_size_scale"]
+        #     pygame.draw.line(screen, [255,0,0], [(x.__dict__["x"])*scale, (x.__dict__["y"]+ y_line)*scale], [(x.__dict__["x"]+ x.__dict__["w_2"])*scale, (x.__dict__["y"]+ y_line)*scale], 3)
+
 
     pygame.display.update()
     clock.tick(60)
