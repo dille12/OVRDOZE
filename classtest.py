@@ -218,7 +218,9 @@ class Map:
 
                         collisiontypes["top"] = True
 
-        pos = list(collider.center)
+        if collisiontypes != {"left": False,"right": False,"top": False,"bottom": False}:
+
+            pos = list(collider.center)
 
         return collisiontypes, pos
 
