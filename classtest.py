@@ -90,6 +90,9 @@ class pissa:
 def PolyArea(x,y):
     return 0.5*numpy.abs(numpy.dot(x,numpy.roll(y,1))-numpy.dot(y,numpy.roll(x,1)))
 
+def getcollisions(tiles,boxcollider):
+    return (tile for tile in tiles if tile.colliderect(boxcollider))
+
 
 class Map:
     def __init__(self,name, dir, pos, conv ,size,polygons,objects):
@@ -126,6 +129,100 @@ class Map:
         x,y,width,height = polygon
         self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
 
+
+
+
+    def checkcollision(self, pos, movement,collider_size, map_size):
+
+        collider = pygame.Rect(pos[0]-collider_size,pos[1]-collider_size, collider_size*2, collider_size*2)
+        map_rect = pygame.Rect(0,0,map_size[0], map_size[1])
+
+        collisiontypes = {
+
+        "left": False,
+
+        "right": False,
+
+        "top": False,
+
+        "bottom": False
+
+        }
+
+        if not map_rect.collidepoint(collider.midleft):
+
+            collider.left = map_rect.left
+
+            collisiontypes["right"] = True
+
+        if not map_rect.collidepoint(collider.midright):
+
+            collider.right = map_rect.right
+
+            collisiontypes["left"] = True
+
+
+        if not map_rect.collidepoint(collider.midbottom):
+
+            collider.bottom = map_rect.bottom
+
+            collisiontypes["bottom"] = True
+
+        if not map_rect.collidepoint(collider.midtop):
+
+            collider.top = map_rect.top
+
+            collisiontypes["top"] = True
+
+        if abs(movement[0]) >= abs(movement[1]):
+            check_order = ["x","y"]
+        else:
+            check_order = ["y","x"]
+
+
+        for check in check_order:
+
+            if check == "x":
+
+                collisions = getcollisions(self.rectangles,collider)
+
+                for tile in collisions:
+
+                    if tile.collidepoint(collider.midright):
+
+                        collider.right = tile.left
+
+                        collisiontypes["right"] = True
+
+                    if tile.collidepoint(collider.midleft):
+
+                        collider.left = tile.right
+
+                        collisiontypes["left"] = True
+
+            elif check == "y":
+
+                collisions = getcollisions(self.rectangles,collider)
+                for tile in collisions:
+
+
+                    if tile.collidepoint(collider.midbottom):
+
+                        collider.bottom = tile.top
+
+                        collisiontypes["bottom"] = True
+
+                    if tile.collidepoint(collider.midtop):
+
+                        collider.top = tile.bottom
+
+                        collisiontypes["top"] = True
+
+        pos = list(collider.center)
+
+        return collisiontypes, pos
+
+
     def generate_wall_structure(self):
         print("CHECKING POINTS INSIDE WALLS")
         polygons_temp = []
@@ -133,11 +230,14 @@ class Map:
         polygons_temp.append([pygame.Rect(0,0, 10, self.size[1]), []])
         polygons_temp.append([pygame.Rect((self.size[0]-10)/ self.conv ,0, 15, self.size[1]/ self.conv ), []])
         polygons_temp.append([pygame.Rect(0,(self.size[1]-10)/ self.conv , self.size[0]/ self.conv , 14), []])
+        self.rectangles = []
         for polygon in self.polygons:
             a,b,c,d = polygon
             x = [a[0],b[0],c[0],d[0]]
             y = [a[1],b[1],c[1],d[1]]
-            poly = pygame.Rect(min(x)- 10,min(y) - 10, max(x)-min(x) + 10*2, max(y) - min(y) + 10*2)
+            poly = pygame.Rect(min(x),min(y), max(x)-min(x), max(y) - min(y))
+
+            self.rectangles.append(poly)
 
             polygons_temp.append([poly,[a,b,c,d]])
 

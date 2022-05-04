@@ -1171,8 +1171,8 @@ class Zombie:
 
             self.angle_rad = math.pi*2 - math.atan2(self.target_pos[1] - self.pos[1], self.target_pos[0] - self.pos[0])
             self.pos = [self.pos[0] + math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed]
-            coll_pos = map.check_collision(self.pos, map_boundaries, collision_box = 10)
-            if coll_pos:
+            collision_types, coll_pos = map.checkcollision(self.pos,[math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed], 10, map_boundaries)
+            if coll_pos != self.pos:
                 self.pos = coll_pos
             if los.get_dist_points(self.pos,self.target_pos) < 10:
                 self.target_pos = self.pos

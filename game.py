@@ -238,7 +238,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 continue
             multiplayer_actors[y] = classes.Player_Multi(y)
     else:
-        enemy_count = 0
+        enemy_count = 3
         enemy_up_time = time.time()
 
 
@@ -615,7 +615,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
             if collision_check_player:
-                angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
+                #angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
+                collision_types, angle_coll = map.checkcollision(player_pos,[x_vel, y_vel], 10, map_boundaries)
+                func.print_s(screen, str(collision_types), 3)
                 if angle_coll:
                     #dddwwwfunc.debug_render(math.degrees(angle_coll))
                     player_pos = angle_coll
