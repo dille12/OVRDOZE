@@ -158,7 +158,6 @@ def server_run():
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
     print(ip_address)
-    #server = "25.65.144.154"
     port = 5555
 
     #server_ip = socket.gethostbyname(server)
