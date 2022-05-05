@@ -40,11 +40,13 @@ weapons = {
                         ammo_cap_lvlup = 1,
                         image = "ak.png",
                         ammo = "7.62x39MM",
-                        piercing = True),
+                        piercing = True,
+                        view = 0.03,
+                        handling = 0.35),
 
 "MINIGUN": classes.Weapon("MINIGUN",
                         clip_s = 999,
-                        fire_r = 1000,
+                        fire_r = 3000,
                         spread = 2,
                         spread_r = 0.93,
                         bullet_speed = 45,
@@ -56,7 +58,9 @@ weapons = {
                         ammo_cap_lvlup = 1,
                         image = "ak.png",
                         ammo = "7.62x39MM",
-                        piercing = True),
+                        piercing = True,
+                        view = 0.03,
+                        handling = 0.1),
 
 "SPAS": classes.Weapon("SPAS-12",
                         clip_s = 6,
@@ -73,7 +77,9 @@ weapons = {
                         sounds = shotgun_sounds,
                         ammo_cap_lvlup = 2,
                         image = "spas12.png",
-                        ammo = "12 GAUGE"),
+                        ammo = "12 GAUGE",
+                        view = 0.01,
+                        handling = 0.2),
 
 "P90": classes.Weapon("P90",
                         clip_s = 50,
@@ -89,7 +95,9 @@ weapons = {
                         #sounds = shotgun_sounds,
                         ammo_cap_lvlup = 2,
                         image = "p90.png",
-                        ammo = "9MM"),
+                        ammo = "9MM",
+                        view = 0.02,
+                        handling = 0.5),
 "GLOCK": classes.Weapon("GLOCK",
                         clip_s = 12,
                         fire_r = 2000,
@@ -102,7 +110,9 @@ weapons = {
                         shotgun = False,
                         ammo_cap_lvlup = 1,
                         image = "glock.png",
-                        ammo = "45 ACP"),
+                        ammo = "45 ACP",
+                        view = 0.015,
+                        handling = 0.9),
 
 "AWP": classes.Weapon("AWP",
                         clip_s = 10,
@@ -119,7 +129,9 @@ weapons = {
                         ammo_cap_lvlup = 1,
                         image = "awp.png",
                         ammo = "50 CAL",
-                        piercing = True),
+                        piercing = True,
+                        view = 0.045,
+                        handling = 0.15),
 }
 
 def give_weapon(gun):
@@ -203,6 +215,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     last_hp = 0
     multi_kill_ticks = 0
     multi_kill = 0
+    global kills
     kills = 0
     player_Angle = 0
     bullets_new = []
@@ -382,7 +395,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     phase = 0
 
 
-    turret_list.append(classes.Turret([100,300],8,10,500,20,500))
+    #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
 
     player_weapons = [give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("MINIGUN"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
 
@@ -396,6 +409,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
     while 1:
+
+        camera_pan = c_weapon.__dict__["view"]
 
 
         m_click = pygame.mouse.get_pressed()[1]
@@ -611,23 +626,45 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         if player_actor.get_hp() > 0:
 
-            player_Angle = func.render_player(screen, mouse_pos, player,player_pos, camera_pos)
+            x_diff = (mouse_pos[0]+camera_pos[0])-player_pos[0]
+            y_diff = (mouse_pos[1]+ camera_pos[1])-player_pos[1]
+
+            try:
+                angle = math.atan(x_diff/y_diff) * 180/math.pi +90
+                if (x_diff < 0 and y_diff > 0) or (x_diff > 0 and y_diff > 0):
+                    angle += 180
+            except:
+                angle = 0
+
+            player_actor.set_aim_at(angle)
+
+            weapon_pan_rate = c_weapon.__dict__["handling"]
+
+            player_angle = player_actor.get_angle()
+
+            if abs(angle - player_angle) > 1:
+                player_angle = player_angle + los.get_angle_diff(angle, player_angle)*weapon_pan_rate
+            else:
+                player_angle = angle
+
+            player_actor.set_angle(player_angle)
+
+            func.render_player(screen, mouse_pos, player,player_pos, camera_pos, player_actor)
 
             player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
             if collision_check_player:
                 #angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
                 collision_types, angle_coll = map.checkcollision(player_pos,[x_vel, y_vel], 10, map_boundaries)
-                func.print_s(screen, str(collision_types), 3)
                 if angle_coll:
                     #dddwwwfunc.debug_render(math.degrees(angle_coll))
                     player_pos = angle_coll
 
             player_actor.set_pos(player_pos)
-            player_actor.set_angle(player_Angle)
+
 
             if player_inventory.get_inv() == False:
 
-                firing_tick = func.weapon_fire(c_weapon, player_inventory, player_Angle, player_pos, screen)
+                firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
 
             player_alive = True
 
@@ -689,10 +726,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         for x in bullet_list:
             if x not in last_bullet_list:
                 i2.append(x)
-            kill = x.move_and_draw_Bullet(screen, camera_pos, map_boundaries, map, enemy_list, player_actor, draw_blood_parts = map_render, dummies = multiplayer_actors)
-            if kill == True:
-                kills += 1
-                multi_kill += 1
+            kills_bullet = x.move_and_draw_Bullet(screen, camera_pos, map_boundaries, map, enemy_list, player_actor, draw_blood_parts = map_render, dummies = multiplayer_actors)
+            if kills_bullet != 0 and kills_bullet != None:
+                kills += kills_bullet
+                multi_kill += kills_bullet
                 if multi_kill > 10:
                     multi_kill = 1
 
@@ -725,14 +762,14 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         if draw_los:
-            los_image, draw_time = los.render_los_image(phase, camera_pos, player_pos,map, los_walls, debug_angle = player_Angle)
+            los_image, draw_time = los.render_los_image(phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
             #draw_time = 0
             start = time.time()
             los_image.convert()
             if phase != 7:
                 los_image.set_colorkey((255,255,255))
                 #
-                los_image.set_alpha(200)
+                los_image.set_alpha(150)
             else:
                 los_image.set_colorkey((255,200,255))
                 los_image.set_alpha(255)

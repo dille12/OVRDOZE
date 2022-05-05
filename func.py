@@ -31,7 +31,7 @@ def debug_render(text_str):
     text = agency.render(str(text_str), False, [255,255,0])
     render_cool(text, [1000,60],15,16,render = True, offset = 10)   ### IN GAME
 
-def print_s(screen,text_str,slot, color = [255,255,255]):
+def print_s(screen,text_str,slot, color = hud_color):
     text = terminal.render(str(text_str), False, color)
     screen.blit(text, (size[0] - 10 - text.get_rect().size[0], slot*30)) #
 
@@ -390,19 +390,15 @@ def player_movement(pressed, player_pos,x_vel, y_vel, angle):
 
     return player_pos, x_vel, y_vel
 
-def render_player(screen, mouse_pos, player, player_pos, camera_pos,firing_tick = False):
+def render_player(screen, mouse_pos, player, player_pos, camera_pos, player_actor,firing_tick = False):
 
     player_pos = [player_pos[0] - camera_pos[0],player_pos[1] - camera_pos[1]]
 
-    x_diff = mouse_pos[0]-player_pos[0]
-    y_diff = mouse_pos[1]-player_pos[1]
 
-    try:
-        angle = math.atan(x_diff/y_diff) * 180/math.pi +90
-        if (x_diff < 0 and y_diff > 0) or (x_diff > 0 and y_diff > 0):
-            angle += 180
-    except:
-        angle = 0
+
+    angle = player_actor.get_angle()
+
+
     if firing_tick == False:
         player_rotated, player_rotated_rect = rot_center(player,angle,player_pos[0],player_pos[1])
     else:
@@ -413,7 +409,7 @@ def render_player(screen, mouse_pos, player, player_pos, camera_pos,firing_tick 
     player_pos_center = [player_pos[0]-player_pos_center[0],player_pos[1]-player_pos_center[1]]
 
     screen.blit(player_rotated,[player_pos[0]+offset[0],player_pos[1]+offset[1]])
-    return angle
+
 
 def rot_center(image, angle, x, y):
 
@@ -568,7 +564,12 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
     clip_size = weapon.get_clip_size()
     clip = weapon.get_Ammo()
     pl_pos = minus_list(player_actor.get_pos(),camera_pos)
-    pl_angl = player_actor.get_angle()
+    pl_angl = player_actor.__dict__["aim_angle"]
+    pl_angl2 = player_actor.get_angle()
+
+
+
+
 
     pl_dist = los.get_dist_points(pl_pos, mouse_pos)
     # if pl_dist < 100:
@@ -580,6 +581,11 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
     if not pygame.mouse.get_visible():
+
+        pos7 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult)]
+        pos8 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult)]
+
+
         pos2 = line = [pl_pos[0] + math.cos(math.radians(pl_angl-spread)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl-spread)) * (pl_dist+pl_dist_mult)]
         pos3 = line = [pl_pos[0] + math.cos(math.radians(pl_angl+spread)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl+spread)) * (pl_dist+pl_dist_mult)]
 
@@ -589,9 +595,11 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         pos5 = line = [pl_pos[0] + math.cos(math.radians(pl_angl)) * (pl_dist-pl_dist_mult*2), pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist-pl_dist_mult*2)]
         pos6 = line = [pl_pos[0] + math.cos(math.radians(pl_angl)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist+pl_dist_mult)]
 
-        pygame.draw.line(screen, [255,255,255], pos1, pos2,2)
-        pygame.draw.line(screen, [255,255,255], pos4, pos3,2)
-        pygame.draw.line(screen, [255,255,255], pos5, pos6,3)
+
+        pygame.draw.line(screen, [255,0,0], pos7, pos8,2)
+        pygame.draw.line(screen, hud_color, pos1, pos2,2)
+        pygame.draw.line(screen, hud_color, pos4, pos3,2)
+        pygame.draw.line(screen, hud_color, pos5, pos6,3)
 
 
 
@@ -603,13 +611,13 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         pass
     if weapon.__dict__["_Weapon__reload_tick"] == 0:
         if clip == clip_size + 1:
-            text = terminal.render(str(clip-1) + "+1/" + str(clip_size), False, [255,255,255])
+            text = terminal.render(str(clip-1) + "+1/" + str(clip_size), False, hud_color)
             screen.blit(text, (15+x_d, 45+y_d)) #
         else:
             if clip == 0:
                 color = [255,0,0]
             else:
-                color = [255,255,255]
+                color = hud_color
 
 
             text = terminal.render(str(clip) + "/" + str(clip_size), False, color)
@@ -618,32 +626,32 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         if player_inventory.get_amount_of_type(weapon.__dict__["ammo"]) < clip_size:
             color = [255,0,0]
         else:
-            color = [255,255,255]
+            color = hud_color
 
         text = terminal.render("+" + str(player_inventory.get_amount_of_type(weapon.__dict__["ammo"])) + " res.", False, color)
         screen.blit(text, (110+x_d, 45+y_d)) #
 
     else:
-        text = terminal.render("reloading...", False, [255,255,255])
+        text = terminal.render("reloading...", False, hud_color)
         screen.blit(text, (15+x_d, 45+y_d)) #
 
     if weapon.get_semi_auto():
-        text = terminal3.render("Semi-Automatic", False, [255,255,255])
+        text = terminal3.render("Semi-Automatic", False, hud_color)
         screen.blit(text, (15+x_d, 65+y_d)) #
 
-        text = terminal3.render(str(weapon.__dict__["ammo"]), False, [255,255,255])
+        text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (110+x_d, 65+y_d)) #
     else:
-        text = terminal3.render("Automatic", False, [255,255,255])
+        text = terminal3.render("Automatic", False, hud_color)
         screen.blit(text, (15+x_d, 65+y_d)) #
 
-        text = terminal3.render(str(weapon.__dict__["ammo"]), False, [255,255,255])
+        text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
 
 
 
 
-        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, [255,255,255])
+        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
 
 
@@ -665,7 +673,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
             bars_s = round((sanity - (amount*(tick-60)/30))/10)
             print(bars_s)
 
-        text = terminal3.render(str(amount) + "% SANITY REGAINED", False, [255,255,255])
+        text = terminal3.render(str(amount) + "% SANITY REGAINED", False, hud_color)
         if 1 < tick <= 10:
             screen.blit(text, (844+x_d + (400/tick) - text.get_rect().size[0], 400 +y_d)) #
         elif 10 < tick <= 60:
@@ -675,24 +683,24 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
 
-    text = terminal2.render("SANITY", False, [255,255,255])
+    text = terminal2.render("SANITY", False, hud_color)
     screen.blit(text, (844+x_d - text.get_rect().size[0], 412+y_d)) #
 
-    pygame.draw.rect(screen, [255,255,255], [631+x_d,440+y_d,210,30],3)
+    pygame.draw.rect(screen, hud_color, [631+x_d,440+y_d,210,30],3)
     for i in range(bars_s):
-        pygame.draw.rect(screen, [255,255,255], [818 - i*20+x_d,446+y_d,16,18])
+        pygame.draw.rect(screen, hud_color, [818 - i*20+x_d,446+y_d,16,18])
 
 
-    text = terminal2.render("HP", False, [255,255,255])
+    text = terminal2.render("HP", False, hud_color)
     screen.blit(text, (12+x_d, 412+y_d)) #
 
-    pygame.draw.rect(screen, [255,255,255], [15+x_d,440+y_d,210,30],3)
+    pygame.draw.rect(screen, hud_color, [15+x_d,440+y_d,210,30],3)
     for i in range(bars):
-        pygame.draw.rect(screen, [255,255,255], [22 + i*20+x_d,446+y_d,16,18])
+        pygame.draw.rect(screen, hud_color, [22 + i*20+x_d,446+y_d,16,18])
 
 
 
-    text = terminal2.render(str(weapon.__dict__["_Weapon__name"]), False, [255,255,255])
+    text = terminal2.render(str(weapon.__dict__["_Weapon__name"]), False, hud_color)
     screen.blit(text, (15+x_d, 15+y_d)) #
 
     player_inventory.draw_inventory(screen, x_d, y_d, mouse_pos, clicked, player_actor.get_pos(), r_click_tick, player_actor)

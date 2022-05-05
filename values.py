@@ -118,8 +118,11 @@ bullet_pickup = pygame.mixer.Sound("sound/bullet.wav")
 grenade_pickup = pygame.mixer.Sound("sound/grenade_pickup.wav")
 needle_pickup = pygame.mixer.Sound("sound/needle_pickup.wav")
 pill_pickup = pygame.mixer.Sound("sound/pill_pickup.wav")
+turret_pickup = pygame.mixer.Sound("sound/turret_pickup.wav")
 sniff_sound = pygame.mixer.Sound("sound/sinff.wav")
 info = pygame.image.load("texture/info.png").convert_alpha()
+
+hud_color = [255, 255, 255]
 
 
 last_hp = 0
@@ -128,6 +131,8 @@ damage_ticks = 0
 inv_click = pygame.mixer.Sound("sound/inv_click.wav")
 inv_open = pygame.mixer.Sound("sound/inv_open.wav")
 inv_close = pygame.mixer.Sound("sound/inv_close.wav")
+
+
 
 turret_leg =   pygame.transform.scale(pygame.image.load("texture/turret_leg.png"), [35,35]).convert_alpha()
 turret =  pygame.transform.scale(pygame.image.load("texture/turret.png"), [35,35]).convert_alpha()

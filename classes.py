@@ -24,7 +24,7 @@ class text_box:
         self.color_inactive = pygame.Color('lightskyblue3')
         self.color = self.color_inactive
         self.font = terminal
-        self.text = default
+        self.text = str(default)
         self.active = False
 
     def tick(self, screen, clicked, mouse_pos, events):
@@ -145,7 +145,9 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
         "50 CAL": Item("50 CAL", "Sniper ammo.", "50cal.png", max_stack = 5, pick_up_sound = bullet_pickup),
         "9MM": Item("9MM", "Submachine gun ammo.", "9mm.png", max_stack = 25, pick_up_sound = bullet_pickup),
         "12 GAUGE": Item("12 GAUGE", "Shotgun cartridge.", "gauge.png", max_stack = 8, pick_up_sound = bullet_pickup),
-        "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 30, pick_up_sound = bullet_pickup)}
+        "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 30, pick_up_sound = bullet_pickup),
+        "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True)
+        }
 
 
 
@@ -153,7 +155,7 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
 class Inventory:
     def __init__(self, list, player = False):
         self.inventory_open = False
-        self.contents = {1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}}
+        self.contents = {1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}}
         self.search_obj = None
         self.item_in_hand = None
         self.hand_tick = 0
@@ -304,10 +306,19 @@ class Inventory:
                     self.picked_up_slot = slot
 
                 elif self.item_in_hand == None and type == "consume" and content[slot]["item"].__dict__["consumable"]:
-                    self.picked_up_slot = slot
+                    content[slot]["amount"] -= 1
+
+                    if content[slot]["amount"] == 0:
+
+                        self.picked_up_slot = slot
                     self.hand_tick = 3
-                    player_actor.set_sanity(content[slot]["item"].__dict__["sanity_buff"], add= True)
-                    drug_use.play()
+                    if content[slot]["item"].__dict__["name"] == "Sentry Turret":
+                        pos_player = player_actor.get_pos()
+                        turret_list.append(Turret(pos_player,8,10,500,20,500))
+                        turret_pickup.play()
+                    else:
+                        player_actor.set_sanity(content[slot]["item"].__dict__["sanity_buff"], add= True)
+                        drug_use.play()
 
 
 
@@ -809,7 +820,7 @@ class Particle:
             particle_list.remove(self)
 
 class Weapon:
-    def __init__(self,name,clip_s,fire_r,spread,spread_r,reload_r,damage, bullets_at_once = 1, shotgun = False, spread_per_bullet = 1, semi_auto = False, bullet_speed = 20, piercing = False, ammo_cap_lvlup = 5, ammo = "9MM", image = "", enemy_weapon = False, sounds = {"fire": weapon_fire_Sounds, "reload": reload}):
+    def __init__(self,name,clip_s,fire_r,spread,spread_r,reload_r,damage, bullets_at_once = 1, shotgun = False, spread_per_bullet = 1, handling = 1, semi_auto = False, bullet_speed = 20, piercing = False, ammo_cap_lvlup = 5, ammo = "9MM", image = "", enemy_weapon = False, sounds = {"fire": weapon_fire_Sounds, "reload": reload}, view = 0.03):
         self.__clip_size = clip_s
         self.__bullets_in_clip = 0
         self.__bullet_per_min = fire_r
@@ -839,6 +850,8 @@ class Weapon:
         self.reload_sound = sounds["reload"]
         self.image_dir = image
         self.ammo = ammo
+        self.view = view
+        self.handling = handling
         if enemy_weapon:
             self.team = "hostile"
         else:
@@ -846,7 +859,7 @@ class Weapon:
 
         if image != "":
 
-            self.picture = func.colorize(pygame.image.load("texture/guns/" + image),pygame.Color(255,255,255))
+            self.picture = func.colorize(pygame.image.load("texture/guns/" + image),pygame.Color(hud_color[0],hud_color[1],hud_color[2]))
             print("Image loaded")
 
     def add_to_spread(self, amount):
@@ -869,7 +882,9 @@ class Weapon:
         image = self.image_dir,
         semi_auto = self.semi_auto,
         ammo = self.ammo,
-        piercing = self.piercing_bullets)
+        piercing = self.piercing_bullets,
+        view = self.view,
+        handling = self.handling)
 
 
 
@@ -1453,12 +1468,16 @@ class Player:
         self.sanity_change = None
         self.sanity_change_tick = 0
         self.angle = 0
+        self.aim_angle = 0
 
     def set_pos(self,pos):
         self.pos = pos
 
     def set_angle(self, angle):
         self.angle = angle
+
+    def set_aim_at(self,angle):
+        self.aim_angle = angle
 
     def get_angle(self):
         return self.angle
@@ -1594,7 +1613,7 @@ class Bullet:
 
 
 
-
+        dead = 0
         for x in enemy_list:
             if x.hit_detection(camera_pos, self.__pos, self.__last_pos,self.__damage, enemy_list, draw_blood_parts) == True:
 
@@ -1606,7 +1625,7 @@ class Bullet:
                         for i in range(3):
                             particle_list.append(Particle(func.minus(self.__pos, camera_pos), type = "blood_particle", magnitude = 0.5, pre_defined_angle = True, screen = draw_blood_parts, angle = self.__angle + random.randint(45,135)))
                     else:
-                        dead = True
+                        dead += 1
 
                 except:
                     print("")
@@ -1615,15 +1634,12 @@ class Bullet:
                         bullet_list.remove(self)
                 except:
                     pass
-                if dead:
-                    return True
-                else:
-                    return False
+
 
         bullet_draw_pos = [rot_bullet_rect[0] , rot_bullet_rect[1] ]
 
         screen.blit(rot_bullet,func.draw_pos(self.__pos,camera_pos))
-        return player_hp
+        return dead
 
 class Wall:
     def __init__(self,start,end):
