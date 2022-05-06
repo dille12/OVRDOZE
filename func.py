@@ -129,9 +129,7 @@ def pick_random_from_list(list):
     return list[random.randint(0,len(list)-1)]
 
 def pick_random_from_dict(dict, key = False):
-    print(dict)
     dict_keys = list(dict.keys())
-    print(dict_keys)
     if key:
         return dict_keys[random.randint(0,len(dict_keys)-1)]
     else:

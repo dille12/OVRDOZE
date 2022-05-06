@@ -137,16 +137,17 @@ class Item:
 #         "12 GAUGE": Item("12 GAUGE", "Cartridges containing numerous projectiles.", "gauge.png", max_stack = 8, pick_up_sound = bullet_pickup),
 #         "7.62x39MM": Item("7.62x39MM", "Supersonic assault rifle round with high stopping power.", "762.png", max_stack = 30, pick_up_sound = bullet_pickup)}
 
-items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png", max_stack = 1, pick_up_sound = grenade_pickup),
+items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png", max_stack = 5, pick_up_sound = grenade_pickup),
         "Heroin": Item("Heroin", "Restores +40% sanity.", "heroin.png", max_stack = 1, pick_up_sound = needle_pickup, consumable = True, sanity_buff = 40),
-        "Cocaine": Item("Cocaine", "Restores +20% sanity.", "coca.png", max_stack = 1, pick_up_sound = sniff_sound, consumable = True, sanity_buff = 20),
-        "Diazepam": Item("Diazepam", "Restores +7.5% sanity.", "pills.png", max_stack = 1, pick_up_sound = pill_pickup, consumable = True, sanity_buff = 7.5),
-        "45 ACP": Item("45 ACP", "Pistol ammo.", "45acp.png", max_stack = 40, pick_up_sound = bullet_pickup),
-        "50 CAL": Item("50 CAL", "Sniper ammo.", "50cal.png", max_stack = 5, pick_up_sound = bullet_pickup),
-        "9MM": Item("9MM", "Submachine gun ammo.", "9mm.png", max_stack = 25, pick_up_sound = bullet_pickup),
-        "12 GAUGE": Item("12 GAUGE", "Shotgun cartridge.", "gauge.png", max_stack = 8, pick_up_sound = bullet_pickup),
-        "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 30, pick_up_sound = bullet_pickup),
-        "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True)
+        "Cocaine": Item("Cocaine", "Restores +20% sanity.", "coca.png", max_stack = 3, pick_up_sound = sniff_sound, consumable = True, sanity_buff = 20),
+        "Diazepam": Item("Diazepam", "Restores +7.5% sanity.", "pills.png", max_stack = 5, pick_up_sound = pill_pickup, consumable = True, sanity_buff = 7.5),
+        "45 ACP": Item("45 ACP", "Pistol ammo.", "45acp.png", max_stack = 150, pick_up_sound = bullet_pickup),
+        "50 CAL": Item("50 CAL", "Sniper ammo.", "50cal.png", max_stack = 50, pick_up_sound = bullet_pickup),
+        "9MM": Item("9MM", "Submachine gun ammo.", "9mm.png", max_stack = 150, pick_up_sound = bullet_pickup),
+        "12 GAUGE": Item("12 GAUGE", "Shotgun cartridge.", "gauge.png", max_stack = 50, pick_up_sound = bullet_pickup),
+        "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 120, pick_up_sound = bullet_pickup),
+        "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True),
+        "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True)
         }
 
 
@@ -155,7 +156,7 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
 class Inventory:
     def __init__(self, list, player = False):
         self.inventory_open = False
-        self.contents = {1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}}
+        self.contents = {}
         self.search_obj = None
         self.item_in_hand = None
         self.hand_tick = 0
@@ -168,6 +169,9 @@ class Inventory:
         self.click = False
 
         self.interctables_reference = list
+
+    def set_inventory(self, dict):
+        self.contents = dict
 
     def drop_inventory(self, pos):
         for slot in self.contents:
@@ -278,6 +282,7 @@ class Inventory:
         return self.inventory_open
 
     def draw_contents(self, screen, x_d, y_d, content, default_pos, mouse_pos, clicked, r_click_tick, player_actor):
+        global barricade_in_hand
         self.picked_up_slot = None
 
         for slot in content:
@@ -315,6 +320,10 @@ class Inventory:
                     if content[slot]["item"].__dict__["name"] == "Sentry Turret":
                         pos_player = player_actor.get_pos()
                         turret_list.append(Turret(pos_player,8,10,500,20,500))
+                        turret_pickup.play()
+                    elif content[slot]["item"].__dict__["name"] == "Barricade":
+                        pos_player = player_actor.get_pos()
+                        player_actor.__dict__["barricade_in_hand"] = Barricade(pos_player)
                         turret_pickup.play()
                     else:
                         player_actor.set_sanity(content[slot]["item"].__dict__["sanity_buff"], add= True)
@@ -913,6 +922,7 @@ class Weapon:
         else:
             multiplier = 1
         func.list_play(self.sounds)
+        spread_cumulative = 0
         for x in range(self.__bullets_at_once):
 
 
@@ -925,7 +935,9 @@ class Weapon:
                 if self.__shotgun == False:
                     self.__bullets_in_clip -= 1
 
-            self.__c_bullet_spread += self.spread_per_bullet
+            spread_cumulative += self.spread_per_bullet
+
+        self.__c_bullet_spread += spread_cumulative
 
 
         if self.__shotgun == True:
@@ -1049,6 +1061,10 @@ class Zombie:
         self.target_angle = 0
         self.detected = False
 
+        self.attack_tick = 0
+
+        self.damage = random.randint(5,15)
+
         self.route = func.calc_route(pos, player_pos, NAV_MESH, walls)
 
 
@@ -1060,8 +1076,11 @@ class Zombie:
 
 
         self.inventory = Inventory(interctables)
-        # for i in range(random.randint(2,3)):
-        #     self.inventory.append_to_inv(items[self.weapon.__dict__["ammo"]], items[self.weapon.__dict__["ammo"]].__dict__["max_stack"])
+
+        for i in range(random.randint(1,9)):
+            if random.uniform(0,1) < 0.02:
+                item_to_pick = func.pick_random_from_dict(items, key = True)
+                self.inventory.append_to_inv(items[item_to_pick], random.randint(1,items[item_to_pick].__dict__["max_stack"]))
 
 
         self.angle = 0
@@ -1071,7 +1090,7 @@ class Zombie:
         func.list_play(death_sounds)
         func.list_play(kill_sounds)
 
-        #self.inventory.drop_inventory(self.pos)
+        self.inventory.drop_inventory(self.pos)
 
         for i in range(5):
             particle_list.append(Particle(func.minus(self.pos,camera_pos), type = "blood_particle", magnitude = 1, screen = draw_blood_parts))
@@ -1127,7 +1146,10 @@ class Zombie:
 
 
 
-    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH):
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render):
+
+        if self.attack_tick != 0:
+            self.attack_tick -= 1
 
         self.temp_pos = func.minus_list(self.pos,camera_pos)
         player_pos = player_actor.get_pos()
@@ -1135,7 +1157,7 @@ class Zombie:
 
         if self.knockback_tick != 0:
 
-            self.pos = [self.pos[0] + math.cos(self.knockback_angle) * self.knockback_tick, self.pos[1] - math.sin(self.knockback_angle) *self.knockback_tick]
+            self.pos = [self.pos[0] + math.cos(self.knockback_angle) * self.knockback_tick**0.5, self.pos[1] - math.sin(self.knockback_angle) *self.knockback_tick**0.5]
             self.knockback_tick -= 1
 
 
@@ -1169,6 +1191,15 @@ class Zombie:
                     else:
                         self.target_pos = self.pos
 
+                        if self.attack_tick == 0:
+                            self.attack_tick = 30
+                            player_actor.set_hp(self.damage, reduce = True)
+                            func.list_play(pl_hit)
+
+                            for i in range(3):
+                                particle_list.append(Particle(func.minus(player_actor.get_pos(), camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
+
+
             else:
                 self.detected = False
 
@@ -1186,7 +1217,13 @@ class Zombie:
 
             self.angle_rad = math.pi*2 - math.atan2(self.target_pos[1] - self.pos[1], self.target_pos[0] - self.pos[0])
             self.pos = [self.pos[0] + math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed]
-            collision_types, coll_pos = map.checkcollision(self.pos,[math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed], 10, map_boundaries)
+
+            if self.attack_tick == 0:
+                i = True
+            else:
+                i = False
+
+            collision_types, coll_pos = map.checkcollision(self.pos,[math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed], 10, map_boundaries, damage_barricades = i, damager = self)
             if coll_pos != self.pos:
                 self.pos = coll_pos
             if los.get_dist_points(self.pos,self.target_pos) < 10:
@@ -1456,6 +1493,97 @@ class Player_Multi:
         self.hp = int(hp)
 
 
+class Barricade:
+    def __init__(self, origin):
+        self.pos = origin
+
+        self.hp = 1000
+
+        self.stage = "building_1"
+
+
+
+
+
+
+    def tick(self, screen, camera_pos, mouse_pos = [0,0], clicked = False, map = None):
+
+        if self.hp <= 0:
+            map.__dict__["rectangles"].remove(self.rect)
+            map.__dict__["barricade_rects"].remove([self.rect, self])
+            return "KILL"
+
+        if self.stage == "building_1":
+            x = mouse_pos[0] + camera_pos[0]
+            y = mouse_pos[1] + camera_pos[1]
+            pygame.draw.circle(screen, [0,204,0], [x-camera_pos[0],y-camera_pos[1]], 5)
+
+            if clicked:
+                self.pos = [x,y]
+                self.stage = "building_2"
+
+
+
+
+
+        elif self.stage == "building_2":
+
+            w =  (mouse_pos[0] + camera_pos[0])-self.pos[0]
+            h = mouse_pos[1]+ camera_pos[1]-self.pos[1]
+
+            area = w*h
+
+            x = self.pos[0]-camera_pos[0]
+            y = self.pos[1]-camera_pos[1]
+
+
+            if w < 0:
+                x += w
+                w = abs(w)
+
+            if h < 0:
+                y += h
+                h = abs(h)
+
+
+            if area > 5000 or w < 20 or h < 20:
+                clear = False
+                color = [204,0,0]
+            else:
+                clear = True
+                color = [0,204,0]
+
+
+
+            pygame.draw.rect(screen, color, pygame.Rect(x, y, w, h),3)
+
+            if clicked and clear:
+                self.width = w
+                self.height = h
+                self.stage = "built"
+                self.pos = [x + camera_pos[0],y + camera_pos[1]]
+                self.rect = pygame.Rect(self.pos[0], self.pos[1], self.width, self.height)
+
+                map.__dict__["rectangles"].append(self.rect)
+                map.__dict__["barricade_rects"].append([self.rect, self])
+
+                print(map.__dict__["barricade_rects"])
+
+                return True
+            else:
+                return False
+
+
+
+        else:
+
+            pygame.draw.rect(screen, [0,0,0], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height))
+            pygame.draw.rect(screen, [round(((1000-self.hp)/1000)*255), round((self.hp/1000)*255), 0], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height),3)
+
+
+
+
+
 
 
 
@@ -1469,6 +1597,7 @@ class Player:
         self.sanity_change_tick = 0
         self.angle = 0
         self.aim_angle = 0
+        self.barricade_in_hand = None
 
     def set_pos(self,pos):
         self.pos = pos
@@ -1617,7 +1746,7 @@ class Bullet:
         for x in enemy_list:
             if x.hit_detection(camera_pos, self.__pos, self.__last_pos,self.__damage, enemy_list, draw_blood_parts) == True:
 
-                x.knockback(5, math.radians(self.__angle))
+                x.knockback(self.__damage, math.radians(self.__angle))
 
                 try:
                     if x.check_if_alive():
@@ -1690,7 +1819,7 @@ class Turret:
                 closest_enemy = enemy_pos
         return closest_enemy
 
-    def tick(self, screen ,camera_pos,enemy_list,tick, walls):
+    def tick(self, screen ,camera_pos,enemy_list,tick, walls, player_pos):
         if func.check_for_render(camera_pos, self.__pos):
             return
         shoot = False
@@ -1728,6 +1857,9 @@ class Turret:
             angle2 = self.__angle
 
         turret2, turret_rect = func.rot_center(turret,self.__angle,self.__pos[0],self.__pos[1])
+
+        if abs(los.get_angle_diff(360 - (func.get_angle(self.__pos,player_pos)), self.__angle)) < 20 or los.get_dist_points(player_pos, self.__pos) < 25:
+            shoot = False
 
         if shoot == True and self.__turret_tick == 0 and abs(angle2-self.__angle) < self.__turning_speed * 2:
             turret_fire1.stop()

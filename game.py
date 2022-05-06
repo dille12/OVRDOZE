@@ -14,6 +14,7 @@ import ast
 
 from values import *
 import classes
+from classes import items
 import func
 
 print("IMPORTS COMPLETE")
@@ -23,6 +24,8 @@ print("IMPORTS COMPLETE")
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
+
+
 
 weapons = {
 
@@ -208,6 +211,7 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
 
 
 def main(multiplayer = False, net = None, host = False, players = None, self_name = None):
+    global barricade_in_hand
     player_pos = [50,50]
     camera_pos = [0,0]
     x_vel = 0
@@ -318,7 +322,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     []
     )
 
-    map = map2
+    map = map1
 
     active_maps = [map]
 
@@ -371,8 +375,22 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     interctables = []
 
     player_inventory = classes.Inventory(interctables, player = True)
+    #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 999}, 2: {{key: value for key, value in variable}"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
+    player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 150}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
+    # interctables.append(classes.Intercatable([5,5], player_inventory, name = "Box"))
+    #
+    # interctables.append(classes.Intercatable([560,210], player_inventory, name = "Box"))
+    #
+    # interctables.append(classes.Intercatable([210,605], player_inventory, name = "Box"))
+    #
+    # interctables.append(classes.Intercatable([830,700], player_inventory, name = "Box"))
+    #
+    # interctables.append(classes.Intercatable([770,530], player_inventory, name = "Box"))
+    #
+    # interctables.append(classes.Intercatable([970,5], player_inventory, name = "Box"))
+    #
+    # interctables.append(classes.Intercatable([5,980], player_inventory, name = "Box"))
 
-    interctables.append(classes.Intercatable([300,200], player_inventory, name = "Box"))
     # interctables.append(classes.Intercatable([400,200], player_inventory, name = "Box"))
     # interctables.append(classes.Intercatable([160,145], player_inventory, name = "Box"))
     # interctables.append(classes.Intercatable([810,600], player_inventory, name = "Box"))
@@ -396,8 +414,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
-
-    player_weapons = [give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("MINIGUN"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
+    barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
+    player_weapons = [give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
 
     c_weapon = (player_weapons[0])
     weapon_scroll = 0
@@ -409,6 +427,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
     while 1:
+
+        time_stamps = {}
+
+        t = time.time()
 
         camera_pan = c_weapon.__dict__["view"]
 
@@ -427,7 +449,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 pygame.mouse.set_visible(True)
             else:
                 pygame.mouse.set_visible(False)
-            if phase == 5:
+            if phase == 6:
                 phase = 0
 
 
@@ -508,12 +530,16 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
 
+        click_single_tick = False
         if pygame.mouse.get_pressed()[0] and clicked == False:
 
             clicked = True
 
+            click_single_tick = True
+
         elif pygame.mouse.get_pressed()[0] == False:
             clicked = False
+
 
 
         grenade_throw_string = ""
@@ -556,6 +582,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             f_pressed = False
 
 
+        time_stamps["init"] = time.time() - t
+        t = time.time()
+
+
 
 
 
@@ -575,20 +605,32 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         los_walls = los.walls_generate(walls_filtered,camera_pos)
 
 
+        time_stamps["walls"] = time.time() - t
+        t = time.time()
+
+
 
 
         if not multiplayer:
-            if len(enemy_list) < enemy_count:
+            if len(enemy_list) < (enemy_count/(player_actor.__dict__["sanity"]/100+0.25)):
                 enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered))
 
-            if time.time() - enemy_up_time > 20 and enemy_count != 0:
+            #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
+
+            if time.time() - enemy_up_time > 20 and enemy_count != -1:
                 enemy_up_time = time.time()
                 enemy_count += 1
+        for x in barricade_list:
+            if x.tick(screen, camera_pos, map = map) == "KILL":
+                barricade_list.remove(x)
 
-
+        time_stamps["barricade"] = time.time() - t
+        t = time.time()
 
         for x in turret_list:
-            x.tick(screen, camera_pos,enemy_list,0, walls_filtered)
+            x.tick(screen, camera_pos,enemy_list,0, walls_filtered, player_pos)
+        time_stamps["turrets"] = time.time() - t
+        t = time.time()
         delete_list = []
         for x in interctables:
             x.__dict__["inv_save"] = player_inventory
@@ -596,11 +638,18 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 delete_list.append(x)
             else:
                 x.tick(screen, player_pos, camera_pos)
+
+        time_stamps["interactables"] = time.time() - t
+        t = time.time()
+
         for x in delete_list:
             interctables.remove(x)
 
         for x in particle_list:
             x.tick(screen, camera_pos)
+
+        time_stamps["particles"] = time.time() - t
+        t = time.time()
 
         if multiplayer:
 
@@ -662,9 +711,18 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             player_actor.set_pos(player_pos)
 
 
-            if player_inventory.get_inv() == False:
 
-                firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
+            if player_actor.__dict__["barricade_in_hand"] != None:
+                func.print_s(screen, str(player_actor.__dict__["barricade_in_hand"].__dict__["stage"]), 3)
+                if player_actor.__dict__["barricade_in_hand"].tick(screen, camera_pos, mouse_pos, click_single_tick, map):
+                    barricade_list.append(player_actor.__dict__["barricade_in_hand"])
+                    player_actor.__dict__["barricade_in_hand"] = None
+            else:
+
+
+                if player_inventory.get_inv() == False:
+
+                    firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
 
             player_alive = True
 
@@ -697,6 +755,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         else:
             free_tick = 0
+
+        time_stamps["player"] = time.time() - t
+        t = time.time()
+
+
         closest = 1000
         closest_prompt = None
         for x in interctables:
@@ -716,9 +779,15 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         else:
             multi_kill = 0
 
+        time_stamps["prompts"] = time.time() - t
+        t = time.time()
+
 
         for enemy in enemy_list:
-            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH)
+            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render)
+
+        time_stamps["enemies"] = time.time() - t
+        t = time.time()
 
 
 
@@ -741,6 +810,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         bullets_new = tuple(i2)
 
+        time_stamps["bullets"] = time.time() - t
+        t = time.time()
+
 
         for x in grenade_list:
             x.tick(screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls_filtered)
@@ -758,7 +830,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-
+        time_stamps["misc"] = time.time() - t
+        t = time.time()
 
 
         if draw_los:
@@ -798,15 +871,40 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             #screen.blit(los_image2,(0,0))
 
-
+        time_stamps["los"] = time.time() - t
+        t = time.time()
 
         #pygame.transform.scale(screen, (1920,1080), fullscreen)
-        try:
-            func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
-        except:
-            pass
+        if phase != 5:
+            try:
+                func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
+            except:
+                pass
 
-        func.print_s(screen, "KILLS: " + str(kills), 2)
+            func.print_s(screen, "KILLS: " + str(kills), 2)
+        else:
+            obje = enumerate(time_stamps, 1)
+            total = 0
+            try:
+                for i, k in obje:
+                    time_stamps[k] = time_stamps[k]*1/20 + last_time_stamp[k]*19/20
+
+                    color = [255,round(255/(1 + time_stamps[k]*1000)), round(255/(1 + time_stamps[k]*1000))]
+
+
+                    func.print_s(screen, k + ":" + str(round(time_stamps[k]*1000,1)) + "ms", i, color = color)
+
+                    total += time_stamps[k]
+                if total > 1/60:
+                    color = [255,0,0]
+                else:
+                    color = [255,255,255]
+                func.print_s(screen, "TOTAL" + ":" + str(round(total*1000,1)) + "ms", i+1, color = color)
+            except Exception as e:
+                print(e)
+
+
+        last_time_stamp = time_stamps.copy()
         try:
             if multiplayer:
                 func.print_s(screen, "PING: " + str(round((time.time()-last_thread)*1000)) + "ms (" + str(round(1/(time.time()-last_thread))) + "frames)", 3)

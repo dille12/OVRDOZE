@@ -13,7 +13,7 @@ terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 
 scale = 900/30000
 
-random.seed(1000)
+#random.seed(1000)
 
 
 class building:

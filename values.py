@@ -50,6 +50,7 @@ kills = 0
 Inventory_open = False
 tab_pressed = False
 
+
 def get_Sound(sound,file):
     path = file + "/" + sound + ".wav"
     print(path)
@@ -123,6 +124,8 @@ sniff_sound = pygame.mixer.Sound("sound/sinff.wav")
 info = pygame.image.load("texture/info.png").convert_alpha()
 
 hud_color = [255, 255, 255]
+
+
 
 
 last_hp = 0

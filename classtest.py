@@ -104,6 +104,8 @@ class Map:
         self.points_inside_polygons = []
         self.pos = [pos[0] / conv, pos[1] / conv]
 
+        self.barricade_rects = []
+
         # polygons.append([-100,0,100,size[1]])
         # polygons.append([size[0],0,100,size[1]])
         # polygons.append([0,-100,size[0],100])
@@ -132,7 +134,7 @@ class Map:
 
 
 
-    def checkcollision(self, pos, movement,collider_size, map_size):
+    def checkcollision(self, pos, movement,collider_size, map_size, damage_barricades = False, damager = None):
 
         collider = pygame.Rect(pos[0]-collider_size,pos[1]-collider_size, collider_size*2, collider_size*2)
         map_rect = pygame.Rect(0,0,map_size[0], map_size[1])
@@ -182,9 +184,19 @@ class Map:
 
         for check in check_order:
 
-            if check == "x":
 
-                collisions = getcollisions(self.rectangles,collider)
+            collisions = getcollisions(self.rectangles,collider)
+
+            if check == check_order[0] and damage_barricades:
+                for barr in self.barricade_rects:
+                    if barr[0] in getcollisions(self.rectangles,collider):
+                        barr[1].__dict__["hp"] -= damager.__dict__["damage"]
+                        damager.__dict__["attack_tick"] = 30
+
+
+
+
+            if check == "x":
 
                 for tile in collisions:
 
@@ -202,7 +214,7 @@ class Map:
 
             elif check == "y":
 
-                collisions = getcollisions(self.rectangles,collider)
+
                 for tile in collisions:
 
 
