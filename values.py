@@ -51,6 +51,8 @@ Inventory_open = False
 tab_pressed = False
 
 
+
+
 def get_Sound(sound,file):
     path = file + "/" + sound + ".wav"
     print(path)
@@ -63,6 +65,21 @@ def rgb_image_load(image_dir):
         list.append(image)
 
     return list
+
+def rgb_convert(image):
+    list = [image]
+    for color in [pygame.Color(255, 0, 0), pygame.Color(0, 255, 0), pygame.Color(0, 0, 255)]:
+        image = colorize(list[0], color)
+        list.append(image)
+
+    return list
+
+
+
+
+
+
+
 
 def colorize(image, newColor):
     """
@@ -99,6 +116,15 @@ multikill_fonts = []
 for i in range(5):
     font_s = 50 + i*15
     multikill_fonts.append(pygame.font.Font('texture/agencyb.ttf', round(font_s)))
+
+terminal_kill_counter = pygame.font.Font('texture/terminal.ttf', 40)
+kill_counter_texts = {}
+for x in range(10,101):
+    image_list = []
+    for color in [[255,255,255], [255,0,0], [0,255,0], [0,0,255]]:
+        text = terminal_kill_counter.render("x" + str(x), False, color)
+        image_list.append(text)
+    kill_counter_texts[x] = image_list
 
 kill_rgb = rgb_image_load("texture/kill.png")
 
@@ -149,6 +175,10 @@ huuto = pygame.transform.scale(pygame.image.load("texture/huutomerkki.png"), [12
 huuto.set_alpha(100)
 thuds = mixer.get_sound_Variants("sound","thud")
 kill_sound = pygame.mixer.Sound("sound/kill_sound.wav")
+menu_click =  pygame.mixer.Sound("sound/menu_click.wav")
+menu_click2 =  pygame.mixer.Sound("sound/menu_click2.wav")
+
+barricade_texture = pygame.image.load("texture/barricade.png").convert()
 
 kill_sounds = get_sound_Variants("sound","kill")
 # kill_sound = pygame.mixer.Sound("sound/kill5.wav")
@@ -160,7 +190,7 @@ shotgun_sounds = {"fire": get_sound_Variants("sound","shotgun"),"reload":reload}
 assault_rifle_sounds = {"fire": get_sound_Variants("sound","assault"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 sniper_rifle_sounds = {"fire": get_sound_Variants("sound","sniper"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 smg_sounds = {"fire": get_sound_Variants("sound","smg"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
-pygame.mixer.music.load("sound/paska_biisi.wav")
+
 turret_fire1 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire2 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire3 = pygame.mixer.Sound("sound/turret_fire1.wav")

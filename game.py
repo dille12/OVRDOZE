@@ -12,6 +12,8 @@ import los
 from network import Network
 import ast
 
+
+
 from values import *
 import classes
 from classes import items
@@ -28,6 +30,46 @@ terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 
 
 weapons = {
+
+
+"M1911": classes.Weapon("M1911",
+                        clip_s = 8,
+                        fire_r = 2000,
+                        spread = 7,
+                        spread_r = 0.94,
+                        reload_r = 45,
+                        damage = 15,
+                        semi_auto = True,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        ammo_cap_lvlup = 1,
+                        image = "m1911.png",
+                        ammo = "INF",
+                        view = 0.0,
+                        handling = 0.7),
+
+"AR-15": classes.Weapon("AR-15",
+                        clip_s = 35,
+                        fire_r = 500,
+                        spread = 1,
+                        spread_r = 0.93,
+                        bullet_speed = 35,
+                        reload_r = 60,
+                        damage = 34,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds,
+                        ammo_cap_lvlup = 1,
+                        image = "m16.png",
+                        ammo = "7.62x39MM",
+                        piercing = True,
+                        view = 0.032,
+                        handling = 0.25,
+                        burst = True,
+                        burst_bullets = 3,
+                        burst_fire_rate = 2),
+
+
 
 "AK": classes.Weapon("AK47",
                         clip_s = 30,
@@ -102,20 +144,23 @@ weapons = {
                         view = 0.02,
                         handling = 0.5),
 "GLOCK": classes.Weapon("GLOCK",
-                        clip_s = 12,
-                        fire_r = 2000,
-                        spread = 5,
-                        spread_r = 0.94,
+                        clip_s = 20,
+                        fire_r = 350,
+                        spread = 3,
+                        spread_r = 0.92,
                         reload_r = 30,
-                        damage = 22,
-                        semi_auto = True,
+                        damage = 27,
+                        semi_auto = False,
                         bullets_at_once = 1,
                         shotgun = False,
                         ammo_cap_lvlup = 1,
                         image = "glock.png",
                         ammo = "45 ACP",
-                        view = 0.015,
-                        handling = 0.9),
+                        view = 0.017,
+                        handling = 0.9,
+                        burst = True,
+                        burst_bullets = 3,
+                        burst_fire_rate = 3),
 
 "AWP": classes.Weapon("AWP",
                         clip_s = 10,
@@ -137,6 +182,9 @@ weapons = {
                         handling = 0.15),
 }
 
+
+
+
 def give_weapon(gun):
     return weapons[gun].copy()
 
@@ -154,7 +202,7 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
     try:
         x_pos_1 = round(player_pos[0])
         y_pos_1 = round(player_pos[1])
-        angle_1 = round(player_Angle)
+        angle_1 = round(player_actor.get_angle())
         string = ":"
         for bull in bullets_new:
             string += bull.get_string()
@@ -210,7 +258,15 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
 
 
 
-def main(multiplayer = False, net = None, host = False, players = None, self_name = None):
+def main(multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True):
+    print("GAME STARTED WITH",difficulty)
+
+    diff_rates = {"NO ENEMIES" : [0,1,1,1], "EASY" : [0.9,0.9,0.75,1], "NORMAL" : [1,1,1,1], "HARD" : [1.1, 1.25, 1.1, 0.9]} #
+
+    sanity_drain, zombie_hp, zombie_damage, turret_bullets = diff_rates[difficulty]
+
+
+
     global barricade_in_hand
     player_pos = [50,50]
     camera_pos = [0,0]
@@ -227,6 +283,17 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     data_collector = None
     collision_check_player = True
 
+    wave = False
+    wave_number = 0
+    wave_change_timer = time.time()
+
+    wave_text_tick = -20
+
+    wave_length = 30
+    wave_interval = 20
+
+    wave_anim_ticks = [0,0]
+
     tick_rate = 1
     server_tick = 0
 
@@ -234,6 +301,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     pygame.init()
     pygame.font.init()
     pygame.mixer.init()
+
+    pygame.mixer.music.fadeout(2000)
+
     if full_screen_mode:
         full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
         screen =  pygame.Surface(size).convert()
@@ -255,7 +325,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 continue
             multiplayer_actors[y] = classes.Player_Multi(y)
     else:
-        enemy_count = 3
+        enemy_count = 10
         enemy_up_time = time.time()
 
 
@@ -375,8 +445,33 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     interctables = []
 
     player_inventory = classes.Inventory(interctables, player = True)
-    #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 999}, 2: {{key: value for key, value in variable}"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
-    player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 150}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
+    #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
+    #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
+
+
+    ### MAP 1 ###
+
+    interctables.append(classes.Intercatable([5,5], player_inventory, name = "Box"))
+
+    interctables.append(classes.Intercatable([170,295], player_inventory, name = "Box"))
+
+    interctables.append(classes.Intercatable([560,210], player_inventory, name = "Box"))
+
+    interctables.append(classes.Intercatable([820,5], player_inventory, name = "Box"))
+
+    interctables.append(classes.Intercatable([845,585], player_inventory, name = "Box"))
+
+    interctables.append(classes.Intercatable([281,295], player_inventory, name = "Box"))
+
+    interctables.append(classes.Intercatable([2,622], player_inventory, name = "Box"))
+
+
+
+
+
+
+    ### MAP 2 ###
+
     # interctables.append(classes.Intercatable([5,5], player_inventory, name = "Box"))
     #
     # interctables.append(classes.Intercatable([560,210], player_inventory, name = "Box"))
@@ -386,7 +481,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     # interctables.append(classes.Intercatable([830,700], player_inventory, name = "Box"))
     #
     # interctables.append(classes.Intercatable([770,530], player_inventory, name = "Box"))
-    #
+
     # interctables.append(classes.Intercatable([970,5], player_inventory, name = "Box"))
     #
     # interctables.append(classes.Intercatable([5,980], player_inventory, name = "Box"))
@@ -399,12 +494,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-    player_actor = classes.Player()
+    player_actor = classes.Player(turret_bullets)
 
 
 
 
-    draw_los = True
+    #draw_los = True
 
     m_clicked = False
 
@@ -415,18 +510,28 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
-    player_weapons = [give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
+    player_weapons = [give_weapon("M1911"), give_weapon("AR-15"), give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
 
     c_weapon = (player_weapons[0])
     weapon_scroll = 0
 
-    pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.75)
+    #pygame.mixer.music.set_volume(0.75)
 
     pygame.mouse.set_visible(False)
+    path = os.path.abspath(os.getcwd()) + "/sound/songs/"
+    songs = []
+    for file in os.listdir(path):
+        if file.endswith(".wav") and file != "menu_loop.wav":
+            songs.append("sound/songs/" + file)
 
 
     while 1:
+
+
+
+        if pygame.mixer.music.get_busy() == False:
+            pygame.mixer.music.load(func.pick_random_from_list(songs))
+            pygame.mixer.music.play()
 
         time_stamps = {}
 
@@ -437,7 +542,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         m_click = pygame.mouse.get_pressed()[1]
 
-        if m_click == True and m_clicked == False:
+        if m_click == True and m_clicked == False and dev_tools:
             m_clicked = True
 
             print("CLICK")
@@ -488,23 +593,36 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:
                     print("Scroll down")
-                    weapon_scroll -= 1
-                    if weapon_scroll == -1:
-                        weapon_scroll = len(player_weapons) -1
+                    searching = True
+                    while searching:
+                        weapon_scroll -= 1
+                        if weapon_scroll == -1:
+                            weapon_scroll = len(player_weapons) -1
 
-                    c_weapon = (player_weapons[weapon_scroll])
+                        c_weapon = (player_weapons[weapon_scroll])
+
+                        if c_weapon.get_Ammo() != 0 or player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) != 0 or c_weapon.__dict__["ammo"] == "INF":
+                            searching = False
+
                 elif event.button == 5:
                     print("Scroll up")
-                    weapon_scroll += 1
-                    if weapon_scroll == len(player_weapons):
-                        weapon_scroll = 0
+                    searching = True
+                    while searching:
+                        weapon_scroll += 1
+                        if weapon_scroll == len(player_weapons):
+                            weapon_scroll = 0
 
-                    c_weapon = (player_weapons[weapon_scroll])
+                        c_weapon = (player_weapons[weapon_scroll])
+
+                        if c_weapon.get_Ammo() != 0 or player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) != 0 or c_weapon.__dict__["ammo"] == "INF":
+                            searching = False
 
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE]:
 
             sys.exit()
+
+
 
 
 
@@ -612,8 +730,33 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         if not multiplayer:
-            if len(enemy_list) < (enemy_count/(player_actor.__dict__["sanity"]/100+0.25)):
-                enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered))
+
+            if wave:
+                if time.time() - wave_change_timer > wave_length:
+                    wave = False
+                    wave_change_timer = time.time()
+
+                    wave_anim_ticks = [120, 0]
+                wave_text_tick += 1
+
+
+            else:
+                if time.time() - wave_change_timer > wave_interval:
+                    wave_length += 3
+                    #wave_interval += 1
+                    wave = True
+                    wave_number += 1
+
+                    wave_text_tick = -20
+
+                    wave_anim_ticks = [0, 120]
+
+
+
+
+
+            if len(enemy_list) < (enemy_count/(player_actor.__dict__["sanity"]/100+0.25)) and wave:
+                enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage))
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -703,7 +846,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
             if collision_check_player:
                 #angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
-                collision_types, angle_coll = map.checkcollision(player_pos,[x_vel, y_vel], 10, map_boundaries)
+                collision_types, angle_coll = map.checkcollision(player_pos,[x_vel, y_vel], 10, map_boundaries, ignore_barricades = True)
                 if angle_coll:
                     #dddwwwfunc.debug_render(math.degrees(angle_coll))
                     player_pos = angle_coll
@@ -721,7 +864,6 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
                 if player_inventory.get_inv() == False:
-
                     firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
 
             player_alive = True
@@ -799,10 +941,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             if kills_bullet != 0 and kills_bullet != None:
                 kills += kills_bullet
                 multi_kill += kills_bullet
-                if multi_kill > 10:
+
+                if multi_kill > 99:
                     multi_kill = 1
 
-                multi_kill_ticks = 120
+
+                multi_kill_ticks = 45
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
 
@@ -871,45 +1015,18 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             #screen.blit(los_image2,(0,0))
 
-        time_stamps["los"] = time.time() - t
-        t = time.time()
+
 
         #pygame.transform.scale(screen, (1920,1080), fullscreen)
-        if phase != 5:
-            try:
-                func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
-            except:
-                pass
 
-            func.print_s(screen, "KILLS: " + str(kills), 2)
-        else:
-            obje = enumerate(time_stamps, 1)
-            total = 0
-            try:
-                for i, k in obje:
-                    time_stamps[k] = time_stamps[k]*1/20 + last_time_stamp[k]*19/20
-
-                    color = [255,round(255/(1 + time_stamps[k]*1000)), round(255/(1 + time_stamps[k]*1000))]
-
-
-                    func.print_s(screen, k + ":" + str(round(time_stamps[k]*1000,1)) + "ms", i, color = color)
-
-                    total += time_stamps[k]
-                if total > 1/60:
-                    color = [255,0,0]
-                else:
-                    color = [255,255,255]
-                func.print_s(screen, "TOTAL" + ":" + str(round(total*1000,1)) + "ms", i+1, color = color)
-            except Exception as e:
-                print(e)
-
-
-        last_time_stamp = time_stamps.copy()
         try:
             if multiplayer:
                 func.print_s(screen, "PING: " + str(round((time.time()-last_thread)*1000)) + "ms (" + str(round(1/(time.time()-last_thread))) + "frames)", 3)
         except Exception as e:
             print(e)
+
+        time_stamps["los"] = time.time() - t
+        t = time.time()
 
 
         if draw_los:
@@ -934,9 +1051,25 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             perc2 = round(100*draw_time2/(draw_time+draw_time2))
 
         #func.print_s(screen, str(perc1) + "% drawing/" + str(perc2) + "% blitting.", 3, color)
+
+        if phase != 0:
+            if phase == 1:
+                t = "LINE OF SIGHT, POINTS"
+            elif phase == 2:
+                t = "LINE OF SIGHT, INTERSECT"
+            elif phase == 3:
+                t = "COLLISION"
+            elif phase == 4:
+                t = "NAV MESH"
+            elif phase == 5:
+                t = "RENDER TIMES"
+            text = terminal3.render("DEVSCREEN: " + t, False, [255,255,255])
+            screen.blit(text, [200, 20])
+
+
         if player_actor.get_hp() > 0:
-            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_actor, mouse_pos, clicked, r_click_tick)
-            player_actor.set_sanity(0.005)
+            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, wave_text_tick, wave_number)
+            player_actor.set_sanity(0.005*sanity_drain)
 
 
             if phase == 3:
@@ -1029,6 +1162,54 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             screen.blit(text, [400,20])
             text = terminal3.render(self_name, False, [255,255,255])
             screen.blit(text, [400,40])
+
+        if phase != 5:
+            try:
+                func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
+            except:
+                pass
+
+            func.print_s(screen, "KILLS: " + str(kills), 2)
+
+            #func.print_s(screen, "WAVE: " + str(wave_number), 3)
+
+            # if c_weapon.__dict__["burst"]:
+            #
+            #     func.print_s(screen, "burst_tick: " + str(c_weapon.__dict__["burst_tick"]), 3)
+            #     func.print_s(screen, "current_burst_bullet: " + str(c_weapon.__dict__["current_burst_bullet"]), 4)
+            #     func.print_s(screen, "weapon_fire_Tick: " + str(c_weapon.weapon_fire_Tick()), 5)
+
+
+        else:
+            obje = enumerate(time_stamps, 1)
+            total = 0
+            try:
+                for i, k in obje:
+                    time_stamps[k] = time_stamps[k]*1/20 + last_time_stamp[k]*19/20
+
+                    color = [255,round(255/(1 + time_stamps[k]*1000)), round(255/(1 + time_stamps[k]*1000))]
+
+
+                    func.print_s(screen, k + ":" + str(round(time_stamps[k]*1000,1)) + "ms", i, color = color)
+
+                    total += time_stamps[k]
+                if total > 1/60:
+                    color = [255,0,0]
+                else:
+                    color = [255,255,255]
+                func.print_s(screen, "TOTAL" + ":" + str(round(total*1000,1)) + "ms (" + str(round(1/total)) + "FPS)", i+1, color = color)
+            except Exception as e:
+                print(e)
+
+
+        last_time_stamp = time_stamps.copy()
+        #func.print_s(screen, str(wave_text_tick), 5)
+
+
+        if wave_anim_ticks[0] != 0:
+            wave_anim_ticks[0] -= 1
+        if wave_anim_ticks[1] != 0:
+            wave_anim_ticks[1] -= 1
 
 
         if full_screen_mode:

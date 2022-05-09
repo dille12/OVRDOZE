@@ -1,0 +1,5 @@
+username=
+FOV=True
+DEV=False
+ULTRA=False
+LASTIP=

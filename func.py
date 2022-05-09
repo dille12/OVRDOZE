@@ -13,6 +13,7 @@ agency = pygame.font.Font('texture/agencyb.ttf', round(70))
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
+terminal4 = pygame.font.Font('texture/terminal.ttf', 40)
 
 evade_skip_tick = 0
 acceleration = 200/1.875
@@ -443,12 +444,44 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, 
             reload.stop()
             c_weapon.fire(player_pos,angle,screen)
             firing_tick = True
-        elif c_weapon.get_Ammo() == 0 and player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]):
+        elif c_weapon.get_Ammo() == 0 and (player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) or c_weapon.__dict__["ammo"] == "INF"):
 
             reload_tick = c_weapon.reload(player_inventory)
 
             for x in weapon_fire_Sounds:
                 x.stop()
+
+    elif c_weapon.__dict__["burst"]:
+
+        if c_weapon.__dict__["burst_tick"] != 0:
+            c_weapon.__dict__["burst_tick"] -= 1
+
+
+        if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0 and c_weapon.weapon_fire_Tick() <= 0:
+
+            c_weapon.__dict__["current_burst_bullet"] = min(c_weapon.__dict__["burst_bullets"],c_weapon.get_Ammo())
+
+            reload.stop()
+            c_weapon.fire(player_pos,angle,screen)
+            firing_tick = True
+
+        else:
+
+            if c_weapon.__dict__["burst_tick"] == 0 and c_weapon.__dict__["current_burst_bullet"] != 0:
+
+                c_weapon.fire(player_pos,angle,screen)
+                firing_tick = True
+
+            elif c_weapon.get_Ammo() == 0 and (player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) > 0 or c_weapon.__dict__["ammo"] == "INF"):
+                reload_tick = c_weapon.reload(player_inventory)
+
+                for x in weapon_fire_Sounds:
+                    x.stop()
+
+
+
+
+
 
     else:
         if c_weapon.check_for_Fire(click) == True and  c_weapon.weapon_fire_Tick() <= 0 and c_weapon.reload_tick() == 0:##FIRE
@@ -458,7 +491,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, 
                 firing_tick = True
 
 
-        elif c_weapon.get_Ammo() == 0 and player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) > 0:
+        elif c_weapon.get_Ammo() == 0 and (player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) > 0 or c_weapon.__dict__["ammo"] == "INF"):
             reload_tick = c_weapon.reload(player_inventory)
 
             for x in weapon_fire_Sounds:
@@ -539,7 +572,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
 
 
 
-def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_actor, mouse_pos, clicked, r_click_tick):
+def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_actor, mouse_pos, clicked, r_click_tick, wave, wave_anim_ticks, wave_text_tick, wave_number):
     global last_hp, damage_ticks
     x_d, y_d =cam_delta
     x_d = -x_d
@@ -580,24 +613,70 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
     if not pygame.mouse.get_visible():
 
-        pos7 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult)]
-        pos8 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult)]
+        if weapon.__dict__["_Weapon__reload_tick"] == 0:
+
+            pos7 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult)]
+            pos8 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult)]
 
 
-        pos2 = line = [pl_pos[0] + math.cos(math.radians(pl_angl-spread)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl-spread)) * (pl_dist+pl_dist_mult)]
-        pos3 = line = [pl_pos[0] + math.cos(math.radians(pl_angl+spread)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl+spread)) * (pl_dist+pl_dist_mult)]
+            pos2 = line = [pl_pos[0] + math.cos(math.radians(pl_angl-spread)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl-spread)) * (pl_dist+pl_dist_mult)]
+            pos3 = line = [pl_pos[0] + math.cos(math.radians(pl_angl+spread)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl+spread)) * (pl_dist+pl_dist_mult)]
 
-        pos1 = line = [pl_pos[0] + math.cos(math.radians(pl_angl-spread)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl-spread)) * (pl_dist-pl_dist_mult)]
-        pos4 = line = [pl_pos[0] + math.cos(math.radians(pl_angl+spread)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl+spread)) * (pl_dist-pl_dist_mult)]
+            pos1 = line = [pl_pos[0] + math.cos(math.radians(pl_angl-spread)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl-spread)) * (pl_dist-pl_dist_mult)]
+            pos4 = line = [pl_pos[0] + math.cos(math.radians(pl_angl+spread)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl+spread)) * (pl_dist-pl_dist_mult)]
 
-        pos5 = line = [pl_pos[0] + math.cos(math.radians(pl_angl)) * (pl_dist-pl_dist_mult*2), pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist-pl_dist_mult*2)]
-        pos6 = line = [pl_pos[0] + math.cos(math.radians(pl_angl)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist+pl_dist_mult)]
+            pos5 = line = [pl_pos[0] + math.cos(math.radians(pl_angl)) * (pl_dist-pl_dist_mult*2), pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist-pl_dist_mult*2)]
+            pos6 = line = [pl_pos[0] + math.cos(math.radians(pl_angl)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist+pl_dist_mult)]
 
 
-        pygame.draw.line(screen, [255,0,0], pos7, pos8,2)
-        pygame.draw.line(screen, hud_color, pos1, pos2,2)
-        pygame.draw.line(screen, hud_color, pos4, pos3,2)
-        pygame.draw.line(screen, hud_color, pos5, pos6,3)
+            pygame.draw.line(screen, [255,0,0], pos7, pos8,2)
+            pygame.draw.line(screen, hud_color, pos1, pos2,2)
+            pygame.draw.line(screen, hud_color, pos4, pos3,2)
+            pygame.draw.line(screen, hud_color, pos5, pos6,3)
+
+        else:
+            rect = pygame.Rect(mouse_pos[0]-10,mouse_pos[1]-10, 20, 20)
+
+            angle = 5*math.pi/2  - math.pi*2 * ( weapon.__dict__["_Weapon__reload_tick"] / weapon.__dict__["_Weapon__reload_rate"])
+            print(angle)
+
+            pygame.draw.arc(screen, hud_color, rect, math.pi/2, angle, 3)
+
+
+    if wave or wave_anim_ticks[0] != 0:
+        wave_end_tick, wave_start_tick = wave_anim_ticks
+
+        if round(wave_text_tick/30)%2 == 0:
+
+            color1 = [255,255,255]
+            color2 = [255,0,0]
+        else:
+            color2 = [255,255,255]
+            color1 = [255,0,0]
+
+        if wave_start_tick != 0:
+
+            pygame.draw.rect(screen, color2, [0,10+y_d,(1-wave_start_tick/120)**3 * size[0],30])
+
+        elif wave_end_tick != 0:
+
+            pygame.draw.rect(screen, color2, [(1-wave_end_tick/120)**3 * size[0],10+y_d,size[0],30])
+
+        else:
+            pygame.draw.rect(screen, color2, [0,10+y_d,size[0],30])
+
+        for x in range(0, round(wave_text_tick*4/200)):
+            mod = 0
+            if wave_end_tick != 0:
+                mod = (1-wave_end_tick/120)**3 * size[0]
+
+            if wave_text_tick*2-200 - x*200 + mod > size[0]:
+                continue
+
+
+            text = terminal4.render("WAVE " + str(wave_number),False,color1)
+            screen.blit(text, [wave_text_tick*4-300 - x*200 + mod, 7+y_d]) #
+
 
 
 
@@ -621,13 +700,18 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
             text = terminal.render(str(clip) + "/" + str(clip_size), False, color)
             screen.blit(text, (15+x_d, 45+y_d)) #
 
-        if player_inventory.get_amount_of_type(weapon.__dict__["ammo"]) < clip_size:
+        if player_inventory.get_amount_of_type(weapon.__dict__["ammo"]) < clip_size and weapon.__dict__["ammo"] != "INF":
             color = [255,0,0]
         else:
             color = hud_color
 
-        text = terminal.render("+" + str(player_inventory.get_amount_of_type(weapon.__dict__["ammo"])) + " res.", False, color)
-        screen.blit(text, (110+x_d, 45+y_d)) #
+        if weapon.__dict__["ammo"] == "INF":
+            text = terminal.render("+INF", False, color)
+            screen.blit(text, (110+x_d, 45+y_d)) #
+        else:
+
+            text = terminal.render("+" + str(player_inventory.get_amount_of_type(weapon.__dict__["ammo"])) + " res.", False, color)
+            screen.blit(text, (110+x_d, 45+y_d)) #
 
     else:
         text = terminal.render("reloading...", False, hud_color)
@@ -639,15 +723,24 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (110+x_d, 65+y_d)) #
+
+    elif weapon.__dict__["burst"]:
+
+        text = terminal3.render("Burst-fire", False, hud_color)
+        screen.blit(text, (15+x_d, 65+y_d)) #
+
+        text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
+        screen.blit(text, (80+x_d, 65+y_d)) #
+
+        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
+        screen.blit(text, (150+x_d, 65+y_d)) #
+
     else:
         text = terminal3.render("Automatic", False, hud_color)
         screen.blit(text, (15+x_d, 65+y_d)) #
 
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
-
-
-
 
         text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
@@ -662,6 +755,12 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
     sanity = player_actor.__dict__["sanity"]
     bars_s = round((sanity)/10)
+
+    if sanity < 40:
+
+        text = terminal3.render("CONSUME NARCOTICS TO REGAIN CONTROL", False, hud_color)
+        screen.blit(text, (size[0] - 217+x_d, 380+y_d))
+
 
     amount, tick = player_actor.get_sanity_change()
     if amount != False:
@@ -702,5 +801,15 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
     screen.blit(text, (15+x_d, 15+y_d)) #
 
     player_inventory.draw_inventory(screen, x_d, y_d, mouse_pos, clicked, player_actor.get_pos(), r_click_tick, player_actor)
+
+
+
+
+
+
+
+
+
+
 
     last_hp = hp

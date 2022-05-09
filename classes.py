@@ -11,6 +11,11 @@ import los
 import pyperclip
 width, height = size
 
+import get_preferences
+
+a, draw_los, a, ultraviolence, a = get_preferences.pref()
+
+
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
@@ -29,12 +34,16 @@ class text_box:
 
     def tick(self, screen, clicked, mouse_pos, events):
         if clicked:
+
             # If the user clicked on the input_box rect.
             if self.box.collidepoint(mouse_pos) or pygame.key.get_pressed()[pygame.K_RETURN]:
-
+                menu_click2.play()
                 # Toggle the active variable.
                 self.active = not self.active
             else:
+                if self.active:
+                    menu_click2.play()
+
                 self.active = False
             # Change the current color of the input box.
             self.color = self.color_active if self.active else self.color_inactive
@@ -50,6 +59,7 @@ class text_box:
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if self.active:
+                        menu_click.play()
                         if pygame.key.get_pressed()[pygame.K_v] and pygame.key.get_pressed()[pygame.K_LCTRL]:
                             self.text = pyperclip.paste()
                             print("PASTED")
@@ -71,7 +81,7 @@ class text_box:
 
 
 class Item:
-    def __init__(self, name, desc, im, max_stack = 1, pick_up_sound = None, consumable = False, sanity_buff = 0):
+    def __init__(self, name, desc, im, max_stack = 1, pick_up_sound = None, consumable = False, sanity_buff = 0, drop_weight = 0, drop_stack = None):
         self.name = name
         self.desc = desc
         self.im = im
@@ -83,6 +93,11 @@ class Item:
         self.consumable = consumable
         self.sanity_buff = sanity_buff
         self.token = str(random.uniform(0,1))
+        self.drop_weight = drop_weight
+        if drop_stack != None:
+            self.drop_stack = drop_stack
+        else:
+            self.drop_stack = self.max_stack
 
     def copy(self):
         return Item(self.name, desc = self.desc,
@@ -137,20 +152,30 @@ class Item:
 #         "12 GAUGE": Item("12 GAUGE", "Cartridges containing numerous projectiles.", "gauge.png", max_stack = 8, pick_up_sound = bullet_pickup),
 #         "7.62x39MM": Item("7.62x39MM", "Supersonic assault rifle round with high stopping power.", "762.png", max_stack = 30, pick_up_sound = bullet_pickup)}
 
-items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png", max_stack = 5, pick_up_sound = grenade_pickup),
-        "Heroin": Item("Heroin", "Restores +40% sanity.", "heroin.png", max_stack = 1, pick_up_sound = needle_pickup, consumable = True, sanity_buff = 40),
-        "Cocaine": Item("Cocaine", "Restores +20% sanity.", "coca.png", max_stack = 3, pick_up_sound = sniff_sound, consumable = True, sanity_buff = 20),
-        "Diazepam": Item("Diazepam", "Restores +7.5% sanity.", "pills.png", max_stack = 5, pick_up_sound = pill_pickup, consumable = True, sanity_buff = 7.5),
-        "45 ACP": Item("45 ACP", "Pistol ammo.", "45acp.png", max_stack = 150, pick_up_sound = bullet_pickup),
-        "50 CAL": Item("50 CAL", "Sniper ammo.", "50cal.png", max_stack = 50, pick_up_sound = bullet_pickup),
-        "9MM": Item("9MM", "Submachine gun ammo.", "9mm.png", max_stack = 150, pick_up_sound = bullet_pickup),
-        "12 GAUGE": Item("12 GAUGE", "Shotgun cartridge.", "gauge.png", max_stack = 50, pick_up_sound = bullet_pickup),
-        "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 120, pick_up_sound = bullet_pickup),
-        "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True),
-        "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True)
+items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png", max_stack = 5, pick_up_sound = grenade_pickup, drop_weight = 4, drop_stack = 2),
+        "Heroin": Item("Heroin", "Restores +40% sanity.", "heroin.png", max_stack = 1, pick_up_sound = needle_pickup, consumable = True, sanity_buff = 40, drop_weight = 0.55),
+        "Cocaine": Item("Cocaine", "Restores +20% sanity.", "coca.png", max_stack = 3, pick_up_sound = sniff_sound, consumable = True, sanity_buff = 20, drop_weight = 1, drop_stack = 1),
+        "Diazepam": Item("Diazepam", "Restores +7.5% sanity.", "pills.png", max_stack = 5, pick_up_sound = pill_pickup, consumable = True, sanity_buff = 7.5, drop_weight = 2, drop_stack = 2),
+        "45 ACP": Item("45 ACP", "Pistol ammo.", "45acp.png", max_stack = 9999, pick_up_sound = bullet_pickup, drop_weight = 7, drop_stack = 150),
+        "50 CAL": Item("50 CAL", "Sniper ammo.", "50cal.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 40),
+        "9MM": Item("9MM", "Submachine gun ammo.", "9mm.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 6, drop_stack = 150),
+        "12 GAUGE": Item("12 GAUGE", "Shotgun cartridge.", "gauge.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 50),
+        "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 120),
+        "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 3, drop_stack = 2),
+        "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 2, drop_stack = 1)
         }
 
 
+drop_table = {}
+drop_index = 0
+
+for item_1 in items:
+    drop_table[drop_index] = item_1
+
+    drop_index += items[item_1].__dict__["drop_weight"]
+
+
+print(drop_table)
 
 
 class Inventory:
@@ -225,30 +250,38 @@ class Inventory:
                 amount += self.contents[slot]["amount"]
         return amount
 
-    def append_to_inv(self, type, amount):
+    def append_to_inv(self, type, amount, scan_only = False):
         amount_in_start = amount
         print(type.get_name(), amount)
         for slot in self.contents:
             if self.contents[slot]["item"].get_name() == type.get_name():
                 if self.contents[slot]["amount"] + amount <= self.contents[slot]["item"].__dict__["max_stack"]:
-                    self.contents[slot]["amount"] += amount
 
-                    if self.player:
-                        type.sound().play()
+                    if scan_only == False:
 
-                    return True
+                        self.contents[slot]["amount"] += amount
+
+                        if self.player:
+                            type.sound().play()
+
+                    return 0
                 else:
                     amount -= self.contents[slot]["item"].__dict__["max_stack"] - self.contents[slot]["amount"]
-                    self.contents[slot]["amount"] = self.contents[slot]["item"].__dict__["max_stack"]
+                    if scan_only == False:
+                        self.contents[slot]["amount"] = self.contents[slot]["item"].__dict__["max_stack"]
 
+        print("AMOUNT AFTER CHECKING FOR STACKS:", amount)
         for slot in range(1,10):
             if slot not in self.contents:
-                self.contents[slot] = {"item": type, "amount": amount}
-                if self.player:
-                    type.sound().play()
-                return True
-        if amount_in_start != amount and self.player:
+                if scan_only == False:
+                    self.contents[slot] = {"item": type, "amount": amount}
+                    if self.player:
+                        type.sound().play()
+                print("APPENDED IN:", slot)
+                return 0
+        if amount_in_start != amount and self.player and scan_only == False:
             type.sound().play()
+        print("CANNOT APPEND, amount left", amount)
         return amount
 
 
@@ -282,7 +315,7 @@ class Inventory:
         return self.inventory_open
 
     def draw_contents(self, screen, x_d, y_d, content, default_pos, mouse_pos, clicked, r_click_tick, player_actor):
-        global barricade_in_hand
+        global barricade_in_hand, turret_bullets
         self.picked_up_slot = None
 
         for slot in content:
@@ -319,7 +352,10 @@ class Inventory:
                     self.hand_tick = 3
                     if content[slot]["item"].__dict__["name"] == "Sentry Turret":
                         pos_player = player_actor.get_pos()
-                        turret_list.append(Turret(pos_player,8,10,500,20,500))
+
+                        turret_bullets = player_actor.__dict__["turret_bullets"]
+
+                        turret_list.append(Turret(pos_player,8,10,500,20,500*turret_bullets))
                         turret_pickup.play()
                     elif content[slot]["item"].__dict__["name"] == "Barricade":
                         pos_player = player_actor.get_pos()
@@ -489,7 +525,7 @@ class Intercatable:
         self.type = type
         if self.type == "crate":
             self.name = name
-            self.image = pygame.image.load("texture/box.png").convert()
+            self.image =  pygame.transform.scale(pygame.image.load("texture/box.png"), [40,40]).convert()
         elif self.type == "item":
             self.lifetime = 3000
             print(self.pos)
@@ -506,10 +542,21 @@ class Intercatable:
 
         if self.type == "crate":
             while True:
-                item_1 = func.pick_random_from_dict(items).copy()
-                self.contents[random.randint(1,9)] = {"amount": random.randint(1,item_1.__dict__["max_stack"]), "item": item_1,"token" : str(random.uniform(0,1))}
+
+                drop = random.uniform(0, drop_index)
+                print("DROP:", drop)
+                keys = drop_table.keys()
+                key_prox = {}
+                for key in keys:
+                    if drop - key >= 0:
+                        key_prox[drop - key] = [drop_table[key], key]
+                print(key_prox)
+                item, key = key_prox[min(key_prox.keys())]
+                print("KEY",key, "DROP",drop)
+                self.contents[random.randint(1,9)] =  {"amount": random.randint(1,items[item].__dict__["drop_stack"]), "item": items[item], "token" : str(random.uniform(0,1))}
                 if random.randint(1,2) == 1:
                     break
+
 
 
 
@@ -544,7 +591,7 @@ class Intercatable:
         screen.blit(self.image, func.minus_list(self.pos,camera_pos))
 
         if los.get_dist_points(player_pos, self.center_pos) < 100:
-            self.button_prompt = button_prompt(self)
+            self.button_prompt = button_prompt(self, self.inv_save)
 
         else:
             self.inv_save.try_deleting_self(self, player_pos)
@@ -557,9 +604,9 @@ class Intercatable:
             self.inv_save.toggle_inv(True)
         elif self.type == "item":
             cond = self.inv_save.append_to_inv(self.item, self.amount)
-            if cond == True:
+            if cond == 0:
                 self.alive = False
-            elif cond != None:
+            else:
                 self.amount = cond
 
 
@@ -579,7 +626,7 @@ class Intercatable:
 
 
 class button_prompt:
-    def __init__(self, object):
+    def __init__(self, object, player_inventory):
 
         self.object = object
         if self.object.__dict__["type"] == "crate":
@@ -590,7 +637,15 @@ class button_prompt:
                 self.text_render2 = prompt.render(self.object.__dict__["name"], False, [255,255,255])
         else:
             self.text_render2 = prompt.render(self.object.__dict__["name"] + " (" + str(self.object.__dict__["amount"]) + ")", False, [255,255,255])
-            self.text_render = prompt.render("F to pick up", False, [255,255,255])
+
+            if player_inventory.append_to_inv(self.object, self.object.__dict__["amount"], scan_only = True) != self.object.__dict__["amount"]:
+
+                self.text_render = prompt.render("F to pick up", False, [255,255,255])
+
+            else:
+
+                self.text_render = prompt.render("NO ROOM IN INVENTORY", False, [255,0,0])
+
         self.rect = self.text_render.get_rect().center
         self.rect2 = self.text_render2.get_rect().center
 
@@ -622,26 +677,48 @@ class kill_count_render:
         self.x_poses = []
         self.images = rgb_list
         self.lifetime = 0
+        self.max_lifetime = 45
         for x in range(kills):
             self.x_poses.append(start_x)
 
             start_x += 50
 
     def tick(self, screen, cam_delta, kill_counter):
-        for x in self.x_poses:
-            if self.lifetime <= 20:
+
+        if len(self.x_poses) >= 10:
+            if self.lifetime <= self.max_lifetime/6:
                 y = 400 + 1/((self.lifetime+1)**1.5)*200
-            elif 20 < self.lifetime <= 100:
+            elif self.max_lifetime/6 < self.lifetime <= 4*self.max_lifetime/6:
                 y = 400
             else:
-                y = 400 + 1/((123 - self.lifetime)**1.2)*(200)
+                y = 400 + 1/((self.max_lifetime+3 - self.lifetime)**1.2)*(200)
+
+
+            func.rgb_render(self.images, min([len(self.x_poses),30])  , [854/2-50,y], cam_delta, screen)
+
+
+            func.rgb_render(kill_counter_texts[len(self.x_poses)], min([len(self.x_poses),30])  , [854/2,y], cam_delta, screen)
 
 
 
 
-            func.rgb_render(self.images, len(self.x_poses)  , [x,y], cam_delta, screen)
+
+        else:
+
+            for x in self.x_poses:
+                if self.lifetime <= self.max_lifetime/6:
+                    y = 400 + 1/((self.lifetime+1)**1.5)*200
+                elif self.max_lifetime/6 < self.lifetime <= 4*self.max_lifetime/6:
+                    y = 400
+                else:
+                    y = 400 + 1/((self.max_lifetime+3 - self.lifetime)**1.2)*(200)
+
+
+
+
+                func.rgb_render(self.images, min([len(self.x_poses),7])  , [x,y], cam_delta, screen)
         self.lifetime += 1
-        if self.lifetime <= 120:
+        if self.lifetime >= self.max_lifetime:
             del kill_counter
 
 
@@ -783,7 +860,7 @@ class Explosion:
 
 
 class Particle:
-    def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen):
+    def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen, dont_copy = False):
         self.__pos = pos
         self.__type = type
         if pre_defined_angle == False:
@@ -791,8 +868,20 @@ class Particle:
         else:
             self.__direction = math.radians(angle)
 
-        self.__lifetime = round(random.randint(3,10) * magnitude)
-        self.__magnitude = round(magnitude*3)
+
+        if ultraviolence:
+            if dont_copy == False:
+                for i in range(4):
+                    particle_list.append(Particle(pos, pre_defined_angle = pre_defined_angle,angle = angle, magnitude = magnitude,type = type, screen = screen, dont_copy = True))
+
+
+            self.__lifetime = round(random.randint(3,10) * magnitude*random.uniform(1,1.3))
+
+            self.__magnitude = round(magnitude*3* random.uniform(1,1.3))
+
+        else:
+            self.__lifetime = round(random.randint(3,10) * magnitude)
+            self.__magnitude = round(magnitude*3)
         self.__color2 = [random.randint(0,50),random.randint(155,255),random.randint(235,255)]
         self.__color3 = [random.randint(200,220),random.randint(0,50),random.randint(0,50)]
         self.draw_surface = screen
@@ -829,7 +918,7 @@ class Particle:
             particle_list.remove(self)
 
 class Weapon:
-    def __init__(self,name,clip_s,fire_r,spread,spread_r,reload_r,damage, bullets_at_once = 1, shotgun = False, spread_per_bullet = 1, handling = 1, semi_auto = False, bullet_speed = 20, piercing = False, ammo_cap_lvlup = 5, ammo = "9MM", image = "", enemy_weapon = False, sounds = {"fire": weapon_fire_Sounds, "reload": reload}, view = 0.03):
+    def __init__(self,name,clip_s,fire_r,spread,spread_r,reload_r,damage, bullets_at_once = 1, burst = False, burst_fire_rate = 3, burst_bullets = 3, shotgun = False, spread_per_bullet = 1, handling = 1, semi_auto = False, bullet_speed = 20, piercing = False, ammo_cap_lvlup = 5, ammo = "9MM", image = "", enemy_weapon = False, sounds = {"fire": weapon_fire_Sounds, "reload": reload}, view = 0.03):
         self.__clip_size = clip_s
         self.__bullets_in_clip = 0
         self.__bullet_per_min = fire_r
@@ -861,6 +950,13 @@ class Weapon:
         self.ammo = ammo
         self.view = view
         self.handling = handling
+
+        self.burst = burst
+        self.burst_bullets = burst_bullets
+        self.burst_fire_rate = burst_fire_rate
+        self.burst_tick = 0
+        self.current_burst_bullet = 0
+
         if enemy_weapon:
             self.team = "hostile"
         else:
@@ -893,7 +989,10 @@ class Weapon:
         ammo = self.ammo,
         piercing = self.piercing_bullets,
         view = self.view,
-        handling = self.handling)
+        handling = self.handling,
+        burst = self.burst,
+        burst_bullets = self.burst_bullets,
+        burst_fire_rate = self.burst_fire_rate)
 
 
 
@@ -943,6 +1042,10 @@ class Weapon:
         if self.__shotgun == True:
             self.__bullets_in_clip -= 1
 
+        if self.burst:
+            self.burst_tick = self.burst_fire_rate
+            self.current_burst_bullet -= 1
+
         self.__weapon_fire_Tick += self.__firerate
 
 
@@ -960,6 +1063,16 @@ class Weapon:
                 self.semi_auto_click = False
             return False
 
+        elif self.burst:
+
+            if click and self.burst_tick == 0 and self.current_burst_bullet == 0 and self.__bullets_in_clip > 0:
+                return True
+            else:
+                return False
+
+
+
+
         if click == True and self.__bullets_in_clip > 0: ##FIRE
             return True
         else:
@@ -970,7 +1083,10 @@ class Weapon:
 
     def reload(self, player_inventory):
 
-        availabe_ammo = player_inventory.get_amount_of_type(self.ammo)
+        if self.ammo == "INF":
+            availabe_ammo = 1000
+        else:
+            availabe_ammo = player_inventory.get_amount_of_type(self.ammo)
 
         if self.__bullets_in_clip == 0:
 
@@ -990,8 +1106,8 @@ class Weapon:
         self.__reload_tick = self.__reload_rate
 
         self.__bullets_in_clip += to_reload
-
-        player_inventory.remove_amount(self.ammo, to_reload)
+        if self.ammo != "INF":
+            player_inventory.remove_amount(self.ammo, to_reload)
 
 
 
@@ -1052,7 +1168,7 @@ def player_hit_detection(pos, lastpos, player, damage):
 
 
 class Zombie:
-    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls):
+    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1):
         self.pos = pos
         self.target_pos = pos
         self.moving_speed = random.uniform(1.5,2.75)
@@ -1060,10 +1176,11 @@ class Zombie:
         self.detection_rate = 0.05
         self.target_angle = 0
         self.detected = False
+        self.killed = False
 
         self.attack_tick = 0
 
-        self.damage = random.randint(5,15)
+        self.damage = random.randint(5,15) * dam_diff
 
         self.route = func.calc_route(pos, player_pos, NAV_MESH, walls)
 
@@ -1072,15 +1189,32 @@ class Zombie:
         self.knockback_tick = 0
         self.knockback_angle = 0
 
-        self.hp = 100
+        self.hp = 100 * hp_diff
 
 
         self.inventory = Inventory(interctables)
 
         for i in range(random.randint(1,9)):
             if random.uniform(0,1) < 0.02:
-                item_to_pick = func.pick_random_from_dict(items, key = True)
-                self.inventory.append_to_inv(items[item_to_pick], random.randint(1,items[item_to_pick].__dict__["max_stack"]))
+                # item_to_pick = func.pick_random_from_dict(items, key = True)
+                #
+
+                drop = random.uniform(0, drop_index)
+                print("DROP:", drop)
+                keys = drop_table.keys()
+                key_prox = {}
+                for key in keys:
+                    if drop - key >= 0:
+                        key_prox[drop - key] = [drop_table[key], key]
+                print(key_prox)
+                item, key = key_prox[min(key_prox.keys())]
+                print("KEY",key, "DROP",drop)
+                self.inventory.append_to_inv(items[item], random.randint(1,items[item].__dict__["drop_stack"]))
+
+
+
+
+
 
 
         self.angle = 0
@@ -1091,6 +1225,8 @@ class Zombie:
         func.list_play(kill_sounds)
 
         self.inventory.drop_inventory(self.pos)
+
+        self.killed = True
 
         for i in range(5):
             particle_list.append(Particle(func.minus(self.pos,camera_pos), type = "blood_particle", magnitude = 1, screen = draw_blood_parts))
@@ -1139,10 +1275,10 @@ class Zombie:
         return False
 
     def check_if_alive(self):
-        if self.hp > 0:
-            return True
-        else:
+        if self.killed:
             return False
+        else:
+            return True
 
 
 
@@ -1168,12 +1304,17 @@ class Zombie:
 
         self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - self.target_pos[1], self.pos[0] - self.target_pos[0]))
 
+        visible = los.check_los(player_pos, self.pos, walls)
 
-        if los.check_los(player_pos, self.pos, walls):  ## Render
-
+        if visible or not draw_los:
             rot, rect= func.rot_center(player, self.angle, self.temp_pos[0], self.temp_pos[1])
             rect = rot.get_rect().center
             screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
+
+
+        if visible:  ## Render
+
+
 
             dist = los.get_dist_points(self.pos, player_pos)
 
@@ -1531,7 +1672,7 @@ class Barricade:
             w =  (mouse_pos[0] + camera_pos[0])-self.pos[0]
             h = mouse_pos[1]+ camera_pos[1]-self.pos[1]
 
-            area = w*h
+
 
             x = self.pos[0]-camera_pos[0]
             y = self.pos[1]-camera_pos[1]
@@ -1545,6 +1686,8 @@ class Barricade:
                 y += h
                 h = abs(h)
 
+            area = w*h
+
 
             if area > 5000 or w < 20 or h < 20:
                 clear = False
@@ -1553,9 +1696,17 @@ class Barricade:
                 clear = True
                 color = [0,204,0]
 
+            rect_1 = pygame.Rect(x, y, w, h)
+
+            rect_2 = pygame.Rect(x+camera_pos[0], y+camera_pos[1], w, h)
+
+            collisions = list(classtest.getcollisions(map.__dict__["rectangles"], rect_2))
+            if collisions:
+                clear = False
+                color = [204,0,0]
 
 
-            pygame.draw.rect(screen, color, pygame.Rect(x, y, w, h),3)
+            pygame.draw.rect(screen, color, rect_1 ,3)
 
             if clicked and clear:
                 self.width = w
@@ -1563,6 +1714,13 @@ class Barricade:
                 self.stage = "built"
                 self.pos = [x + camera_pos[0],y + camera_pos[1]]
                 self.rect = pygame.Rect(self.pos[0], self.pos[1], self.width, self.height)
+
+                self.surf = pygame.Surface([w,h]).convert()
+
+                for x in range(round(w/100+0.49)):
+                    for y in range(round(h/100+0.49)):
+                        self.surf.blit(barricade_texture,[x*100,y*100], area = [0,0,self.width, self.height])
+                        print("BLITTED IN:", x, y)
 
                 map.__dict__["rectangles"].append(self.rect)
                 map.__dict__["barricade_rects"].append([self.rect, self])
@@ -1576,10 +1734,10 @@ class Barricade:
 
 
         else:
-
-            pygame.draw.rect(screen, [0,0,0], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height))
-            pygame.draw.rect(screen, [round(((1000-self.hp)/1000)*255), round((self.hp/1000)*255), 0], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height),3)
-
+            screen.blit(self.surf, [self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1]]) #
+            #pygame.draw.rect(screen, [61, 61, 41], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height))
+            pygame.draw.rect(screen, [round(((1000-self.hp)/1000)*255), round((self.hp/1000)*255), 0], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height),2)
+            pygame.draw.rect(screen, [0,0,0], pygame.Rect(self.pos[0]-camera_pos[0], self.pos[1]-camera_pos[1], self.width, self.height),1)
 
 
 
@@ -1589,15 +1747,16 @@ class Barricade:
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, turret_bullets = 1):
         self.pos = [0,0]
         self.hp = 100
-        self.sanity = 50
+        self.sanity = 100
         self.sanity_change = None
         self.sanity_change_tick = 0
         self.angle = 0
         self.aim_angle = 0
         self.barricade_in_hand = None
+        self.turret_bullets = turret_bullets
 
     def set_pos(self,pos):
         self.pos = pos
@@ -1799,32 +1958,37 @@ class Turret:
         self.__aiming_at = 0
 
         self.size = turret.get_rect().size[0]/2
+        self.target = None
 
         self.__damage = damage
 
     def scan_for_enemies(self,enemy_list, walls):
         lowest = 99999
-        closest_enemy = [0,0]
+        closest_enemy = None
         for x in enemy_list:
             if not los.check_los(self.__pos, x.get_pos(), walls):
                 continue
-            hb_s = x.get_hitbox()
-            enemy_pos = x.get_pos()
-            enemy_pos = [enemy_pos[0]  + hb_s[0] / 4,enemy_pos[1]  + hb_s[1] / 4]
-            x_diff = self.__pos[0] - enemy_pos[0]
-            y_diff = self.__pos[1] - enemy_pos[1]
-            dist = math.sqrt(x_diff**2 + y_diff** 2)
+            dist = los.get_dist_points(self.__pos, x.get_pos())
+            if dist > self.__range:
+                continue
             if dist < lowest and dist < self.__range:
                 lowest = dist
-                closest_enemy = enemy_pos
+                closest_enemy = x
         return closest_enemy
 
     def tick(self, screen ,camera_pos,enemy_list,tick, walls, player_pos):
-        if func.check_for_render(camera_pos, self.__pos):
-            return
         shoot = False
-        aim_at = self.scan_for_enemies(enemy_list, walls)
-        if aim_at != [0,0]:
+        aim_at = None
+        if self.target == None:
+            self.target = self.scan_for_enemies(enemy_list, walls)
+        else:
+            if los.check_los(self.__pos, self.target.get_pos(), walls) and los.get_dist_points(self.__pos, self.target.get_pos()) < self.__range and self.target.check_if_alive():
+                aim_at = self.target.get_pos()
+            else:
+                self.target = None
+
+
+        if aim_at != None:
             self.__aiming_at = func.get_angle(self.__pos,aim_at)
             shoot = True
 

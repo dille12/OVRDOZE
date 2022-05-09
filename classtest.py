@@ -10,6 +10,7 @@ import traceback
 import numpy
 import func
 import los
+from itertools import accumulate
 
 
 from values import *
@@ -127,6 +128,9 @@ class Map:
     def get_polygons(self):
         return self.polygons
 
+    def get_size(self):
+        return self.size
+
     def append_polygon(self, polygon):
         x,y,width,height = polygon
         self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
@@ -134,9 +138,11 @@ class Map:
 
 
 
-    def checkcollision(self, pos, movement,collider_size, map_size, damage_barricades = False, damager = None):
-
-        collider = pygame.Rect(pos[0]-collider_size,pos[1]-collider_size, collider_size*2, collider_size*2)
+    def checkcollision(self, pos, movement,collider_size, map_size, damage_barricades = False, damager = None, ignore_barricades = False, collider_rect = False, check_only_collision = False):
+        if collider_rect:
+            collider = pos
+        else:
+            collider = pygame.Rect(pos[0]-collider_size,pos[1]-collider_size, collider_size*2, collider_size*2)
         map_rect = pygame.Rect(0,0,map_size[0], map_size[1])
 
         collisiontypes = {
@@ -185,7 +191,7 @@ class Map:
         for check in check_order:
 
 
-            collisions = getcollisions(self.rectangles,collider)
+            collisions = list(getcollisions(self.rectangles,collider))
 
             if check == check_order[0] and damage_barricades:
                 for barr in self.barricade_rects:
@@ -199,6 +205,15 @@ class Map:
             if check == "x":
 
                 for tile in collisions:
+                    if ignore_barricades:
+                        ignore = False
+                        for barr in self.barricade_rects:
+                            if barr[0] == tile:
+                                ignore = True
+                                break
+                        if ignore:
+                            continue
+
 
                     if tile.collidepoint(collider.midright):
 
@@ -216,6 +231,15 @@ class Map:
 
 
                 for tile in collisions:
+
+                    if ignore_barricades:
+                        ignore = False
+                        for barr in self.barricade_rects:
+                            if barr[0] == tile:
+                                ignore = True
+                                break
+                        if ignore:
+                            continue
 
 
                     if tile.collidepoint(collider.midbottom):

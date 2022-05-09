@@ -37,5 +37,4 @@ class Network:
             return reply
         except socket.error as e:
             print("SOCKET ERROR:",e)
-            sys.exit()
             return "KILL"
