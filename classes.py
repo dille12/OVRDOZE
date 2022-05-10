@@ -1168,28 +1168,52 @@ def player_hit_detection(pos, lastpos, player, damage):
 
 
 class Zombie:
-    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1):
+    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal"):
         self.pos = pos
         self.target_pos = pos
+        self.tick_every = 1
         self.moving_speed = random.uniform(1.5,2.75)
         self.detection_range = random.randint(400,600)
-        self.detection_rate = 0.05
+        self.detection_rate = 0.05 * self.tick_every
         self.target_angle = 0
         self.detected = False
         self.killed = False
+        self.damage = random.randint(5,15) * dam_diff
+        self.knockback_resistance = 1
+        self.hp = 100 * hp_diff
+        if type == "normal":
+            self.size = 10
+            self.image = zombie
+        else:
+            self.size = 20
+            self.image = zombie_big
+            self.moving_speed *= 0.35
+            self.damage *= 2
+            self.hp *= 5
+            self.knockback_resistance = 0.1
 
         self.attack_tick = 0
 
-        self.damage = random.randint(5,15) * dam_diff
+
 
         self.route = func.calc_route(pos, player_pos, NAV_MESH, walls)
 
+        self.stationary  = 0
 
+        self.tick_time = 0
 
         self.knockback_tick = 0
         self.knockback_angle = 0
 
-        self.hp = 100 * hp_diff
+
+
+
+        self.process_tick = 0
+
+        self.times = {"total" : 0}
+
+
+        self.visible = False
 
 
         self.inventory = Inventory(interctables)
@@ -1250,7 +1274,7 @@ class Zombie:
 
     def knockback(self,amount,angle):
 
-        self.knockback_tick = amount
+        self.knockback_tick = round(amount*self.knockback_resistance)
         self.knockback_angle = angle
 
 
@@ -1258,8 +1282,8 @@ class Zombie:
 
 
     def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render):
-        points_1 = [[self.pos[0], self.pos[1] -25], [self.pos[0], self.pos[1] + 25]]
-        points_2 = [[self.pos[0]-25, self.pos[1]], [self.pos[0]+25, self.pos[1]]]
+        points_1 = [[self.pos[0], self.pos[1] - self.size*2.5], [self.pos[0], self.pos[1] + self.size*2.5]]
+        points_2 = [[self.pos[0]-self.size*2.5, self.pos[1]], [self.pos[0]+self.size*2.5, self.pos[1]]]
 
         if los.intersect(pos, lastpos, points_1[0], points_1[1]) or los.intersect(pos, lastpos, points_2[0], points_2[1]):
 
@@ -1282,7 +1306,17 @@ class Zombie:
 
 
 
-    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render):
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0):
+
+        if phase == 6:
+            t_1 = time.time()
+
+        if self.process_tick == self.tick_every:
+            self.process_tick = 0
+        else:
+            self.process_tick += 1
+
+
 
         if self.attack_tick != 0:
             self.attack_tick -= 1
@@ -1291,10 +1325,22 @@ class Zombie:
         player_pos = player_actor.get_pos()
         pl_temp_pos = func.minus_list(player_pos,camera_pos)
 
+        last_pos = self.pos.copy()
+
         if self.knockback_tick != 0:
 
             self.pos = [self.pos[0] + math.cos(self.knockback_angle) * self.knockback_tick**0.5, self.pos[1] - math.sin(self.knockback_angle) *self.knockback_tick**0.5]
             self.knockback_tick -= 1
+
+        if phase == 6:
+            t_2 = time.time()
+
+        if draw_los and self.process_tick == 0:
+
+            self.visible = los.check_los(player_pos, self.pos, walls)
+
+        if phase == 6:
+            t_3 = time.time()
 
 
 
@@ -1304,17 +1350,18 @@ class Zombie:
 
         self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - self.target_pos[1], self.pos[0] - self.target_pos[0]))
 
-        visible = los.check_los(player_pos, self.pos, walls)
 
-        if visible or not draw_los:
-            rot, rect= func.rot_center(player, self.angle, self.temp_pos[0], self.temp_pos[1])
+
+        if self.visible or not draw_los:
+            rot, rect= func.rot_center(self.image, self.angle, self.temp_pos[0], self.temp_pos[1])
             rect = rot.get_rect().center
             screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
 
+        if phase == 6:
+            t_4 = time.time()
 
-        if visible:  ## Render
 
-
+        if self.visible:  ## Render
 
             dist = los.get_dist_points(self.pos, player_pos)
 
@@ -1322,30 +1369,35 @@ class Zombie:
 
                 if random.uniform(0,1) < (1 - dist/self.detection_range)*self.detection_rate:
                     self.detected = True
-
-                if self.detected:
-                    self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
-                    if dist > 50:
-
-                        self.target_pos = player_pos
-
-                    else:
-                        self.target_pos = self.pos
-
-                        if self.attack_tick == 0:
-                            self.attack_tick = 30
-                            player_actor.set_hp(self.damage, reduce = True)
-                            func.list_play(pl_hit)
-
-                            for i in range(3):
-                                particle_list.append(Particle(func.minus(player_actor.get_pos(), camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
-
-
             else:
                 self.detected = False
 
-        # if player_actor.get_hp() < 0:
-        #     self.target_pos = self.pos
+        else:
+            self.detected = False
+
+        if phase == 6:
+            t_5 = time.time()
+
+        if self.detected:
+            self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
+            if dist > 50:
+
+                self.target_pos = player_pos
+
+            else:
+                self.target_pos = self.pos
+
+                if self.attack_tick == 0:
+                    self.attack_tick = 30
+                    player_actor.set_hp(self.damage, reduce = True)
+                    func.list_play(pl_hit)
+
+                    for i in range(3):
+                        particle_list.append(Particle(func.minus(player_actor.get_pos(), camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
+
+        if phase == 6:
+            t_6 = time.time()
+
 
         if self.angle != self.target_angle:
 
@@ -1353,6 +1405,9 @@ class Zombie:
                 self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*0.1
             else:
                 self.angle = self.target_angle
+
+        if phase == 6:
+            t_7 = time.time()
 
         if self.target_pos != self.pos:
 
@@ -1364,19 +1419,81 @@ class Zombie:
             else:
                 i = False
 
-            collision_types, coll_pos = map.checkcollision(self.pos,[math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed], 10, map_boundaries, damage_barricades = i, damager = self)
-            if coll_pos != self.pos:
-                self.pos = coll_pos
+            collision_types, coll_pos = map.checkcollision(self.pos,[math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, map_boundaries, damage_barricades = i, damager = self)
+            self.pos = coll_pos
             if los.get_dist_points(self.pos,self.target_pos) < 10:
                 self.target_pos = self.pos
 
         else:
             if self.route != []:
-                self.target_pos = self.route[0]
-                self.route.remove(self.route[0])
+
+                for route in self.route:
+
+                    self.target_pos = route
+                    self.route.remove(route)
+
+                    if self.pos != self.target_pos:
+                        break
 
             else:
                 self.route = func.calc_route(self.pos, player_pos, NAV_MESH, walls)
+
+        if phase == 6:
+            t_8 = time.time()
+
+        if last_pos == self.pos  and self.detected == False:
+
+            self.stationary += 1
+            if self.stationary > 30:
+                self.route = func.calc_route(self.pos, player_pos, NAV_MESH, walls)
+                try:
+                    self.target_pos = self.route[0]
+                except:
+                    pass
+        #
+        else:
+            self.stationary = 0
+
+        if phase == 6:
+            t_9 = time.time()
+
+        if phase == 6:
+
+            if self.stationary != 0:
+                text = terminal.render("stationary:" + str(self.stationary), False, [255,255,255])
+                screen.blit(text, func.minus(self.pos,camera_pos, op="-"))
+
+            tick_time = (t_2 - t_1)*1000
+
+            self.tick_time = round(self.tick_time * 9/10 + 1/10 * tick_time,2)
+            last = t_1
+            x_p = 30
+            delta = 0
+            for i, x in enumerate([t_2,t_3,t_4,t_5,t_6,t_7,t_8,t_9]):
+
+                t = round((x - last)*1000,2)
+
+                if i in self.times:
+                    self.times[i] = round(self.times[i] * 29/30 + 1/30 * t,2)
+                else:
+                    self.times[i] = t
+
+
+                text = terminal.render(str(self.times[i]) + "ms", False, [255,255,255])
+                screen.blit(text, func.minus(func.minus(self.pos,[0,x_p]),camera_pos, op="-"))
+                x_p += 30
+                last = x
+
+                delta += self.times[i]
+            self.times["total"] = round(self.times["total"] * 29/30 + 1/30 * delta,2)
+            text = terminal.render(str(delta) + "ms", False, [255,255,255])
+            screen.blit(text, func.minus(func.minus(self.pos,[0,0]),camera_pos, op="-"))
+
+            if self.pos != self.target_pos:
+                last_pos = self.pos
+                for tar in self.route:
+                    pygame.draw.line(screen, [255,255,255], func.minus(last_pos,camera_pos, op="-"), func.minus(tar,camera_pos, op="-"))
+                    last_pos = tar
 
 
 

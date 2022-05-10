@@ -115,7 +115,7 @@ def get_angle(pos1,pos2):
     mydegrees = math.degrees(myradians)
     return mydegrees
 
-def minus(list1,list2):
+def minus(list1,list2, op = "+"):
     try:
         list_1 = list1.copy()
         list_2 = list2.copy()
@@ -123,7 +123,10 @@ def minus(list1,list2):
         list_1 = list1
         list_2 = list2
     for x in range(len(list1)):
-        list_1[x] += list_2[x]
+        if op == "+":
+            list_1[x] += list_2[x]
+        else:
+            list_1[x] -= list_2[x]
     return list_1
 
 def pick_random_from_list(list):
@@ -642,7 +645,8 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
             pygame.draw.arc(screen, hud_color, rect, math.pi/2, angle, 3)
 
-
+    wave_surf = pygame.Surface((size[0], 30), pygame.SRCALPHA, 32).convert_alpha()
+    wave_surf.set_colorkey([255,255,255])
     if wave or wave_anim_ticks[0] != 0:
         wave_end_tick, wave_start_tick = wave_anim_ticks
 
@@ -656,14 +660,14 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
         if wave_start_tick != 0:
 
-            pygame.draw.rect(screen, color2, [0,10+y_d,(1-wave_start_tick/120)**3 * size[0],30])
+            pygame.draw.rect(wave_surf, color2, [0,0,(1-wave_start_tick/120)**3 * size[0],30])
 
         elif wave_end_tick != 0:
 
-            pygame.draw.rect(screen, color2, [(1-wave_end_tick/120)**3 * size[0],10+y_d,size[0],30])
+            pygame.draw.rect(wave_surf, color2, [(1-wave_end_tick/120)**3 * size[0],0,size[0],30])
 
         else:
-            pygame.draw.rect(screen, color2, [0,10+y_d,size[0],30])
+            pygame.draw.rect(wave_surf, color2, [0,0,size[0],30])
 
         for x in range(0, round(wave_text_tick*4/200)):
             mod = 0
@@ -675,10 +679,10 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
             text = terminal4.render("WAVE " + str(wave_number),False,color1)
-            screen.blit(text, [wave_text_tick*4-300 - x*200 + mod, 7+y_d]) #
+            wave_surf.blit(text, [wave_text_tick*4-300 - x*200 + mod, -3]) #
 
 
-
+    screen.blit(wave_surf,(0,10+y_d))
 
     try:
         im = weapon.get_image()

@@ -129,6 +129,11 @@ for x in range(10,101):
 kill_rgb = rgb_image_load("texture/kill.png")
 
 player = pygame.transform.scale(pygame.image.load("texture/player.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
+player_pistol = pygame.transform.scale(pygame.image.load("texture/player_pistol.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
+zombie = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(119/multiplier),round(119/multiplier)]).convert_alpha()
+zombie_big = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(200/multiplier),round(200/multiplier)]).convert_alpha()
+
+
 player_firing = pygame.transform.scale(pygame.image.load("texture/player_firing.png"),[round(225/multiplier),round(100/multiplier)]).convert_alpha()
 bullet = pygame.transform.scale(pygame.image.load("texture/bullet.png"), (15,4)).convert_alpha()
 bullet_length = []

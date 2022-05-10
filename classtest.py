@@ -96,7 +96,7 @@ def getcollisions(tiles,boxcollider):
 
 
 class Map:
-    def __init__(self,name, dir, pos, conv ,size,polygons,objects):
+    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size,polygons,objects):
         self.name = name
         self.size = size
         self.polygons = []
@@ -104,6 +104,8 @@ class Map:
         self.conv = conv
         self.points_inside_polygons = []
         self.pos = [pos[0] / conv, pos[1] / conv]
+
+        self.nav_mesh_name = nav_mesh_name
 
         self.barricade_rects = []
 
@@ -157,30 +159,55 @@ class Map:
 
         }
 
-        if not map_rect.collidepoint(collider.midleft):
-
-            collider.left = map_rect.left
-
-            collisiontypes["right"] = True
-
-        if not map_rect.collidepoint(collider.midright):
-
-            collider.right = map_rect.right
+        if collider.centerx < collider_size:
+            collider.left = 0
 
             collisiontypes["left"] = True
 
+        if collider.centerx > map_size[0] - collider_size:
+            collider.right = map_size[0]
 
-        if not map_rect.collidepoint(collider.midbottom):
+            collisiontypes["right"] = True
 
-            collider.bottom = map_rect.bottom
+        if collider.centery < collider_size:
+            collider.top = 0
+
+            collisiontypes["top"] = True
+
+        if collider.centery > map_size[1] - collider_size:
+            collider.bottom = map_size[1]
 
             collisiontypes["bottom"] = True
 
-        if not map_rect.collidepoint(collider.midtop):
 
-            collider.top = map_rect.top
 
-            collisiontypes["top"] = True
+
+
+
+        # if not map_rect.collidepoint(collider.midleft) and map_rect.collidepoint(collider.midright):
+        #
+        #     collider.left = map_rect.left
+        #
+        #     collisiontypes["right"] = True
+        #
+        # if not map_rect.collidepoint(collider.midright) and map_rect.collidepoint(collider.midleft):
+        #
+        #     collider.right = map_rect.right
+        #
+        #     collisiontypes["left"] = True
+        #
+        #
+        # if not map_rect.collidepoint(collider.midbottom):
+        #
+        #     collider.bottom = map_rect.bottom
+        #
+        #     collisiontypes["bottom"] = True
+        #
+        # if not map_rect.collidepoint(collider.midtop):
+        #
+        #     collider.top = map_rect.top
+        #
+        #     collisiontypes["top"] = True
 
         if abs(movement[0]) >= abs(movement[1]):
             check_order = ["x","y"]
@@ -215,13 +242,13 @@ class Map:
                             continue
 
 
-                    if tile.collidepoint(collider.midright):
+                    if tile.collidepoint(collider.midright) and not tile.collidepoint(collider.midleft):
 
                         collider.right = tile.left
 
                         collisiontypes["right"] = True
 
-                    if tile.collidepoint(collider.midleft):
+                    if tile.collidepoint(collider.midleft) and not tile.collidepoint(collider.midright):
 
                         collider.left = tile.right
 
@@ -242,13 +269,13 @@ class Map:
                             continue
 
 
-                    if tile.collidepoint(collider.midbottom):
+                    if tile.collidepoint(collider.midbottom) and not tile.collidepoint(collider.midtop):
 
                         collider.bottom = tile.top
 
                         collisiontypes["bottom"] = True
 
-                    if tile.collidepoint(collider.midtop):
+                    if tile.collidepoint(collider.midtop) and not tile.collidepoint(collider.midbottom):
 
                         collider.top = tile.bottom
 
@@ -662,15 +689,15 @@ class Map:
 
 
 
-        for object in self.objects:   ### ((0,0),"floor_tile_1",180)
-            object_texture = self.textures[object[1]]
-            if object[2] != 0:
-                rotated_image, new_rect = rot_center(object_texture,object[2],object[0][0],object[0][1])
-                object_pos = [object[0][0] - new_rect[0], object[0][1] - new_rect[1]]
-            else:
-                object_pos = object[0]
-                rotated_image = object_texture
-            self.map_rendered.blit(rotated_image, object_pos)
+        # for object in self.objects:   ### ((0,0),"floor_tile_1",180)
+        #     object_texture = self.textures[object[1]]
+        #     if object[2] != 0:
+        #         rotated_image, new_rect = rot_center(object_texture,object[2],object[0][0],object[0][1])
+        #         object_pos = [object[0][0] - new_rect[0], object[0][1] - new_rect[1]]
+        #     else:
+        #         object_pos = object[0]
+        #         rotated_image = object_texture
+        #     self.map_rendered.blit(rotated_image, object_pos)
 
         for polygon in self.polygons:
             print(polygon)

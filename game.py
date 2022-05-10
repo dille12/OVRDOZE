@@ -169,7 +169,7 @@ weapons = {
                         spread_r = 0.965,
                         spread_per_bullet = 25,
                         reload_r = 120,
-                        damage = 150,
+                        damage = 200,
                         bullets_at_once = 1,
                         sounds = sniper_rifle_sounds,
                         bullet_speed = 55,
@@ -258,18 +258,26 @@ def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_thro
 
 
 
-def main(multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True):
+def main(multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
     print("GAME STARTED WITH",difficulty)
 
-    diff_rates = {"NO ENEMIES" : [0,1,1,1], "EASY" : [0.9,0.9,0.75,1], "NORMAL" : [1,1,1,1], "HARD" : [1.1, 1.25, 1.1, 0.9]} #
+    diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
 
-    sanity_drain, zombie_hp, zombie_damage, turret_bullets = diff_rates[difficulty]
+    sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[difficulty]
 
+    if not skip_intervals:
+        wave_interval = 20
+        wave_change_timer = time.time()
+    else:
+        wave_interval = 2
+        wave_change_timer = time.time() - 15
+
+    if multiplayer:
+        enemy_count = -1
 
 
     global barricade_in_hand
-    player_pos = [50,50]
-    camera_pos = [0,0]
+
     x_vel = 0
     y_vel = 0
     last_hp = 0
@@ -285,12 +293,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     wave = False
     wave_number = 0
-    wave_change_timer = time.time()
+
 
     wave_text_tick = -20
 
     wave_length = 30
-    wave_interval = 20
 
     wave_anim_ticks = [0,0]
 
@@ -325,7 +332,6 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 continue
             multiplayer_actors[y] = classes.Player_Multi(y)
     else:
-        enemy_count = 10
         enemy_up_time = time.time()
 
 
@@ -347,52 +353,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-    map1 = Map("Paska", "map.png", [0,0], mouse_conversion, [2000,1500],
-    [ #x,y,width,height
-    [2,470,125,186],
-    [377,470,125,186],
-    [502,376,125,561],
-    [501,2,125,95],
-    [253,1219,1122,93], #
-    [502,1124,123,93],
-    [1125,1030,124,189], #
-    [1125,283,125,469],
-    [1126,2,125,93],
-    [1250,375,244,94],
-    [1748,376,252,93],
-    [1624,1218,376,93]
 
-    ],
 
-    []
-    )
-
-    map2 = Map("Paska2", "map2.png", [0,0], mouse_conversion, [2500,2500],
-    [ #x,y,width,height
-    [467,2,156,74],
-    [2,312,621,155],
-    [476,233,147,78],
-    [311,781,156,783],
-    [311,1565, 939, 156],
-    [2, 2034, 465, 156],
-    [781, 2034, 312, 156],
-    [937,2191,156, 290],
-    [1094, 311, 625, 156],
-    [1094, 466, 155, 313],
-    [1564, 467, 157, 1096],
-    [1094, 1095, 470, 155],
-    [1720, 1407, 470, 156],
-    [2034, 1562, 156, 627],
-    [1407, 2034, 628, 155],
-    [2034, 2, 146, 309],
-    [2034, 626, 157, 311],
-    [2190, 781, 311, 156]
-    ],
-
-    []
-    )
-
-    map = map1
 
     active_maps = [map]
 
@@ -405,6 +367,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
     map_render = map.render(mouse_conversion).convert()
+
+
 
     # NAV_MESH = map2.compile_navmesh(mouse_conversion)
     # map_render2 = map2.render(mouse_conversion).convert()
@@ -421,9 +385,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 map_boundaries[i] = end_point
     print(map_boundaries)
 
+    player_pos = player_pos = map.get_random_point(walls_filtered)
+    camera_pos = [0,0]
+
     NAV_MESH = []
     try:
-        file = open("nav_mesh.txt", "r")
+        file = open(map.__dict__["nav_mesh_name"], "r")
         lines = file.readlines()
         file.close()
         for line in lines:
@@ -448,22 +415,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
     #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
 
-
+    for x in map.__dict__["objects"]:
+        x.__dict__["inv_save"] = player_inventory
+        interctables.append(x)
     ### MAP 1 ###
 
-    interctables.append(classes.Intercatable([5,5], player_inventory, name = "Box"))
 
-    interctables.append(classes.Intercatable([170,295], player_inventory, name = "Box"))
-
-    interctables.append(classes.Intercatable([560,210], player_inventory, name = "Box"))
-
-    interctables.append(classes.Intercatable([820,5], player_inventory, name = "Box"))
-
-    interctables.append(classes.Intercatable([845,585], player_inventory, name = "Box"))
-
-    interctables.append(classes.Intercatable([281,295], player_inventory, name = "Box"))
-
-    interctables.append(classes.Intercatable([2,622], player_inventory, name = "Box"))
 
 
 
@@ -472,24 +429,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     ### MAP 2 ###
 
-    # interctables.append(classes.Intercatable([5,5], player_inventory, name = "Box"))
-    #
-    # interctables.append(classes.Intercatable([560,210], player_inventory, name = "Box"))
-    #
-    # interctables.append(classes.Intercatable([210,605], player_inventory, name = "Box"))
-    #
-    # interctables.append(classes.Intercatable([830,700], player_inventory, name = "Box"))
-    #
-    # interctables.append(classes.Intercatable([770,530], player_inventory, name = "Box"))
 
-    # interctables.append(classes.Intercatable([970,5], player_inventory, name = "Box"))
-    #
-    # interctables.append(classes.Intercatable([5,980], player_inventory, name = "Box"))
-
-    # interctables.append(classes.Intercatable([400,200], player_inventory, name = "Box"))
-    # interctables.append(classes.Intercatable([160,145], player_inventory, name = "Box"))
-    # interctables.append(classes.Intercatable([810,600], player_inventory, name = "Box"))
-    #, classes.Intercatable([600,400], player_inventory, name = "Crate")]
 
 
 
@@ -554,7 +494,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 pygame.mouse.set_visible(True)
             else:
                 pygame.mouse.set_visible(False)
-            if phase == 6:
+            if phase == 7:
                 phase = 0
 
 
@@ -756,7 +696,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
             if len(enemy_list) < (enemy_count/(player_actor.__dict__["sanity"]/100+0.25)) and wave:
-                enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage))
+                type = "normal"
+                if random.uniform(0,1) < 0.07:
+                    type = "big"
+
+                enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type))
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -841,7 +785,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             player_actor.set_angle(player_angle)
 
-            func.render_player(screen, mouse_pos, player,player_pos, camera_pos, player_actor)
+            if c_weapon.__dict__["_Weapon__name"] in ["GLOCK", "M1911"]:
+                pl = player_pistol
+            else:
+                pl = player
+
+            func.render_player(screen, mouse_pos, pl,player_pos, camera_pos, player_actor)
 
             player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
             if collision_check_player:
@@ -926,7 +875,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         for enemy in enemy_list:
-            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render)
+            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render, phase = phase)
 
         time_stamps["enemies"] = time.time() - t
         t = time.time()
@@ -1063,6 +1012,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 t = "NAV MESH"
             elif phase == 5:
                 t = "RENDER TIMES"
+            elif phase == 6:
+                t = "ENEMY DEBUG"
+
             text = terminal3.render("DEVSCREEN: " + t, False, [255,255,255])
             screen.blit(text, [200, 20])
 

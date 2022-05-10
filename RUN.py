@@ -14,9 +14,29 @@ import server
 import game
 import hud_elements
 import get_preferences
+import func
+from maps import maps
 
 name, draw_los, dev, ultraviolence, last_ip = get_preferences.pref()
 
+maps_dict = {}
+
+index = 0
+
+for map_1 in maps:
+
+    map_surf = map_1.__dict__["background"]
+
+    x,y = map_surf.get_rect().size
+
+    scale_factor = 200/x
+
+    maps_dict[index] = {"map" : map_1, "image" : pygame.transform.scale(map_surf, (x*scale_factor, y*scale_factor))}
+
+    index += 1
+
+
+selected_map = 0
 
 pygame.init()
 pygame.font.init()
@@ -115,7 +135,7 @@ def start_sp(arg):
 
     get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
 
-    game.main(difficulty = arg, draw_los = draw_los, dev_tools = dev)
+    game.main(difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
 
 def start_mp(arg):
     return "mp_start"
@@ -229,7 +249,7 @@ button8_2 = Button([68,130], "Back", main_menu, None)
 
 check_box_difficulties = []
 
-for text, y_pos in [["NO ENEMIES", 200], ["EASY", 240], ["NORMAL",280], ["HARD", 320]]:
+for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD",280], ["ONSLAUGHT", 320]]:
     box = hud_elements.Checkbox(screen, 20,y_pos, caption = text, font_color = [255,255,255], text_offset = [40,5], cant_uncheck = True)
 
     if text == "NORMAL":
@@ -237,9 +257,14 @@ for text, y_pos in [["NO ENEMIES", 200], ["EASY", 240], ["NORMAL",280], ["HARD",
     check_box_difficulties.append(box)
 
 
-background = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
-background.set_alpha(155)
+background = pygame.Surface((size[0]+50,size[1]), pygame.SRCALPHA, 32).convert_alpha()
+#
+background.set_alpha(254)
+
+background2 = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
 check_box_dev_commands = hud_elements.Checkbox(screen, 20,300, caption = "Dev tools", font_color = [255,255,255], text_offset = [40,5])
+
+check_box_inter = hud_elements.Checkbox(screen, 20,400, caption = "Ceaseless Storm", font_color = [255,0,0], text_offset = [40,5])
 
 if dev:
     check_box_dev_commands.__dict__["checked"] = True
@@ -255,9 +280,9 @@ if ultraviolence:
     check_box_ultra.__dict__["checked"] = True
 
 diff_captions = {"NO ENEMIES" : "For testing.",
-"EASY" : "Sanity drains 10% slower, zombies have 10% less health and 25% less damage.",
 "NORMAL" : "Sanity drain, zombie health and damage are normal.",
-"HARD" : "Sanity drains 10% faster, zombies have 25% more health and 10% more damage. Turrets have 10% less bullets."
+"HARD" : "Sanity drains 25% faster, zombies have 25% more health and 10% more damage. Turrets have 15% less bullets.",
+"ONSLAUGHT" : "Sanity drains 50% faster, zombies have 35% more health and 20% more damage. Turrets have 30% less bullets."
 }
 
 net = None
@@ -288,12 +313,17 @@ while 1:
     mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
 
     for event in events:
+        if menu_status == "settings":
+            check_box_fov.update_checkbox(event, mouse_pos)
+            check_box_dev_commands.update_checkbox(event, mouse_pos)
+            check_box_ultra.update_checkbox(event, mouse_pos)
 
-        check_box_fov.update_checkbox(event, mouse_pos)
-        check_box_dev_commands.update_checkbox(event, mouse_pos)
-        check_box_ultra.update_checkbox(event, mouse_pos)
-        for x in check_box_difficulties:
-            x.update_checkbox(event, mouse_pos, part_of_list = check_box_difficulties)
+        if menu_status == "single_player_lobby":
+
+            check_box_inter.update_checkbox(event, mouse_pos)
+
+            for x in check_box_difficulties:
+                x.update_checkbox(event, mouse_pos, part_of_list = check_box_difficulties)
 
         if event.type == pygame.QUIT: sys.exit()
     mouse_single_tick = False
@@ -305,14 +335,23 @@ while 1:
 
     screen.fill((round(30 - 15 * math.sin(2*math.pi*background_tick/52)),0,0))
 
-    screen.blit(background, (0,0))
 
     if time.time() - t > 0.85714285714:
         t = time.time() - (time.time() - t - 0.85714285714)
-        pos = [random.randint(0,size[0]), random.randint(0,size[1])]
+
         background_tick = 52
-        for i in range(5):
-            particle_list.append(classes.Particle(pos, type = "blood_particle", magnitude = 1, screen = background))
+        for y in range(5):
+            pos = [random.randint(0,size[0]), random.randint(0,size[1])]
+            for i in range(5):
+                particle_list.append(classes.Particle(pos, type = "blood_particle", magnitude = 1, screen = background))
+
+    background2 = background.copy()
+
+    background.fill((0, 0, 0, 0))
+
+    background.blit(background2, (0,1))
+
+    screen.blit(background, (0,0))
 
 
     for x in particle_list:
@@ -418,11 +457,40 @@ while 1:
 
     if menu_status == "single_player_lobby":
 
-        text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
-        screen.blit(text, [400,20])
+        # text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
+        # screen.blit(text, [400,20])
+
+        text = terminal.render("MAP", False, [255,255,255])
+        screen.blit(text, [430- text.get_rect().size[0]/2,20])
+
+        rect_map = maps_dict[selected_map]["image"].get_rect()
+
+        if rect_map.collidepoint(func.minus(mouse_pos,[330,80],"-")):
+
+            if mouse_single_tick:
+                selected_map += 1
+
+                menu_click2.play()
+
+                if selected_map == len(maps_dict):
+                    selected_map = 0
+
+            rect_map = maps_dict[selected_map]["image"].get_rect()
+
+            rect_map.inflate_ip(5,5)
+
+            pygame.draw.rect(screen, [255,255,255], rect_map.move([330,80]))
 
 
+        screen.blit(maps_dict[selected_map]["image"], [330,80])
 
+        text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
+        screen.blit(text, [430- text.get_rect().size[0]/2,50])
+
+
+        check_box_inter.render_checkbox()
+
+        intervals = check_box_inter.__dict__["checked"]
 
 
         for diff in check_box_difficulties:
@@ -450,8 +518,8 @@ while 1:
         if host:
             text = terminal.render("LOBBY (HOSTING)", False, [255,255,255])
             screen.blit(text, [400,20])
-            # text = terminal.render("HOSTED AT:" + ip_address, False, [255,255,255])
-            # screen.blit(text, [500,420])
+            text = terminal.render("HOSTED AT:" + ip_address, False, [255,255,255])
+            screen.blit(text, [500,420])
 
         else:
             text = terminal.render("LOBBY", False, [255,255,255])
@@ -493,8 +561,8 @@ while 1:
         text = terminal.render("Your IP: -", False, [255,255,255])
         screen.blit(text, [30,420])
 
-        # text = terminal.render("Your IP: " + ip_address, False, [255,255,255])
-        # screen.blit(text, [30,420])
+        text = terminal.render("Your IP: " + ip_address, False, [255,255,255])
+        screen.blit(text, [30,420])
 
         text = terminal.render("Joining to:", False, [255,255,255])
         screen.blit(text, [500,420])
