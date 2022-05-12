@@ -1,4 +1,4 @@
-username=
+username=Client
 FOV=True
 DEV=False
 ULTRA=False

@@ -1741,8 +1741,7 @@ class Player_Multi:
         offset = [player_rotated_rect[0]-self.pos[0]-camera_pos[0], player_rotated_rect[1]-self.pos[1]-camera_pos[1]]
         screen.blit(player_rotated,[self.render_pos[0]+offset[0],self.render_pos[1]+offset[1]])
 
-        if len(self.interpolations2) > 60:
-            self.interpolations2.remove(self.interpolations2[0])
+
 
 
 

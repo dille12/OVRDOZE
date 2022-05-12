@@ -60,7 +60,7 @@ hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 #print(socket.gethostbyname('DESKTOP-4KPI1C4')) # IP adress of remote computer
 ip = ""
-name += str(random.randint(1,109))
+# name += str(random.randint(1,109))
 textbox_name = classes.text_box((100,200), name)
 textbox_ip = classes.text_box((640,415), ip)
 
