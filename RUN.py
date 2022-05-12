@@ -60,7 +60,7 @@ hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 #print(socket.gethostbyname('DESKTOP-4KPI1C4')) # IP adress of remote computer
 ip = ""
-
+name += str(random.randint(1,109))
 textbox_name = classes.text_box((100,200), name)
 textbox_ip = classes.text_box((640,415), ip)
 
@@ -88,7 +88,7 @@ def host_game(arg) :
         return "start", None, None
 
 def start_multiplayer_client():
-    game.main(multiplayer = True, net = net, players = players, self_name = name)
+    game.main(multiplayer = True, net = net, players = players, self_name = name, map = maps_dict[selected_map]["map"])
 
 
 def join_game(arg, host = False):
@@ -157,7 +157,19 @@ background_tick = 0
 
 pygame.mixer.music.load("sound/songs/menu_loop.wav")
 pygame.mixer.music.play(-1)
+t = time.time()
 
+class Glitch:
+    def __init__(self):
+        self.images = func.load_animation("anim/glitch",1,10)
+        self.glitch_tick = 0
+
+    def tick(self):
+        if self.glitch_tick != 0:
+            self.glitch_tick -= 1
+            screen.blit(func.pick_random_from_list(self.images), (0,0))
+
+glitch = Glitch()
 
 class Button:
     def __init__(self, pos, text, action, args):
@@ -177,7 +189,7 @@ class Button:
         self.targeted = False
         self.anim_tick = 0
 
-    def tick(self, screen, mouse_pos, click, arg = None):
+    def tick(self, screen, mouse_pos, click, glitch, arg = None):
         text = terminal_button.render(self.text, False, [255,255,255])
 
         if self.targeted:
@@ -215,6 +227,7 @@ class Button:
 
             if click:
                 menu_click2.play()
+                glitch.glitch_tick = 5
                 print("ACTION")
                 if arg != None:
                     return self.action(arg)
@@ -249,6 +262,8 @@ button8_2 = Button([68,130], "Back", main_menu, None)
 
 check_box_difficulties = []
 
+
+
 for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD",280], ["ONSLAUGHT", 320]]:
     box = hud_elements.Checkbox(screen, 20,y_pos, caption = text, font_color = [255,255,255], text_offset = [40,5], cant_uncheck = True)
 
@@ -259,7 +274,7 @@ for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD",280], ["ONSLAU
 
 background = pygame.Surface((size[0]+50,size[1]), pygame.SRCALPHA, 32).convert_alpha()
 #
-background.set_alpha(254)
+background.set_alpha(240)
 
 background2 = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
 check_box_dev_commands = hud_elements.Checkbox(screen, 20,300, caption = "Dev tools", font_color = [255,255,255], text_offset = [40,5])
@@ -286,15 +301,20 @@ diff_captions = {"NO ENEMIES" : "For testing.",
 }
 
 net = None
+background_vel = 0
 
-t = time.time()
 
 while 1:
 
     if background_tick != 0:
         background_tick -= 1
+        background_vel += 0.2
     else:
+
+        print("RESET")
         background_tick = 52
+
+
 
 
     clock.tick(60)
@@ -340,16 +360,17 @@ while 1:
         t = time.time() - (time.time() - t - 0.85714285714)
 
         background_tick = 52
-        for y in range(5):
+        background_vel = 0
+        for y in range(10):
             pos = [random.randint(0,size[0]), random.randint(0,size[1])]
             for i in range(5):
-                particle_list.append(classes.Particle(pos, type = "blood_particle", magnitude = 1, screen = background))
+                particle_list.append(classes.Particle(pos, type = "blood_particle", magnitude = 1.3, screen = background))
 
     background2 = background.copy()
 
     background.fill((0, 0, 0, 0))
 
-    background.blit(background2, (0,1))
+    background.blit(background2, (0,background_vel))
 
     screen.blit(background, (0,0))
 
@@ -360,15 +381,14 @@ while 1:
     if menu_status == "start":
 
 
-        text = terminal.render("MAIN MENU", False, [255,255,255])
-        screen.blit(text, [400,20])
+
 
         screen.blit(info, [20,150])
 
-        s1 = button.tick(screen, mouse_pos, mouse_single_tick)
-        s2= button2.tick(screen, mouse_pos, mouse_single_tick)
-        s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick)
-        button3.tick(screen, mouse_pos, mouse_single_tick)
+        s1 = button.tick(screen, mouse_pos, mouse_single_tick, glitch)
+        s2= button2.tick(screen, mouse_pos, mouse_single_tick, glitch)
+        s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
+        button3.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
 
 
@@ -388,7 +408,7 @@ while 1:
 
 
 
-        s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick)
+        s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
         text = terminal.render("Name:", False, [255,255,255])
         screen.blit(text, [20,207])
@@ -415,11 +435,9 @@ while 1:
 
 
 
-        text = terminal.render("MULTIPLAYER MENU", False, [255,255,255])
-        screen.blit(text, [400,20])
 
-        s4, net1, host = button4.tick(screen, mouse_pos, mouse_single_tick)
-        list  = button5.tick(screen, mouse_pos, mouse_single_tick, arg = ip)
+        s4, net1, host = button4.tick(screen, mouse_pos, mouse_single_tick, glitch)
+        list  = button5.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = ip)
 
         if list != None:
             s5, net2, a1 = list
@@ -428,7 +446,7 @@ while 1:
             net2 = None
             a1 = None
 
-        s6 = button6.tick(screen, mouse_pos, mouse_single_tick)
+        s6 = button6.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
         if net == None and net1 != None:
             net = net1
@@ -500,8 +518,8 @@ while 1:
                 difficulty = diff.__dict__["caption"]
                 button7_2.__dict__["args"] = difficulty
 
-        s7_2 = button7_2.tick(screen, mouse_pos, mouse_single_tick)
-        s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick)
+        s7_2 = button7_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
+        s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
         text = terminal2.render(diff_captions[difficulty], False, [255,255,255])
         screen.blit(text, [20, 370])
@@ -517,13 +535,13 @@ while 1:
     if menu_status == "lobby":
         if host:
             text = terminal.render("LOBBY (HOSTING)", False, [255,255,255])
-            screen.blit(text, [400,20])
+            screen.blit(text, [size[0]/2 - text.get_rect().size[0]/2,20])
             text = terminal.render("HOSTED AT:" + ip_address, False, [255,255,255])
             screen.blit(text, [500,420])
 
         else:
             text = terminal.render("LOBBY", False, [255,255,255])
-            screen.blit(text, [400,20])
+            screen.blit(text, [size[0]/2 - text.get_rect().size[0]/2,20])
             text = terminal.render("HOSTED AT:" + ip, False, [255,255,255])
             screen.blit(text, [500,420])
         #screen.blit(text, [400,20])
@@ -551,8 +569,8 @@ while 1:
             text = terminal.render(y, False, [255,255,255])
             screen.blit(text, [30,i])
         if host:
-            button7.tick(screen, mouse_pos, mouse_single_tick)
-        s8 = button8.tick(screen, mouse_pos, mouse_single_tick)
+            button7.tick(screen, mouse_pos, mouse_single_tick, glitch)
+        s8 = button8.tick(screen, mouse_pos, mouse_single_tick, glitch)
         if s8 != None:
             menu_status  = s8
 
@@ -574,6 +592,8 @@ while 1:
 
 
     #print(thread.active_count())
+    glitch.tick()
+
 
     pygame.transform.scale(screen, fs_size, full_screen)
 

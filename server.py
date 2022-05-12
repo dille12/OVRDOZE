@@ -3,6 +3,8 @@ from _thread import *
 import sys
 import traceback
 
+import network_parser
+
 players = {}
 
 running = True
@@ -40,73 +42,61 @@ def threaded_client(conn):
 
                 break
 
-            if reply[:4] == "pl_i":
-                print(reply)
+            if reply[:6] == "PACKET":
 
-                reply2 = "pl_i:" + reply.split("l_i:")[1]
+                players_info, bullets, grenades = network_parser.parse_packet(reply)
 
-                split = reply2[5:].split(":")
-                grenade_info = None
-                if len(split) == 2:
+                name, x1, y1, angle, hp = players_info[0]
 
-                    player_info, bullet_info = split
-                else:
-                    player_info, bullet_info, grenade_info = split[0], split[1], split[2]
-
-
-                li = player_info.split("_")
-
-                players[conn]["x"] = li[0]
-                players[conn]["y"] = li[1]
-                players[conn]["a"] = li[2]
-                players[conn]["hp"] = li[3]
-                bullets = bullet_info.split(",")
+                players[conn]["x"] = x1
+                players[conn]["y"] = y1
+                players[conn]["a"] = angle
+                players[conn]["hp"] = hp
                 for x in bullets:
-                    if x.strip() == "":
-                        continue
-                    try:
-                        xp, yp, ang, dam, speed = x.strip().split("_")
-                    except Exception as e:
-                        print("Cant parse", x)
-                        continue
+                    xp, yp, ang, dam, speed = x
                     for connection in players:
                         if connection == conn:
                             continue
                         players[connection]["bullets"].append([xp, yp, ang, dam, speed])
-                if grenade_info != None:
-                    if len(grenade_info) > 2:
-                        for connection in players:
-                            if connection == conn:
-                                continue
-
-                            players[connection]["grenades"].append(grenade_info)
-
+                        print("BULLET APPENDED TO",players[conn]["username"] )
+                for x in grenades:
+                    for connection in players:
+                        if connection == conn:
+                            continue
+                        players[connection]["grenades"].append(x)
 
 
-                string = "REPLY%"
+
+                string = "PACKET\n"
                 for connection in players:
                     if connection == conn:
                         continue
+                    string += "PLAYER:"
                     string += players[connection]["username"] + "_"
                     string += players[connection]["x"] + "_"
                     string += players[connection]["y"] + "_"
                     string += players[connection]["a"] + "_"
-                    string += players[connection]["hp"] + "%"
-                string += "#"
-                if players[conn]["bullets"] != []:
-                    for bullet in players[conn]["bullets"]:
-                        players[conn]["bullets"].remove(bullet)
-                        for i in bullet:
-                            string += i + "_"
-                        string = string[:-1] + "%"
+                    string += players[connection]["hp"] + "\n"
 
-                string += "#"
+
+                for bullet_1 in players[conn]["bullets"]:
+                    x, y, angle, damage, speed = bullet_1
+                    string += "BULLET:"
+                    string += x + "_"
+                    string += y + "_"
+                    string += angle + "_"
+                    string += damage + "_"
+                    string += speed + "\n"
+                    players[conn]["bullets"].remove(bullet_1)
+
                 if players[conn]["grenades"] != []:
+                    string += "GRENADE:"
                     for grenade in players[conn]["grenades"]:
-
-                        print(players[conn]["grenades"])
-                        string += grenade + "%"
+                        for i in grenade:
+                            string += i + "_"
+                        string = string[:-1] + "\n"
                     players[conn]["grenades"] = []
+                string += "#END"
                 conn.send(str.encode(string))
 
             if (reply == "un" and game_stage == "start_game") or reply == "start_game" :

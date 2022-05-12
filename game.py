@@ -11,6 +11,7 @@ import copy
 import los
 from network import Network
 import ast
+import network_parser
 
 
 
@@ -179,7 +180,8 @@ weapons = {
                         ammo = "50 CAL",
                         piercing = True,
                         view = 0.045,
-                        handling = 0.15),
+                        handling = 0.15,
+                        semi_auto = True),
 }
 
 
@@ -198,62 +200,23 @@ def give_weapon(gun):
 
 full_screen_mode = True
 
-def thread_data_collect(net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors, current_threading):
+def thread_data_collect(net, packet, multiplayer_actors, bullet_list, grenade_list, current_threading):
     try:
-        x_pos_1 = round(player_pos[0])
-        y_pos_1 = round(player_pos[1])
-        angle_1 = round(player_actor.get_angle())
-        string = ":"
-        for bull in bullets_new:
-            string += bull.get_string()
-            string += ","
-        if grenade_throw_string != "":
-            string += ":"
-            string += grenade_throw_string
 
-        player_info = net.send("pl_i:" + str(x_pos_1) + "_" + str(y_pos_1) + "_" + str(angle_1) + "_" + str(round(player_actor.get_hp())) + string)
-        player_info = player_info.split("REPLY")[1]
-        if not player_info == "%/":
-            info = player_info.strip(" ").split("#")
-            client_info = info[0]
-            if len(info) == 2 or len(info) == 3:
-                bullets = info[1]
-                for bullet in bullets.split("%"):
-                    #print(bullet)
-                    try:
-                        x1,y1,a1,d1,s1 = bullet.split("_")
-                        bullet_list.append(classes.Bullet(camera_pos, [int(x1), int(y1)],int(a1),int(d1), speed = int(s1)))
-                        #print("Bullet created")
-                    except Exception as e:
-                        #print("BULLET CREATING ERROR:")
-                        #print(traceback.print_exc())
-                        pass
-            if len(info) == 3:
-                grenades = info[2]
-                print(grenades)
-                for grenade in grenades.split("%"):
-                    try:
-                        x1,y1,a1,d1 = grenade.split("_")
-                        grenade_list.append(classes.Grenade([int(x1), int(y1)], [int(a1),int(d1)]))
-                    except:
-                        pass
-
-
-
-            for client_info in player_info.split("%"):
-                try:
-                    info = client_info.split("_")
-                    multiplayer_actors[info[0]].set_values(info[1], info[2], info[3], info[4])
-                except Exception as e:
-                    print(e)
-
-
+        reply = net.send(packet)
+        bullet_list, grenade_list = network_parser.gen_from_packet(reply, multiplayer_actors, bullet_list, grenade_list)
 
 
     except Exception as e:
         print("CLIENT ERROR:", traceback.print_exc())
         pass
     current_threading = False
+
+
+def write_packet(object):
+    string = write_packet.get_string() + "\n"
+    return string
+
 
 
 
@@ -275,6 +238,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     if multiplayer:
         enemy_count = -1
 
+        packet_dict = {}
+
 
     global barricade_in_hand
 
@@ -293,6 +258,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     wave = False
     wave_number = 0
+
+    last_ping = 0
 
 
     wave_text_tick = -20
@@ -575,7 +542,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 fps.remove(fps[60])
 
         except Exception as e:
-            print(e)
+            print("EXCEPTION", e)
         fps_counter = time.time()
         func.keypress_manager(pressed,c_weapon, player_inventory)
 
@@ -741,22 +708,50 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         if multiplayer:
 
             if server_tick == tick_rate:
+                try:
+                    ping = time.time() - thread_start
+                except:
+                    pass
+
+                thread_start = time.time()
+
 
                 if data_collector == None or data_collector.is_alive() == False:
-                    print("Trying to thread")
-                    data_collector = threading.Thread(target = thread_data_collect, args = (net, player_pos, player_Angle, bullets_new, grenade_throw_string, player_actor, bullet_list, grenade_list, multiplayer_actors, current_threading))
+
+
+
+                    x_pos_1 = str(round(player_pos[0]))
+                    y_pos_1 = str(round(player_pos[1]))
+                    angle_1 = str(round(player_actor.get_angle()))
+
+                    packet = "PACKET\nPLAYER:" + self_name + "_" + x_pos_1 + "_" + y_pos_1 + "_" + angle_1 + "_" + str(player_actor.get_hp()) + "\n"
+
+
+
+                    for type_1 in packet_dict:
+                        for x in packet_dict[type_1]:
+                            packet += x.get_string() + "\n"
+                    packet += "#END"
+
+                    packet_dict = {}
+
+                    data_collector = threading.Thread(target = thread_data_collect, args = (net, packet, multiplayer_actors, bullet_list, grenade_list, current_threading))
                     data_collector.start()
                     last_thread = time.time()
                     server_tick = 1
 
-                else:
-                    print("CURRENTLY THREADING CANT GET NEW INFO")
+
+
             else:
                 server_tick += 1
 
 
             for x in multiplayer_actors:
                 multiplayer_actors[x].tick(screen, player_pos, camera_pos, walls_filtered)
+
+        bullet_list_copy = bullet_list.copy()
+        grenade_list_copy = grenade_list.copy()
+
 
         last_bullet_list = tuple(bullet_list)
 
@@ -970,7 +965,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         try:
             if multiplayer:
-                func.print_s(screen, "PING: " + str(round((time.time()-last_thread)*1000)) + "ms (" + str(round(1/(time.time()-last_thread))) + "frames)", 3)
+                func.print_s(screen, "PING: " + str(round(last_ping*1000,3)) + "ms", 3)
+
+                last_ping = last_ping * 59/60 + ping/60
+
+
         except Exception as e:
             print(e)
 
@@ -1117,11 +1116,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         if phase != 5:
             try:
-                func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
+                #func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
+                pass
             except:
                 pass
 
-            func.print_s(screen, "KILLS: " + str(kills), 2)
+            #func.print_s(screen, "KILLS: " + str(kills), 2)
 
             #func.print_s(screen, "WAVE: " + str(wave_number), 3)
 
@@ -1162,6 +1162,30 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             wave_anim_ticks[0] -= 1
         if wave_anim_ticks[1] != 0:
             wave_anim_ticks[1] -= 1
+        try:
+
+            if multiplayer:
+                for list_1, list_copy, slot in [[bullet_list, bullet_list_copy, "bullets"], [grenade_list, grenade_list_copy, "grenades"]]:
+
+                    if slot not in packet_dict:
+                        packet_dict[slot] = []
+
+                    for object in reversed(list_1):
+                        if object not in list_copy:
+                            packet_dict[slot].append(object)
+                        else:
+                            break
+                    list_copy = list_1.copy()
+
+
+        except Exception as e:
+            print(e)
+
+
+
+
+
+
 
 
         if full_screen_mode:

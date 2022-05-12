@@ -252,7 +252,6 @@ class Inventory:
 
     def append_to_inv(self, type, amount, scan_only = False):
         amount_in_start = amount
-        print(type.get_name(), amount)
         for slot in self.contents:
             if self.contents[slot]["item"].get_name() == type.get_name():
                 if self.contents[slot]["amount"] + amount <= self.contents[slot]["item"].__dict__["max_stack"]:
@@ -270,18 +269,15 @@ class Inventory:
                     if scan_only == False:
                         self.contents[slot]["amount"] = self.contents[slot]["item"].__dict__["max_stack"]
 
-        print("AMOUNT AFTER CHECKING FOR STACKS:", amount)
         for slot in range(1,10):
             if slot not in self.contents:
                 if scan_only == False:
                     self.contents[slot] = {"item": type, "amount": amount}
                     if self.player:
                         type.sound().play()
-                print("APPENDED IN:", slot)
                 return 0
         if amount_in_start != amount and self.player and scan_only == False:
             type.sound().play()
-        print("CANNOT APPEND, amount left", amount)
         return amount
 
 
@@ -528,13 +524,11 @@ class Intercatable:
             self.image =  pygame.transform.scale(pygame.image.load("texture/box.png"), [40,40]).convert()
         elif self.type == "item":
             self.lifetime = 3000
-            print(self.pos)
-            self.pos = [self.pos[0] + random.randint(-10,10), self.pos[1] + random.randint(-10,10)]
-            print(self.pos)
+            self.pos = [self.pos[0] + random.randint(-35,35), self.pos[1] + random.randint(-35,35)]
             self.name = item.__dict__["name"]
             self.item = item
             self.amount = amount
-            self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [20,20]).convert_alpha()
+            self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [30,30]).convert_alpha()
 
         self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
         self.inv_save = player_inventory
@@ -544,15 +538,12 @@ class Intercatable:
             while True:
 
                 drop = random.uniform(0, drop_index)
-                print("DROP:", drop)
                 keys = drop_table.keys()
                 key_prox = {}
                 for key in keys:
                     if drop - key >= 0:
                         key_prox[drop - key] = [drop_table[key], key]
-                print(key_prox)
                 item, key = key_prox[min(key_prox.keys())]
-                print("KEY",key, "DROP",drop)
                 self.contents[random.randint(1,9)] =  {"amount": random.randint(1,items[item].__dict__["drop_stack"]), "item": items[item], "token" : str(random.uniform(0,1))}
                 if random.randint(1,2) == 1:
                     break
@@ -744,7 +735,7 @@ class Grenade:
         print("GRENADE INIT")
 
     def get_string(self):
-        string = str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
+        string = "GRENADE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
         return string
 
 
@@ -1027,7 +1018,7 @@ class Weapon:
 
 
             if self.__bullets_in_clip > 0:
-                bullet_list.append(Bullet(camera_pos, bul_pos,angle+random.uniform(-self.__spread-self.__c_bullet_spread,self.__spread+self.__c_bullet_spread),self.__damage * multiplier, team = self.team, speed = self.bullet_speed, piercing = self.piercing_bullets))   #BULLET
+                bullet_list.append(Bullet(bul_pos,angle+random.uniform(-self.__spread-self.__c_bullet_spread,self.__spread+self.__c_bullet_spread),self.__damage * multiplier, team = self.team, speed = self.bullet_speed, piercing = self.piercing_bullets))   #BULLET
                 for x in range(random.randint(8,16)):
                     particle_list.append(Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self.__damage**0.1- 0.5, screen = screen))
 
@@ -1153,6 +1144,10 @@ class Weapon:
         return self.__weapon_fire_Tick
 
 def player_hit_detection(pos, lastpos, player, damage):
+
+    if player.get_hp() <= 0:
+        return False
+
     player_pos = player.get_pos()
 
     points_1 = [[player_pos[0], player_pos[1] -25], [player_pos[0], player_pos[1] + 25]]
@@ -1669,7 +1664,10 @@ class Player_Multi:
         self.name_text  = prompt.render(self.name,False, [255,255,255])
         self.last_tick = time.time()
         self.vel = [0,0]
+        self.acc = [0,0]
         self.last_tick_pos = [0,0]
+        self.interpolations2 = []
+        self.interpolations = []
 
     def check_if_alive(self):
         if self.killed:
@@ -1716,33 +1714,66 @@ class Player_Multi:
 
     def tick(self, screen, player_pos,camera_pos, walls):
 
-        self.pos = [self.pos[0] - self.vel[0], self.pos[1] - self.vel[1]]
+        if self.hp <= 0:
+            self.killed = False
 
-
-
-        if los.get_dist_points(player_pos, self.pos) > 1000 or self.hp <= 0 or los.check_los(player_pos, self.pos, walls) == False:
+        if self.killed:
             return
 
-        player_rotated, player_rotated_rect = func.rot_center(self.player_blit,self.angle,self.pos[0],self.pos[1])
+        if self.interpolations != []:
+
+
+            self.render_pos = self.interpolations[0]
+            self.interpolations.remove(self.interpolations[0])
+
+        else:
+            self.render_pos = self.pos
+
+        pygame.draw.circle(screen, [255,255,255], func.minus(self.pos,camera_pos, "-"),8)
+
+        if los.get_dist_points(player_pos, self.pos) > 1000 or self.hp <= 0 or los.check_los(player_pos, self.render_pos, walls) == False:
+            return
+
+        player_rotated, player_rotated_rect = func.rot_center(self.player_blit,self.angle,self.render_pos[0],self.render_pos[1])
 
         player_pos_center = player_rotated.get_rect().center
         player_pos_center = [self.pos[0]-player_pos_center[0],self.pos[1]-player_pos_center[1]]
         offset = [player_rotated_rect[0]-self.pos[0]-camera_pos[0], player_rotated_rect[1]-self.pos[1]-camera_pos[1]]
-        screen.blit(player_rotated,[self.pos[0]+offset[0],self.pos[1]+offset[1]])
+        screen.blit(player_rotated,[self.render_pos[0]+offset[0],self.render_pos[1]+offset[1]])
+
+        if len(self.interpolations2) > 60:
+            self.interpolations2.remove(self.interpolations2[0])
+
+
+
 
         #screen.blit(self.player_blit, func.minus_list(self.pos,camera_pos))
 
         screen.blit(self.name_text, func.minus_list(self.pos,camera_pos))
+
+        for interpo in self.interpolations2:
+            pygame.draw.circle(screen, [255,0,0], func.minus(interpo,camera_pos, "-"),5)
 
     def set_values(self, x, y, a, hp):
         if int(x) != self.pos[0] or int(y) != self.pos[1]:
 
             interpolation = (time.time() - self.last_tick)
             self.last_tick = time.time()
-            print("INTERP:", interpolation)
-            self.vel = [(self.last_tick_pos[0] - int(x)) * (interpolation), (self.last_tick_pos[1] - int(y))  * (interpolation)]
-            print("VELO:", self.vel)
-            self.last_tick_pos = [int(x),int(y)]
+            #print("INTERP:", interpolation)
+            self.vel = [(int(x) - self.pos[0]) + self.pos[0], (int(y) - self.pos[1])  + self.pos[1]]
+
+            inter_ticks = round(interpolation/(1/60))
+
+            self.interpolations = []
+            for i in range(1,inter_ticks):
+                i /= inter_ticks
+                curve = func.BezierInterpolation([self.pos, [self.vel[0], self.vel[1]], [int(x), int(y)]], i)
+                self.interpolations.append(curve)
+                self.interpolations2.append(curve)
+
+
+            #print("VELO:", self.vel)
+
         else:
             self.vel = [0,0]
 
@@ -1934,7 +1965,7 @@ class Player:
 
 
 class Bullet:
-    def __init__(self, camera_pos ,pos,angle,damage, deal_damage_to_player = False, team = "hostile",speed = 20, piercing = False):
+    def __init__(self, pos,angle,damage, deal_damage_to_player = False, team = "hostile",speed = 20, piercing = False):
         self.__pos = pos.copy()
 
         self.__deal_damage_to_player = deal_damage_to_player
@@ -1960,7 +1991,7 @@ class Bullet:
 
 
     def get_string(self):
-        string = str(round(self.__pos[0])) + "_" + str(round(self.__pos[1])) + "_"+ str(round(self.__angle)) + "_"+ str(round(self.__damage)) + "_"+ str(round(self.speed))
+        string = "BULLET:" + str(round(self.__pos[0])) + "_" + str(round(self.__pos[1])) + "_"+ str(round(self.__angle)) + "_"+ str(round(self.__damage)) + "_"+ str(round(self.speed))
         return string
     def move_and_draw_Bullet(self,screen,camera_pos, map_boundaries, map, enemy_list, player, draw_blood_parts = screen, dummies = {}):
         self.lifetime -= 1
@@ -2148,7 +2179,7 @@ class Turret:
             turret_fire3.stop()
 
             func.pick_random_from_list(turret_fire).play()
-            bullet_list.append(Bullet(camera_pos, [self.__pos[0], self.__pos[1]],self.__angle+random.uniform(-10,10),self.__damage))
+            bullet_list.append(Bullet([self.__pos[0], self.__pos[1]],self.__angle+random.uniform(-10,10),self.__damage))
 
             for x in range(random.randint(4,6)):
                 particle_list.append(Particle([self.__pos[0], self.__pos[1]], pre_defined_angle = True, angle = self.__angle+90, magnitude = 2))

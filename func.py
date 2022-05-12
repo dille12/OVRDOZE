@@ -66,6 +66,21 @@ def colorize(image, newColor):
     return image
 
 
+def BezierInterpolation(positions, t):
+
+    P0_x = pow((1-t), 2) * positions[0][0]
+    P0_y = pow((1-t), 2) * positions[0][1]
+
+    P1_x = 2 * (1-t) * t * positions[1][0]
+    P1_y = 2 * (1-t) * t * positions[1][1]
+
+    P2_x = t ** 2 * positions[2][0]
+    P2_y = t ** 2 * positions[2][1]
+
+    curve = (P0_x + P1_x + P2_x, P0_y + P1_y + P2_y)
+    return list(curve)
+
+
 def rgb_render(list, amount, pos, cam_delta, screen):
 
     #rect_pos = list[0].get_rect(center = list[0].get_rect(center = (pos[0], pos[1])).center)
