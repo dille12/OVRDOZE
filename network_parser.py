@@ -18,7 +18,6 @@ def parse_packet(packet):
         try:
             type, data = line.split(":")
             if type == "BULLET":
-                print("bullet detected")
                 x, y, angle, damage, speed = data.split("_")
                 bullets.append([x, y, angle, damage, speed])
 
@@ -42,9 +41,10 @@ def gen_from_packet(packet, multiplayer_actors, bullet_list, grenade_list):
 
     for x, y, angle, damage, speed in bullets:
         print("GENERATING A BULLET")
-        bullet_list.append(Bullet([int(x), int(y)], int(angle), int(damage), speed = int(speed)))
+        bullet_list.append(Bullet([int(x), int(y)], int(angle), int(damage), speed = int(speed), mp = True))
 
     for x, y ,t_x, t_y in grenades:
-        grenade_list.append([int(x),int(y)], [int(t_x), int(t_y)])
+        print("GENERATING A GRENADE")
+        grenade_list.append(Grenade([int(x),int(y)], [int(t_x), int(t_y)], mp = True))
 
     return bullet_list, grenade_list

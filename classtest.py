@@ -676,7 +676,7 @@ class Map:
 
     def render(self, conv):
 
-        self.map_rendered = pygame.Surface([self.size[0]/conv, self.size[1]/conv, ])
+        self.map_rendered = pygame.Surface([self.size[0]/self.conv, self.size[1]/self.conv])
         self.map_rendered.fill([255,255,255])
 
         self.textures = {

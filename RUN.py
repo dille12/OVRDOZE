@@ -65,7 +65,7 @@ textbox_name = classes.text_box((100,200), name)
 textbox_ip = classes.text_box((640,415), ip)
 
 textbox_ip.__dict__["text"] = last_ip
-
+players = []
 port = 5555
 def lobby_host(thread, ip):
     print("SERVER STARTING")
@@ -152,7 +152,7 @@ def sp_lob(arg):
 
 
 host = False
-background_tick = 0
+background_tick = 1
 
 
 pygame.mixer.music.load("sound/songs/menu_loop.wav")
@@ -495,7 +495,7 @@ while 1:
 
             rect_map = maps_dict[selected_map]["image"].get_rect()
 
-            rect_map.inflate_ip(5,5)
+            rect_map.inflate_ip(4,4)
 
             pygame.draw.rect(screen, [255,255,255], rect_map.move([330,80]))
 
@@ -533,22 +533,67 @@ while 1:
 
 
     if menu_status == "lobby":
+
+
+
+        text = terminal.render("MAP", False, [255,255,255])
+        screen.blit(text, [430- text.get_rect().size[0]/2,20])
+
+        rect_map = maps_dict[selected_map]["image"].get_rect()
+
+
         if host:
             text = terminal.render("LOBBY (HOSTING)", False, [255,255,255])
-            screen.blit(text, [size[0]/2 - text.get_rect().size[0]/2,20])
+            screen.blit(text, [30,20])
             text = terminal.render("HOSTED AT:" + ip_address, False, [255,255,255])
             screen.blit(text, [500,420])
 
+            if rect_map.collidepoint(func.minus(mouse_pos,[330,80],"-")):
+
+                if mouse_single_tick:
+                    selected_map += 1
+
+                    menu_click2.play()
+
+                    if selected_map == len(maps_dict):
+                        selected_map = 0
+
+                rect_map = maps_dict[selected_map]["image"].get_rect()
+
+                rect_map.inflate_ip(4,4)
+
+                pygame.draw.rect(screen, [255,255,255], rect_map.move([330,80]))
+
+
+
         else:
             text = terminal.render("LOBBY", False, [255,255,255])
-            screen.blit(text, [size[0]/2 - text.get_rect().size[0]/2,20])
+            screen.blit(text, [30,20])
             text = terminal.render("HOSTED AT:" + ip, False, [255,255,255])
             screen.blit(text, [500,420])
         #screen.blit(text, [400,20])
+
+
+
+
+
+
+
+        screen.blit(maps_dict[selected_map]["image"], [330,80])
+
+        text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
+        screen.blit(text, [430- text.get_rect().size[0]/2,50])
+
+
+
         text = terminal.render("Players:", False, [255,255,255])
 
         screen.blit(text, [20,200])
-        reply = net.send("un")
+
+        if host:
+            reply = net.send("index:" + str(selected_map))
+        else:
+            reply = net.send("un")
 
 
         if reply == "KILL":
@@ -558,11 +603,25 @@ while 1:
             print("STARTING GAME")
             start_multiplayer_client()
 
-        elif reply[:8] == "clients:":
-            players = reply.split(":")[1]
+        else:
+            try:
+                reply2 = reply.split("#END")[0]
+                data = reply2.split("\n")
+                for line in data:
+                    type, info1 = line.split(":")
+                    if type == "players":
+                        players = info1.split("/")
+                    elif type == "index" and not host:
+                        selected_map = int(info1)
+
+
+
+            except Exception as e:
+                pass
+
 
         i = 210
-        for y in players.split("/"):
+        for y in players:
             if y == "" or y == "clients":
                 continue
             i += 20

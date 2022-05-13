@@ -51,7 +51,6 @@ class text_box:
             paste_ticks = 0
             if pygame.key.get_pressed()[pygame.K_BACKSPACE]:
                 self.backspace_tick += 1
-                print(self.backspace_tick)
                 if self.backspace_tick > 30:
                     self.text = self.text[:-1]
             else:
@@ -133,9 +132,12 @@ class Item:
             alpha_surf.set_alpha(200)
             screen.blit(alpha_surf, func.minus(mouse_pos,[0,40+ t_s[1]]))
             screen.blit(text, func.minus(mouse_pos,[0,40+ t_s[1]]))
-
+            pressed = pygame.key.get_pressed()
             if r_click_tick:
                 return (True,"consume")
+
+            elif clicked and pressed[pygame.K_LSHIFT]:
+                return (True, "append")
 
             elif clicked:
                 return (True,"pickup")
@@ -310,7 +312,7 @@ class Inventory:
     def get_inv(self):
         return self.inventory_open
 
-    def draw_contents(self, screen, x_d, y_d, content, default_pos, mouse_pos, clicked, r_click_tick, player_actor):
+    def draw_contents(self, screen, x_d, y_d, content, default_pos, mouse_pos, clicked, r_click_tick, player_actor, inv_2 = False):
         global barricade_in_hand, turret_bullets
         self.picked_up_slot = None
 
@@ -333,11 +335,25 @@ class Inventory:
             item_clicked, type = content[slot]["item"].render(screen, pos, mouse_pos, clicked, r_click_tick)
 
             if item_clicked and self.hand_tick == 0:
-                if self.item_in_hand == None and type == "pickup":
+
+                if type == "append" and inv_2:
+                    amount = self.append_to_inv(content[slot]["item"], content[slot]["amount"])
+                    if amount == 0:
+                        self.picked_up_slot = slot
+                    else:
+                        content[slot]["amount"] = amount
+
+            
+
+                elif self.item_in_hand == None and type == "pickup":
                     self.item_in_hand = content[slot]
                     self.hand_tick = 3
                     print("PICKING UP ITEM")
                     self.picked_up_slot = slot
+
+
+
+
 
                 elif self.item_in_hand == None and type == "consume" and content[slot]["item"].__dict__["consumable"]:
                     content[slot]["amount"] -= 1
@@ -413,7 +429,7 @@ class Inventory:
                 text = terminal2.render(self.search_obj.get_name(), False, [255,255,255])
                 screen.blit(text, (617+x_d, 161+y_d)) #
 
-                self.draw_contents(screen, x_d, y_d, self.search_obj.__dict__["contents"], [634-62,160], mouse_pos, clicked, r_click_tick, player_actor)
+                self.draw_contents(screen, x_d, y_d, self.search_obj.__dict__["contents"], [634-62,160], mouse_pos, clicked, r_click_tick, player_actor, inv_2 = True)
 
             if self.item_in_hand != None:
                 if clicked and self.hand_tick == 0:
@@ -719,8 +735,9 @@ class kill_count_render:
 
 
 class Grenade:
-    def __init__(self, pos, target_pos):
+    def __init__(self, pos, target_pos, mp = False):
         self.pos = pos
+        self.mp = mp
         self.angle_rad = math.atan2(target_pos[1] - pos[1], target_pos[0] - pos[0])
         self.velocity = los.get_dist_points(pos,target_pos) / 30
 
@@ -1729,7 +1746,7 @@ class Player_Multi:
         else:
             self.render_pos = self.pos
 
-        pygame.draw.circle(screen, [255,255,255], func.minus(self.pos,camera_pos, "-"),8)
+        # pygame.draw.circle(screen, [255,255,255], func.minus(self.pos,camera_pos, "-"),8)
 
         if los.get_dist_points(player_pos, self.pos) > 1000 or self.hp <= 0 or los.check_los(player_pos, self.render_pos, walls) == False:
             return
@@ -1747,11 +1764,12 @@ class Player_Multi:
 
 
         #screen.blit(self.player_blit, func.minus_list(self.pos,camera_pos))
+        text_rect = self.name_text.get_rect().size
 
-        screen.blit(self.name_text, func.minus_list(self.pos,camera_pos))
+        screen.blit(self.name_text, func.minus_list(func.minus_list(self.pos,camera_pos), [text_rect[0]/2, 25]))
 
-        for interpo in self.interpolations2:
-            pygame.draw.circle(screen, [255,0,0], func.minus(interpo,camera_pos, "-"),5)
+        # for interpo in self.interpolations2:
+        #     pygame.draw.circle(screen, [255,0,0], func.minus(interpo,camera_pos, "-"),5)
 
     def set_values(self, x, y, a, hp):
         if int(x) != self.pos[0] or int(y) != self.pos[1]:
@@ -1759,16 +1777,17 @@ class Player_Multi:
             interpolation = (time.time() - self.last_tick)
             self.last_tick = time.time()
             #print("INTERP:", interpolation)
-            self.vel = [(int(x) - self.pos[0]) + self.pos[0], (int(y) - self.pos[1])  + self.pos[1]]
 
             inter_ticks = round(interpolation/(1/60))
 
             self.interpolations = []
             for i in range(1,inter_ticks):
                 i /= inter_ticks
-                curve = func.BezierInterpolation([self.pos, [self.vel[0], self.vel[1]], [int(x), int(y)]], i)
+                curve = func.BezierInterpolation([self.pos, [self.vel[0] + self.pos[0], self.vel[1]  + self.pos[1]], [int(x), int(y)]], i)
                 self.interpolations.append(curve)
                 self.interpolations2.append(curve)
+
+            self.vel = [(int(x) - self.pos[0]), (int(y) - self.pos[1])]
 
 
             #print("VELO:", self.vel)
@@ -1964,9 +1983,9 @@ class Player:
 
 
 class Bullet:
-    def __init__(self, pos,angle,damage, deal_damage_to_player = False, team = "hostile",speed = 20, piercing = False):
+    def __init__(self, pos,angle,damage, deal_damage_to_player = False, team = "hostile",speed = 20, piercing = False, mp = False):
         self.__pos = pos.copy()
-
+        self.mp = mp
         self.__deal_damage_to_player = deal_damage_to_player
 
         self.speed = speed * random.uniform(0.9,1.1)
@@ -2013,6 +2032,7 @@ class Bullet:
                     particle_list.append(Particle(angle_coll, magnitude = 1, pre_defined_angle = True, angle = 90-self.__angle, screen = screen))
 
         except Exception as e:
+            print("exception")
             print(e)
 
         rot_bullet, rot_bullet_rect = func.rot_center(self.im,self.__angle,self.__pos[0],self.__pos[1])

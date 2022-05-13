@@ -10,11 +10,11 @@ players = {}
 running = True
 
 stop_threads = False
-
+map_index = 0
 game_stage = "lobby"
 
 def threaded_client(conn):
-    global players, running, stop_threads, game_stage
+    global players, running, stop_threads, game_stage, map_index
 
     conn.send(str.encode("ok"))
 
@@ -54,11 +54,14 @@ def threaded_client(conn):
                 players[conn]["hp"] = hp
                 for x in bullets:
                     xp, yp, ang, dam, speed = x
+
+                    print("BULLET FIRED BY:", players[conn]["username"])
+
                     for connection in players:
-                        if connection == conn:
+                        if players[connection]["username"] == players[conn]["username"]:
                             continue
                         players[connection]["bullets"].append([xp, yp, ang, dam, speed])
-                        print("BULLET APPENDED TO",players[conn]["username"] )
+                        print("BULLET APPENDED TO",players[connection]["username"] )
                 for x in grenades:
                     for connection in players:
                         if connection == conn:
@@ -109,11 +112,18 @@ def threaded_client(conn):
 
 
             if game_stage == "lobby":
-                if reply == "un":
-                    string = "clients:"
-                    for x in players:
-                        string += players[x]["username"] + "/"
-                    conn.send(str.encode(string))
+                if reply[:5] == "index":
+                    map_index = reply.split(":")[1]
+
+                string = "players:"
+                for x in players:
+                    string += players[x]["username"] + "/"
+                string += "\n"
+                string += "index:" + str(map_index) + "\n"
+                string += "#END"
+                conn.send(str.encode(string))
+
+
 
 
 

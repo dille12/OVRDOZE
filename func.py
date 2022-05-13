@@ -656,7 +656,6 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
             rect = pygame.Rect(mouse_pos[0]-10,mouse_pos[1]-10, 20, 20)
 
             angle = 5*math.pi/2  - math.pi*2 * ( weapon.__dict__["_Weapon__reload_tick"] / weapon.__dict__["_Weapon__reload_rate"])
-            print(angle)
 
             pygame.draw.arc(screen, hud_color, rect, math.pi/2, angle, 3)
 

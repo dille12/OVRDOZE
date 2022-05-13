@@ -202,8 +202,10 @@ full_screen_mode = True
 
 def thread_data_collect(net, packet, multiplayer_actors, bullet_list, grenade_list, current_threading):
     try:
-
         reply = net.send(packet)
+
+        #time.sleep(0.06)
+
         bullet_list, grenade_list = network_parser.gen_from_packet(reply, multiplayer_actors, bullet_list, grenade_list)
 
 
@@ -279,7 +281,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
-        full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
+        full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN) #
         screen =  pygame.Surface(size).convert()
         mouse_conversion = fs_size[0] / size[0]
     else:
@@ -294,7 +296,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     multiplayer_actors = {}
     if multiplayer:
 
-        for y in players.split("/"):
+        for y in players:
             if y == "" or y == self_name:
                 continue
             multiplayer_actors[y] = classes.Player_Multi(y)
@@ -418,6 +420,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
     player_weapons = [give_weapon("M1911"), give_weapon("AR-15"), give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
+
 
     c_weapon = (player_weapons[0])
     weapon_scroll = 0
@@ -708,16 +711,18 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         if multiplayer:
 
             if server_tick == tick_rate:
-                try:
-                    ping = time.time() - thread_start
-                except:
-                    pass
 
-                thread_start = time.time()
+
+
 
 
                 if data_collector == None or data_collector.is_alive() == False:
 
+                    try:
+                        ping = time.time() - thread_start - 1/60
+                    except:
+                        pass
+                    thread_start = time.time()
 
 
                     x_pos_1 = str(round(player_pos[0]))
@@ -737,7 +742,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
                     data_collector = threading.Thread(target = thread_data_collect, args = (net, packet, multiplayer_actors, bullet_list, grenade_list, current_threading))
                     data_collector.start()
-                    last_thread = time.time()
+
                     server_tick = 1
 
 
@@ -965,7 +970,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         try:
             if multiplayer:
-                func.print_s(screen, "PING: " + str(round(last_ping*1000,3)) + "ms", 3)
+                func.print_s(screen, "PING: " + str(round(last_ping*1000)) + "ms", 3)
 
                 last_ping = last_ping * 59/60 + ping/60
 
@@ -1116,12 +1121,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         if phase != 5:
             try:
-                #func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
+                func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
                 pass
             except:
                 pass
 
-            #func.print_s(screen, "KILLS: " + str(kills), 2)
+            func.print_s(screen, "KILLS: " + str(kills), 2)
 
             #func.print_s(screen, "WAVE: " + str(wave_number), 3)
 
@@ -1171,7 +1176,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                         packet_dict[slot] = []
 
                     for object in reversed(list_1):
-                        if object not in list_copy:
+                        if object not in list_copy and object.__dict__["mp"] == False:
                             packet_dict[slot].append(object)
                         else:
                             break

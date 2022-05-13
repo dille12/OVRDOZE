@@ -1,7 +1,7 @@
 from classtest import *
 from values import *
 import classes
-fs_size = 1920, 1080
+
 mouse_conversion = fs_size[0] / size[0]
 maps = [Map("Requiem", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversion, [2000,1500],
 [ #x,y,width,height
