@@ -37,6 +37,13 @@ def gen_from_packet(packet, multiplayer_actors, bullet_list, grenade_list):
     players_info, bullets, grenades = parse_packet(packet)
 
     for name, x, y, angle, hp in players_info:
+
+        if name not in multiplayer_actors:
+            if name == "":
+                continue
+            else:
+                multiplayer_actors[name] = Player_Multi(name)
+
         multiplayer_actors[name].set_values(x, y, angle, hp)
 
     for x, y, angle, damage, speed in bullets:
