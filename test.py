@@ -18,3 +18,5 @@ from test_game import *
 from test_enemies import *
 from test_classes import *
 from test_armory import *
+from test_glitch import *
+from test_button import *
