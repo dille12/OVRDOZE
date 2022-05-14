@@ -29,7 +29,7 @@ or for new people who want to help: here are things that still need to get done.
 7. Ingame map editor 
 
 ### mechanics / gameplay
-1. More zombie types (runners, rangers)
+1. More zombie types (~~bombers~~, runners, rangers)
 2. Last stand and reviving
 3. More items (body shields, decoys, radars) (also art)
 4. Sanity rework (currently only increases amount of zombies)
