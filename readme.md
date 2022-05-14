@@ -3,11 +3,11 @@
 A single/multiplayer co-op survival small space zombie shooter.
 
 # INSTALL
-
+```
 1: clone repo
 2: python RUN.py
 
-
+```
 # SET-UP.
 ## MULTIPLAYER 
 set up as host. 
@@ -44,4 +44,5 @@ barricades lose durability over time.
 ## ESC hard quits the game. (it closes the game client/sever - not the session)
 
 #DO-TO
-(to-do)[todo.md]
+
+[current list of todos](/todos.md)
