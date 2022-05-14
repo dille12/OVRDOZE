@@ -40,7 +40,6 @@ selected_map = 0
 
 pygame.init()
 pygame.font.init()
-fs_size = 1920, 1080
 full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
 screen =  pygame.Surface(size).convert()
 mouse_conversion = fs_size[0] / size[0]
