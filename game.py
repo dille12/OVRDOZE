@@ -955,6 +955,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         if draw_los:
             los_image, draw_time = los.render_los_image(phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
+            time_stamps["los_compute"] = time.time() - t
+            t = time.time()
             #draw_time = 0
             start = time.time()
             los_image.convert()
@@ -1004,7 +1006,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         except Exception as e:
             print(e)
 
-        time_stamps["los"] = time.time() - t
+        time_stamps["los_draw"] = time.time() - t
         t = time.time()
 
 
