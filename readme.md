@@ -19,7 +19,7 @@ arrow keys do not.
 
 ## MOUSE CONTROLS GUN.
 aim by angle of mouse to player,
-the bullet spread is determined by mouse distance from player.
+the bullet spread is determined by movement and recoil.
 
 ## TAB OPENS INVENTORY
 where you can drag things from boxes with your mouse and store them.
@@ -28,7 +28,7 @@ where you can drag things from boxes with your mouse and store them.
 opens both the box and your inventory: manipulation is done via mouse. Shift-click to quickly transfer the item to your inventory.
 
 ## G THROWS GRENADES
-throws a grenades about where the mouse is.
+throws a grenade about where the mouse is.
 
 
 ## USING ITEMS
@@ -39,7 +39,7 @@ In the case of barricades: highlight the ground where you want to place the barr
 barricades lose durability over time.
 
 
-## ESC hard quits the game. (it closes the game client/sever - not the session)
+## ESC hard quits the game. (it closes the game client/server - not the session)
 
 #DO-TO
 
