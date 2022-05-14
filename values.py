@@ -4,6 +4,7 @@ import math
 import random
 import time
 import mixer
+from screeninfo import get_monitors
 print("VALUE INIT")
 pygame.init()
 pygame.mixer.init()
@@ -11,7 +12,12 @@ los_tick = 10
 multi_kill = 0
 camera_pan = 0.03
 respawn_ticks = 0
-fs_size = (1920,1080)
+
+
+m = get_monitors()[0]
+fs_size = (m.width,m.height)
+
+
 size = 854,480
 multi_kill_ticks = 0
 multiplier = 1920/size[0]
