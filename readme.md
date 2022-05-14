@@ -10,12 +10,19 @@ A single/multiplayer co-op survival small space zombie shooter.
 ```
 # SET-UP.
 ## MULTIPLAYER 
-Multiplayer works currently within local network right now. You can play against your friends either in local wifi, or by installing LogMeIn Hamachi VPN, creating a new network for all your friends to join. Now you can host a game, or join another players' game.
+Multiplayer works currently within local network right now. You can play against your friends either in local wifi, or by installing LogMeIn Hamachi VPN.
+
+1. Install Hamachi from https://www.vpn.net/
+2. Create a new network.
+3. Share the name and password of the network to your friends.
+4. Once everyone is in the same network, your in-game ip address should change to your Hamachi ipv4. This can be seen in the multiplayer tab.
+5. Host a game, and share your ip with your friends.
+6. Start the game.
 
 # CONTROLS
 
 ## WASD MOVEMENT.
-arrow keys do not.
+Shift to run. Space to dash. Control to sneak.
 
 ## MOUSE CONTROLS GUN.
 aim by angle of mouse to player,
@@ -30,13 +37,15 @@ opens both the box and your inventory: manipulation is done via mouse. Shift-cli
 ## G THROWS GRENADES
 throws a grenade about where the mouse is.
 
-
 ## USING ITEMS
 
 For items that are useable/placeable: right click on them.
-In the case of barricades: highlight the ground where you want to place the barracade - green is placeable, red is not.
+In the case of barricades: highlight the ground where you want to place the barricade - green is placeable, red is not.
 
-barricades lose durability over time.
+Given enough time barricades will fall under the horde.
+
+## MIND YOUR SANITY
+Consume narcotics to regain sanity and survive.
 
 
 ## ESC hard quits the game. (it closes the game client/server - not the session)
