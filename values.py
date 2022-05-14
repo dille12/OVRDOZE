@@ -196,6 +196,8 @@ assault_rifle_sounds = {"fire": get_sound_Variants("sound","assault"),"reload":p
 sniper_rifle_sounds = {"fire": get_sound_Variants("sound","sniper"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 smg_sounds = {"fire": get_sound_Variants("sound","smg"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 
+assault_rifle_sounds2 = {"fire": get_sound_Variants("sound","ar2_fire"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
+
 turret_fire1 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire2 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire3 = pygame.mixer.Sound("sound/turret_fire1.wav")

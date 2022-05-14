@@ -90,6 +90,25 @@ weapons = {
                         view = 0.03,
                         handling = 0.35),
 
+
+"SCAR18": classes.Weapon("SCAR18",
+                        clip_s = 20,
+                        fire_r = 240,
+                        spread = 1,
+                        spread_r = 0.93,
+                        bullet_speed = 30,
+                        reload_r = 45,
+                        damage = 45,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds2,
+                        ammo_cap_lvlup = 1,
+                        image = "ak.png",
+                        ammo = "INF",
+                        piercing = True,
+                        view = 0.035,
+                        handling = 0.45),
+
 "MINIGUN": classes.Weapon("MINIGUN",
                         clip_s = 999,
                         fire_r = 3000,
@@ -244,6 +263,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
     global barricade_in_hand
+
+    clicked = False
+    fps_counter = time.time()
 
     x_vel = 0
     y_vel = 0
