@@ -21,19 +21,19 @@ maps = [Map("Requiem", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversio
 ],
 
 [
-classes.Intercatable([5,5], None, name = "Box"),
+classes.Interactable([5,5], None, name = "Box"),
 
-classes.Intercatable([170,295], None, name = "Box"),
+classes.Interactable([170,295], None, name = "Box"),
 
-classes.Intercatable([560,210], None, name = "Box"),
+classes.Interactable([560,210], None, name = "Box"),
 
-classes.Intercatable([820,5], None, name = "Box"),
+classes.Interactable([820,5], None, name = "Box"),
 
-classes.Intercatable([845,585], None, name = "Box"),
+classes.Interactable([845,585], None, name = "Box"),
 
-classes.Intercatable([281,295], None, name = "Box"),
+classes.Interactable([281,295], None, name = "Box"),
 
-classes.Intercatable([2,622], None, name = "Box")
+classes.Interactable([2,622], None, name = "Box")
 
 ]
 ),
@@ -61,19 +61,19 @@ Map("Manufactory", "map2.png", "nav_mesh_manufactory.txt", [0,0], mouse_conversi
 ],
 
 [
-classes.Intercatable([5,5], None, name = "Box"),
+classes.Interactable([5,5], None, name = "Box"),
 
-classes.Intercatable([560,210], None, name = "Box"),
+classes.Interactable([560,210], None, name = "Box"),
 
-classes.Intercatable([210,605], None, name = "Box"),
+classes.Interactable([210,605], None, name = "Box"),
 
-classes.Intercatable([830,700], None, name = "Box"),
+classes.Interactable([830,700], None, name = "Box"),
 
-classes.Intercatable([770,530], None, name = "Box"),
+classes.Interactable([770,530], None, name = "Box"),
 
-classes.Intercatable([970,5], None, name = "Box"),
+classes.Interactable([970,5], None, name = "Box"),
 
-classes.Intercatable([5,980], None, name = "Box")
+classes.Interactable([5,980], None, name = "Box")
 ]
 )
 ]

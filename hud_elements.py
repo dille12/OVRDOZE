@@ -1,8 +1,63 @@
 import pygame
 from values import *
 pygame.init()
+terminal = pygame.font.Font('texture/terminal.ttf', 20)
+class text_box:
+    def __init__(self, pos, default):
+        self.pos = pos
+        self.box = pygame.Rect(self.pos[0], self.pos[1], 140, 32)
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color = self.color_inactive
+        self.font = terminal
+        self.text = str(default)
+        self.active = False
 
+    def tick(self, screen, clicked, mouse_pos, events):
+        if clicked:
 
+            # If the user clicked on the input_box rect.
+            if self.box.collidepoint(mouse_pos) or pygame.key.get_pressed()[pygame.K_RETURN]:
+                menu_click2.play()
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                if self.active:
+                    menu_click2.play()
+
+                self.active = False
+            # Change the current color of the input box.
+            self.color = self.color_active if self.active else self.color_inactive
+        if self.active:
+            paste_ticks = 0
+            if pygame.key.get_pressed()[pygame.K_BACKSPACE]:
+                self.backspace_tick += 1
+                if self.backspace_tick > 30:
+                    self.text = self.text[:-1]
+            else:
+                self.backspace_tick = 0
+            for event in events:
+                if event.type == pygame.KEYDOWN:
+                    if self.active:
+                        menu_click.play()
+                        if pygame.key.get_pressed()[pygame.K_v] and pygame.key.get_pressed()[pygame.K_LCTRL]:
+                            self.text = pyperclip.paste()
+                            print("PASTED")
+                            break
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.text = self.text[:-1]
+                        else:
+                            self.text += event.unicode
+
+        # Render the current text.
+        txt_surface = self.font.render(self.text, True, (255,255,255))
+        # Resize the box if the text is too long.
+        width = max(200, txt_surface.get_width()+10)
+        self.box.w = width
+        # Blit the text.
+        screen.blit(txt_surface, (self.pos[0]+5, self.pos[1]+5))
+        # Blit the input_box rect.
+        pygame.draw.rect(screen, self.color, self.box, 2)
 
 class Checkbox:
     def __init__(self, surface, x, y, color=(230, 230, 230), caption="", outline_color=(0, 0, 0),

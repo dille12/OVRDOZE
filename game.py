@@ -20,6 +20,10 @@ import classes
 from classes import items
 import func
 
+import armory
+import objects
+import enemies
+
 print("IMPORTS COMPLETE")
 
 
@@ -33,7 +37,7 @@ terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 weapons = {
 
 
-"M1911": classes.Weapon("M1911",
+"M1911": armory.Weapon("M1911",
                         clip_s = 8,
                         fire_r = 2000,
                         spread = 7,
@@ -49,7 +53,7 @@ weapons = {
                         view = 0.0,
                         handling = 0.7),
 
-"AR-15": classes.Weapon("AR-15",
+"AR-15": armory.Weapon("AR-15",
                         clip_s = 35,
                         fire_r = 500,
                         spread = 1,
@@ -72,7 +76,7 @@ weapons = {
 
 
 
-"AK": classes.Weapon("AK47",
+"AK": armory.Weapon("AK47",
                         clip_s = 30,
                         fire_r = 520,
                         spread = 3,
@@ -91,7 +95,7 @@ weapons = {
                         handling = 0.35),
 
 
-"SCAR18": classes.Weapon("SCAR18",
+"SCAR18": armory.Weapon("SCAR18",
                         clip_s = 20,
                         fire_r = 240,
                         spread = 1,
@@ -109,7 +113,7 @@ weapons = {
                         view = 0.035,
                         handling = 0.45),
 
-"MINIGUN": classes.Weapon("MINIGUN",
+"MINIGUN": armory.Weapon("MINIGUN",
                         clip_s = 999,
                         fire_r = 3000,
                         spread = 2,
@@ -127,7 +131,7 @@ weapons = {
                         view = 0.03,
                         handling = 0.1),
 
-"SPAS": classes.Weapon("SPAS-12",
+"SPAS": armory.Weapon("SPAS-12",
                         clip_s = 6,
                         fire_r = 120,
                         spread = 5,
@@ -146,7 +150,7 @@ weapons = {
                         view = 0.01,
                         handling = 0.2),
 
-"P90": classes.Weapon("P90",
+"P90": armory.Weapon("P90",
                         clip_s = 50,
                         fire_r = 950,
                         spread = 7,
@@ -163,7 +167,7 @@ weapons = {
                         ammo = "9MM",
                         view = 0.02,
                         handling = 0.5),
-"GLOCK": classes.Weapon("GLOCK",
+"GLOCK": armory.Weapon("GLOCK",
                         clip_s = 20,
                         fire_r = 350,
                         spread = 3,
@@ -182,7 +186,7 @@ weapons = {
                         burst_bullets = 3,
                         burst_fire_rate = 3),
 
-"AWP": classes.Weapon("AWP",
+"AWP": armory.Weapon("AWP",
                         clip_s = 10,
                         fire_r = 50,
                         spread = 1,
@@ -321,7 +325,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         for y in players:
             if y == "" or y == self_name:
                 continue
-            multiplayer_actors[y] = classes.Player_Multi(y)
+            multiplayer_actors[y] = enemies.Player_Multi(y)
     else:
         enemy_up_time = time.time()
 
@@ -400,15 +404,15 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         print(e)
 
 
-    interctables = []
+    interactables = []
 
-    player_inventory = classes.Inventory(interctables, player = True)
+    player_inventory = classes.Inventory(interactables, player = True)
     #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
     #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
 
     for x in map.__dict__["objects"]:
         x.__dict__["inv_save"] = player_inventory
-        interctables.append(x)
+        interactables.append(x)
     ### MAP 1 ###
 
 
@@ -600,7 +604,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             if player_inventory.get_amount_of_type("HE Grenade") > 0:
 
-                grenade_list.append(classes.Grenade(player_pos, func.minus(mouse_pos, camera_pos)))
+                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos)))
                 grenade_throw_string = str(round(player_pos[0])) + "_" + str(round(player_pos[1])) + "_"+ str(round(func.minus(mouse_pos, camera_pos)[0])) + "_"+ str(round(func.minus(mouse_pos, camera_pos)[1]))
                 player_inventory.remove_amount("HE Grenade",1)
                 print("throwing nade")
@@ -692,7 +696,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 if random.uniform(0,1) < 0.07:
                     type = "big"
 
-                enemy_list.append(classes.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interctables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type))
+                enemy_list.append(enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type))
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -711,7 +715,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         time_stamps["turrets"] = time.time() - t
         t = time.time()
         delete_list = []
-        for x in interctables:
+        for x in interactables:
             x.__dict__["inv_save"] = player_inventory
             if x.__dict__["alive"] == False:
                 delete_list.append(x)
@@ -722,7 +726,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         t = time.time()
 
         for x in delete_list:
-            interctables.remove(x)
+            interactables.remove(x)
 
         for x in particle_list:
             x.tick(screen, camera_pos)
@@ -875,7 +879,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         closest = 1000
         closest_prompt = None
-        for x in interctables:
+        for x in interactables:
 
             dist = x.prompt_dist(player_pos)
             if dist:

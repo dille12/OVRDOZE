@@ -531,6 +531,9 @@ def get_point_from_list(point,dict):
 
 
 def calc_route(start_pos, end_pos, NAV_MESH, walls):
+    """
+    Calculates the shortest route to a point using the navmesh points
+    """
 
     if los.check_los(start_pos, end_pos, walls):
         return [end_pos]
@@ -555,7 +558,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
         routes.append([start_nav_point["point"], conne])
 
     while routes != []:
-        if len(routes) > 200:
+        if len(routes) > 200:   #sometimes continues infinetely, so the loop must be broken
             break
         route = routes[0]
         routes.remove(route)
@@ -573,6 +576,8 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
                     continue
                 routes.append(route.copy() + [point_3])
     shortest_route = {"dist" : 10000, "route" : []}
+
+
     for route in complete_routes:
         route_ref = {"dist" : 0, "route" : route}
         last_pos = start_pos

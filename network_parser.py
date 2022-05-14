@@ -1,4 +1,6 @@
-from classes import *
+from armory import *
+from enemies import *
+from objects import *
 # PACKET
 # PLAYER:Runkkari_373_122_-340
 # BULLET:421_103_-337_15_18
