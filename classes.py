@@ -13,6 +13,7 @@ width, height = size
 import objects
 import get_preferences
 
+
 a, draw_los, a, ultraviolence, a = get_preferences.pref()
 
 

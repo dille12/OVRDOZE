@@ -137,6 +137,7 @@ kill_rgb = rgb_image_load("texture/kill.png")
 player = pygame.transform.scale(pygame.image.load("texture/player.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 player_pistol = pygame.transform.scale(pygame.image.load("texture/player_pistol.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 zombie = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(119/multiplier),round(119/multiplier)]).convert_alpha()
+bomber = pygame.transform.scale(pygame.image.load("texture/bomber.png"),[round(150/multiplier),round(150/multiplier)]).convert_alpha()
 zombie_big = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(200/multiplier),round(200/multiplier)]).convert_alpha()
 
 

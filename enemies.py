@@ -13,7 +13,7 @@ width, height = size
 import classes
 from classes import items, drop_index, drop_table
 import get_preferences
-
+import armory
 a, draw_los, a, ultraviolence, a = get_preferences.pref()
 
 
@@ -21,6 +21,7 @@ terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
 
+expl_blood = func.load_animation("anim/expl_blood",0,25)
 
 
 class Zombie:
@@ -37,9 +38,20 @@ class Zombie:
         self.damage = random.randint(5,15) * dam_diff
         self.knockback_resistance = 1
         self.hp = 100 * hp_diff
+        self.attack_speed = 30
+
         if type == "normal":
             self.size = 10
             self.image = zombie
+            self.type = "normal"
+        elif type == "bomber":
+            self.size = 13
+            self.image = bomber
+            self.moving_speed *= 0.75
+            self.hp *= 0.75
+            self.explosion = expl_blood
+            self.type = "bomber"
+            self.attack_speed = 60
         else:
             self.size = 20
             self.image = zombie_big
@@ -47,8 +59,10 @@ class Zombie:
             self.damage *= 2
             self.hp *= 5
             self.knockback_resistance = 0.1
+            self.type = "big"
 
         self.attack_tick = 0
+
 
 
 
@@ -103,6 +117,9 @@ class Zombie:
         list.remove(self)
         func.list_play(death_sounds)
         func.list_play(kill_sounds)
+
+        if self.type == "bomber":
+            explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood"))
 
         self.inventory.drop_inventory(self.pos)
 
@@ -244,12 +261,15 @@ class Zombie:
                 self.target_pos = self.pos
 
                 if self.attack_tick == 0:
-                    self.attack_tick = 30
-                    player_actor.set_hp(self.damage, reduce = True)
-                    func.list_play(pl_hit)
+                    self.attack_tick = self.attack_speed
+                    if self.type != "bomber":
+                        player_actor.set_hp(self.damage, reduce = True)
+                        func.list_play(pl_hit)
 
                     for i in range(3):
                         particle_list.append(classes.Particle(func.minus(player_actor.get_pos(), camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
+                elif self.attack_tick == 1 and self.type == "bomber":
+                    self.kill(camera_pos, enemy_list, map_render)
 
         if phase == 6:
             t_6 = time.time()
