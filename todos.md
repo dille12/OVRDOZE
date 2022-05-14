@@ -14,11 +14,14 @@ or for new people who want to help: here are things that still need to get done.
 8. Fire animations, molotovs and flamers
 9. PvE Multiplayer, ping counteracting
 10. Correct IP scanning
-11. LineOfSight fixes and optimization
+11. los.py line of sight fixes and optimization
 12. func.get_route() overhaul
-13. Bigger maps
+13. More/Bigger maps
 14. More zombie types (i.e L4D2 bombers)
 15. Last stand and reviving
+16. Sanity rework (currently only increases amount of zombies)
+17. More items (body shields, decoys, radars)
+18. Animate the player sprite
 
 Maybe-list:
 1. Small campaign
