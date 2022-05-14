@@ -38,14 +38,4 @@ class TestRun(unittest.TestCase):
     def test_sp_lob(self):
             pass
 
-    def test_Glitch(self):
-        return
-        glitch=Glitch();
-        def test_tick():
-            self.assertNoLogs(glitch.tick())
-
-    def test_Button(self):
-        return
-        button = Button([854,100], "Singleplayer", "single_player_lobby", None)
-        def test_tick():
-            self.assertNoLogs(button.tick())
+    
