@@ -14,7 +14,13 @@ camera_pan = 0.03
 respawn_ticks = 0
 
 
-m = get_monitors()[0]
+monitors = get_monitors()
+m=monitors[0];#get first in list or primary if set
+for n in monitors:
+    if n.is_primary==True:
+        m=n;
+        break;
+
 fs_size = (m.width,m.height)
 
 
