@@ -23,6 +23,7 @@ or for new people who want to help: here are things that still need to get done.
 17. More items (body shields, decoys, radars)
 18. Animate the player sprite
 19. Ingame map editor 
+20. More and better OST
 
 # If there's time:
 1. Small campaign
