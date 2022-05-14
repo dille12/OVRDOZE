@@ -16,6 +16,8 @@ import hud_elements
 import get_preferences
 import func
 from maps import maps
+from glitch import Glitch
+from button import Button
 
 name, draw_los, dev, ultraviolence, last_ip = get_preferences.pref()
 
@@ -54,7 +56,6 @@ terminal = pygame.font.Font('texture/terminal.ttf', 20)
 
 terminal2 = pygame.font.Font('texture/terminal.ttf', 10)
 
-terminal_button = pygame.font.Font('texture/terminal.ttf', 40)
 
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
@@ -159,107 +160,28 @@ background_tick = 1
 pygame.mixer.music.load("sound/songs/menu_loop.wav")
 pygame.mixer.music.play(-1)
 t = time.time()
+glitch = Glitch(screen)
 
-class Glitch:
-    def __init__(self):
-        self.images = func.load_animation("anim/glitch",1,10)
-        self.glitch_tick = 0
-
-    def tick(self):
-        if self.glitch_tick != 0:
-            self.glitch_tick -= 1
-            screen.blit(func.pick_random_from_list(self.images), (0,0))
-
-glitch = Glitch()
-
-class Button:
-    def __init__(self, pos, text, action, args):
-        self.pos = pos
-        self.text = text
-
-        text_s = terminal_button.render(self.text, False, [255,255,255]).get_rect().size
-
-        self.size = text_s
-
-
-        self.pos[0] -= text_s[0]/2
-        self.pos[1] -= text_s[1]/2
-
-        self.action = action
-        self.args = args
-        self.targeted = False
-        self.anim_tick = 0
-
-    def tick(self, screen, mouse_pos, click, glitch, arg = None):
-        text = terminal_button.render(self.text, False, [255,255,255])
-
-        if self.targeted:
-            color = [255,100,100]
-            color2 = [255,255,255]
-        else:
-            color = [100,100,100]
-            color2 = [133,66,66]
-        pygame.draw.rect(screen, color, [self.pos[0], self.pos[1]-4, text.get_rect().size[0]+4 , 48])
-
-        screen.blit(text, [self.pos[0] + 2, self.pos[1]+2])
-
-        if self.anim_tick != 0:
-            pygame.draw.rect(screen, [255,255,255], [self.pos[0], self.pos[1]-10 + 48*self.anim_tick/8, text.get_rect().size[0]+4 , 2])
-
-            pygame.draw.rect(screen, color2, [self.pos[0], self.pos[1]-4, text.get_rect().size[0]+4 , 48], round(self.anim_tick**0.5))
-
-            self.anim_tick -= 1
-        else:
-            if self.targeted:
-                self.anim_tick = 8
-
-            pygame.draw.rect(screen, color2, [self.pos[0], self.pos[1]-4, text.get_rect().size[0]+4 , 48], 2)
-
-
-
-
-        if self.pos[0] < mouse_pos[0] < self.pos[0]+self.size[0]+4 and self.pos[1]-2 < mouse_pos[1] < self.pos[1]+self.size[1]:
-
-            if self.targeted == False:
-                self.targeted = True
-                menu_click.play()
-
-
-
-            if click:
-                menu_click2.play()
-                glitch.glitch_tick = 5
-                print("ACTION")
-                if arg != None:
-                    return self.action(arg)
-                else:
-                    return self.action(self.args)
-        else:
-            self.targeted = False
-        if self.args == "2":
-            return None, None
-        if self.args == "3":
-            return None, None, False
 
 x_s = size[0]/2
 
 difficulty = "NORMAL"
 
-button = Button([x_s,100], "Singleplayer", sp_lob, None)
-button2 = Button([x_s,160], "Multiplayer", start_mp, None)
+button = Button([x_s,100], "Singleplayer", sp_lob, None,gameInstance=pygame,glitchInstance=glitch)
+button2 = Button([x_s,160], "Multiplayer", start_mp, None,gameInstance=pygame,glitchInstance=glitch)
 
-button_settings = Button([x_s,220], "Settings", settings, None)
+button_settings = Button([x_s,220], "Settings", settings, None,gameInstance=pygame,glitchInstance=glitch)
 
-button3 = Button([x_s,280], "Exit", quit, None)
+button3 = Button([x_s,280], "Exit", quit, None,gameInstance=pygame,glitchInstance=glitch)
 
-button4 = Button([x_s,100], "Host", host_game, "3")
-button5 = Button([x_s,160], "Join", join_game, ip)
-button6 = Button([x_s,220], "Back", main_menu, None)
+button4 = Button([x_s,100], "Host", host_game, "3",gameInstance=pygame,glitchInstance=glitch)
+button5 = Button([x_s,160], "Join", join_game, ip,gameInstance=pygame,glitchInstance=glitch)
+button6 = Button([x_s,220], "Back", main_menu, None,gameInstance=pygame,glitchInstance=glitch)
 
-button7 = Button([140,70], "START GAME", start_mp_game, None)
-button7_2 = Button([140,70], "START GAME", start_sp, difficulty)
-button8 = Button([68,130], "Back", kill_server, None)
-button8_2 = Button([68,130], "Back", main_menu, None)
+button7 = Button([140,70], "START GAME", start_mp_game, None,gameInstance=pygame,glitchInstance=glitch)
+button7_2 = Button([140,70], "START GAME", start_sp, difficulty,gameInstance=pygame,glitchInstance=glitch)
+button8 = Button([68,130], "Back", kill_server, None,gameInstance=pygame,glitchInstance=glitch)
+button8_2 = Button([68,130], "Back", main_menu, None,gameInstance=pygame,glitchInstance=glitch)
 
 check_box_difficulties = []
 
