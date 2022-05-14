@@ -10,9 +10,7 @@ A single/multiplayer co-op survival small space zombie shooter.
 ```
 # SET-UP.
 ## MULTIPLAYER 
-set up as host. 
-wait for friends to join as client. 
-profit.
+Multiplayer works currently within local network right now. You can play against your friends either in local wifi, or by installing LogMeIn Hamachi VPN, creating a new network for all your friends to join. Now you can host a game, or join another players' game.
 
 # CONTROLS
 
