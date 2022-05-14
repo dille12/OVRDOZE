@@ -27,7 +27,7 @@ the bullet spread is determined by mouse distance from player.
 where you can drag things from boxes with your mouse and store them.
 
 ## F SEARCHES BOXES
-opens both the box and your inventory: manipulation is done via mouse.
+opens both the box and your inventory: manipulation is done via mouse. Shift-click to quickly transfer the item to your inventory.
 
 ## G THROWS GRENADES
 throws a grenades about where the mouse is.
