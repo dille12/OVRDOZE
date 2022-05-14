@@ -23,3 +23,8 @@ Maybe-list:
 1. Small campaign
 - Trigger system for maps
 - Dialogue
+
+Megahard changes:
+
+1. Changing the rendering resolution (it's capped to 854x480) 
+2. Ability to change fps cap (Everything is tied to 60fps)
