@@ -20,10 +20,6 @@ from button import Button
 #import path_finding
 from app import App
 
-
-
-
-
 def main():
 
     name, draw_los, dev, ultraviolence, last_ip = get_preferences.pref()
@@ -90,8 +86,6 @@ def main():
             reply = net.send(name)
             if reply != [""]:
 
-
-
                 print("CLIENT:", reply)
                 print("CLIENT: CONNECTED")
 
@@ -104,11 +98,8 @@ def main():
             print(e)
             return "start", None, None
 
-
     def main_menu(arg):
         return "start"
-
-
 
 
     def quit(args):
@@ -141,12 +132,10 @@ def main():
     host = False
     background_tick = 1
 
-
     app.pygame.mixer.music.load("sound/songs/menu_loop.wav")
     app.pygame.mixer.music.play(-1)
     t = time.time() - 0.85714285714
     glitch = Glitch(screen)
-
 
     x_s = size[0]/2
 
@@ -169,8 +158,6 @@ def main():
     button8_2 = Button([68,130], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
 
     check_box_difficulties = []
-
-
 
     for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD",280], ["ONSLAUGHT", 320]]:
         box = hud_elements.Checkbox(screen, 20,y_pos, caption = text, font_color = [255,255,255], text_offset = [40,5], cant_uncheck = True)
@@ -211,7 +198,6 @@ def main():
     net = None
     background_vel = 0
 
-
     while 1:
 
         if background_tick != 0:
@@ -221,9 +207,6 @@ def main():
 
             print("RESET")
             background_tick = 52
-
-
-
 
         clock.tick(60)
 
@@ -282,24 +265,16 @@ def main():
 
         screen.blit(background, (0,0))
 
-
         for x in particle_list:
             x.tick(screen, [0,0])
 
         if menu_status == "start":
-
-
-
-
             screen.blit(info, [20,150])
 
             s1 = button.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s2= button2.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button3.tick(screen, mouse_pos, mouse_single_tick, glitch)
-
-
-
 
             if s1 != None:
                 menu_status = s1
@@ -314,8 +289,6 @@ def main():
 
         if menu_status == "settings":
 
-
-
             s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             text = terminal.render("Name:", False, [255,255,255])
@@ -329,21 +302,11 @@ def main():
 
             check_box_ultra.render_checkbox()
 
-
             if s8_2 != None:
                 menu_status  = s8_2
                 mouse_single_tick = False
 
-
-
-
-
-
         if menu_status == "mp_start":
-
-
-
-
             s4, net1, host = button4.tick(screen, mouse_pos, mouse_single_tick, glitch)
             list  = button5.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = ip)
 
@@ -362,16 +325,9 @@ def main():
             if net == None and net2 != None:
                 net = net2
                 print("NETWORK SAVED")
-
-
-
             if s4 != None:
                 menu_status  = s4
                 print("Game hosted")
-
-
-
-
                 mouse_single_tick = False
             if s5 != None:
                 button5.__dict__["args"] = ip
@@ -455,10 +411,7 @@ def main():
                 menu_status  = s8_2
                 mouse_single_tick = False
 
-
         if menu_status == "lobby":
-
-
 
             text = terminal.render("MAP", False, [255,255,255])
             screen.blit(text, [430- text.get_rect().size[0]/2,20])
@@ -487,20 +440,12 @@ def main():
                     rect_map.inflate_ip(4,4)
 
                     app.pygame.draw.rect(screen, [255,255,255], rect_map.move([330,80]))
-
-
-
             else:
                 text = terminal.render("LOBBY", False, [255,255,255])
                 screen.blit(text, [30,20])
                 text = terminal.render("HOSTED AT:" + ip, False, [255,255,255])
                 screen.blit(text, [500,420])
             #screen.blit(text, [400,20])
-
-
-
-
-
 
             screen.blit(maps_dict[selected_map]["image"], [330,80])
 
@@ -555,11 +500,8 @@ def main():
                         elif type == "index" and not host:
                             selected_map = int(info1)
 
-
-
                 except Exception as e:
                     pass
-
 
             i = 210
             for y in players:
@@ -587,18 +529,11 @@ def main():
 
             textbox_ip.tick(screen, mouse_single_tick, mouse_pos, events)
 
-
-
-
-
         #print(thread.active_count())
         glitch.tick()
-
-
         app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
 
         app.pygame.display.update()
-
 
 
 if __name__ == "__main__":
