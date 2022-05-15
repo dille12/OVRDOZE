@@ -2,6 +2,8 @@
 
 A single/multiplayer co-op survival small space zombie shooter.
 
+If you'd like to contribute, feel free to join the [discord](https://discord.gg/vG5vrAgxx5)!
+
 # INSTALL
 
 1. Clone repo and extract the zip
