@@ -4,11 +4,11 @@ A single/multiplayer co-op survival small space zombie shooter.
 
 # INSTALL
 ```
-1: clone repo and extranct the zip
+1: clone repo and extract the zip
 2. copy the directory of the game
 3. open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\2dshooter")
 4. type in "pip install -r requirements.txt"
-5: python RUN.py
+5: run RUN.py
 
 ```
 # SET-UP.
@@ -18,9 +18,10 @@ Multiplayer works currently within local network right now. You can play against
 1. Install Hamachi from https://www.vpn.net/
 2. Create a new network.
 3. Share the name and password of the network to your friends.
-4. Once everyone is in the same network, your in-game ip address should change to your Hamachi ipv4. This can be seen in the multiplayer tab.
-5. Host a game, and share your ip with your friends.
-6. Start the game.
+4. Enable python's access through your firewall
+5. Once everyone is in the same network, your in-game ip address should change to your Hamachi ipv4. This can be seen in the multiplayer tab.
+6. Host a game, and share your ip with your friends.
+7. Start the game.
 
 # CONTROLS
 
