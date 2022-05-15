@@ -44,6 +44,7 @@ class Zombie:
             self.size = 10
             self.image = zombie
             self.type = "normal"
+            self.anglular_acceleration = 0.1
         elif type == "bomber":
             self.size = 13
             self.image = bomber
@@ -52,6 +53,7 @@ class Zombie:
             self.explosion = expl_blood
             self.type = "bomber"
             self.attack_speed = 60
+            self.anglular_acceleration = 0.025
         else:
             self.size = 20
             self.image = zombie_big
@@ -59,6 +61,8 @@ class Zombie:
             self.damage *= 2
             self.hp *= 5
             self.knockback_resistance = 0.1
+            self.anglular_acceleration = 0.05
+
             self.type = "big"
 
         self.attack_tick = 0
@@ -252,7 +256,7 @@ class Zombie:
             t_5 = time.time()
 
         if self.detected:
-            self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
+            #self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
             if dist > 50:
 
                 self.target_pos = player_pos
@@ -278,7 +282,7 @@ class Zombie:
         if self.angle != self.target_angle:
 
             if abs(self.target_angle - self.angle) > 1:
-                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*0.1
+                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*self.anglular_acceleration
             else:
                 self.angle = self.target_angle
 

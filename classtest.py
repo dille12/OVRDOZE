@@ -707,6 +707,9 @@ class Map:
             pygame.draw.rect(self.map_rendered, [255,0,0], [point[0], point[1], 1,1])
 
 
+        self.map_rendered_alpha = self.map_rendered.copy()
+        self.map_rendered_alpha.set_alpha(3)
+
         return self.map_rendered
 
 

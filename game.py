@@ -362,6 +362,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     active_maps = [map]
 
+    enemy_list.clear()
+    turret_list.clear()
+
 
 
     fps = []
@@ -478,9 +481,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     resume_button = button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=pygame,glitchInstance=glitch)
     quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=pygame,glitchInstance=glitch)
-
+    drying_time = time.time()
 
     while 1:
+
+
 
         clock.tick(tick_count)
 
@@ -522,7 +527,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             pressed = pygame.key.get_pressed()
             if (pressed[pygame.K_ESCAPE] or s1) and not pause_tick:
-
+                menu_click2.play()
                 pause = False
                 pause_tick = True
                 glitch.glitch_tick = 5
@@ -546,7 +551,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-
+        if time.time() - drying_time > 1:
+            map_render.blit(map.__dict__["map_rendered_alpha"],(0,0))
+            drying_time = time.time()
 
         time_stamps = {}
 
@@ -637,6 +644,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             glitch.glitch_tick = 5
             pause = True
             pause_tick = True
+            menu_click2.play()
 
         elif not pressed[pygame.K_ESCAPE]:
             pause_tick = False
