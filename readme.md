@@ -52,8 +52,5 @@ Given enough time barricades will fall under the horde.
 Consume narcotics to regain sanity and survive.
 
 
-## ESC hard quits the game. (it closes the game client/server - not the session)
-
-#DO-TO
-
+# TODO
 [current list of todos](/todos.md)
