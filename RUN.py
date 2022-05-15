@@ -18,6 +18,7 @@ import func
 from maps import maps
 from glitch import Glitch
 from button import Button
+# from app import App
 
 def getMaps():
         maps_dict = {}
@@ -37,6 +38,18 @@ def getMaps():
             index += 1
         return maps_dict
 
+# Work in progress - very basic app class shell:
+# goal: support passing obj instances between modules, move funcs out of RUN.property
+# - Contrib: Velas2
+class App:
+    def __init__(self,pygame=pygame,server=server):
+        self.pygame = pygame
+        self.server = server
+
+    def lobby_host(self,thread, ip):
+        print("SERVER STARTING")
+        server.server_run()
+
 def main():
 
     name, draw_los, dev, ultraviolence, last_ip = get_preferences.pref()
@@ -50,15 +63,14 @@ def main():
     screen =  pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0]
     clock = pygame.time.Clock()
+    app = App()
 
     menu_status = "start"
 
     pygame.mouse.set_visible(True)
 
     terminal = pygame.font.Font('texture/terminal.ttf', 20)
-
     terminal2 = pygame.font.Font('texture/terminal.ttf', 10)
-
 
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
@@ -72,10 +84,6 @@ def main():
     textbox_ip.__dict__["text"] = last_ip
     players = []
     port = 5555
-    def lobby_host(thread, ip):
-        print("SERVER STARTING")
-        server.server_run()
-
 
     def start_mp_game(arg):
         reply = net.send("start_game")
@@ -87,7 +95,7 @@ def main():
         textbox_ip.__dict__["text"] = ip_address
         ip = ip_address
         try:
-            start_new_thread(lobby_host, ("1", ip) )
+            start_new_thread(app.lobby_host, ("1", ip) )
             return join_game(ip, True)
         except:
             return "start", None, None
@@ -504,8 +512,11 @@ def main():
 
 
 
-
-            screen.blit(maps_dict[selected_map]["ima ge"], [330,80])
+            try:
+                screen.blit(maps_dict[selected_map]["image"], [330,80])
+            except:
+                print(maps_dict)
+                sys.exit()
 
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
             screen.blit(text, [430- text.get_rect().size[0]/2,50])
