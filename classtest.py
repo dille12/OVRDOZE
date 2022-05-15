@@ -100,10 +100,14 @@ class Map:
         self.name = name
         self.size = size
         self.polygons = []
+
         self.nav_mesh_available_spots = []
-        self.conv = conv
+
+        self.conv = 1920/854
+
+        # self.conv = conv
         self.points_inside_polygons = []
-        self.pos = [pos[0] / conv, pos[1] / conv]
+        self.pos = [pos[0] / self.conv, pos[1] / self.conv]
 
         self.nav_mesh_name = nav_mesh_name
 
@@ -122,10 +126,10 @@ class Map:
             y += pos[1]
 
 
-            self.polygons.append([[(x)/ conv, (y+height) / conv],[(x) / conv,(y) / conv],[(x+width) / conv,(y) / conv],[(x+width) / conv,(y+height) / conv]])
+            self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
         self.objects = objects
 
-        self.background = pygame.transform.scale(pygame.image.load("texture/" + dir), [round(size[0] / conv), round(size[1] / conv)]).convert()
+        self.background = pygame.transform.scale(pygame.image.load("texture/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
 
     def get_polygons(self):
         return self.polygons

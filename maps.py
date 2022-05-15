@@ -3,6 +3,16 @@ from values import *
 import classes
 
 mouse_conversion = fs_size[0] / size[0]
+
+## mouse_conversion =  1920 / 854 = 2.25
+## mouse_conversion =  2560 / 854 = 2.99
+
+
+## 2.25^2/2.99
+
+# 854x480
+
+
 maps = [Map("Requiem", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversion, [2000,1500],
 [ #x,y,width,height
 [2,470,125,186],

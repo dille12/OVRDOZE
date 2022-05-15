@@ -391,10 +391,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     global map_boundaries
     map_boundaries = [0,0]
 
+    map_conversion = 1920/854
+
     for map_1 in active_maps:
         walls_filtered += map.generate_wall_structure()
         for i in range(2):
-            end_point = (map_1.__dict__["pos"][i]*mouse_conversion + map_1.__dict__["size"][i])/mouse_conversion
+            end_point = (map_1.__dict__["pos"][i]*map_conversion + map_1.__dict__["size"][i])/map_conversion
             if map_boundaries[i] < end_point:
                 map_boundaries[i] = end_point
     print(map_boundaries)
