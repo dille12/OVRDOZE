@@ -19,7 +19,7 @@ from values import *
 import classes
 from classes import items
 import func
-import path_finding
+#import path_finding
 
 import armory
 import objects
