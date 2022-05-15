@@ -28,173 +28,194 @@ import RUN
 
 print("IMPORTS COMPLETE")
 
+
+
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 
-weapons = {
-    "M1911": armory.Weapon("M1911",
-                            clip_s = 8,
-                            fire_r = 2000,
-                            spread = 7,
-                            spread_r = 0.94,
-                            reload_r = 45,
-                            damage = 15,
-                            semi_auto = True,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            ammo_cap_lvlup = 1,
-                            image = "m1911.png",
-                            ammo = "INF",
-                            view = 0.0,
-                            handling = 0.7),
-    "AR-15": armory.Weapon("AR-15",
-                            clip_s = 35,
-                            fire_r = 500,
-                            spread = 1,
-                            spread_r = 0.93,
-                            bullet_speed = 35,
-                            reload_r = 60,
-                            damage = 34,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            sounds = assault_rifle_sounds,
-                            ammo_cap_lvlup = 1,
-                            image = "m16.png",
-                            ammo = "7.62x39MM",
-                            piercing = True,
-                            view = 0.032,
-                            handling = 0.25,
-                            burst = True,
-                            burst_bullets = 3,
-                            burst_fire_rate = 2),
-    "AK": armory.Weapon("AK47",
-                            clip_s = 30,
-                            fire_r = 520,
-                            spread = 3,
-                            spread_r = 0.94,
-                            bullet_speed = 25,
-                            reload_r = 60,
-                            damage = 34,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            sounds = assault_rifle_sounds,
-                            ammo_cap_lvlup = 1,
-                            image = "ak.png",
-                            ammo = "7.62x39MM",
-                            piercing = True,
-                            view = 0.03,
-                            handling = 0.35),
-    "SCAR18": armory.Weapon("SCAR18",
-                            clip_s = 20,
-                            fire_r = 240,
-                            spread = 1,
-                            spread_r = 0.93,
-                            bullet_speed = 30,
-                            reload_r = 45,
-                            damage = 45,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            sounds = assault_rifle_sounds2,
-                            ammo_cap_lvlup = 1,
-                            image = "ak.png",
-                            ammo = "INF",
-                            piercing = True,
-                            view = 0.035,
-                            handling = 0.45),
-    "MINIGUN": armory.Weapon("MINIGUN",
-                            clip_s = 999,
-                            fire_r = 3000,
-                            spread = 2,
-                            spread_r = 0.93,
-                            bullet_speed = 45,
-                            reload_r = 60,
-                            damage = 34,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            sounds = assault_rifle_sounds,
-                            ammo_cap_lvlup = 1,
-                            image = "ak.png",
-                            ammo = "7.62x39MM",
-                            piercing = True,
-                            view = 0.03,
-                            handling = 0.1),
-    "SPAS": armory.Weapon("SPAS-12",
-                            clip_s = 6,
-                            fire_r = 120,
-                            spread = 5,
-                            spread_per_bullet = 2,
-                            spread_r = 0.93,
-                            reload_r = 60,
-                            damage = 22,
-                            bullet_speed = 15,
-                            bullets_at_once = 8,
-                            shotgun = True,
-                            semi_auto = True,
-                            sounds = shotgun_sounds,
-                            ammo_cap_lvlup = 2,
-                            image = "spas12.png",
-                            ammo = "12 GAUGE",
-                            view = 0.01,
-                            handling = 0.2),
-    "P90": armory.Weapon("P90",
-                            clip_s = 50,
-                            fire_r = 950,
-                            spread = 7,
-                            spread_r = 0.94,
-                            reload_r = 60,
-                            damage = 21,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            sounds = smg_sounds,
 
-                            #sounds = shotgun_sounds,
-                            ammo_cap_lvlup = 2,
-                            image = "p90.png",
-                            ammo = "9MM",
-                            view = 0.02,
-                            handling = 0.5),
-    "GLOCK": armory.Weapon("GLOCK",
-                            clip_s = 20,
-                            fire_r = 350,
-                            spread = 3,
-                            spread_r = 0.92,
-                            reload_r = 30,
-                            damage = 27,
-                            semi_auto = False,
-                            bullets_at_once = 1,
-                            shotgun = False,
-                            ammo_cap_lvlup = 1,
-                            image = "glock.png",
-                            ammo = "45 ACP",
-                            view = 0.017,
-                            handling = 0.9,
-                            burst = True,
-                            burst_bullets = 3,
-                            burst_fire_rate = 3),
-    "AWP": armory.Weapon("AWP",
-                            clip_s = 10,
-                            fire_r = 50,
-                            spread = 1,
-                            spread_r = 0.965,
-                            spread_per_bullet = 25,
-                            reload_r = 120,
-                            damage = 200,
-                            bullets_at_once = 1,
-                            sounds = sniper_rifle_sounds,
-                            bullet_speed = 55,
-                            shotgun = False,
-                            ammo_cap_lvlup = 1,
-                            image = "awp.png",
-                            ammo = "50 CAL",
-                            piercing = True,
-                            view = 0.045,
-                            handling = 0.15,
-                            semi_auto = True),
+
+weapons = {
+
+
+"M1911": armory.Weapon("M1911",
+                        clip_s = 8,
+                        fire_r = 2000,
+                        spread = 7,
+                        spread_r = 0.94,
+                        reload_r = 45,
+                        damage = 15,
+                        semi_auto = True,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        ammo_cap_lvlup = 1,
+                        image = "m1911.png",
+                        ammo = "INF",
+                        view = 0.0,
+                        handling = 0.7),
+
+"AR-15": armory.Weapon("AR-15",
+                        clip_s = 35,
+                        fire_r = 500,
+                        spread = 1,
+                        spread_r = 0.93,
+                        bullet_speed = 35,
+                        reload_r = 60,
+                        damage = 34,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds,
+                        ammo_cap_lvlup = 1,
+                        image = "m16.png",
+                        ammo = "7.62x39MM",
+                        piercing = True,
+                        view = 0.032,
+                        handling = 0.25,
+                        burst = True,
+                        burst_bullets = 3,
+                        burst_fire_rate = 2),
+
+
+
+"AK": armory.Weapon("AK47",
+                        clip_s = 30,
+                        fire_r = 520,
+                        spread = 3,
+                        spread_r = 0.94,
+                        bullet_speed = 25,
+                        reload_r = 60,
+                        damage = 34,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds,
+                        ammo_cap_lvlup = 1,
+                        image = "ak.png",
+                        ammo = "7.62x39MM",
+                        piercing = True,
+                        view = 0.03,
+                        handling = 0.35),
+
+
+"SCAR18": armory.Weapon("SCAR18",
+                        clip_s = 20,
+                        fire_r = 240,
+                        spread = 1,
+                        spread_r = 0.93,
+                        bullet_speed = 30,
+                        reload_r = 45,
+                        damage = 45,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds2,
+                        ammo_cap_lvlup = 1,
+                        image = "ak.png",
+                        ammo = "INF",
+                        piercing = True,
+                        view = 0.035,
+                        handling = 0.45),
+
+"MINIGUN": armory.Weapon("MINIGUN",
+                        clip_s = 999,
+                        fire_r = 3000,
+                        spread = 2,
+                        spread_r = 0.93,
+                        bullet_speed = 45,
+                        reload_r = 60,
+                        damage = 34,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = assault_rifle_sounds,
+                        ammo_cap_lvlup = 1,
+                        image = "ak.png",
+                        ammo = "7.62x39MM",
+                        piercing = True,
+                        view = 0.03,
+                        handling = 0.1),
+
+"SPAS": armory.Weapon("SPAS-12",
+                        clip_s = 6,
+                        fire_r = 120,
+                        spread = 5,
+                        spread_per_bullet = 2,
+                        spread_r = 0.93,
+                        reload_r = 60,
+                        damage = 22,
+                        bullet_speed = 15,
+                        bullets_at_once = 8,
+                        shotgun = True,
+                        semi_auto = True,
+                        sounds = shotgun_sounds,
+                        ammo_cap_lvlup = 2,
+                        image = "spas12.png",
+                        ammo = "12 GAUGE",
+                        view = 0.01,
+                        handling = 0.2),
+
+"P90": armory.Weapon("P90",
+                        clip_s = 50,
+                        fire_r = 950,
+                        spread = 7,
+                        spread_r = 0.94,
+                        reload_r = 60,
+                        damage = 21,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        sounds = smg_sounds,
+
+                        #sounds = shotgun_sounds,
+                        ammo_cap_lvlup = 2,
+                        image = "p90.png",
+                        ammo = "9MM",
+                        view = 0.02,
+                        handling = 0.5),
+"GLOCK": armory.Weapon("GLOCK",
+                        clip_s = 20,
+                        fire_r = 350,
+                        spread = 3,
+                        spread_r = 0.92,
+                        reload_r = 30,
+                        damage = 27,
+                        semi_auto = False,
+                        bullets_at_once = 1,
+                        shotgun = False,
+                        ammo_cap_lvlup = 1,
+                        image = "glock.png",
+                        ammo = "45 ACP",
+                        view = 0.017,
+                        handling = 0.9,
+                        burst = True,
+                        burst_bullets = 3,
+                        burst_fire_rate = 3),
+
+"AWP": armory.Weapon("AWP",
+                        clip_s = 10,
+                        fire_r = 50,
+                        spread = 1,
+                        spread_r = 0.965,
+                        spread_per_bullet = 25,
+                        reload_r = 120,
+                        damage = 200,
+                        bullets_at_once = 1,
+                        sounds = sniper_rifle_sounds,
+                        bullet_speed = 55,
+                        shotgun = False,
+                        ammo_cap_lvlup = 1,
+                        image = "awp.png",
+                        ammo = "50 CAL",
+                        piercing = True,
+                        view = 0.045,
+                        handling = 0.15,
+                        semi_auto = True),
 }
+
+
+
 
 def give_weapon(gun):
     return weapons[gun].copy()
+
+
 
 # if multiplayer:
 #     net = Network()
@@ -218,9 +239,11 @@ def thread_data_collect(net, packet, multiplayer_actors, bullet_list, grenade_li
         pass
     current_threading = False
 
+
 def write_packet(object):
     string = write_packet.get_string() + "\n"
     return string
+
 
 def quit(arg):
     RUN.main()
@@ -228,12 +251,14 @@ def quit(arg):
 def cont_game(arg):
     return True
 
-def main(multiplayer = False, net = None, host = False, players = None,
-        self_name = None, difficulty = "NORMAL", draw_los = True,
-        dev_tools = True, skip_intervals = False, map = None):
+
+
+
+
+def main(multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
     print("GAME STARTED WITH",difficulty)
 
-    diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.5,0.9,0.75,1.1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
+    diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
 
     sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[difficulty]
 
@@ -321,16 +346,32 @@ def main(multiplayer = False, net = None, host = False, players = None,
         enemy_up_time = time.time()
 
 
+
+
+
+
+
+
+
     weapon_keys = list(weapons.keys())
     print("KEYS",weapon_keys)
 
 
     #multiplayer = True
 
+
+
+
+
+
+
+
+
     active_maps = [map]
 
     enemy_list.clear()
     turret_list.clear()
+
 
 
     fps = []
@@ -340,6 +381,8 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
 
     map_render = map.render(mouse_conversion).convert()
+
+
 
     # NAV_MESH = map2.compile_navmesh(mouse_conversion)
     # map_render2 = map2.render(mouse_conversion).convert()
@@ -397,16 +440,31 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
 
 
+
+
+
+
+
     ### MAP 2 ###
 
 
+
+
+
+
     player_actor = classes.Player(turret_bullets)
+
+
+
 
     #draw_los = True
 
     m_clicked = False
 
+
+
     phase = 0
+
 
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
@@ -438,10 +496,16 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
     while 1:
 
+
+
         clock.tick(tick_count)
 
         t = time.time()
         time_stamps = {}
+
+
+
+
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -457,9 +521,14 @@ def main(multiplayer = False, net = None, host = False, players = None,
         elif pygame.mouse.get_pressed()[0] == False:
             clicked = False
 
+
+
         if pause:
 
             pygame.mouse.set_visible(True)
+
+
+
 
             screen.fill((0,0,0))
             screen.blit(background_surf,(0,0))
@@ -509,6 +578,8 @@ def main(multiplayer = False, net = None, host = False, players = None,
         t = time.time()
 
 
+
+
         if phase != 4:
             camera_pan = c_weapon.__dict__["view"]
         else:
@@ -548,6 +619,18 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
         elif r_click == False:
             r_clicked = False
+
+
+
+
+
+
+
+
+
+
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
@@ -591,6 +674,11 @@ def main(multiplayer = False, net = None, host = False, players = None,
         elif not pressed[pygame.K_ESCAPE]:
             pause_tick = False
 
+
+
+
+
+
         screen.fill([0,0,0])
         try:
             fps_counter = time.time() - fps_counter
@@ -608,6 +696,8 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
         camera_pos = func.camera_aling(camera_pos,player_pos)
         cam_delta = func.minus_list(last_camera_pos,camera_pos)
+
+
 
 
         grenade_throw_string = ""
@@ -700,7 +790,7 @@ def main(multiplayer = False, net = None, host = False, players = None,
                             func.pick_random_from_list(enemy_list).kill(camera_pos, enemy_list, map_render, silent = True)
 
 
-                if time.time() - wave_change_timer > wave_interval and wave_number < 10:
+                if time.time() - wave_change_timer > wave_interval:
                     wave_length += 3
                     #wave_interval += 1
                     wave = True
@@ -764,6 +854,10 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
             if server_tick == tick_rate:
 
+
+
+
+
                 if data_collector == None or data_collector.is_alive() == False:
 
                     try:
@@ -793,6 +887,8 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
                     server_tick = 1
 
+
+
             else:
                 server_tick += 1
 
@@ -802,6 +898,7 @@ def main(multiplayer = False, net = None, host = False, players = None,
 
         bullet_list_copy = bullet_list.copy()
         grenade_list_copy = grenade_list.copy()
+
 
         last_bullet_list = tuple(bullet_list)
 
@@ -886,6 +983,9 @@ def main(multiplayer = False, net = None, host = False, players = None,
             if free_tick > 60 and player_actor.get_hp() < 100:
                 player_actor.set_hp(-1, reduce = True)
 
+
+
+
         else:
             free_tick = 0
             #glitch.glitch_tick = 5
@@ -968,6 +1068,12 @@ def main(multiplayer = False, net = None, host = False, players = None,
             kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
 
+
+
+
+
+
+
         time_stamps["misc"] = time.time() - t
         t = time.time()
 
@@ -1028,6 +1134,8 @@ def main(multiplayer = False, net = None, host = False, players = None,
                 color = [255,255,255]
             else:
                 color = [255,0,0]
+
+
 
             los_total_draw_time_frame = round(60*draw_time,3)
 
@@ -1142,10 +1250,13 @@ def main(multiplayer = False, net = None, host = False, players = None,
             screen.blit(text, [pos[0] - text.get_rect().center[0], pos[1] - text.get_rect().center[1]])
 
 
+
         try:
             kill_counter.tick(screen, cam_delta, kill_counter)
         except:
             pass
+
+
 
 
         if multiplayer:
@@ -1171,6 +1282,7 @@ def main(multiplayer = False, net = None, host = False, players = None,
             #     func.print_s(screen, "current_burst_bullet: " + str(c_weapon.__dict__["current_burst_bullet"]), 4)
             #     func.print_s(screen, "weapon_fire_Tick: " + str(c_weapon.weapon_fire_Tick()), 5)
 
+
         else:
             obje = enumerate(time_stamps, 1)
             total = 0
@@ -1192,8 +1304,10 @@ def main(multiplayer = False, net = None, host = False, players = None,
             except Exception as e:
                 print(e)
 
+
         last_time_stamp = time_stamps.copy()
         #func.print_s(screen, str(wave_text_tick), 5)
+
 
         if wave_anim_ticks[0] != 0:
             wave_anim_ticks[0] -= 1
@@ -1214,8 +1328,14 @@ def main(multiplayer = False, net = None, host = False, players = None,
                             break
                     list_copy = list_1.copy()
 
+
         except Exception as e:
             print(e)
+
+
+
+
+
 
         if pause:
             background_surf.blit(screen, (0,0))
