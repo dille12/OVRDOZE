@@ -54,6 +54,7 @@ particle_list = []
 grenade_list = []
 kill_counter  =[]
 explosions = []
+burn_list = []
 
 last_hp = 0
 free_tick = 0
@@ -157,6 +158,9 @@ for x in range(100):
 long_bullet = pygame.transform.scale(pygame.image.load("texture/bullet.png"), (45,4)).convert_alpha()
 grenade_throw = False
 grenade = pygame.transform.scale(pygame.image.load("texture/items/grenade.png"), [14,14]).convert_alpha()
+molotov = pygame.transform.scale(pygame.image.load("texture/items/molotov.png"), [14,14]).convert_alpha()
+molotov_explode = pygame.mixer.Sound("sound/molotov.wav")
+molotov_pickup = pygame.mixer.Sound("sound/molotov_pickup.wav")
 drug_use = pygame.mixer.Sound("sound/drug_use.wav")
 
 bullet_pickup = pygame.mixer.Sound("sound/bullet.wav")

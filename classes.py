@@ -110,7 +110,8 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
         "12 GAUGE": Item("12 GAUGE", "Shotgun cartridge.", "gauge.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 50),
         "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 120),
         "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 3, drop_stack = 2),
-        "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 2, drop_stack = 1)
+        "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 2, drop_stack = 1),
+        "Molotov" : Item("Molotov", "Makeshift firebomb.", "molotov.png", max_stack = 5, pick_up_sound = molotov_pickup, drop_weight = 3, drop_stack = 1)
         }
 
 
@@ -490,7 +491,7 @@ class Interactable:
             self.name = item.__dict__["name"]
             self.item = item
             self.amount = amount
-            self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [30,30]).convert_alpha()
+            self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [20,20]).convert_alpha()
 
         self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
         self.inv_save = player_inventory
@@ -690,6 +691,7 @@ class Particle:
     def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen, dont_copy = False, color_override = "red"):
         self.__pos = pos
         self.__type = type
+        self.fire_x_vel = random.randint(-1,1)
         if pre_defined_angle == False:
             self.__direction = math.radians(random.randint(0,360))
         else:
@@ -704,11 +706,15 @@ class Particle:
 
             self.__lifetime = round(random.randint(3,10) * magnitude*random.uniform(1,1.3))
 
+            self.max_life = 10 * magnitude * 1.3
+
             self.__magnitude = round(magnitude*3* random.uniform(1,1.3))
 
         else:
             self.__lifetime = round(random.randint(3,10) * magnitude)
             self.__magnitude = round(magnitude*3)
+            self.max_life = 10 * magnitude
+
         self.__color2 = [random.randint(0,50),random.randint(155,255),random.randint(235,255)]
         self.color_override = color_override
         if self.color_override == "red":
@@ -721,7 +727,16 @@ class Particle:
 
         if self.__lifetime > 0:
 
-            self.__pos = [self.__pos[0] + math.sin(self.__direction + random.uniform(-0.5,0.5))*self.__lifetime + random.randint(-2,2) , self.__pos[1] + math.cos(self.__direction + random.uniform(-0.3,0.3))*self.__lifetime + random.randint(-2,2)]
+            if self.__type == "fire":
+                self.fire_x_vel += random.uniform(-0.5,0.7)
+                self.__pos = [self.__pos[0] + self.fire_x_vel, self.__pos[1] - random.randint(1,4)]
+                self.__color = [255,round(255*(self.__lifetime/(self.max_life+5))), round(255*((self.__lifetime/(self.max_life+5))**2))]
+                self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), self.__lifetime/2,self.__lifetime/2]
+            else:
+                self.__pos = [self.__pos[0] + math.sin(self.__direction + random.uniform(-0.5,0.5))*self.__lifetime + random.randint(-2,2) , self.__pos[1] + math.cos(self.__direction + random.uniform(-0.3,0.3))*self.__lifetime + random.randint(-2,2)]
+
+
+
             if self.__type == "normal":
                 self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), self.__lifetime/2,self.__lifetime/2]
                 self.__color = [255,255 - 255/self.__lifetime ,0]
@@ -862,3 +877,35 @@ class Wall:
 
     def get_points(self):
         return self.__start, self.__end
+
+
+
+class Burn:
+    def __init__(self, pos, magnitude, lifetime):
+        self.pos = pos
+        self.magnitude = magnitude
+        self.life_max = lifetime
+        self.lifetime = lifetime
+
+    def tick(self, screen, map_render = None):
+
+        if self.lifetime <= 0:
+            burn_list.remove(self)
+            return
+
+        for x in range(1):
+            particle_list.append(Particle([self.pos[0]+random.randint(-4,4)*2,self.pos[1]+random.randint(-4,4)*2], type = "fire", magnitude = (self.magnitude * (self.lifetime/self.life_max)**0.7),screen = screen))
+
+        if map_render != None:
+
+            if self.lifetime/self.life_max > random.randint(0,2):
+                random_angle = random.randint(0, 360)
+                dist = random.randint(0,1000)**0.5
+
+                #size = 4*dist/(1000**0.5)
+
+                pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
+
+                pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,3),random.randint(1,3)])
+
+        self.lifetime -= 1
