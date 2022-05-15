@@ -1,5 +1,5 @@
-username=Runkkukives
+username=Client
 FOV=True
 DEV=True
 ULTRA=False
-LASTIP=25.90.55.6
+LASTIP=
