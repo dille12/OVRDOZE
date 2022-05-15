@@ -3,14 +3,14 @@
 A single/multiplayer co-op survival small space zombie shooter.
 
 # INSTALL
-```
-1: clone repo and extract the zip
-2. copy the directory of the game
-3. open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\2dshooter")
-4. type in "pip install -r requirements.txt"
-5: run RUN.py
 
-```
+1. Clone repo and extract the zip
+2. Copy the directory of the game
+3. Open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\2dshooter")
+4. Type in "pip install -r requirements.txt"
+5. Run RUN.py
+
+
 # SET-UP.
 ## MULTIPLAYER 
 Multiplayer works currently within local network right now. You can play against your friends either in local wifi, or by installing LogMeIn Hamachi VPN.
