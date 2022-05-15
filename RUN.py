@@ -171,7 +171,7 @@ def main():
 
     pygame.mixer.music.load("sound/songs/menu_loop.wav")
     pygame.mixer.music.play(-1)
-    t = time.time()
+    t = time.time() - 0.85714285714
     glitch = Glitch(screen)
 
 
@@ -437,8 +437,24 @@ def main():
 
             screen.blit(maps_dict[selected_map]["image"], [330,80])
 
+            rect_map2 = maps_dict[selected_map]["image"].get_rect()
+
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
             screen.blit(text, [430- text.get_rect().size[0]/2,50])
+
+            pygame.draw.line(screen, [255,255,255], [550, 80], [550, 80 + rect_map2.h])
+            pygame.draw.line(screen, [255,255,255], [550, 80], [545, 80])
+            pygame.draw.line(screen, [255,255,255], [550, 80 + rect_map2.h], [545, 80 + rect_map2.h])
+
+            text = terminal.render(str(round(maps_dict[selected_map]["map"].__dict__["size"][1]/100)) + "m", False, [255,255,255])
+            screen.blit(text, [552,80 + rect_map2.h/2 - text.get_rect().size[1]/2])
+
+            pygame.draw.line(screen, [255,255,255], [330, 100 + rect_map2.h], [530, 100 + rect_map2.h])
+            pygame.draw.line(screen, [255,255,255], [330, 100 + rect_map2.h], [330, 95 + rect_map2.h])
+            pygame.draw.line(screen, [255,255,255], [530, 100 + rect_map2.h], [530, 95 + rect_map2.h])
+
+            text = terminal.render(str(round(maps_dict[selected_map]["map"].__dict__["size"][0]/100)) + "m", False, [255,255,255])
+            screen.blit(text, [430- text.get_rect().size[0]/2,105 + rect_map2.h])
 
 
             check_box_inter.render_checkbox()
@@ -519,7 +535,24 @@ def main():
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
             screen.blit(text, [430- text.get_rect().size[0]/2,50])
 
+            rect_map2 = maps_dict[selected_map]["image"].get_rect()
 
+            text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
+            screen.blit(text, [430- text.get_rect().size[0]/2,50])
+
+            pygame.draw.line(screen, [255,255,255], [550, 80], [550, 80 + rect_map2.h])
+            pygame.draw.line(screen, [255,255,255], [550, 80], [545, 80])
+            pygame.draw.line(screen, [255,255,255], [550, 80 + rect_map2.h], [545, 80 + rect_map2.h])
+
+            text = terminal.render(str(round(maps_dict[selected_map]["map"].__dict__["size"][1]/100)) + "m", False, [255,255,255])
+            screen.blit(text, [552,80 + rect_map2.h/2 - text.get_rect().size[1]/2])
+
+            pygame.draw.line(screen, [255,255,255], [330, 100 + rect_map2.h], [530, 100 + rect_map2.h])
+            pygame.draw.line(screen, [255,255,255], [330, 100 + rect_map2.h], [330, 95 + rect_map2.h])
+            pygame.draw.line(screen, [255,255,255], [530, 100 + rect_map2.h], [530, 95 + rect_map2.h])
+
+            text = terminal.render(str(round(maps_dict[selected_map]["map"].__dict__["size"][0]/100)) + "m", False, [255,255,255])
+            screen.blit(text, [430- text.get_rect().size[0]/2,105 + rect_map2.h])
 
             text = terminal.render("Players:", False, [255,255,255])
 

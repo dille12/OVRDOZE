@@ -263,7 +263,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[difficulty]
 
     if not skip_intervals:
-        wave_interval = 20
+        wave_interval = 12
         wave_change_timer = time.time()
     else:
         wave_interval = 2
@@ -781,6 +781,15 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
             else:
+
+
+                if False: #Kill enemies if no wave.
+
+                    if len(enemy_list) != 0:
+                        if random.uniform(0,1) < 0.1:
+                            func.pick_random_from_list(enemy_list).kill(camera_pos, enemy_list, map_render, silent = True)
+
+
                 if time.time() - wave_change_timer > wave_interval:
                     wave_length += 3
                     #wave_interval += 1

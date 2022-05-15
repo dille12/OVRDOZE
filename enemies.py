@@ -117,10 +117,11 @@ class Zombie:
 
         self.angle = 0
 
-    def kill(self, camera_pos, list, draw_blood_parts):
+    def kill(self, camera_pos, list, draw_blood_parts, silent = False):
         list.remove(self)
         func.list_play(death_sounds)
-        func.list_play(kill_sounds)
+        if not silent:
+            func.list_play(kill_sounds)
 
         if self.type == "bomber":
             explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood", color_override = "yellow"))
