@@ -224,7 +224,9 @@ class Zombie:
 
         #pygame.draw.rect(screen, [255,255,255],[self.temp_pos[0], self.temp_pos[1], 20, 20])
 
-
+        for x in burn_list:
+            if los.get_dist_points(x.pos, self.pos) < 25:
+                self.hp -= 1
 
         self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - self.target_pos[1], self.pos[0] - self.target_pos[0]))
 
@@ -334,6 +336,10 @@ class Zombie:
         #
         else:
             self.stationary = 0
+
+        if self.check_if_alive() and self.hp <= 0:
+            self.kill(camera_pos, enemy_list, map_render)
+
 
         if phase == 6:
             t_9 = time.time()
