@@ -403,7 +403,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     for x in walls_filtered:
         wall_points.append(x.get_points())
 
-    player_pos = player_pos = map.get_random_point(walls_filtered)
+    player_pos = map.get_random_point(walls_filtered)
     camera_pos = [0,0]
 
     NAV_MESH = []
@@ -430,6 +430,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     interactables = []
 
     player_inventory = classes.Inventory(interactables, player = True)
+    player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }})
     #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
     #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
 
@@ -494,6 +495,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=pygame,glitchInstance=glitch)
     drying_time = time.time()
 
+    burn_list.append(classes.Burn([50,50], 2.5, 500))
+
     while 1:
 
 
@@ -502,7 +505,6 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         t = time.time()
         time_stamps = {}
-
 
 
 
@@ -707,10 +709,13 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             grenade_throw = True
 
             if player_inventory.get_amount_of_type("HE Grenade") > 0:
-
-                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos)))
-                grenade_throw_string = str(round(player_pos[0])) + "_" + str(round(player_pos[1])) + "_"+ str(round(func.minus(mouse_pos, camera_pos)[0])) + "_"+ str(round(func.minus(mouse_pos, camera_pos)[1]))
+                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos), "HE Grenade"))
                 player_inventory.remove_amount("HE Grenade",1)
+                print("throwing nade")
+
+            elif player_inventory.get_amount_of_type("Molotov") > 0:
+                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos), "Molotov"))
+                player_inventory.remove_amount("Molotov",1)
                 print("throwing nade")
 
         elif pressed[pygame.K_g] == False:
@@ -944,7 +949,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             player_actor.set_pos(player_pos)
 
-
+            for x in burn_list:
+                if los.get_dist_points(x.pos, player_pos) < 25:
+                    player_actor.set_hp(1, reduce = True)
 
             if player_actor.__dict__["barricade_in_hand"] != None:
                 func.print_s(screen, str(player_actor.__dict__["barricade_in_hand"].__dict__["stage"]), 3)
@@ -1063,6 +1070,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             if m_k_t != None:
                 multi_kill_ticks = m_k_t
+
+        for x in burn_list:
+            x.tick(screen, map_render)
 
         if mp != multi_kill:
             kill_counter = classes.kill_count_render(multi_kill, kill_rgb)

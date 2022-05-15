@@ -24,11 +24,18 @@ prompt = pygame.font.Font('texture/terminal.ttf', 14)
 
 
 class Grenade:
-    def __init__(self, pos, target_pos, mp = False):
+    def __init__(self, pos, target_pos, type, mp = False):
         self.pos = pos
         self.mp = mp
+        self.type = type
         self.angle_rad = math.atan2(target_pos[1] - pos[1], target_pos[0] - pos[0])
         self.velocity = los.get_dist_points(pos,target_pos) / 30
+
+        if type == "HE Grenade":
+            self.image = grenade
+
+        elif type == "Molotov":
+            self.image = molotov
 
         self.target_pos = target_pos
 
@@ -44,6 +51,17 @@ class Grenade:
         string = "GRENADE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
         return string
 
+    def molotov_explode(self):
+        if self.type != "Molotov":
+            return
+        for i in range(15):
+            random_angle = random.randint(0, 360)
+            dist = random.randint(0,75)
+            pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
+            burn_list.append(classes.Burn(pos, 3, random.randint(500,600)))
+        molotov_explode.play()
+        grenade_list.remove(self)
+
 
     def tick(self,screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
         self.last_pos = self.pos.copy()
@@ -52,6 +70,7 @@ class Grenade:
         coll_pos, vert_coll, hor_coll = map.check_collision(self.pos.copy(), map_boundaries, collision_box = 5, dir_coll = True)
         if coll_pos:
             print("HIT")
+            self.molotov_explode()
             if vert_coll:
                 self.angle_rad = math.pi - self.angle_rad
 
@@ -67,7 +86,7 @@ class Grenade:
             self.vert_vel -= 0.2
             self.height += self.vert_vel
             self.angle += self.direction * self.angular_velocity
-        st_i, st_rect = func.rot_center(grenade, self.angle, self.pos[0], self.pos[1])
+        st_i, st_rect = func.rot_center(self.image, self.angle, self.pos[0], self.pos[1])
         if los.check_los(player_pos, self.pos, walls):
             screen.blit(st_i, func.minus_list(st_rect[:2],camera_pos))
 
@@ -78,6 +97,7 @@ class Grenade:
             self.height = 0
             self.direction *= -1
             self.angular_velocity *= random.uniform(0.7,1.4)
+            self.molotov_explode()
         # else:
         #     self.velocity = 0
         #     self.vert_vel = 0
