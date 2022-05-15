@@ -22,6 +22,57 @@ terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
 
+class Meele:
+    def __init__(self, pos, target_pos, mp = False, strike_count=2,damage=10):
+        self.pos=pos;
+        self.mp=mp;
+        self.arc=1*math.pi;
+
+        self.sounds = sounds["fire"]
+        self.reload_sound = sounds["reload"]
+        self.radius=5 # what's a good meele range number? - lets see if we can't make this more adjustable
+        self.angle_rad = math.atan2(Math.min(self.radius,target_pos[1] - pos[1]), Math.min(self.radius,target_pos[0] - pos[0])) 
+        self.velocity = los.get_dist_points(pos, target_pos) / 30
+        self.__firerate = tick_count/(fire_r/60)
+        self._strikes_used=0;
+        self.__strikes=strike_count;
+        self.__damage = damage;
+        if enemy_weapon:
+            self.team = "hostile"
+        else:
+            self.team = "friendly"
+
+    def get_string(self):
+
+        string = "MEELE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
+        return string
+    def check_for_strike(self,click):
+        if click == True and self._strikes_used > self.__strikes: ##FIRE
+            return True
+        else:
+            return False
+    def strike(self,weapon_pos, angle, screen):
+
+        radian_angle = math.radians(angle) - 0.16184 + math.pi/2
+
+        c = 198.59507*0.36919315403/1.875
+
+        x_offset = math.sin(radian_angle)*c
+        y_offset = math.cos(radian_angle)*c
+        weapon_pos = [weapon_pos[0]+x_offset,weapon_pos[1]+y_offset]
+        func.list_play(self.sounds)
+        spread_cumulative = 0
+        if self.__strikes > self._strikes_used:
+            strikes_list.append(objects.MeeleWeapon(weapon_pos,angle,self.__damage, team = self.team, speed = self.velocity, piercing = True))   #BULLET
+            for x in range(random.randint(8,16)):
+                particle_list.append(classes.Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self.__damage**0.1- 0.5, screen = screen))
+
+        self.__weapon_fire_Tick += self.__firerate
+
+
+
+
+
 
 class Grenade:
     def __init__(self, pos, target_pos, mp = False):
