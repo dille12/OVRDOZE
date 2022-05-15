@@ -558,9 +558,13 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
         routes.append([start_nav_point["point"], conne])
 
     while routes != []:
-        if len(routes) > 200:   #sometimes continues infinetely, so the loop must be broken
+        if len(complete_routes) > 3:
+            # print("ROUTES SHOOT OVER 2000!")
+            # for route in routes:
+            #
+            #     print(route)   #sometimes continues infinetely, so the loop must be broken
             break
-        route = routes[0]
+        route = pick_random_from_list(routes)
         routes.remove(route)
         point = route[-1]
         point_2 = get_point_from_list(point, NAV_MESH)
@@ -586,6 +590,8 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
 
         if route_ref["dist"] < shortest_route["dist"]:
             shortest_route = route_ref
+
+
 
     return shortest_route["route"]
 

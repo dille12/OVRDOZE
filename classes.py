@@ -13,6 +13,7 @@ width, height = size
 import objects
 import get_preferences
 
+
 a, draw_los, a, ultraviolence, a = get_preferences.pref()
 
 
@@ -686,7 +687,7 @@ class kill_count_render:
 
 
 class Particle:
-    def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen, dont_copy = False):
+    def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen, dont_copy = False, color_override = "red"):
         self.__pos = pos
         self.__type = type
         if pre_defined_angle == False:
@@ -709,7 +710,11 @@ class Particle:
             self.__lifetime = round(random.randint(3,10) * magnitude)
             self.__magnitude = round(magnitude*3)
         self.__color2 = [random.randint(0,50),random.randint(155,255),random.randint(235,255)]
-        self.__color3 = [random.randint(200,220),random.randint(0,50),random.randint(0,50)]
+        self.color_override = color_override
+        if self.color_override == "red":
+            self.__color3 = [random.randint(200,220),random.randint(0,50),random.randint(0,50)]
+        elif self.color_override == "yellow":
+            self.__color3 = [random.randint(200,220), random.randint(200,220), random.randint(0,50)]
         self.draw_surface = screen
 
     def tick(self,screen,camera_pos):
@@ -727,8 +732,12 @@ class Particle:
                 self.__color = [self.__color2[0],self.__color2[1], self.__color2[2]]
 
             elif self.__type == "blood_particle":
+
                 self.__dim = [self.__pos[0]-round(self.__lifetime), self.__pos[1]-round(self.__lifetime), self.__lifetime*2,self.__lifetime*2]
-                self.__color = [self.__color3[0]/((2+self.__lifetime)**0.4),self.__color3[1]/self.__lifetime, self.__color3[2]/self.__lifetime]
+                if self.color_override == "red":
+                    self.__color = [self.__color3[0]/((2+self.__lifetime)**0.4),self.__color3[1]/self.__lifetime, self.__color3[2]/self.__lifetime]
+                elif self.color_override == "yellow":
+                    self.__color = [self.__color3[0]/((2+self.__lifetime)**0.4),self.__color3[1]/((2+self.__lifetime)**0.4), self.__color3[2]/self.__lifetime]
 
 
             elif self.__type == "item_particle":

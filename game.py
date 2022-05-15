@@ -13,16 +13,18 @@ from network import Network
 import ast
 import network_parser
 
-
-
+from button import Button
+from glitch import Glitch
 from values import *
 import classes
 from classes import items
 import func
+#import path_finding
 
 import armory
 import objects
 import enemies
+import RUN
 
 print("IMPORTS COMPLETE")
 
@@ -243,6 +245,13 @@ def write_packet(object):
     return string
 
 
+def quit(arg):
+    RUN.main()
+
+def cont_game(arg):
+    return True
+
+
 
 
 
@@ -254,7 +263,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[difficulty]
 
     if not skip_intervals:
-        wave_interval = 20
+        wave_interval = 12
         wave_change_timer = time.time()
     else:
         wave_interval = 2
@@ -270,6 +279,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     clicked = False
     fps_counter = time.time()
+
+
+    los_image = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
+    los_image.set_colorkey((255,255,255))
+        #
+    los_image.set_alpha(150)
 
     x_vel = 0
     y_vel = 0
@@ -289,6 +304,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     last_ping = 0
 
+    pause = False
 
     wave_text_tick = -20
 
@@ -353,6 +369,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     active_maps = [map]
 
+    enemy_list.clear()
+    turret_list.clear()
+
 
 
     fps = []
@@ -379,6 +398,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             if map_boundaries[i] < end_point:
                 map_boundaries[i] = end_point
     print(map_boundaries)
+
+    wall_points = []
+    for x in walls_filtered:
+        wall_points.append(x.get_points())
 
     player_pos = player_pos = map.get_random_point(walls_filtered)
     camera_pos = [0,0]
@@ -460,20 +483,107 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         if file.endswith(".wav") and file != "menu_loop.wav":
             songs.append("sound/songs/" + file)
 
+    pause_tick = False
+
+    background_surf = pygame.Surface(size)
+    background_surf.set_alpha(100)
+
+    glitch = Glitch(screen)
+
+    resume_button = button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=pygame,glitchInstance=glitch)
+    quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=pygame,glitchInstance=glitch)
+    drying_time = time.time()
 
     while 1:
 
+
+
+        clock.tick(tick_count)
+
+        t = time.time()
+        time_stamps = {}
+
+
+
+
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
+
+        click_single_tick = False
+        if pygame.mouse.get_pressed()[0] and clicked == False:
+
+            clicked = True
+
+            click_single_tick = True
+
+        elif pygame.mouse.get_pressed()[0] == False:
+            clicked = False
+
+
+
+        if pause:
+
+            pygame.mouse.set_visible(True)
+
+
+
+
+            screen.fill((0,0,0))
+            screen.blit(background_surf,(0,0))
+
+            s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
+            quit_button.tick(screen, mouse_pos, click_single_tick, glitch)
+
+
+            pressed = pygame.key.get_pressed()
+            if (pressed[pygame.K_ESCAPE] or s1) and not pause_tick:
+                menu_click2.play()
+                pause = False
+                pause_tick = True
+                glitch.glitch_tick = 5
+                pygame.mouse.set_visible(False)
+                click_single_tick = False
+                pygame.mixer.music.unpause()
+
+            elif not pressed[pygame.K_ESCAPE]:
+                pause_tick = False
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: sys.exit()
+
+            glitch.tick()
+            if full_screen_mode:
+                pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
+
+
+            pygame.display.update()
+
+            continue
 
 
         if pygame.mixer.music.get_busy() == False:
             pygame.mixer.music.load(func.pick_random_from_list(songs))
             pygame.mixer.music.play()
 
-        time_stamps = {}
 
+
+        if time.time() - drying_time > 1:
+            map_render.blit(map.__dict__["map_rendered_alpha"],(0,0))
+            drying_time = time.time()
+
+
+        time_stamps["blood_drying"] = time.time() - t
         t = time.time()
 
-        camera_pan = c_weapon.__dict__["view"]
+
+
+
+        if phase != 4:
+            camera_pan = c_weapon.__dict__["view"]
+        else:
+            camera_pan = 0.2
 
 
         m_click = pygame.mouse.get_pressed()[1]
@@ -519,7 +629,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-        clock.tick(tick_count)
+
 
 
         for event in pygame.event.get():
@@ -554,9 +664,15 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                             searching = False
 
         pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_ESCAPE]:
+        if pressed[pygame.K_ESCAPE] and not pause_tick:
+            glitch.glitch_tick = 5
+            pause = True
+            pause_tick = True
+            menu_click2.play()
+            pygame.mixer.music.pause()
 
-            sys.exit()
+        elif not pressed[pygame.K_ESCAPE]:
+            pause_tick = False
 
 
 
@@ -580,19 +696,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         camera_pos = func.camera_aling(camera_pos,player_pos)
         cam_delta = func.minus_list(last_camera_pos,camera_pos)
-        mouse_pos = pygame.mouse.get_pos()
 
-        mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
-
-        click_single_tick = False
-        if pygame.mouse.get_pressed()[0] and clicked == False:
-
-            clicked = True
-
-            click_single_tick = True
-
-        elif pygame.mouse.get_pressed()[0] == False:
-            clicked = False
 
 
 
@@ -677,6 +781,15 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
             else:
+
+
+                if False: #Kill enemies if no wave.
+
+                    if len(enemy_list) != 0:
+                        if random.uniform(0,1) < 0.1:
+                            func.pick_random_from_list(enemy_list).kill(camera_pos, enemy_list, map_render, silent = True)
+
+
                 if time.time() - wave_change_timer > wave_interval:
                     wave_length += 3
                     #wave_interval += 1
@@ -693,10 +806,13 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
             if len(enemy_list) < (enemy_count/(player_actor.__dict__["sanity"]/100+0.25)) and wave:
                 type = "normal"
-                if random.uniform(0,1) < 0.07:
+                type_drop = random.uniform(0,1)
+                if type_drop < 0.02:
                     type = "big"
+                elif type_drop < 0.05:
+                    type = "bomber"
 
-                enemy_list.append(enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type))
+                enemy_list.append(enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points))
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -872,6 +988,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         else:
             free_tick = 0
+            #glitch.glitch_tick = 5
 
         time_stamps["player"] = time.time() - t
         t = time.time()
@@ -900,8 +1017,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         t = time.time()
 
 
+
+
         for enemy in enemy_list:
-            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render, phase = phase)
+            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render, phase = phase, wall_points = wall_points)
 
         time_stamps["enemies"] = time.time() - t
         t = time.time()
@@ -937,7 +1056,13 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             x.tick(screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls_filtered)
         mp = multi_kill
         for x in explosions:
-            multi_kill, multi_kill_ticks = x.tick(screen, player_actor, enemy_list ,map_render,camera_pos,explosions, multi_kill, multi_kill_ticks, walls_filtered)
+            m_k, m_k_t = x.tick(screen, player_actor, enemy_list ,map_render,camera_pos,explosions, multi_kill, multi_kill_ticks, walls_filtered)
+
+            if m_k != None:
+                multi_kill = m_k
+
+            if m_k_t != None:
+                multi_kill_ticks = m_k_t
 
         if mp != multi_kill:
             kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
@@ -954,19 +1079,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         if draw_los:
-            los_image, draw_time = los.render_los_image(phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
+            los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
             time_stamps["los_compute"] = time.time() - t
             t = time.time()
             #draw_time = 0
             start = time.time()
-            los_image.convert()
-            if phase != 7:
-                los_image.set_colorkey((255,255,255))
-                #
-                los_image.set_alpha(150)
-            else:
-                los_image.set_colorkey((255,200,255))
-                los_image.set_alpha(255)
+
             screen.blit(los_image, (0, 0))
 
             draw_time2 = time.time() - start
@@ -1219,10 +1337,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
 
-
-
+        if pause:
+            background_surf.blit(screen, (0,0))
+        glitch.tick()
         if full_screen_mode:
-            pygame.transform.scale(screen, fs_size, full_screen)
+            pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
 
         pygame.display.update()
 

@@ -143,23 +143,27 @@ class Grenade:
 
 
 class Explosion:
-    def __init__(self,pos,expl1, player_nade = False):
+    def __init__(self,pos,expl1, player_nade = False, range = 200, particles = "normal", color_override = "red"):
+        print("EXPLOSION ADDED")
         self.pos = pos
         self.rect_cent = [100,100]
         self.ticks = 0
+        self.range = range
         self.images = expl1
         self.player = player_nade
+        self.particles = particles
+        self.c_o = color_override
 
     def damage_actor(self, actor, camera_pos, enemy = False, enemy_list = [], blood_surf = screen, multi_kill = 0, multi_kill_ticks = 0, walls = []):
         dist = func.get_dist_points(actor.get_pos(), self.pos)
-        if dist < 200:
+        if dist < self.range:
             if los.check_los(self.pos, actor.get_pos(), walls) == False:
                 if self.player:
                     return multi_kill, multi_kill_ticks
                 return
 
             angle = math.atan2(actor.get_pos()[1] - self.pos[1] , actor.get_pos()[0] - self.pos[0] )
-            actor.set_hp(round(200-dist), reduce = True)
+            actor.set_hp(round(self.range -dist), reduce = True)
             try:
                 actor.knockback(round((200-dist)/10), angle)
             except:
@@ -173,6 +177,9 @@ class Explosion:
         if self.player:
             return multi_kill, multi_kill_ticks
 
+        return None, None
+
+
 
 
 
@@ -181,8 +188,11 @@ class Explosion:
         if self.ticks == 0:
 
 
-
-            func.list_play(explosion_sound)
+            if self.particles == "blood":
+                explosion_blood_sound.stop()
+                explosion_blood_sound.play()
+            else:
+                func.list_play(explosion_sound)
 
             st_i, st_rect = func.rot_center(func.pick_random_from_list(stains), random.randint(0,360), self.pos[0], self.pos[1])
             self.damage_actor(player_actor, camera_pos, walls = walls)
@@ -191,11 +201,16 @@ class Explosion:
 
 
 
+            if self.particles != "blood":
 
+                map_render.blit(st_i, st_rect) #func.minus_list(self.pos,stains[0].get_rect().center)
+            if self.particles == "normal":
+                for aids in range(50):
+                    particle_list.append(classes.Particle(self.pos, magnitude = 3, screen = screen))
+            else:
+                for aids in range(50):
+                    particle_list.append(classes.Particle(func.minus(self.pos,camera_pos), magnitude = random.uniform(0.6,1.7), type = "blood_particle", screen = map_render, color_override = self.c_o ))
 
-            map_render.blit(st_i, st_rect) #func.minus_list(self.pos,stains[0].get_rect().center)
-            for aids in range(50):
-                particle_list.append(classes.Particle(self.pos, magnitude = 3, screen = screen))
         screen.blit(self.images[self.ticks], func.minus_list(func.minus_list(self.pos,camera_pos),self.rect_cent))
         self.ticks += 1
 

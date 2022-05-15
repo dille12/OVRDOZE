@@ -143,6 +143,7 @@ kill_rgb = rgb_image_load("texture/kill.png")
 player = pygame.transform.scale(pygame.image.load("texture/player.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 player_pistol = pygame.transform.scale(pygame.image.load("texture/player_pistol.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 zombie = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(119/multiplier),round(119/multiplier)]).convert_alpha()
+bomber = pygame.transform.scale(pygame.image.load("texture/bomber.png"),[round(150/multiplier),round(150/multiplier)]).convert_alpha()
 zombie_big = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(200/multiplier),round(200/multiplier)]).convert_alpha()
 
 
@@ -184,6 +185,7 @@ turret_leg =   pygame.transform.scale(pygame.image.load("texture/turret_leg.png"
 turret =  pygame.transform.scale(pygame.image.load("texture/turret.png"), [35,35]).convert_alpha()
 stains =  [pygame.image.load("texture/stain1.png").convert_alpha(),pygame.image.load("texture/stain2.png").convert_alpha()]
 explosion_sound = mixer.get_sound_Variants("sound","explosion")
+explosion_blood_sound = pygame.mixer.Sound("sound/explosion_blood.wav")
 weapon_fire_Sounds = mixer.get_sound_Variants("sound","weapon_fire")
 reload = pygame.mixer.Sound("sound/reload.wav")
 no_ammo_sound = pygame.mixer.Sound("sound/no_ammo.wav")

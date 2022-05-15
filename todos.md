@@ -14,9 +14,9 @@ or for new people who want to help: here are things that still need to get done.
 # Easy To-Dos
 
 ## general
-1. Impliment a way back to the menu screen from the game. (esc currently just closes the whole program)
+1. ~~Impliment a way back to the menu screen from the game. (esc currently just closes the whole program)~~
 3. Resolution: ability to change window size in game.
-4. Correct resolution detection of monitor.
+4. ~~Correct resolution detection of monitor.~~
 5. In-game settings menu (volume / quit to menu / resolution)
 
 ### creative / artwork
@@ -29,12 +29,14 @@ or for new people who want to help: here are things that still need to get done.
 7. Ingame map editor 
 
 ### mechanics / gameplay
-1. More zombie types (i.e L4D2 bombers)
+1. More zombie types (~~bombers~~, runners, rangers)
 2. Last stand and reviving
 3. More items (body shields, decoys, radars) (also art)
 4. Sanity rework (currently only increases amount of zombies)
 5. Melee combat system
-6. Right clicking on ammo from a box should automatically add it to inventory
+6. ~~Right clicking on ammo from a box should automatically add it to inventory~~ Shift clicking quicktransfers items from boxes
+7. Gun jamming
+8. Quick reloading (tapping R at correct time during reload)
 
 ### systems / networking / multiplayer
 1. Correct IP scanning

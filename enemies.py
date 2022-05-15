@@ -13,7 +13,7 @@ width, height = size
 import classes
 from classes import items, drop_index, drop_table
 import get_preferences
-
+import armory
 a, draw_los, a, ultraviolence, a = get_preferences.pref()
 
 
@@ -21,10 +21,11 @@ terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
 
+expl_blood = func.load_animation("anim/expl_blood",0,25)
 
 
 class Zombie:
-    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal"):
+    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal", wall_points = None):
         self.pos = pos
         self.target_pos = pos
         self.tick_every = 1
@@ -37,9 +38,22 @@ class Zombie:
         self.damage = random.randint(5,15) * dam_diff
         self.knockback_resistance = 1
         self.hp = 100 * hp_diff
+        self.attack_speed = 30
+
         if type == "normal":
             self.size = 10
             self.image = zombie
+            self.type = "normal"
+            self.anglular_acceleration = 0.1
+        elif type == "bomber":
+            self.size = 13
+            self.image = bomber
+            self.moving_speed *= 0.75
+            self.hp *= 0.75
+            self.explosion = expl_blood
+            self.type = "bomber"
+            self.attack_speed = 60
+            self.anglular_acceleration = 0.025
         else:
             self.size = 20
             self.image = zombie_big
@@ -47,8 +61,12 @@ class Zombie:
             self.damage *= 2
             self.hp *= 5
             self.knockback_resistance = 0.1
+            self.anglular_acceleration = 0.05
+
+            self.type = "big"
 
         self.attack_tick = 0
+
 
 
 
@@ -99,10 +117,14 @@ class Zombie:
 
         self.angle = 0
 
-    def kill(self, camera_pos, list, draw_blood_parts):
+    def kill(self, camera_pos, list, draw_blood_parts, silent = False):
         list.remove(self)
         func.list_play(death_sounds)
-        func.list_play(kill_sounds)
+        if not silent:
+            func.list_play(kill_sounds)
+
+        if self.type == "bomber":
+            explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood", color_override = "yellow"))
 
         self.inventory.drop_inventory(self.pos)
 
@@ -162,7 +184,7 @@ class Zombie:
 
 
 
-    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0):
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0, wall_points = None):
 
         if phase == 6:
             t_1 = time.time()
@@ -235,7 +257,7 @@ class Zombie:
             t_5 = time.time()
 
         if self.detected:
-            self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
+            #self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
             if dist > 50:
 
                 self.target_pos = player_pos
@@ -244,12 +266,15 @@ class Zombie:
                 self.target_pos = self.pos
 
                 if self.attack_tick == 0:
-                    self.attack_tick = 30
-                    player_actor.set_hp(self.damage, reduce = True)
-                    func.list_play(pl_hit)
+                    self.attack_tick = self.attack_speed
+                    if self.type != "bomber":
+                        player_actor.set_hp(self.damage, reduce = True)
+                        func.list_play(pl_hit)
 
                     for i in range(3):
                         particle_list.append(classes.Particle(func.minus(player_actor.get_pos(), camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
+                elif self.attack_tick == 1 and self.type == "bomber":
+                    self.kill(camera_pos, enemy_list, map_render)
 
         if phase == 6:
             t_6 = time.time()
@@ -258,7 +283,7 @@ class Zombie:
         if self.angle != self.target_angle:
 
             if abs(self.target_angle - self.angle) > 1:
-                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*0.1
+                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*self.anglular_acceleration
             else:
                 self.angle = self.target_angle
 
