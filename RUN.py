@@ -512,11 +512,8 @@ def main():
 
 
 
-            try:
-                screen.blit(maps_dict[selected_map]["image"], [330,80])
-            except:
-                print(maps_dict)
-                sys.exit()
+            screen.blit(maps_dict[selected_map]["image"], [330,80])
+
 
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
             screen.blit(text, [430- text.get_rect().size[0]/2,50])
