@@ -1,6 +1,11 @@
 from numba import jit
 import random
 
+
+"""
+C accelerated route calculator, couldn't get this to work properly
+"""
+
 @jit
 def calc_route(start_pos, end_pos, NAV_MESH, walls):
     """
