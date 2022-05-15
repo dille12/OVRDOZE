@@ -592,6 +592,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
             shortest_route = route_ref
 
 
+
     return shortest_route["route"]
 
 

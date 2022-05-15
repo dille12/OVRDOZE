@@ -25,7 +25,7 @@ expl_blood = func.load_animation("anim/expl_blood",0,25)
 
 
 class Zombie:
-    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal"):
+    def __init__(self,pos, interctables, player_pos, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal", wall_points = None):
         self.pos = pos
         self.target_pos = pos
         self.tick_every = 1
@@ -123,7 +123,7 @@ class Zombie:
         func.list_play(kill_sounds)
 
         if self.type == "bomber":
-            explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood"))
+            explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood", color_override = "yellow"))
 
         self.inventory.drop_inventory(self.pos)
 
@@ -183,7 +183,7 @@ class Zombie:
 
 
 
-    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0):
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0, wall_points = None):
 
         if phase == 6:
             t_1 = time.time()

@@ -18,6 +18,7 @@ import func
 from maps import maps
 from glitch import Glitch
 from button import Button
+import path_finding
 # from app import App
 
 def getMaps():

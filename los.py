@@ -255,7 +255,15 @@ def check_los(p1,p2,los_walls):
             return False
     return True
 
-def render_los_image(phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None):
+def check_los_points(p1,p2,los_walls):
+    for wall_1 in los_walls:
+        point_1, point_2 = wall_1
+        if intersect(p1, p2, point_1, point_2):
+            return False
+    return True
+
+
+def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None):
 
     time_stamps = {}
 

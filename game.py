@@ -19,6 +19,7 @@ from values import *
 import classes
 from classes import items
 import func
+import path_finding
 
 import armory
 import objects
@@ -279,6 +280,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     clicked = False
     fps_counter = time.time()
 
+
+    los_image = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
+    los_image.set_colorkey((255,255,255))
+        #
+    los_image.set_alpha(150)
+
     x_vel = 0
     y_vel = 0
     last_hp = 0
@@ -392,6 +399,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 map_boundaries[i] = end_point
     print(map_boundaries)
 
+    wall_points = []
+    for x in walls_filtered:
+        wall_points.append(x.get_points())
+
     player_pos = player_pos = map.get_random_point(walls_filtered)
     camera_pos = [0,0]
 
@@ -492,9 +503,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         t = time.time()
         time_stamps = {}
 
-        if pygame.mixer.music.get_busy() == False:
-            pygame.mixer.music.load(func.pick_random_from_list(songs))
-            pygame.mixer.music.play()
+
 
 
 
@@ -536,6 +545,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 glitch.glitch_tick = 5
                 pygame.mouse.set_visible(False)
                 click_single_tick = False
+                pygame.mixer.music.unpause()
 
             elif not pressed[pygame.K_ESCAPE]:
                 pause_tick = False
@@ -551,6 +561,11 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             pygame.display.update()
 
             continue
+
+
+        if pygame.mixer.music.get_busy() == False:
+            pygame.mixer.music.load(func.pick_random_from_list(songs))
+            pygame.mixer.music.play()
 
 
 
@@ -654,6 +669,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             pause = True
             pause_tick = True
             menu_click2.play()
+            pygame.mixer.music.pause()
 
         elif not pressed[pygame.K_ESCAPE]:
             pause_tick = False
@@ -787,7 +803,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 elif type_drop < 0.05:
                     type = "bomber"
 
-                enemy_list.append(enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type))
+                enemy_list.append(enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points))
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -992,8 +1008,10 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         t = time.time()
 
 
+
+
         for enemy in enemy_list:
-            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render, phase = phase)
+            enemy.tick(screen, map_boundaries, player_actor, camera_pos, map, walls_filtered, NAV_MESH, map_render, phase = phase, wall_points = wall_points)
 
         time_stamps["enemies"] = time.time() - t
         t = time.time()
@@ -1052,19 +1070,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         if draw_los:
-            los_image, draw_time = los.render_los_image(phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
+            los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
             time_stamps["los_compute"] = time.time() - t
             t = time.time()
             #draw_time = 0
             start = time.time()
-            los_image.convert()
-            if phase != 7:
-                los_image.set_colorkey((255,255,255))
-                #
-                los_image.set_alpha(150)
-            else:
-                los_image.set_colorkey((255,200,255))
-                los_image.set_alpha(255)
+
             screen.blit(los_image, (0, 0))
 
             draw_time2 = time.time() - start
