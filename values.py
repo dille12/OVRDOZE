@@ -50,6 +50,7 @@ def set_multiplayer(arg):
 turret_list = []
 enemy_list = []
 bullet_list = []
+meele_list = []
 particle_list = []
 grenade_list = []
 kill_counter  =[]

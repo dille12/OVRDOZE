@@ -23,20 +23,28 @@ terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
 
 class Meele:
-    def __init__(self, pos, target_pos, mp = False, strike_count=2,damage=10):
+    def __init__(self, name, pos, target_pos,
+            mp = False, 
+            strike_count=2,
+            damage=10,
+            enemy_weapon = False, 
+            sounds = {"fire": weapon_fire_Sounds, "reload": reload}
+        ):
+        self.__name=name;
         self.pos=pos;
         self.mp=mp;
         self.arc=1*math.pi;
-
+        self.target_pos=target_pos;
         self.sounds = sounds["fire"]
         self.reload_sound = sounds["reload"]
         self.radius=5 # what's a good meele range number? - lets see if we can't make this more adjustable
-        self.angle_rad = math.atan2(Math.min(self.radius,target_pos[1] - pos[1]), Math.min(self.radius,target_pos[0] - pos[0])) 
+        self.angle_rad = math.atan2(math.min(self.radius,target_pos[1] - pos[1]), math.min(self.radius,target_pos[0] - pos[0])) 
         self.velocity = los.get_dist_points(pos, target_pos) / 30
-        self.__firerate = tick_count/(fire_r/60)
+        self.__firerate = tick_count/(strike_count/60)
         self._strikes_used=0;
         self.__strikes=strike_count;
         self.__damage = damage;
+        self.is_hostile=enemy_weapon
         if enemy_weapon:
             self.team = "hostile"
         else:
@@ -63,12 +71,51 @@ class Meele:
         func.list_play(self.sounds)
         spread_cumulative = 0
         if self.__strikes > self._strikes_used:
-            strikes_list.append(objects.MeeleWeapon(weapon_pos,angle,self.__damage, team = self.team, speed = self.velocity, piercing = True))   #BULLET
+            meele_list.append(objects.MeeleWeapon(
+                weapon_pos,
+                angle,
+                self.__damage, 
+                team = self.team, 
+                speed = self.velocity, 
+                piercing = True
+                )
+            )   #BULLET
             for x in range(random.randint(8,16)):
-                particle_list.append(classes.Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self.__damage**0.1- 0.5, screen = screen))
+                particle_list.append(classes.Particle(
+                    weapon_pos, 
+                    pre_defined_angle = True, 
+                    angle = angle+90,
+                    magnitude = self.__damage**0.1- 0.5, 
+                    screen = screen
+                    )
+                )
 
         self.__weapon_fire_Tick += self.__firerate
+    def copy(self):
+        return Meele(
+            name=self.__name,
+            pos=self.pos,
+            target_pos=self.target_pos,
+            mp=self.mp,
+            strike_count=self.__strikes, 
+            damage=self.__damage,            
+           enemy_weapon=self.is_hostile,
+           sounds={"fire":self.sounds,"reload":self.reload_sound}
+           )
+    def set_hostile(self):
+        self.team = "hostile"
+        self.is_hostile=True;
+    def set_friendly(self):
+        self.team="friendly"
+        self.is_hostile=False;
+    def get_image(self):
+        return self.picture
+    def get_remaining_strikes(self):
+        return self.__strikes-self._strikes_used                
 
+
+    def upgrade_damage(self):
+        self.__damage += 0.5
 
 
 
