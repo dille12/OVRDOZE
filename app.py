@@ -1,7 +1,9 @@
 # Work in progress - very basic app class shell:
-# goal: support passing obj instances between modules, move funcs out of RUN.property
+# goal: support passing obj instances between modules,
+# move funcs out of RUN.property
 # - Contrib: Velas2
 from maps import maps
+import server
 class App:
     def __init__(self,pygame,server):
         self.pygame = pygame
@@ -10,6 +12,7 @@ class App:
     def lobby_host(self,thread, ip):
         print("SERVER STARTING")
         server.server_run()
+
     def getMaps(self):
             maps_dict = {}
 
@@ -23,7 +26,9 @@ class App:
 
                 scale_factor = 200/x
 
-                maps_dict[index] = {"map" : map_1, "image" : self.pygame.transform.scale(map_surf, (x*scale_factor, y*scale_factor))}
+                img = self.pygame.transform.scale(map_surf,
+                      (x*scale_factor, y*scale_factor))
+                maps_dict[index] = {"map" : map_1, "image" : img}
 
                 index += 1
             return maps_dict
