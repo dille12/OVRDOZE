@@ -489,6 +489,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
         clock.tick(tick_count)
 
+        t = time.time()
+        time_stamps = {}
+
         if pygame.mixer.music.get_busy() == False:
             pygame.mixer.music.load(func.pick_random_from_list(songs))
             pygame.mixer.music.play()
@@ -555,11 +558,17 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             map_render.blit(map.__dict__["map_rendered_alpha"],(0,0))
             drying_time = time.time()
 
-        time_stamps = {}
 
+        time_stamps["blood_drying"] = time.time() - t
         t = time.time()
 
-        camera_pan = c_weapon.__dict__["view"]
+
+
+
+        if phase != 4:
+            camera_pan = c_weapon.__dict__["view"]
+        else:
+            camera_pan = 0.2
 
 
         m_click = pygame.mouse.get_pressed()[1]
