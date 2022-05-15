@@ -4,8 +4,11 @@ A single/multiplayer co-op survival small space zombie shooter.
 
 # INSTALL
 ```
-1: clone repo
-2: python RUN.py
+1: clone repo and extranct the zip
+2. copy the directory of the game
+3. open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\2dshooter")
+4. type in "pip install -r requirements.txt"
+5: python RUN.py
 
 ```
 # SET-UP.
