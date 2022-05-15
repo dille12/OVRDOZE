@@ -19,28 +19,29 @@ from maps import maps
 from glitch import Glitch
 from button import Button
 
+def getMaps():
+        maps_dict = {}
+
+        index = 0
+
+        for map_1 in maps:
+
+            map_surf = map_1.__dict__["background"]
+
+            x,y = map_surf.get_rect().size
+
+            scale_factor = 200/x
+
+            maps_dict[index] = {"map" : map_1, "image" : pygame.transform.scale(map_surf, (x*scale_factor, y*scale_factor))}
+
+            index += 1
+        return maps_dict
 
 def main():
 
     name, draw_los, dev, ultraviolence, last_ip = get_preferences.pref()
 
-    maps_dict = {}
-
-    index = 0
-
-    for map_1 in maps:
-
-        map_surf = map_1.__dict__["background"]
-
-        x,y = map_surf.get_rect().size
-
-        scale_factor = 200/x
-
-        maps_dict[index] = {"map" : map_1, "image" : pygame.transform.scale(map_surf, (x*scale_factor, y*scale_factor))}
-
-        index += 1
-
-
+    maps_dict = getMaps()
     selected_map = 0
 
     pygame.init()
