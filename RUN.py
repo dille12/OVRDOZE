@@ -531,6 +531,9 @@ def main():
 
         #print(thread.active_count())
         glitch.tick()
+
+
+
         app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
 
         app.pygame.display.update()

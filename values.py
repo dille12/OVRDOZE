@@ -55,6 +55,7 @@ grenade_list = []
 kill_counter  =[]
 explosions = []
 burn_list = []
+melee_list = []
 
 last_hp = 0
 free_tick = 0
