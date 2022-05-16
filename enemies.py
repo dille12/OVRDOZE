@@ -195,6 +195,15 @@ class Zombie:
             self.process_tick += 1
 
 
+        for melee_hit in melee_list:
+            angle_to_melee = 360 - math.degrees(math.atan2(self.pos[1] - melee_hit["pos"][1], self.pos[0] - melee_hit["pos"][0]))
+            print(melee_hit["angle"], angle_to_melee, los.get_angle_diff(abs(angle_to_melee), melee_hit["angle"]))
+            if los.get_dist_points(melee_hit["pos"], self.pos) < melee_hit["radius"] and los.get_angle_diff(abs(angle_to_melee), melee_hit["angle"]) < melee_hit["arc"]/2:
+
+                self.knockback(20, math.radians(angle_to_melee))
+                self.hp -= melee_hit["damage"]
+
+
 
         if self.attack_tick != 0:
             self.attack_tick -= 1

@@ -433,29 +433,19 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     player_inventory = classes.Inventory(interactables, player = True)
     player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }})
+
+
+
     #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
     #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
 
     for x in map.__dict__["objects"]:
         x.__dict__["inv_save"] = player_inventory
         interactables.append(x)
-    ### MAP 1 ###
-
-
-
-
-
-
-
-
-    ### MAP 2 ###
-
-
-
-
-
 
     player_actor = classes.Player(turret_bullets)
+
+    player_melee = armory.Melee(strike_count = 2, damage = 35, hostile = False, owner_object = player_actor)
 
 
 
@@ -666,7 +656,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
                         if c_weapon.get_Ammo() != 0 or player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) != 0 or c_weapon.__dict__["ammo"] == "INF":
                             searching = False
-
+        player_melee.tick(screen, r_click_tick)
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE] and not pause_tick:
             glitch.glitch_tick = 5
@@ -1285,6 +1275,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 pass
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
+            func.print_s(screen, "Melee: " + str(player_melee.strikes_used), 3)
+
 
             #func.print_s(screen, "WAVE: " + str(wave_number), 3)
 
@@ -1354,7 +1346,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         glitch.tick()
         if full_screen_mode:
             pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
-
+        melee_list.clear()
         pygame.display.update()
 
 if __name__ == "__main__":
