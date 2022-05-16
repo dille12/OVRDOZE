@@ -179,12 +179,12 @@ def main():
     if dev:
         check_box_dev_commands.__dict__["checked"] = True
 
-    check_box_fov = hud_elements.Checkbox(screen, 20,260, caption = "Fog of War", font_color = [255,255,255], text_offset = [40,5])
+    check_box_fov = hud_elements.Checkbox(screen, 20, 260, caption = "Fog of War", font_color = [255,255,255], text_offset = [40,5])
 
     if draw_los:
         check_box_fov.__dict__["checked"] = True
 
-    check_box_ultra = hud_elements.Checkbox(screen, 20,340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
+    check_box_ultra = hud_elements.Checkbox(screen, 20, 340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
     if ultraviolence:
         check_box_ultra.__dict__["checked"] = True
@@ -343,7 +343,7 @@ def main():
             # screen.blit(text, [400,20])
 
             text = terminal.render("MAP", False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2,20])
+            screen.blit(text, [430 - text.get_rect().size[0]/2, 20])
 
             rect_map = maps_dict[selected_map]["image"].get_rect()
 
