@@ -193,11 +193,7 @@ class Inventory:
             self.toggle_inv(False, player_pos = player_pos)
 
     def get_amount_of_type(self, name):
-        amount = 0
-        for slot in self.contents:
-            if self.contents[slot]["item"].get_name() == name:
-                amount += self.contents[slot]["amount"]
-        return amount
+        return sum(self.contents[slot]["amount"] for slot in self.contents if self.contents[slot]["item"].get_name() == name)
 
     def append_to_inv(self, type, amount, scan_only = False):
         amount_in_start = amount
@@ -502,10 +498,8 @@ class Interactable:
 
                 drop = random.uniform(0, drop_index)
                 keys = drop_table.keys()
-                key_prox = {}
-                for key in keys:
-                    if drop - key >= 0:
-                        key_prox[drop - key] = [drop_table[key], key]
+                key_prox = {drop - key: [drop_table[key], key] for key in keys if drop - key >= 0}
+
                 item, key = key_prox[min(key_prox.keys())]
                 self.contents[random.randint(1,9)] =  {"amount": random.randint(1,items[item].__dict__["drop_stack"]), "item": items[item], "token" : str(random.uniform(0,1))}
                 if random.randint(1,2) == 1:
@@ -571,9 +565,7 @@ class Interactable:
 
 
     def get_pos(self, center = False):
-        if center:
-            return self.center_pos
-        return self.pos
+        return self.center_pos if center else self.pos
 
     def kill_bp(self):
         self.button_prompt = ""
@@ -896,16 +888,14 @@ class Burn:
         for x in range(1):
             particle_list.append(Particle([self.pos[0]+random.randint(-4,4)*2,self.pos[1]+random.randint(-4,4)*2], type = "fire", magnitude = (self.magnitude * (self.lifetime/self.life_max)**0.7),screen = screen))
 
-        if map_render != None:
+        if map_render != None and self.lifetime / self.life_max > random.randint(0, 2):
+            random_angle = random.randint(0, 360)
+            dist = random.randint(0,1000)**0.5
 
-            if self.lifetime/self.life_max > random.randint(0,2):
-                random_angle = random.randint(0, 360)
-                dist = random.randint(0,1000)**0.5
+            #size = 4*dist/(1000**0.5)
 
-                #size = 4*dist/(1000**0.5)
+            pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
 
-                pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
-
-                pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,3),random.randint(1,3)])
+            pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,3),random.randint(1,3)])
 
         self.lifetime -= 1

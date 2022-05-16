@@ -14,21 +14,18 @@ class App:
         server.server_run()
 
     def getMaps(self):
-            maps_dict = {}
+        maps_dict = {}
 
-            index = 0
+        for index, map_1 in enumerate(maps):
 
-            for map_1 in maps:
+            map_surf = map_1.__dict__["background"]
 
-                map_surf = map_1.__dict__["background"]
+            x,y = map_surf.get_rect().size
 
-                x,y = map_surf.get_rect().size
+            scale_factor = 200/x
 
-                scale_factor = 200/x
+            img = self.pygame.transform.scale(map_surf,
+                  (x*scale_factor, y*scale_factor))
+            maps_dict[index] = {"map" : map_1, "image" : img}
 
-                img = self.pygame.transform.scale(map_surf,
-                      (x*scale_factor, y*scale_factor))
-                maps_dict[index] = {"map" : map_1, "image" : img}
-
-                index += 1
-            return maps_dict
+        return maps_dict

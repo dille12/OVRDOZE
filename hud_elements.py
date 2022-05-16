@@ -37,17 +37,16 @@ class text_box:
             else:
                 self.backspace_tick = 0
             for event in events:
-                if event.type == pygame.KEYDOWN:
-                    if self.active:
-                        menu_click.play()
-                        if pygame.key.get_pressed()[pygame.K_v] and pygame.key.get_pressed()[pygame.K_LCTRL]:
-                            self.text = pyperclip.paste()
-                            print("PASTED")
-                            break
-                        elif event.key == pygame.K_BACKSPACE:
-                            self.text = self.text[:-1]
-                        else:
-                            self.text += event.unicode
+                if event.type == pygame.KEYDOWN and self.active:
+                    menu_click.play()
+                    if pygame.key.get_pressed()[pygame.K_v] and pygame.key.get_pressed()[pygame.K_LCTRL]:
+                        self.text = pyperclip.paste()
+                        print("PASTED")
+                        break
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.text = self.text[:-1]
+                    else:
+                        self.text += event.unicode
 
         # Render the current text.
         txt_surface = self.font.render(self.text, True, (255,255,255))
@@ -149,22 +148,15 @@ class Checkbox:
         if self.single_click:
             self._mouse_up()
 
-        if self.checked:
-            if part_of_list != None:
-                for aids in part_of_list:
-                    if aids == self:
-                        continue
-                    aids.__dict__["checked"] = False
+        if self.checked and part_of_list != None:
+            for aids in part_of_list:
+                if aids == self:
+                    continue
+                aids.__dict__["checked"] = False
 
 
     def is_checked(self):
-        if self.checked is True:
-            return True
-        else:
-            return False
+        return self.checked is True
 
     def is_unchecked(self):
-        if self.checked is False:
-            return True
-        else:
-            return False
+        return self.checked is False
