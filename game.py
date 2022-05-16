@@ -12,7 +12,7 @@ import los
 from network import Network
 import ast
 import network_parser
-
+from app import App
 from button import Button
 from glitch import Glitch
 from values import *
@@ -246,6 +246,8 @@ def write_packet(object):
 
 
 def quit(arg):
+    print("Quitting game")
+
     RUN.main()
 
 def cont_game(arg):
@@ -255,7 +257,7 @@ def cont_game(arg):
 
 
 
-def main(multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
+def main(app, multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
     print("GAME STARTED WITH",difficulty)
 
     diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
@@ -318,9 +320,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     respawn_ticks = 0
     pygame.init()
     pygame.font.init()
-    pygame.mixer.init()
+    app.pygame.mixer.init()
 
-    pygame.mixer.music.fadeout(2000)
+    app.pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
         full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN) #
@@ -518,7 +520,6 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         if pause:
-
             pygame.mouse.set_visible(True)
 
 
@@ -539,7 +540,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 glitch.glitch_tick = 5
                 pygame.mouse.set_visible(False)
                 click_single_tick = False
-                pygame.mixer.music.unpause()
+                app.pygame.mixer.music.unpause()
 
             elif not pressed[pygame.K_ESCAPE]:
                 pause_tick = False
@@ -557,9 +558,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             continue
 
 
-        if pygame.mixer.music.get_busy() == False:
-            pygame.mixer.music.load(func.pick_random_from_list(songs))
-            pygame.mixer.music.play()
+        if app.pygame.mixer.music.get_busy() == False:
+            app.pygame.mixer.music.load(func.pick_random_from_list(songs))
+            app.pygame.mixer.music.play()
 
 
 
@@ -663,7 +664,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             pause = True
             pause_tick = True
             menu_click2.play()
-            pygame.mixer.music.pause()
+            app.pygame.mixer.music.pause()
 
         elif not pressed[pygame.K_ESCAPE]:
             pause_tick = False

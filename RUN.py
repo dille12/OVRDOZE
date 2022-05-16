@@ -33,7 +33,7 @@ def main():
     screen =  pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0]
     clock = pygame.time.Clock()
-
+    print("run init")
 
     menu_status = "start"
 
@@ -71,7 +71,7 @@ def main():
             return "start", None, None
 
     def start_multiplayer_client():
-        game.main(multiplayer = True, net = net, players = players, self_name = name, map = maps_dict[selected_map]["map"])
+        game.main(app, multiplayer = True, net = net, players = players, self_name = name, map = maps_dict[selected_map]["map"])
 
 
     def join_game(arg, host = False):
@@ -113,7 +113,7 @@ def main():
 
         get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
 
-        game.main(difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
+        game.main(app, difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
 
     def start_mp(arg):
         return "mp_start"
@@ -128,6 +128,7 @@ def main():
     def sp_lob(arg):
         return "single_player_lobby"
 
+    #########################################################################
 
     host = False
     background_tick = 1
@@ -137,6 +138,7 @@ def main():
     t = time.time() - 0.85714285714
     glitch = Glitch(screen)
 
+    #########################################################################
     x_s = size[0]/2
 
     difficulty = "NORMAL"
@@ -198,8 +200,9 @@ def main():
     net = None
     background_vel = 0
 
-    while 1:
 
+
+    while 1:
         if background_tick != 0:
             background_tick -= 1
             background_vel += 0.2
