@@ -520,8 +520,8 @@ def main():
 
         if menu_status == "mp_start":
 
-            text = terminal.render("Your IP: -", False, [255,255,255])
-            screen.blit(text, [30,420])
+            # text = terminal.render("Your IP: -", False, [255,255,255])
+            # screen.blit(text, [30,420])
 
             text = terminal.render("Your IP: " + ip_address, False, [255,255,255])
             screen.blit(text, [30,420])

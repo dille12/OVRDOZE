@@ -345,7 +345,7 @@ class Barricade:
 
                 return True
             else:
-                return False
+                return "revert" if clicked else False
 
 
 
