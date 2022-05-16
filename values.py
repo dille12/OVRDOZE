@@ -46,7 +46,7 @@ def set_multiplayer(arg):
     multiplayer = arg
     print("MULTIPLAYER=",multiplayer)
 
-
+WHITE_COLOR = [255,255,255]
 turret_list = []
 enemy_list = []
 bullet_list = []
@@ -159,10 +159,13 @@ for x in range(100):
 long_bullet = pygame.transform.scale(pygame.image.load("texture/bullet.png"), (45,4)).convert_alpha()
 grenade_throw = False
 grenade = pygame.transform.scale(pygame.image.load("texture/items/grenade.png"), [14,14]).convert_alpha()
-molotov = pygame.transform.scale(pygame.image.load("texture/items/molotov.png"), [14,14]).convert_alpha()
-molotov_explode = pygame.mixer.Sound("sound/molotov.wav")
+molotov = pygame.transform.scale(pygame.image.load("texture/items/molotov.png"), [20,20]).convert_alpha()
+molotov_explode_sound = pygame.mixer.Sound("sound/molotov.wav")
 molotov_pickup = pygame.mixer.Sound("sound/molotov_pickup.wav")
 drug_use = pygame.mixer.Sound("sound/drug_use.wav")
+
+melee_sound = pygame.mixer.Sound("sound/sfx/melee.wav")
+melee_hit_sound = pygame.mixer.Sound("sound/sfx/melee_hit.wav")
 
 bullet_pickup = pygame.mixer.Sound("sound/bullet.wav")
 grenade_pickup = pygame.mixer.Sound("sound/grenade_pickup.wav")

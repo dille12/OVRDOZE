@@ -373,6 +373,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     enemy_list.clear()
     turret_list.clear()
+    burn_list.clear()
 
 
 
@@ -489,7 +490,6 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=pygame,glitchInstance=glitch)
     drying_time = time.time()
 
-    burn_list.append(classes.Burn([50,50], 2.5, 500))
 
     while 1:
 
@@ -657,7 +657,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                         if c_weapon.get_Ammo() != 0 or player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) != 0 or c_weapon.__dict__["ammo"] == "INF":
                             searching = False
-        player_melee.tick(screen, r_click_tick)
+
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE] and not pause_tick:
             glitch.glitch_tick = 5
@@ -843,7 +843,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             interactables.remove(x)
 
         for x in particle_list:
-            x.tick(screen, camera_pos)
+            x.tick(screen, camera_pos, map)
 
         time_stamps["particles"] = time.time() - t
         t = time.time()
@@ -948,14 +948,19 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             if player_actor.__dict__["barricade_in_hand"] != None:
                 func.print_s(screen, str(player_actor.__dict__["barricade_in_hand"].__dict__["stage"]), 3)
-                if player_actor.__dict__["barricade_in_hand"].tick(screen, camera_pos, mouse_pos, click_single_tick, map):
+                result = player_actor.__dict__["barricade_in_hand"].tick(screen, camera_pos, mouse_pos, click_single_tick, map)
+                if result == True:
                     barricade_list.append(player_actor.__dict__["barricade_in_hand"])
+                    player_actor.__dict__["barricade_in_hand"] = None
+                elif result == "revert":
+                    player_inventory.append_to_inv(items["Barricade"], 1)
                     player_actor.__dict__["barricade_in_hand"] = None
             else:
 
 
                 if player_inventory.get_inv() == False:
                     firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
+                    player_melee.tick(screen, r_click_tick)
 
             player_alive = True
 

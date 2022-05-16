@@ -58,6 +58,8 @@ class Melee:
         angle = self.owner.get_angle()
 
         if self.check_for_strike(r_click):
+            melee_sound.stop()
+            melee_sound.play()
             melee_list.append({"pos" : pos, "angle" : angle, "damage" : self.damage, "radius" : self.radius, "arc" : self.arc})   #BULLET
             self.strikes_used += 1
         if self.strikes_used > 0:
@@ -81,7 +83,7 @@ class Grenade:
         self.mp = mp
         self.type = type
         self.angle_rad = math.atan2(target_pos[1] - pos[1], target_pos[0] - pos[0])
-        self.velocity = los.get_dist_points(pos,target_pos) / 30
+        self.velocity = los.get_dist_points(pos,target_pos) / 45
 
         if type == "HE Grenade":
             self.image = grenade
@@ -102,26 +104,28 @@ class Grenade:
     def get_string(self):
         return f"GRENADE:{str(round(self.pos[0]))}_{str(round(self.pos[1]))}_{str(round(self.target_pos[0]))}_{str(round(self.target_pos[1]))}"
 
-    def molotov_explode(self):
+    def molotov_explode(self, map):
         if self.type != "Molotov":
             return
         for i in range(15):
             random_angle = random.randint(0, 360)
             dist = random.randint(0,75)
             pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
-            burn_list.append(classes.Burn(pos, 3, random.randint(500,600)))
-        molotov_explode.play()
+            if list(classtest.getcollisionspoint(map.rectangles, pos)) == []:
+                burn_list.append(classes.Burn(pos, 3, random.randint(500,600)))
+        molotov_explode_sound.play()
         grenade_list.remove(self)
 
 
     def tick(self,screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
+
         self.last_pos = self.pos.copy()
         self.pos = [self.pos[0] + math.cos(self.angle_rad) * self.velocity, self.pos[1] + math.sin(self.angle_rad) *self.velocity - self.vert_vel ]
 
         coll_pos, vert_coll, hor_coll = map.check_collision(self.pos.copy(), map_boundaries, collision_box = 5, dir_coll = True)
         if coll_pos:
             print("HIT")
-            self.molotov_explode()
+            self.molotov_explode(map)
             if vert_coll:
                 self.angle_rad = math.pi - self.angle_rad
 
@@ -148,7 +152,7 @@ class Grenade:
             self.height = 0
             self.direction *= -1
             self.angular_velocity *= random.uniform(0.7,1.4)
-            self.molotov_explode()
+            self.molotov_explode(map)
         # else:
         #     self.velocity = 0
         #     self.vert_vel = 0
