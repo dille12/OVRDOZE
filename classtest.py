@@ -89,6 +89,10 @@ def getcollisions(tiles,boxcollider):
     return (tile for tile in tiles if tile.colliderect(boxcollider))
 
 
+def getcollisionspoint(tiles, point):
+    return (tile for tile in tiles if tile.collidepoint(point))
+
+
 class Map:
     def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size,polygons,objects):
         self.name = name

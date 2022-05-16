@@ -488,6 +488,8 @@ class Interactable:
             self.item = item
             self.amount = amount
             self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [20,20]).convert_alpha()
+            self.rect = self.image.get_rect()
+            self.rect.inflate_ip(4,4)
 
         self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
         self.inv_save = player_inventory
@@ -531,12 +533,18 @@ class Interactable:
     def tick(self, screen, player_pos, camera_pos):
 
         if self.type == "item":
+            self.rect.topleft = func.minus_list(self.pos,camera_pos)
+            if self.lifetime % 18 < 9:
+                pygame.draw.rect(screen, WHITE_COLOR, self.rect, 1+round(self.lifetime%18/5))
             self.lifetime -= 1
 
             if self.lifetime == 0:
                 self.alive = False
 
+
+
         screen.blit(self.image, func.minus_list(self.pos,camera_pos))
+
 
         if los.get_dist_points(player_pos, self.center_pos) < 100:
             self.button_prompt = button_prompt(self, self.inv_save)
@@ -715,7 +723,7 @@ class Particle:
             self.__color3 = [random.randint(200,220), random.randint(200,220), random.randint(0,50)]
         self.draw_surface = screen
 
-    def tick(self,screen,camera_pos):
+    def tick(self,screen,camera_pos, map = None):
 
         if self.__lifetime > 0:
 
@@ -723,7 +731,7 @@ class Particle:
                 self.fire_x_vel += random.uniform(-0.5,0.7)
                 self.__pos = [self.__pos[0] + self.fire_x_vel, self.__pos[1] - random.randint(1,4)]
                 self.__color = [255,round(255*(self.__lifetime/(self.max_life+5))), round(255*((self.__lifetime/(self.max_life+5))**2))]
-                self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), self.__lifetime/2,self.__lifetime/2]
+                self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), 2*self.__lifetime/3,2*self.__lifetime/3]
             else:
                 self.__pos = [self.__pos[0] + math.sin(self.__direction + random.uniform(-0.5,0.5))*self.__lifetime + random.randint(-2,2) , self.__pos[1] + math.cos(self.__direction + random.uniform(-0.3,0.3))*self.__lifetime + random.randint(-2,2)]
 
@@ -745,6 +753,11 @@ class Particle:
                     self.__color = [self.__color3[0]/((2+self.__lifetime)**0.4),self.__color3[1]/self.__lifetime, self.__color3[2]/self.__lifetime]
                 elif self.color_override == "yellow":
                     self.__color = [self.__color3[0]/((2+self.__lifetime)**0.4),self.__color3[1]/((2+self.__lifetime)**0.4), self.__color3[2]/self.__lifetime]
+                if map != None:
+                    if list(classtest.getcollisionspoint(map.rectangles, self.__pos)) != []:
+                        print("PARTICLE IN WALL, KILLING")
+                        particle_list.remove(self)
+                        return
 
 
             elif self.__type == "item_particle":
