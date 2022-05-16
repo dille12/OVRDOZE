@@ -42,6 +42,10 @@ class building:
 
         print("BUILDING SIZE:", self.w, self.h)
 
+        adjacent_y = 0
+
+
+        blocked_x = []
         while True:
             for y_1 in range(self.h):
                 print("    ", end="")
@@ -52,12 +56,7 @@ class building:
                         print("O ", end="")
                 print()
 
-            keys = []
-            for key in matrix:
-                if matrix[key] != []:
-                    keys.append(key)
-
-
+            keys = [key for key, value_ in matrix.items() if value_ != []]
             x = func.pick_random_from_list(keys)
             y = func.pick_random_from_list(matrix[x])
 
@@ -68,9 +67,6 @@ class building:
             print("ORIGIN", x, y)
 
             adjacent_x = 0
-            adjacent_y = 0
-
-
             for x_1 in range(x, self.w):
 
                 if y in matrix[x_1]:
@@ -82,7 +78,6 @@ class building:
             print("adjacent_x:", adjacent_x)
 
             available = []
-            blocked_x = []
             limit_x = 50
             for y_1 in range(y, self.h):
                 for x_2 in range(x, self.w):
@@ -123,11 +118,7 @@ class building:
 
             print("SECTOR:", [x,y,w,h], "\n\n")
             self.sectors.append([x*self.building_size_scale,y*self.building_size_scale,w*self.building_size_scale,h*self.building_size_scale])
-            continual = True
-            for aids in matrix:
-                if matrix[aids] != []:
-                    continual = False
-                    break
+            continual = all(value == [] for value in matrix.values())
             if continual:
                 break
 
@@ -145,10 +136,7 @@ def check_closest_building(buildings, point):
     closest = 0
     for x in buildings:
 
-        if x.__dict__["x"] <= point <= x.__dict__["x"] + x.__dict__["w_2"]:
-
-            pass
-        else:
+        if not x.__dict__["x"] <= point <= x.__dict__["x"] + x.__dict__["w_2"]:
             continue
 
 
@@ -200,11 +188,7 @@ def generate():
         else:
             x += building_size_x*building_size_scale +random.randint(5,20)*100
             y += random.randint(-2,2)*100
-            if y < 0:
-                y = 0
-
-
-
+            y = max(y, 0)
             for b in buildings:
                 if b.collision_check(x,y):
                     y_var = check_closest_building(buildings, x)
@@ -218,13 +202,10 @@ def generate():
         if x+building_size_scale*building_size_x > map_size[0]:
             x = 10
 
-        collided = False
         bui = building(x,y, building_size_x,building_size_y)
 
-        for b in buildings:
-            if bui.return_rect().colliderect(b.return_rect()):
-                collided = True
-                break
+        collided = any(bui.return_rect().colliderect(b.return_rect()) for b in buildings)
+
         if not collided:
             build = building(x,y, building_size_x,building_size_y)
             build.create_sectors()

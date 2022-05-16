@@ -51,10 +51,8 @@ def init(folder="random"):
 
     pygame.mixer.init()  # Initialize the mixer module.
     print(pygame.mixer.get_num_channels())
-    file = open((folder+"/bpm.txt"),"r")
-    bpm = file.readline()
-    file.close()
-
+    with open(f"{folder}/bpm.txt", "r") as file:
+        bpm = file.readline()
     time_int = 60/(int(bpm)) *32
     print(time_int)
     calm, hp_sound, hp_sound2, c1,c2, calm_e = get_Sound_All(folder)

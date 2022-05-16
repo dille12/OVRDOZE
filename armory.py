@@ -121,12 +121,73 @@ class Meele:
 
 
 
+class Melee:
+    def __init__(self, mp = False,
+            strike_count=2,
+            damage=10,
+            hostile = True,
+            owner_object = None):
+        self.owner = owner_object
+        self.mp=mp;
+        self.arc=1*math.pi;
+        self.radius = 150 # what's a good melee range number? - lets see if we can't make this more adjustable  ## The attack distance for zombies is 100, so at least 150
+        self.strikes_used=0;
+        self.strikes=strike_count;
+        self.damage = damage;
+
+
+    def get_string(self):
+
+        string = "MELEE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
+        return string
+
+
+    def check_for_strike(self,r_click):
+        if r_click == True and self.strikes_used < self.strikes: ##FIRE
+            return True
+        else:
+            return False
+
+
+
+    def tick(self,screen, r_click):
+
+        pos = tuple(self.owner.get_pos())
+        angle = self.owner.get_angle()
+
+        if self.check_for_strike(r_click):
+            melee_sound.stop()
+            melee_sound.play()
+            melee_list.append({"pos" : pos, "angle" : angle, "damage" : self.damage, "radius" : self.radius, "arc" : self.arc})   #BULLET
+            self.strikes_used += 1
+        if self.strikes_used > 0:
+            self.strikes_used -= 0.01
+        else:
+            self.strikes_used = 0
+
+
+
+
+    def get_remaining_strikes(self):
+        return self.__strikes-self._strikes_used
+
+
+
+
+
 class Grenade:
-    def __init__(self, pos, target_pos, mp = False):
+    def __init__(self, pos, target_pos, type, mp = False):
         self.pos = pos
         self.mp = mp
+        self.type = type
         self.angle_rad = math.atan2(target_pos[1] - pos[1], target_pos[0] - pos[0])
-        self.velocity = los.get_dist_points(pos,target_pos) / 30
+        self.velocity = los.get_dist_points(pos,target_pos) / 45
+
+        if type == "HE Grenade":
+            self.image = grenade
+
+        elif type == "Molotov":
+            self.image = molotov
 
         self.target_pos = target_pos
 
@@ -139,17 +200,30 @@ class Grenade:
         print("GRENADE INIT")
 
     def get_string(self):
-        string = "GRENADE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
-        return string
+        return f"GRENADE:{self.type}_{str(round(self.pos[0]))}_{str(round(self.pos[1]))}_{str(round(self.target_pos[0]))}_{str(round(self.target_pos[1]))}"
+
+    def molotov_explode(self, map):
+        if self.type != "Molotov":
+            return
+        for i in range(15):
+            random_angle = random.randint(0, 360)
+            dist = random.randint(0,75)
+            pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
+            if list(classtest.getcollisionspoint(map.rectangles, pos)) == []:
+                burn_list.append(classes.Burn(pos, 3, random.randint(500,600)))
+        molotov_explode_sound.play()
+        grenade_list.remove(self)
 
 
     def tick(self,screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
+
         self.last_pos = self.pos.copy()
         self.pos = [self.pos[0] + math.cos(self.angle_rad) * self.velocity, self.pos[1] + math.sin(self.angle_rad) *self.velocity - self.vert_vel ]
 
         coll_pos, vert_coll, hor_coll = map.check_collision(self.pos.copy(), map_boundaries, collision_box = 5, dir_coll = True)
         if coll_pos:
             print("HIT")
+            self.molotov_explode(map)
             if vert_coll:
                 self.angle_rad = math.pi - self.angle_rad
 
@@ -165,7 +239,7 @@ class Grenade:
             self.vert_vel -= 0.2
             self.height += self.vert_vel
             self.angle += self.direction * self.angular_velocity
-        st_i, st_rect = func.rot_center(grenade, self.angle, self.pos[0], self.pos[1])
+        st_i, st_rect = func.rot_center(self.image, self.angle, self.pos[0], self.pos[1])
         if los.check_los(player_pos, self.pos, walls):
             screen.blit(st_i, func.minus_list(st_rect[:2],camera_pos))
 
@@ -176,6 +250,7 @@ class Grenade:
             self.height = 0
             self.direction *= -1
             self.angular_velocity *= random.uniform(0.7,1.4)
+            self.molotov_explode(map)
         # else:
         #     self.velocity = 0
         #     self.vert_vel = 0
@@ -309,14 +384,11 @@ class Weapon:
         self.burst_tick = 0
         self.current_burst_bullet = 0
 
-        if enemy_weapon:
-            self.team = "hostile"
-        else:
-            self.team = "friendly"
-
+        self.team = "hostile" if enemy_weapon else "friendly"
         if image != "":
 
-            self.picture = func.colorize(pygame.image.load("texture/guns/" + image),pygame.Color(hud_color[0],hud_color[1],hud_color[2]))
+            self.picture = func.colorize(pygame.image.load(f"texture/guns/{image}"), pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
+
             print("Image loaded")
 
     def add_to_spread(self, amount):
@@ -368,10 +440,7 @@ class Weapon:
         x_offset = math.sin(radian_angle)*c
         y_offset = math.cos(radian_angle)*c
         bul_pos = [bullet_pos[0]+x_offset,bullet_pos[1]+y_offset]
-        if self.__doubledamage_time == True:
-            multiplier = 2
-        else:
-            multiplier = 1
+        multiplier = 2 if self.__doubledamage_time == True else 1
         func.list_play(self.sounds)
         spread_cumulative = 0
         for x in range(self.__bullets_at_once):
@@ -417,18 +486,9 @@ class Weapon:
 
         elif self.burst:
 
-            if click and self.burst_tick == 0 and self.current_burst_bullet == 0 and self.__bullets_in_clip > 0:
-                return True
-            else:
-                return False
+            return bool(click and self.burst_tick == 0 and self.current_burst_bullet == 0 and self.__bullets_in_clip > 0)
 
-
-
-
-        if click == True and self.__bullets_in_clip > 0: ##FIRE
-            return True
-        else:
-            return False
+        return click == True and self.__bullets_in_clip > 0
 
     def get_Ammo(self):
         return self.__bullets_in_clip
@@ -449,11 +509,7 @@ class Weapon:
         if availabe_ammo == 0:
             return
 
-        if ammo_to_reload < availabe_ammo:
-            to_reload = ammo_to_reload
-        else:
-            to_reload = availabe_ammo
-
+        to_reload = ammo_to_reload if ammo_to_reload < availabe_ammo else availabe_ammo
         self.reload_sound.play()
         self.__reload_tick = self.__reload_rate
 
