@@ -48,8 +48,7 @@ class Grenade:
         print("GRENADE INIT")
 
     def get_string(self):
-        string = "GRENADE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
-        return string
+        return f"GRENADE:{str(round(self.pos[0]))}_{str(round(self.pos[1]))}_{str(round(self.target_pos[0]))}_{str(round(self.target_pos[1]))}"
 
     def molotov_explode(self):
         if self.type != "Molotov":
@@ -231,14 +230,11 @@ class Weapon:
         self.burst_tick = 0
         self.current_burst_bullet = 0
 
-        if enemy_weapon:
-            self.team = "hostile"
-        else:
-            self.team = "friendly"
-
+        self.team = "hostile" if enemy_weapon else "friendly"
         if image != "":
 
-            self.picture = func.colorize(pygame.image.load("texture/guns/" + image),pygame.Color(hud_color[0],hud_color[1],hud_color[2]))
+            self.picture = func.colorize(pygame.image.load(f"texture/guns/{image}"), pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
+
             print("Image loaded")
 
     def add_to_spread(self, amount):
@@ -290,10 +286,7 @@ class Weapon:
         x_offset = math.sin(radian_angle)*c
         y_offset = math.cos(radian_angle)*c
         bul_pos = [bullet_pos[0]+x_offset,bullet_pos[1]+y_offset]
-        if self.__doubledamage_time == True:
-            multiplier = 2
-        else:
-            multiplier = 1
+        multiplier = 2 if self.__doubledamage_time == True else 1
         func.list_play(self.sounds)
         spread_cumulative = 0
         for x in range(self.__bullets_at_once):
@@ -339,18 +332,9 @@ class Weapon:
 
         elif self.burst:
 
-            if click and self.burst_tick == 0 and self.current_burst_bullet == 0 and self.__bullets_in_clip > 0:
-                return True
-            else:
-                return False
+            return bool(click and self.burst_tick == 0 and self.current_burst_bullet == 0 and self.__bullets_in_clip > 0)
 
-
-
-
-        if click == True and self.__bullets_in_clip > 0: ##FIRE
-            return True
-        else:
-            return False
+        return click == True and self.__bullets_in_clip > 0
 
     def get_Ammo(self):
         return self.__bullets_in_clip
@@ -371,11 +355,7 @@ class Weapon:
         if availabe_ammo == 0:
             return
 
-        if ammo_to_reload < availabe_ammo:
-            to_reload = ammo_to_reload
-        else:
-            to_reload = availabe_ammo
-
+        to_reload = ammo_to_reload if ammo_to_reload < availabe_ammo else availabe_ammo
         self.reload_sound.play()
         self.__reload_tick = self.__reload_rate
 
