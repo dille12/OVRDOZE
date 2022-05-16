@@ -178,14 +178,8 @@ def server_run():
         print("Server ticking...")
         conn, addr = s.accept()
         print("SERVER: Connected to: ", addr)
-        players[conn] = {}
-        players[conn]["username"] = ""
-        players[conn]["x"] = "0"
-        players[conn]["y"] = "0"
-        players[conn]["a"] = "0"
-        players[conn]["hp"] = "100"
-        players[conn]["bullets"] = []
-        players[conn]["grenades"] = []
+        players[conn] = {"username": "", "x": "0", "y": "0", "a": "0", "hp": "100", "bullets": [], "grenades": []}
+
         start_new_thread(threaded_client, (conn,))
     stop_threads = True
     print("Server killed")

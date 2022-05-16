@@ -60,10 +60,7 @@ class Button:
                 menu_click2.play()
                 glitch.glitch_tick = 5
                 print("ACTION")
-                if arg != None:
-                    return self.action(arg)
-                else:
-                    return self.action(self.args)
+                return self.action(arg) if arg != None else self.action(self.args)
         else:
             self.targeted = False
         if self.args == "2":

@@ -12,7 +12,7 @@ import los
 from network import Network
 import ast
 import network_parser
-
+from app import App
 from button import Button
 from glitch import Glitch
 from values import *
@@ -246,6 +246,8 @@ def write_packet(object):
 
 
 def quit(arg):
+    print("Quitting game")
+
     RUN.main()
 
 def cont_game(arg):
@@ -255,7 +257,7 @@ def cont_game(arg):
 
 
 
-def main(multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
+def main(app, multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
     print("GAME STARTED WITH",difficulty)
 
     diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
@@ -318,9 +320,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     respawn_ticks = 0
     pygame.init()
     pygame.font.init()
-    pygame.mixer.init()
+    app.pygame.mixer.init()
 
-    pygame.mixer.music.fadeout(2000)
+    app.pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
         full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN) #
@@ -391,10 +393,12 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
     global map_boundaries
     map_boundaries = [0,0]
 
+    map_conversion = 1920/854
+
     for map_1 in active_maps:
         walls_filtered += map.generate_wall_structure()
         for i in range(2):
-            end_point = (map_1.__dict__["pos"][i]*mouse_conversion + map_1.__dict__["size"][i])/mouse_conversion
+            end_point = (map_1.__dict__["pos"][i]*map_conversion + map_1.__dict__["size"][i])/map_conversion
             if map_boundaries[i] < end_point:
                 map_boundaries[i] = end_point
     print(map_boundaries)
@@ -431,29 +435,19 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
     player_inventory = classes.Inventory(interactables, player = True)
     player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }})
+
+
+
     #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
     #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
 
     for x in map.__dict__["objects"]:
         x.__dict__["inv_save"] = player_inventory
         interactables.append(x)
-    ### MAP 1 ###
-
-
-
-
-
-
-
-
-    ### MAP 2 ###
-
-
-
-
-
 
     player_actor = classes.Player(turret_bullets)
+
+    player_melee = armory.Melee(strike_count = 2, damage = 35, hostile = False, owner_object = player_actor)
 
 
 
@@ -526,7 +520,6 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
 
         if pause:
-
             pygame.mouse.set_visible(True)
 
 
@@ -547,7 +540,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 glitch.glitch_tick = 5
                 pygame.mouse.set_visible(False)
                 click_single_tick = False
-                pygame.mixer.music.unpause()
+                app.pygame.mixer.music.unpause()
 
             elif not pressed[pygame.K_ESCAPE]:
                 pause_tick = False
@@ -565,9 +558,9 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
             continue
 
 
-        if pygame.mixer.music.get_busy() == False:
-            pygame.mixer.music.load(func.pick_random_from_list(songs))
-            pygame.mixer.music.play()
+        if app.pygame.mixer.music.get_busy() == False:
+            app.pygame.mixer.music.load(func.pick_random_from_list(songs))
+            app.pygame.mixer.music.play()
 
 
 
@@ -664,14 +657,14 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
 
                         if c_weapon.get_Ammo() != 0 or player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) != 0 or c_weapon.__dict__["ammo"] == "INF":
                             searching = False
-
+        player_melee.tick(screen, r_click_tick)
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE] and not pause_tick:
             glitch.glitch_tick = 5
             pause = True
             pause_tick = True
             menu_click2.play()
-            pygame.mixer.music.pause()
+            app.pygame.mixer.music.pause()
 
         elif not pressed[pygame.K_ESCAPE]:
             pause_tick = False
@@ -1283,6 +1276,8 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
                 pass
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
+            func.print_s(screen, "Melee: " + str(player_melee.strikes_used), 3)
+
 
             #func.print_s(screen, "WAVE: " + str(wave_number), 3)
 
@@ -1352,7 +1347,7 @@ def main(multiplayer = False, net = None, host = False, players = None, self_nam
         glitch.tick()
         if full_screen_mode:
             pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
-
+        melee_list.clear()
         pygame.display.update()
 
 if __name__ == "__main__":

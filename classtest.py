@@ -60,16 +60,10 @@ def get_slope(point_1, point_2, y=False):
 
 def get_intersect(point,scalar,slope, y=False):
     if slope != 0:
-        if y:
-            A_ypos = point[1] + (scalar - point[0])/slope
-        else:
-            A_ypos = point[0] + (scalar - point[1])/slope
+        return point[1] + (scalar - point[0]) / slope if y else point[0] + (scalar - point[1]) / slope
+
     else:
-        if y:
-            A_ypos = point[1]
-        else:
-            A_ypos = point[0]
-    return A_ypos
+        return point[1] if y else point[0]
 
 def get_dist(point_1,point_2):
     return math.sqrt((point_2[0] - point_1[0])**2 + (point_2[1] - point_1[1])**2)
@@ -100,10 +94,14 @@ class Map:
         self.name = name
         self.size = size
         self.polygons = []
+
         self.nav_mesh_available_spots = []
-        self.conv = conv
+
+        self.conv = 1920/854
+
+        # self.conv = conv
         self.points_inside_polygons = []
-        self.pos = [pos[0] / conv, pos[1] / conv]
+        self.pos = [pos[0] / self.conv, pos[1] / self.conv]
 
         self.nav_mesh_name = nav_mesh_name
 
@@ -122,10 +120,10 @@ class Map:
             y += pos[1]
 
 
-            self.polygons.append([[(x)/ conv, (y+height) / conv],[(x) / conv,(y) / conv],[(x+width) / conv,(y) / conv],[(x+width) / conv,(y+height) / conv]])
+            self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
         self.objects = objects
 
-        self.background = pygame.transform.scale(pygame.image.load("texture/" + dir), [round(size[0] / conv), round(size[1] / conv)]).convert()
+        self.background = pygame.transform.scale(pygame.image.load("texture/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
 
     def get_polygons(self):
         return self.polygons
@@ -229,15 +227,10 @@ class Map:
 
 
 
-            if check == "x":
-
-                for tile in collisions:
+            for tile in collisions:
+                if check == "x":
                     if ignore_barricades:
-                        ignore = False
-                        for barr in self.barricade_rects:
-                            if barr[0] == tile:
-                                ignore = True
-                                break
+                        ignore = any(barr[0] == tile for barr in self.barricade_rects)
                         if ignore:
                             continue
 
@@ -254,17 +247,9 @@ class Map:
 
                         collisiontypes["left"] = True
 
-            elif check == "y":
-
-
-                for tile in collisions:
-
+                elif check == "y":
                     if ignore_barricades:
-                        ignore = False
-                        for barr in self.barricade_rects:
-                            if barr[0] == tile:
-                                ignore = True
-                                break
+                        ignore = any(barr[0] == tile for barr in self.barricade_rects)
                         if ignore:
                             continue
 
@@ -347,13 +332,7 @@ class Map:
             wall_points = wall_1.get_points()
             wp1, wp2 = wall_points
 
-            if wp1[0] == wp2[0]:
-                mode = "vert"
-            else:
-                mode = "hor"
-
-
-
+            mode = "vert" if wp1[0] == wp2[0] else "hor"
             for wall_2 in walls:
                 wall_points = wall_1.get_points()
                 p1, p2 = wall_2.get_points()
@@ -370,7 +349,6 @@ class Map:
                     print("INTERSECTING LINE")
                     print(wall_points, [p1,p2])
                     intersecting_walls.append([wall_1, wall_2])
-
         # for wall_1, wall_2 in intersecting_walls:
                     a,b = wall_1.get_points()
                     c,d = wall_2.get_points()
