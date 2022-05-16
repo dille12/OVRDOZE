@@ -19,6 +19,7 @@ from glitch import Glitch
 from button import Button
 #import path_finding
 from app import App
+import map_creator
 
 def main():
 
@@ -47,7 +48,7 @@ def main():
 
 
     ip = ""
-    # name += str(random.randint(1,109))
+    name += str(random.randint(1,109))
     textbox_name = hud_elements.text_box((100,200), name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
@@ -58,6 +59,9 @@ def main():
     def start_mp_game(arg):
         reply = net.send("start_game")
         start_multiplayer_client()
+
+    def start_map_creator(arg):
+        map_creator.main(app)
 
 
     def host_game(arg) :
@@ -113,7 +117,7 @@ def main():
 
         get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
 
-        game.main(app, difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
+        game.main(app, self_name = name, difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
 
     def start_mp(arg):
         return "mp_start"
@@ -146,6 +150,7 @@ def main():
     button2 = Button([x_s,160], "Multiplayer", start_mp, None, gameInstance=app.pygame, glitchInstance=glitch)
 
     button_settings = Button([x_s,220], "Settings", settings, None, gameInstance=app.pygame, glitchInstance=glitch)
+
 
     button3 = Button([x_s,280], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
 

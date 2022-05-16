@@ -44,7 +44,7 @@ def threaded_client(conn):
 
             if reply[:6] == "PACKET":
 
-                players_info, bullets, grenades = network_parser.parse_packet(reply)
+                players_info, bullets, grenades, zombies, z_events = network_parser.parse_packet(reply)
 
                 name, x1, y1, angle, hp = players_info[0]
 
@@ -52,21 +52,40 @@ def threaded_client(conn):
                 players[conn]["y"] = y1
                 players[conn]["a"] = angle
                 players[conn]["hp"] = hp
-                for x in bullets:
-                    xp, yp, ang, dam, speed = x
 
-                    print("BULLET FIRED BY:", players[conn]["username"])
+                for connection in players:
+                    if connection == conn:
+                        continue
+                    players[connection]["bullets"] += bullets
+                    players[connection]["grenades"] += grenades
+                    players[connection]["zombies"] += zombies
+                    players[connection]["z_events"] += z_events
 
-                    for connection in players:
-                        if players[connection]["username"] == players[conn]["username"]:
-                            continue
-                        players[connection]["bullets"].append([xp, yp, ang, dam, speed])
-                        print("BULLET APPENDED TO",players[connection]["username"] )
-                for x in grenades:
-                    for connection in players:
-                        if connection == conn:
-                            continue
-                        players[connection]["grenades"].append(x)
+
+
+                # for x in bullets:
+                #     xp, yp, ang, dam, speed = x
+                #     for connection in players:
+                #         if players[connection]["username"] == players[conn]["username"]:
+                #             continue
+                #         players[connection]["bullets"].append([xp, yp, ang, dam, speed])
+                #         #print("BULLET APPENDED TO",players[connection]["username"] )
+                # for x in grenades:
+                #     for connection in players:
+                #         if connection == conn:
+                #             continue
+                #         players[connection]["grenades"].append(x)
+                #
+                # for x in zombies:
+                #
+                #     print("ZOMBIE SPAWNED BY:", players[conn]["username"])
+                #
+                #     for connection in players:
+                #         if connection == conn:
+                #             continue
+                #         players[connection]["zombies"].append(x)
+                #         print("ZOMBIE APPENDED TO",players[connection]["username"] )
+
 
 
 
@@ -84,21 +103,24 @@ def threaded_client(conn):
 
                 for bullet_1 in players[conn]["bullets"]:
                     x, y, angle, damage, speed = bullet_1
-                    string += "BULLET:"
-                    string += x + "_"
-                    string += y + "_"
-                    string += angle + "_"
-                    string += damage + "_"
-                    string += speed + "\n"
+                    string += f"BULLET:{x}_{y}_{angle}_{damage}_{speed}\n"
                     players[conn]["bullets"].remove(bullet_1)
 
-                if players[conn]["grenades"] != []:
-                    string += "GRENADE:"
-                    for grenade in players[conn]["grenades"]:
-                        for i in grenade:
-                            string += i + "_"
-                        string = string[:-1] + "\n"
-                    players[conn]["grenades"] = []
+                for grenade_1 in players[conn]["grenades"]:
+                    type, x, y ,t_x, t_y = grenade_1
+                    string += f"GRENADE:{type}_{x}_{y}_{t_x}_{t_y}\n"
+                    players[conn]["grenades"].remove(grenade_1)
+
+                for zombie_1 in players[conn]["zombies"]:
+                    x, y, id, target_name, power, type = zombie_1
+                    string += f"ZOMBIE:{x}_{y}_{id}_{target_name}_{power}_{type}\n"
+                    players[conn]["zombies"].remove(zombie_1)
+
+                for z_event in players[conn]["z_events"]:
+                    id, event = z_event
+                    string += f"ZEVENT:{id}_{event}\n"
+                    players[conn]["z_events"].remove(z_event)
+
                 string += "#END"
                 conn.send(str.encode(string))
 
@@ -178,7 +200,7 @@ def server_run():
         print("Server ticking...")
         conn, addr = s.accept()
         print("SERVER: Connected to: ", addr)
-        players[conn] = {"username": "", "x": "0", "y": "0", "a": "0", "hp": "100", "bullets": [], "grenades": []}
+        players[conn] = {"username": "", "x": "0", "y": "0", "a": "0", "hp": "100", "bullets": [], "grenades": [], "zombies" : [], "z_events" : []}
 
         start_new_thread(threaded_client, (conn,))
     stop_threads = True
