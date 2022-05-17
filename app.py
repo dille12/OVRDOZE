@@ -34,7 +34,8 @@ class App:
     def start_sp(self,arg):
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
-        app,name,arg,draw_los,dev,skip_intervals,map = arg
+        app,name,arg,draw_los,dev,skip_intervals,map,full_screen_mode = arg
 
         game.main(app, self_name = name, difficulty = arg, draw_los = draw_los,
-          dev_tools = dev, skip_intervals = skip_intervals, map = map)
+          dev_tools = dev, skip_intervals = skip_intervals, map = map,
+          full_screen_mode = full_screen_mode)

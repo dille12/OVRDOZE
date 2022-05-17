@@ -47,6 +47,9 @@ def set_multiplayer(arg):
     print("MULTIPLAYER=",multiplayer)
 
 WHITE_COLOR = [255,255,255]
+CYAN_COLOR = (0,255,255)
+PURPLE_COLOR = (255,0,255)
+RED_COLOR = [255,0,0]
 BLACK = [0,0,0]
 turret_list = []
 enemy_list = []
@@ -143,7 +146,7 @@ for x in range(10,101):
     kill_counter_texts[x] = image_list
 
 kill_rgb = rgb_image_load("texture/kill.png")
-
+packet_dict = {}
 player = pygame.transform.scale(pygame.image.load("texture/player.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 player_pistol = pygame.transform.scale(pygame.image.load("texture/player_pistol.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 zombie = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[round(119/multiplier),round(119/multiplier)]).convert_alpha()
