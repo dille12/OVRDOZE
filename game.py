@@ -223,7 +223,7 @@ def give_weapon(gun):
 # else:
 #     print("SINGLEPLAYER")
 
-full_screen_mode = False
+full_screen_mode = True
 
 def thread_data_collect(net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info):
     try:
@@ -797,10 +797,10 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 zombo = enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_actor, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points, identificator = random.randint(0,4096))
                 print(f"Zombie spawned with id {zombo.identificator}")
                 enemy_list.append(zombo)
-                if "zombies" not in packet_dict:
-                    packet_dict["zombies"] = []
-
-                packet_dict["zombies"].append(zombo)
+                if multiplayer:
+                    if "zombies" not in packet_dict:
+                        packet_dict["zombies"] = []
+                    packet_dict["zombies"].append(zombo)
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
