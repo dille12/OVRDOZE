@@ -14,7 +14,7 @@ import objects
 import get_preferences
 
 
-a, draw_los, a, ultraviolence, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
@@ -811,6 +811,8 @@ class Player:
         self.aim_angle = 0
         self.barricade_in_hand = None
         self.turret_bullets = turret_bullets
+        self.knockback_tick = 0
+        self.knockback_angle = 0
 
     def set_pos(self,pos):
         self.pos = pos
@@ -823,6 +825,11 @@ class Player:
 
     def get_angle(self):
         return self.angle
+
+    def knockback(self,amount,angle, daemon_bullet = False):
+
+        self.knockback_tick = round(amount)
+        self.knockback_angle = angle
 
 
     def get_pos(self):

@@ -23,7 +23,7 @@ import map_creator
 
 def main():
 
-    name, draw_los, dev, ultraviolence, last_ip = get_preferences.pref()
+    name, draw_los, dev, fs, ultraviolence, last_ip = get_preferences.pref()
     app = App(pygame, server)
     maps_dict = app.getMaps()
     selected_map = 0
@@ -75,7 +75,7 @@ def main():
             return "start", None, None
 
     def start_multiplayer_client():
-        game.main(app, multiplayer = True, net = net, players = players, self_name = name, map = maps_dict[selected_map]["map"])
+        game.main(app, multiplayer = True, net = net, players = players, self_name = name, map = maps_dict[selected_map]["map"], full_screen_mode = full_screen_mode)
 
 
     def join_game(arg, host = False):
@@ -103,21 +103,22 @@ def main():
             return "start", None, None
 
     def main_menu(arg):
+        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
         return "start"
 
 
     def quit(args):
 
-        get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
+        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
 
         sys.exit()
 
     def start_sp(arg):
         print("SP")
 
-        get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
+        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
 
-        game.main(app, self_name = name, difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
+        game.main(app, self_name = name, difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"], full_screen_mode = full_screen_mode)
 
     def start_mp(arg):
         return "mp_start"
@@ -185,13 +186,17 @@ def main():
     if dev:
         check_box_dev_commands.__dict__["checked"] = True
 
+
     check_box_fov = hud_elements.Checkbox(screen, 20, 260, caption = "Fog of War", font_color = [255,255,255], text_offset = [40,5])
 
     if draw_los:
         check_box_fov.__dict__["checked"] = True
 
-    check_box_ultra = hud_elements.Checkbox(screen, 20, 340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
+    check_box_ultra = hud_elements.Checkbox(screen, 20, 380, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
+    check_box_fs = hud_elements.Checkbox(screen, 20, 340, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
+    if fs:
+        check_box_fs.__dict__["checked"] = True
     if ultraviolence:
         check_box_ultra.__dict__["checked"] = True
 
@@ -221,6 +226,8 @@ def main():
         ip = textbox_ip.__dict__["text"]
         events = app.pygame.event.get()
 
+        full_screen_mode = check_box_fs.__dict__["checked"]
+
         dev = check_box_dev_commands.__dict__["checked"]
         ultraviolence = check_box_ultra.__dict__["checked"]
         draw_los = check_box_fov.__dict__["checked"]
@@ -235,6 +242,7 @@ def main():
                 check_box_fov.update_checkbox(event, mouse_pos)
                 check_box_dev_commands.update_checkbox(event, mouse_pos)
                 check_box_ultra.update_checkbox(event, mouse_pos)
+                check_box_fs.update_checkbox(event, mouse_pos)
 
             if menu_status == "single_player_lobby":
 
@@ -308,6 +316,8 @@ def main():
             check_box_dev_commands.render_checkbox()
 
             check_box_ultra.render_checkbox()
+
+            check_box_fs.render_checkbox()
 
             if s8_2 != None:
                 menu_status  = s8_2

@@ -14,7 +14,7 @@ import classes
 from classes import items, drop_index, drop_table
 import get_preferences
 import armory
-a, draw_los, a, ultraviolence, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
@@ -321,7 +321,10 @@ class Zombie:
                     if self.type != "bomber":
                         self.target.hp -= self.damage
                         func.list_play(pl_hit)
-
+                        try:
+                            self.target.knockback(self.damage,math.radians(90 + self.target_angle))
+                        except:
+                            pass
                     for i in range(3):
                         particle_list.append(classes.Particle(func.minus(self.target.pos, camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
                 elif self.attack_tick == 1 and self.type == "bomber":

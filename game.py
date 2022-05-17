@@ -223,7 +223,6 @@ def give_weapon(gun):
 # else:
 #     print("SINGLEPLAYER")
 
-full_screen_mode = False
 
 def thread_data_collect(net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info):
     try:
@@ -258,7 +257,7 @@ def cont_game(arg):
 
 
 
-def main(app, multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None):
+def main(app, multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None, full_screen_mode = True):
     print("GAME STARTED WITH",difficulty)
 
     diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
@@ -326,11 +325,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     app.pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
-        full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN) #
+        full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN, vsync=1) #
         screen =  pygame.Surface(size).convert()
         mouse_conversion = fs_size[0] / size[0]
     else:
-        screen = pygame.display.set_mode(size)
+        screen = pygame.display.set_mode(size, pygame.RESIZABLE, vsync=1)
         mouse_conversion = 1
 
     print(mouse_conversion)
@@ -946,6 +945,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     player_pos = angle_coll
 
             player_actor.set_pos(player_pos)
+
+            if player_actor.knockback_tick != 0:
+
+                player_actor.pos = [player_actor.pos[0] + math.cos(player_actor.knockback_angle) * player_actor.knockback_tick**0.5, player_actor.pos[1] - math.sin(player_actor.knockback_angle) *player_actor.knockback_tick**0.5]
+                player_actor.knockback_tick -= 1
+
+            player_pos = player_actor.pos
 
             for x in burn_list:
                 if los.get_dist_points(x.pos, player_pos) < 25:
