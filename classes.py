@@ -797,8 +797,9 @@ def player_hit_detection(pos, lastpos, player, damage):
 
 
 class Player:
-    def __init__(self, turret_bullets = 1):
+    def __init__(self, name,  turret_bullets = 1):
         self.pos = [0,0]
+        self.name = name
         self.hp = 100
         self.sanity = 100
         self.sanity_change = None

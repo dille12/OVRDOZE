@@ -19,6 +19,7 @@ from glitch import Glitch
 from button import Button
 #import path_finding
 from app import App
+import map_creator
 
 def main():
 
@@ -46,18 +47,21 @@ def main():
     ip_address = socket.gethostbyname(hostname)
 
 
-    app.ip = ""
-    # name += str(random.randint(1,109))
-    textbox_name = hud_elements.text_box((100,200), app.name)
-    textbox_ip = hud_elements.text_box((640,415), app.ip)
+    ip = ""
+    name += str(random.randint(1,109))
+    textbox_name = hud_elements.text_box((100,200), name)
+    textbox_ip = hud_elements.text_box((640,415), ip)
 
-    textbox_ip.__dict__["text"] = app.last_ip
+    textbox_ip.__dict__["te xt"] = app.last_ip
     players = []
     port = 5555
 
     def start_mp_game(arg):
         reply = net.send("start_game")
         start_multiplayer_client()
+
+    def start_map_creator(arg):
+        map_creator.main(app)
 
 
     def host_game(arg) :
@@ -118,9 +122,8 @@ def main():
         print("SPa")
 
         get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.ultraviolence, app.ip)
-        args = (arg,app.draw_los,app.dev,check_box_inter.__dict__["checked"],maps_dict[selected_map]["map"])
+        args = (app,name,arg,app.draw_los,app.dev,check_box_inter.__dict__["checked"],maps_dict[selected_map]["map"])
         app.start_sp(args)
-        game.main(difficulty = arg, draw_los = app.draw_los, dev_tools = app.dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
 
     def start_mp(arg):
         return "mp_start"
@@ -153,7 +156,8 @@ def main():
 
     button_settings = Button([x_s,220], "Settings", settings, None,gameInstance=app.pygame,glitchInstance=glitch)
 
-    button3 = Button([x_s,280], "Exit", quit, None,gameInstance=app.pygame,glitchInstance=glitch)
+
+    button3 = Button([x_s,280], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
 
     button4 = Button([x_s,100], "Host", host_game, "3",gameInstance=app.pygame,glitchInstance=glitch)
     button5 = Button([x_s,160], "Join", join_game, app.ip,gameInstance=app.pygame,glitchInstance=glitch)
