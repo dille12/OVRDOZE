@@ -24,7 +24,8 @@ import map_creator
 def main():
 
     app = App(pygame,server)
-    app.name, app.draw_los, app.dev, app.ultraviolence, app.last_ip = get_preferences.pref()
+    app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.last_ip = get_preferences.pref()
+
     maps_dict = app.getMaps()
     selected_map = 0
 
@@ -103,28 +104,24 @@ def main():
             return "start", None, None
 
     def main_menu(arg):
-        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
+        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.fs,
+          app.ultraviolence, app.ip)
         return "start"
 
 
     def quit(args):
 
-        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.ultraviolence, app.ip)
+        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.fs,
+          app.ultraviolence, app.ip)
 
         sys.exit()
 
-    # def start_sp(arg):
-    #     print("SP")
-    #
-    #     get_preferences.write_prefs(name, app.draw_los, dev, app.ultraviolence, app.ip)
-    #
-    #     game.main(difficulty = arg, draw_los = app.draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"])
     def start_sp(arg):
         print("SPa")
 
-        get_preferences.write_prefs(app.name, app.draw_los, app.dev,
+        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.fs,
           app.ultraviolence, app.ip)
-        args = (app,name,arg,app.draw_los,app.dev,
+        args = (app,app.name,arg,app.draw_los,app.dev,
           check_box_inter.__dict__["checked"],
           maps_dict[selected_map]["map"],full_screen_mode)
 
@@ -203,7 +200,7 @@ def main():
     check_box_ultra = hud_elements.Checkbox(screen, 20,340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
     check_box_fs = hud_elements.Checkbox(screen, 20, 340, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
-    if fs:
+    if app.fs:
         check_box_fs.__dict__["checked"] = True
     if app.ultraviolence:
         check_box_ultra.__dict__["checked"] = True
