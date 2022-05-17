@@ -28,20 +28,20 @@ def main():
     maps_dict = app.getMaps()
     selected_map = 0
 
-    pygame.init()
-    pygame.font.init()
-    full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
-    screen =  pygame.Surface(size).convert()
+    app.pygame.init()
+    app.pygame.font.init()
+    full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
+    screen =  app.pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0] # = 2.25
-    clock = pygame.time.Clock()
+    clock = app.pygame.time.Clock()
     print("run init")
 
     menu_status = "start"
 
-    pygame.mouse.set_visible(True)
+    app.pygame.mouse.set_visible(True)
 
-    terminal = pygame.font.Font('texture/terminal.ttf', 20)
-    terminal2 = pygame.font.Font('texture/terminal.ttf', 10)
+    terminal = app.pygame.font.Font('texture/terminal.ttf', 20)
+    terminal2 = app.pygame.font.Font('texture/terminal.ttf', 10)
 
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
