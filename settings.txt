@@ -1,5 +1,6 @@
 username=Client
 FOV=True
 DEV=True
+FS=True
 ULTRA=False
 LASTIP=
