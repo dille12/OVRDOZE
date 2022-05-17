@@ -37,5 +37,4 @@ class App:
         app,name,arg,draw_los,dev,skip_intervals,map = arg
 
         game.main(app, self_name = name, difficulty = arg, draw_los = draw_los,
-          dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"],
-          map = maps_dict[selected_map]["map"])
+          dev_tools = dev, skip_intervals = skip_intervals, map = map)
