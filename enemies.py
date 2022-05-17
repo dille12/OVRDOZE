@@ -14,7 +14,7 @@ import classes
 from classes import items, drop_index, drop_table
 import get_preferences
 import armory
-a, draw_los, a, ultraviolence, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
@@ -31,7 +31,7 @@ def get_zombie_by_id(id):
 
 
 class Zombie:
-    def __init__(self,pos, interctables, target_actor, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal", wall_points = None, identificator = random.randint(0, 4096), power = random.uniform(1.5,2.75)):
+    def __init__(self,pos, interctables, target_actor, NAV_MESH, walls, hp_diff = 1, dam_diff = 1, type = "normal", wall_points = None, player_ref = None, identificator = random.randint(0, 4096), power = random.uniform(1.5,2.75)):
 
         self.identificator = identificator
         self.power = power
@@ -51,6 +51,7 @@ class Zombie:
         self.target = target_actor
         self.navmesh_ref = NAV_MESH.copy()
         self.wall_ref = walls
+        self.player_ref = player_ref
 
         if type == "normal":
             self.size = 10
@@ -78,8 +79,10 @@ class Zombie:
             self.type = "big"
 
         self.attack_tick = 0
+        self.route_tick = 0
         self.get_route_to_target()
 
+        self.route = []
         self.stationary  = 0
 
 
@@ -127,16 +130,13 @@ class Zombie:
         self.angle = 0
 
     def issue_event(self, event):
-        print("Issuing an event")
         zombie_events.append(f"ZEVENT:{self.identificator}_{event}")
 
     def kill(self, camera_pos, list, draw_blood_parts, silent = False, zevent = False):
         list.remove(self)
         if not zevent:
-            print(f"KILLED ZOMBIE {self.identificator}")
-            self.issue_event("terminate")
-        else:
-            print(f"KILLED ZOMBIE {self.identificator} VIA ZEVENTS")
+            self.issue_event("terminate_1")
+
         func.list_play(death_sounds)
         if not silent:
             func.list_play(kill_sounds)
@@ -171,14 +171,22 @@ class Zombie:
     def get_pos(self):
         return self.pos
 
-    def knockback(self,amount,angle):
+    def knockback(self,amount,angle, daemon_bullet = False):
 
         self.knockback_tick = round(amount*self.knockback_resistance)
         self.knockback_angle = angle
+        if not daemon_bullet:
+            self.issue_event(f"setpos_{str(self.pos)}")
+
 
 
     def get_route_to_target(self):
-        self.route = func.calc_route(self.pos, self.target.pos, self.navmesh_ref, self.wall_ref)
+
+        if self.route_tick == 0 and self.target == self.player_ref:
+            self.route = func.calc_route(self.pos, self.target.pos, self.navmesh_ref, self.wall_ref)
+            self.issue_event(f"setroute_{str(self.route)}")
+            self.issue_event(f"setpos_{str(self.pos)}")
+            self.route_tick = 60
 
 
     def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render):
@@ -207,6 +215,9 @@ class Zombie:
 
 
     def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0, wall_points = None):
+
+        if self.route_tick != 0:
+            self.route_tick -= 1
 
         if phase == 6:
             t_1 = time.time()
@@ -306,7 +317,10 @@ class Zombie:
                     if self.type != "bomber":
                         self.target.hp -= self.damage
                         func.list_play(pl_hit)
-
+                        try:
+                            self.target.knockback(self.damage,math.radians(90 + self.target_angle))
+                        except:
+                            pass
                     for i in range(3):
                         particle_list.append(classes.Particle(func.minus(self.target.pos, camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
                 elif self.attack_tick == 1 and self.type == "bomber":
@@ -339,7 +353,7 @@ class Zombie:
 
             collision_types, coll_pos = map.checkcollision(self.pos,[math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, map_boundaries, damage_barricades = i, damager = self)
             self.pos = coll_pos
-            if los.get_dist_points(self.pos,self.target_pos) < 10:
+            if los.get_dist_points(self.pos,self.target_pos) < 50:
                 self.target_pos = self.pos
 
         else:
@@ -419,167 +433,6 @@ class Zombie:
 
 
 
-
-class Enemy:
-    def __init__(self,pos, weapons, interctables):
-        self.pos = pos
-        self.target_pos = pos
-        self.moving_speed = random.uniform(1.5,2.75)
-        self.detection_range = random.randint(400,600)
-        self.detection_rate = 0.05
-        self.target_angle = 0
-        self.detected = False
-
-
-
-        self.knockback_tick = 0
-        self.knockback_angle = 0
-
-        self.hp = 100
-
-        self.weapon = func.pick_random_from_dict(weapons).copy()
-
-        self.inventory = Inventory(interctables)
-        for i in range(random.randint(2,3)):
-            self.inventory.append_to_inv(items[self.weapon.__dict__["ammo"]], items[self.weapon.__dict__["ammo"]].__dict__["max_stack"])
-        self.weapon.set_hostile()
-
-        self.angle = 0
-
-    def kill(self, camera_pos, list, draw_blood_parts):
-        list.remove(self)
-        func.list_play(death_sounds)
-        func.list_play(kill_sounds)
-
-        #self.inventory.drop_inventory(self.pos)
-
-        for i in range(5):
-            particle_list.append(classes.Particle(func.minus(self.pos,camera_pos), type = "blood_particle", magnitude = 1, screen = draw_blood_parts))
-        print("KILLED")
-
-
-    def set_hp(self, hp, reduce = False):
-        if reduce:
-            self.hp -= hp
-        else:
-            self.hp = hp
-
-    def get_hp(self):
-        return self.hp
-
-    def get_hitbox(self):
-        return [25,25]
-
-    def get_pos(self):
-        return self.pos
-
-    def knockback(self,amount,angle):
-
-        self.knockback_tick = amount
-        self.knockback_angle = angle
-
-
-
-
-
-    def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render):
-        points_1 = [[self.pos[0], self.pos[1] -25], [self.pos[0], self.pos[1] + 25]]
-        points_2 = [[self.pos[0]-25, self.pos[1]], [self.pos[0]+25, self.pos[1]]]
-
-        if los.intersect(pos, lastpos, points_1[0], points_1[1]) or los.intersect(pos, lastpos, points_2[0], points_2[1]):
-
-            self.hp -= damage
-            if self.hp < 0:
-                self.kill(camera_pos, enemy_list, map_render)
-
-
-            else:
-                func.list_play(hit_sounds)
-
-            return True
-        return False
-
-    def check_if_alive(self):
-        if self.hp > 0:
-            return True
-        else:
-            return False
-
-
-
-    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls):
-        self.temp_pos = func.minus_list(self.pos,camera_pos)
-        player_pos = player_actor.get_pos()
-        pl_temp_pos = func.minus_list(player_pos,camera_pos)
-
-        if self.knockback_tick != 0:
-
-            self.pos = [self.pos[0] + math.cos(self.knockback_angle) * self.knockback_tick, self.pos[1] - math.sin(self.knockback_angle) *self.knockback_tick]
-            self.knockback_tick -= 1
-
-
-
-        #pygame.draw.rect(screen, [255,255,255],[self.temp_pos[0], self.temp_pos[1], 20, 20])
-
-
-
-
-        if los.check_los(player_pos, self.pos, walls):  ## Render
-
-            rot, rect= func.rot_center(player, self.angle, self.temp_pos[0], self.temp_pos[1])
-            rect = rot.get_rect().center
-            screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
-
-            dist = los.get_dist_points(self.pos, player_pos)
-
-            if dist < self.detection_range and player_actor.get_hp() > 0:
-
-                if random.uniform(0,1) < (1 - dist/self.detection_range)*self.detection_rate:
-                    self.detected = True
-
-                if self.detected:
-                    self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
-                    if player_actor.get_hp() > 0:
-                        func.weapon_fire(self.weapon, self.inventory, self.angle, self.pos, screen, ai = True)
-
-                    if dist > 50:
-
-                        self.target_pos = player_pos
-
-                    else:
-                        self.target_pos = self.pos
-
-            else:
-                self.detected = False
-
-        # if player_actor.get_hp() < 0:
-        #     self.target_pos = self.pos
-
-        if self.angle != self.target_angle:
-
-            if abs(self.target_angle - self.angle) > 1:
-                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*0.1
-            else:
-                self.angle = self.target_angle
-
-        if self.target_pos != self.pos:
-
-            self.angle_rad = math.pi*2 - math.atan2(self.target_pos[1] - self.pos[1], self.target_pos[0] - self.pos[0])
-            self.pos = [self.pos[0] + math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed]
-            coll_pos = map.check_collision(self.pos, map_boundaries, collision_box = 10)
-            if coll_pos:
-                self.pos = coll_pos
-            if los.get_dist_points(self.pos,self.target_pos) < 50:
-                self.target_pos = self.pos
-
-        else:
-            point = map.get_random_point(None, max_tries = 1)
-            if los.check_los(point, self.pos, walls):
-                print("Wandering")
-                self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - point[1], self.pos[0] - point[0]))
-
-                self.target_pos = point
-                print("to", self.target_pos)
 
 
 
