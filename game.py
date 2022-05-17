@@ -1,5 +1,5 @@
 import os, sys
-import pygame
+
 import math
 import random
 import time
@@ -318,25 +318,25 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     server_tick = 0
 
     respawn_ticks = 0
-    pygame.init()
-    pygame.font.init()
+    app.pygame.init()
+    app.pygame.font.init()
     app.pygame.mixer.init()
 
     app.pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
-        full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN, vsync=1) #
-        screen =  pygame.Surface(size).convert()
+        full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN, vsync=1) #
+        screen =  app.pygame.Surface(size).convert()
         mouse_conversion = fs_size[0] / size[0]
     else:
-        screen = pygame.display.set_mode(size, pygame.RESIZABLE, vsync=1)
+        screen = app.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=1)
         mouse_conversion = 1
 
     print(mouse_conversion)
 
     expl1 = func.load_animation("anim/expl1",0,31)
 
-    clock = pygame.time.Clock()
+    clock = app.pygame.time.Clock()
     multiplayer_actors = {}
     if multiplayer:
 
@@ -471,7 +471,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     #pygame.mixer.music.set_volume(0.75)
 
-    pygame.mouse.set_visible(False)
+    app.pygame.mouse.set_visible(False)
     path = os.path.abspath(os.getcwd()) + "/sound/songs/"
     songs = []
     for file in os.listdir(path):
@@ -480,13 +480,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     pause_tick = False
 
-    background_surf = pygame.Surface(size)
+    background_surf = app.pygame.Surface(size)
     background_surf.set_alpha(100)
 
     glitch = Glitch(screen)
 
-    resume_button = button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=pygame,glitchInstance=glitch)
-    quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=pygame,glitchInstance=glitch)
+    resume_button = button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=app.pygame,glitchInstance=glitch)
+    quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=app.pygame,glitchInstance=glitch)
     drying_time = time.time()
 
 
@@ -502,24 +502,24 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = app.pygame.mouse.get_pos()
 
         mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
 
         click_single_tick = False
-        if pygame.mouse.get_pressed()[0] and clicked == False:
+        if app.pygame.mouse.get_pressed()[0] and clicked == False:
 
             clicked = True
 
             click_single_tick = True
 
-        elif pygame.mouse.get_pressed()[0] == False:
+        elif app.pygame.mouse.get_pressed()[0] == False:
             clicked = False
 
 
 
         if pause:
-            pygame.mouse.set_visible(True)
+            app.pygame.mouse.set_visible(True)
 
 
 
@@ -531,28 +531,28 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             quit_button.tick(screen, mouse_pos, click_single_tick, glitch)
 
 
-            pressed = pygame.key.get_pressed()
-            if (pressed[pygame.K_ESCAPE] or s1) and not pause_tick:
+            pressed = app.pygame.key.get_pressed()
+            if (pressed[app.pygame.K_ESCAPE] or s1) and not pause_tick:
                 menu_click2.play()
                 pause = False
                 pause_tick = True
                 glitch.glitch_tick = 5
-                pygame.mouse.set_visible(False)
+                app.pygame.mouse.set_visible(False)
                 click_single_tick = False
                 app.pygame.mixer.music.unpause()
 
-            elif not pressed[pygame.K_ESCAPE]:
+            elif not pressed[app.pygame.K_ESCAPE]:
                 pause_tick = False
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT: sys.exit()
+            for event in app.pygame.event.get():
+                if event.type == app.pygame.QUIT: sys.exit()
 
             glitch.tick()
             if full_screen_mode:
-                pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
+                app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
 
 
-            pygame.display.update()
+            app.pygame.display.update()
 
             continue
 
@@ -580,7 +580,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             camera_pan = 0.2
 
 
-        m_click = pygame.mouse.get_pressed()[1]
+        m_click = app.pygame.mouse.get_pressed()[1]
 
         if m_click == True and m_clicked == False and dev_tools:
             m_clicked = True
@@ -591,9 +591,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
             if phase == 4:
-                pygame.mouse.set_visible(True)
+                app.pygame.mouse.set_visible(True)
             else:
-                pygame.mouse.set_visible(False)
+                app.pygame.mouse.set_visible(False)
             if phase == 7:
                 phase = 0
 
@@ -601,7 +601,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         elif m_click == False:
             m_clicked = False
 
-        r_click = pygame.mouse.get_pressed()[2]
+        r_click = app.pygame.mouse.get_pressed()[2]
 
         r_click_tick = False
 
@@ -626,11 +626,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+        for event in app.pygame.event.get():
+            if event.type == app.pygame.QUIT: sys.exit()
 
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == app.pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:
                     print("Scroll down")
                     searching = True
@@ -657,15 +657,15 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                         if c_weapon.get_Ammo() != 0 or player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) != 0 or c_weapon.__dict__["ammo"] == "INF":
                             searching = False
 
-        pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_ESCAPE] and not pause_tick:
+        pressed = app.pygame.key.get_pressed()
+        if pressed[app.pygame.K_ESCAPE] and not pause_tick:
             glitch.glitch_tick = 5
             pause = True
             pause_tick = True
             menu_click2.play()
             app.pygame.mixer.music.pause()
 
-        elif not pressed[pygame.K_ESCAPE]:
+        elif not pressed[app.pygame.K_ESCAPE]:
             pause_tick = False
 
 
@@ -698,25 +698,25 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-        if pressed[pygame.K_TAB] and tab_pressed == False and player_actor.get_hp() > 0:
+        if pressed[app.pygame.K_TAB] and tab_pressed == False and player_actor.get_hp() > 0:
 
             tab_pressed = True
 
             player_inventory.toggle_inv(player_pos = player_pos)
 
-        elif pressed[pygame.K_TAB] == False:
+        elif pressed[app.pygame.K_TAB] == False:
             tab_pressed = False
 
         f_press = False
 
-        if pressed[pygame.K_f] and f_pressed == False and player_actor.get_hp() > 0:
+        if pressed[app.pygame.K_f] and f_pressed == False and player_actor.get_hp() > 0:
 
             f_pressed = True
 
             f_press = True
 
 
-        elif pressed[pygame.K_f] == False:
+        elif pressed[app.pygame.K_f] == False:
             f_pressed = False
 
 
@@ -884,7 +884,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         grenade_throw_string = ""
 
-        if pressed[pygame.K_g] and grenade_throw == False and player_actor.get_hp() > 0:
+        if pressed[app.pygame.K_g] and grenade_throw == False and player_actor.get_hp() > 0:
 
             grenade_throw = True
 
@@ -898,7 +898,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 player_inventory.remove_amount("Molotov",1)
                 print("throwing nade")
 
-        elif pressed[pygame.K_g] == False:
+        elif pressed[app.pygame.K_g] == False:
             grenade_throw = False
 
 
@@ -1197,11 +1197,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 map_points = map.__dict__["points_inside_polygons"]
                 map_polygons = map.__dict__["polygons"]
                 for point in map_points:
-                    pygame.draw.circle(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], 5)
+                    app.pygame.draw.circle(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], 5)
 
                 for a,b,c,d in map_polygons:
                     for e,f in [[a,b], [b,c], [c,d], [d,a]]:
-                        pygame.draw.line(screen, [255,255,255], [e[0] - camera_pos[0], e[1] - camera_pos[1]], [f[0] - camera_pos[0], f[1] - camera_pos[1]])
+                        app.pygame.draw.line(screen, [255,255,255], [e[0] - camera_pos[0], e[1] - camera_pos[1]], [f[0] - camera_pos[0], f[1] - camera_pos[1]])
 
 
             if phase == 4:
@@ -1227,7 +1227,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                 text = terminal3.render("APPARENT POS: " +str(round(mo_pos_real[0])) + " " +  str(round(mo_pos_real[1])), False, [255,255,255])
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 20])
-                pygame.draw.line(screen, [255,255,255], mouse_pos, [mouse_pos[0] + 20, mouse_pos[1] + 20])
+                app.pygame.draw.line(screen, [255,255,255], mouse_pos, [mouse_pos[0] + 20, mouse_pos[1] + 20])
                 pos = [(mouse_pos[0] + camera_pos[0]) * mouse_conversion, (mouse_pos[1] + camera_pos[1]) * mouse_conversion]
                 text = terminal3.render("REAL POS: " + str(round(pos[0])) + " " +  str(round(pos[1])), False, [255,255,255])
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 40])
@@ -1236,18 +1236,18 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                 for point_dict in NAV_MESH:
                     point = point_dict["point"]
-                    pygame.draw.circle(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], 5)
+                    app.pygame.draw.circle(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], 5)
                     for point_2 in point_dict["connected"]:
-                        pygame.draw.line(screen, [255,255,255], [point[0] - camera_pos[0], point[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],1)
+                        app.pygame.draw.line(screen, [255,255,255], [point[0] - camera_pos[0], point[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],1)
 
                 calc_time_1 = time.time()
                 route = func.calc_route(player_pos, mo_pos_real, NAV_MESH, walls_filtered)
                 calc_time_2 = time.time() - calc_time_1
                 point_2 = player_pos
                 for point in route:
-                    pygame.draw.line(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]], 4)
+                    app.pygame.draw.line(screen, [255,0,0], [point[0] - camera_pos[0], point[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]], 4)
                     point_2 = point
-                pygame.draw.line(screen, [255,0,0], [mo_pos_real[0] - camera_pos[0], mo_pos_real[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]], 4)
+                app.pygame.draw.line(screen, [255,0,0], [mo_pos_real[0] - camera_pos[0], mo_pos_real[1] - camera_pos[1]], [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]], 4)
 
                 text = terminal3.render("CALC TIME: " + str(round(calc_time_2*1000,2)) + "ms", False, [255,255,255])
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
@@ -1365,9 +1365,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             background_surf.blit(screen, (0,0))
         glitch.tick()
         if full_screen_mode:
-            pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
+            app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
         melee_list.clear()
-        pygame.display.update()
+        app.pygame.display.update()
 
 if __name__ == "__main__":
     main()
