@@ -268,8 +268,8 @@ class Zombie:
             rect = rot.get_rect().center
             screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
 
-        text = terminal.render(str(self.identificator), False, WHITE_COLOR)
-        screen.blit(text, self.temp_pos)
+        # text = terminal.render(str(self.identificator), False, WHITE_COLOR)
+        # screen.blit(text, self.temp_pos)
 
         if phase == 6:
             t_4 = time.time()
