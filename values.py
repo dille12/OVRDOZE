@@ -47,6 +47,9 @@ def set_multiplayer(arg):
     print("MULTIPLAYER=",multiplayer)
 
 WHITE_COLOR = [255,255,255]
+CYAN_COLOR = (0,255,255)
+PURPLE_COLOR = (255,0,255)
+RED_COLOR = [255,0,0]
 BLACK = [0,0,0]
 turret_list = []
 enemy_list = []

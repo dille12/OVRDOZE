@@ -115,20 +115,20 @@ weapons = {
                         view = 0.035,
                         handling = 0.45),
 
-"MINIGUN": armory.Weapon("MINIGUN",
+"M134 MINIGUN": armory.Weapon("M134 MINIGUN",
                         clip_s = 999,
-                        fire_r = 3000,
+                        fire_r = 2300,
                         spread = 2,
                         spread_r = 0.93,
                         bullet_speed = 45,
-                        reload_r = 60,
+                        reload_r = 120,
                         damage = 34,
                         bullets_at_once = 1,
                         shotgun = False,
                         sounds = assault_rifle_sounds,
                         ammo_cap_lvlup = 1,
-                        image = "ak.png",
-                        ammo = "7.62x39MM",
+                        image = "m134.png",
+                        ammo = "5.56x45MM NATO",
                         piercing = True,
                         view = 0.03,
                         handling = 0.1),
@@ -194,7 +194,7 @@ weapons = {
                         spread = 1,
                         spread_r = 0.965,
                         spread_per_bullet = 25,
-                        reload_r = 120,
+                        reload_r = 80,
                         damage = 200,
                         bullets_at_once = 1,
                         sounds = sniper_rifle_sounds,
@@ -463,7 +463,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
-    player_weapons = [give_weapon("M1911"), give_weapon("AR-15"), give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
+    player_weapons = [give_weapon("M1911"), give_weapon("M134 MINIGUN"), give_weapon("AR-15"), give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
 
 
     c_weapon = (player_weapons[0])
@@ -1283,6 +1283,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             screen.blit(text, [400,20])
             text = terminal3.render(self_name, False, [255,255,255])
             screen.blit(text, [400,40])
+        else:
+            zombie_events.clear()
 
 
         if phase != 5:

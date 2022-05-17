@@ -130,17 +130,13 @@ class Zombie:
         self.angle = 0
 
     def issue_event(self, event):
-        print("Issuing an event")
         zombie_events.append(f"ZEVENT:{self.identificator}_{event}")
-        print(f"ZEVENT:{self.identificator}_{event}")
 
     def kill(self, camera_pos, list, draw_blood_parts, silent = False, zevent = False):
         list.remove(self)
         if not zevent:
-            print(f"KILLED ZOMBIE {self.identificator}")
             self.issue_event("terminate_1")
-        else:
-            print(f"KILLED ZOMBIE {self.identificator} VIA ZEVENTS")
+
         func.list_play(death_sounds)
         if not silent:
             func.list_play(kill_sounds)

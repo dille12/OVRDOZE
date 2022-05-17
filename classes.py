@@ -111,8 +111,11 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
         "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 120),
         "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 3, drop_stack = 2),
         "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 2, drop_stack = 1),
-        "Molotov" : Item("Molotov", "Makeshift firebomb.", "molotov.png", max_stack = 5, pick_up_sound = molotov_pickup, drop_weight = 3, drop_stack = 1)
+        "Molotov" : Item("Molotov", "Makeshift firebomb.", "molotov.png", max_stack = 5, pick_up_sound = molotov_pickup, drop_weight = 3, drop_stack = 1),
+        "5.56x45MM NATO" : Item("5.56x45MM NATO", "Powerful LMG ammo.", "556.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 0.1, drop_stack = 999)
         }
+
+
 
 
 drop_table = {}
@@ -493,6 +496,14 @@ class Interactable:
             self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [20,20]).convert_alpha()
             self.rect = self.image.get_rect()
             self.rect.inflate_ip(4,4)
+            if items[self.name].drop_weight < 0.6:
+                self.prompt_color = RED_COLOR
+            elif items[self.name].drop_weight < 1.5:
+                self.prompt_color = PURPLE_COLOR
+            elif items[self.name].drop_weight < 3.5:
+                self.prompt_color = CYAN_COLOR
+            else:
+                self.prompt_color = WHITE_COLOR
 
         self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
         self.inv_save = player_inventory
@@ -538,7 +549,7 @@ class Interactable:
         if self.type == "item":
             self.rect.topleft = func.minus_list(self.pos,camera_pos)
             if self.lifetime % 18 < 9:
-                pygame.draw.rect(screen, WHITE_COLOR, self.rect, 1+round(self.lifetime%18/5))
+                pygame.draw.rect(screen, self.prompt_color, self.rect, 1+round(self.lifetime%18/5))
             self.lifetime -= 1
 
             if self.lifetime == 0:
