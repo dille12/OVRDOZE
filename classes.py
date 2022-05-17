@@ -309,8 +309,11 @@ class Inventory:
                         pos_player = player_actor.get_pos()
 
                         turret_bullets = player_actor.__dict__["turret_bullets"]
-
-                        turret_list.append(objects.Turret(pos_player,8,10,500,20,500*turret_bullets))
+                        turr = objects.Turret(pos_player,8,10,500,20,500*turret_bullets)
+                        turret_list.append(turr)
+                        if "turrets" not in packet_dict:
+                            packet_dict["turrets"] = []
+                        packet_dict["turrets"].append(turr)
                         turret_pickup.play()
                     elif content[slot]["item"].__dict__["name"] == "Barricade":
                         pos_player = player_actor.get_pos()

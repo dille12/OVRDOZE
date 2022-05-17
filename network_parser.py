@@ -2,6 +2,7 @@ from armory import *
 from enemies import *
 from objects import *
 from values import *
+import ast
 # PACKET
 # PLAYER:Runkkari_373_122_-340
 # BULLET:421_103_-337_15_18
@@ -16,6 +17,8 @@ def parse_packet(packet):
     grenades = []
     zombies = []
     z_events = []
+    turrets = []
+    barricades = []
 
 
     for line in packet_lines:
@@ -36,22 +39,32 @@ def parse_packet(packet):
                 grenades.append([type, x, y ,t_x, t_y])
 
             elif type == "ZOMBIE":
-                print("Parsed a zombie")
-                x, y, id, target_name, power, type = data.split("_")
-                zombies.append([x, y, id, target_name, power, type])
+                try:
+                    print("Parsed a zombie")
+                    x, y, id, target_name, power, type = data.split("_")
+                    zombies.append([x, y, id, target_name, power, type])
+                except Exception as e:
+                    print(f"ZOMBIE EXCEPTION: {e}")
             elif type == "ZEVENT":
-                print("z event")
-                id, z_event = data.split("_")
-                z_events.append([id, z_event])
+                try:
+                    id, z_event, outcome  = data.split("_")
+                    z_events.append([id, z_event, outcome])
+                except Exception as e:
+                    print(f"ZEVENT Exception {e}")
 
+            elif type == "TURRET":
+                print("Parsing a turret")
+                turrets.append(data.split("_"))
 
+            elif type == "BARRICADE":
+                barricades.append(data.split("_"))
 
         except:
             pass
-    return players, bullets, grenades, zombies, z_events
+    return players, bullets, grenades, zombies, z_events, turrets, barricades
 
 def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
-    players_info, bullets, grenades, zombies, z_events = parse_packet(packet)
+    players_info, bullets, grenades, zombies, z_events, turrets, barricades = parse_packet(packet)
 
     interctables, camera_pos, map_render, NAV_MESH, walls, hp_diff, dam_diff = zomb_info
 
@@ -79,28 +92,33 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
             targ = player_actor
         else:
             targ = multiplayer_actors[target_name]
+        enemy_list.append(Zombie([int(x),int(y)], interctables, targ, NAV_MESH, walls, hp_diff = float(hp_diff), dam_diff = float(dam_diff), type = type, wall_points = None, identificator = int(id), player_ref = player_actor, power = float(power)))
 
-        enemy_list.append(Zombie([int(x),int(y)], interctables, targ, NAV_MESH, walls, hp_diff = hp_diff, dam_diff = dam_diff, type = type, wall_points = None, identificator = int(id), power = float(power)))
-
-    for id, z_event in z_events:
-        print("Generating data from zevent")
+    for id, z_event, outcome  in z_events:
 
         gen = list(get_zombie_by_id(int(id)))
         if len(gen) == 0:
             print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
         for target in gen:
-            print(id, z_event)
+            print(id, z_event, outcome)
             if z_event == "terminate":
-                print(f"Killing zombie {id}")
                 target.kill(camera_pos, enemy_list, map_render, zevent = True)
+            elif z_event == "setpos":
+                target.pos = ast.literal_eval(outcome)
+            elif z_event == "setroute":
+                target.route = ast.literal_eval(outcome)
             # else:
             #     if z_event == player_actor.name:
             #         target.target = player_actor
             #     else:
             #         target.target = multiplayer_actors[z_event]
 
-
-
+    for x, y, ang_spe, fire_r, range, damage, lifetime in turrets:
+        try:
+            print(f"GENERATING A TURRET")
+            turret_list.append(Turret([int(x),int(y)],int(ang_spe),int(fire_r),int(range), damage = int(damage), lifetime = round(float(lifetime))))
+        except Exception as e:
+            print(f"TURRET EXCEPTION: {e}")
 
     zombie_events.clear()
 

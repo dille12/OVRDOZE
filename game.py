@@ -223,7 +223,7 @@ def give_weapon(gun):
 # else:
 #     print("SINGLEPLAYER")
 
-full_screen_mode = True
+full_screen_mode = False
 
 def thread_data_collect(net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info):
     try:
@@ -275,7 +275,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     if multiplayer:
         enemy_count = 1
 
-        packet_dict = {}
+        packet_dict.clear()
 
 
     global barricade_in_hand
@@ -794,7 +794,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     type = "bomber"
 
 
-                zombo = enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_actor, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points, identificator = random.randint(0,4096))
+                zombo = enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_actor, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points, player_ref = player_actor, identificator = random.randint(0,4096))
                 print(f"Zombie spawned with id {zombo.identificator}")
                 enemy_list.append(zombo)
                 if multiplayer:
@@ -865,7 +865,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     packet += issue + "\n"
                 packet += "#END"
 
-                packet_dict = {}
+                packet_dict.clear()
 
                 zomb_info = [interactables, camera_pos, map_render, NAV_MESH, walls_filtered, zombie_hp, zombie_damage]
                 data_collector = threading.Thread(target = thread_data_collect, args = (net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info))

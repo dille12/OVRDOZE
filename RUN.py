@@ -32,7 +32,7 @@ def main():
     pygame.font.init()
     full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
     screen =  pygame.Surface(size).convert()
-    mouse_conversion = fs_size[0] / size[0]
+    mouse_conversion = fs_size[0] / size[0] # = 2.25
     clock = pygame.time.Clock()
     print("run init")
 
@@ -52,7 +52,7 @@ def main():
     textbox_name = hud_elements.text_box((100,200), name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
-    textbox_ip.__dict__["te xt"] = last_ip
+    textbox_ip.__dict__["text"] = last_ip
     players = []
     port = 5555
 
