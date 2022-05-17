@@ -48,7 +48,7 @@ def main():
 
 
     ip = ""
-    name += str(random.randint(1,109))
+    app.name += str(random.randint(1,109))
     textbox_name = hud_elements.text_box((100,200), name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
