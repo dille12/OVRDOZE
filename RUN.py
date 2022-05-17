@@ -23,17 +23,15 @@ import map_creator
 
 def main():
 
-    name, draw_los, dev, fs, ultraviolence, last_ip = get_preferences.pref()
-    app = App(pygame, server)
+    app = App(pygame,server)
+
     maps_dict = app.getMaps()
     selected_map = 0
 
-    app.pygame.init()
-    app.pygame.font.init()
-    full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
+    full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
     screen =  app.pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0] # = 2.25
-    clock = app.pygame.time.Clock()
+    clock = pygame.time.Clock()
     print("run init")
 
     menu_status = "start"
@@ -48,11 +46,11 @@ def main():
 
 
     ip = ""
-    name += str(random.randint(1,109))
-    textbox_name = hud_elements.text_box((100,200), name)
+    app.name += str(random.randint(1,109))
+    textbox_name = hud_elements.text_box((100,200), app.name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
-    textbox_ip.__dict__["text"] = last_ip
+    textbox_ip.__dict__["te xt"] = app.last_ip
     players = []
     port = 5555
 
@@ -75,7 +73,7 @@ def main():
             return "start", None, None
 
     def start_multiplayer_client():
-        game.main(app, multiplayer = True, net = net, players = players, self_name = name, map = maps_dict[selected_map]["map"], full_screen_mode = full_screen_mode)
+        game.main(app, multiplayer = True, net = net, players = players, self_name = app.name, map = maps_dict[selected_map]["map"], full_screen_mode = full_screen_mode)
 
 
     def join_game(arg, host = False):
@@ -87,7 +85,7 @@ def main():
 
             print("CLIENT: STARTING SEARCH")
 
-            reply = net.send(name)
+            reply = net.send(app.name)
             if reply != [""]:
 
                 print("CLIENT:", reply)
@@ -103,22 +101,28 @@ def main():
             return "start", None, None
 
     def main_menu(arg):
-        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
+        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.fs,
+          app.ultraviolence, app.ip)
         return "start"
 
 
     def quit(args):
 
-        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
+        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.fs,
+          app.ultraviolence, app.ip)
 
         sys.exit()
 
     def start_sp(arg):
-        print("SP")
+        print("SPa")
 
-        get_preferences.write_prefs(name, draw_los, dev, full_screen_mode, ultraviolence, ip)
+        get_preferences.write_prefs(app.name, app.draw_los, app.dev, app.fs,
+          app.ultraviolence, app.ip)
+        args = (app,app.name,arg,app.draw_los,app.dev,
+          check_box_inter.__dict__["checked"],
+          maps_dict[selected_map]["map"],full_screen_mode)
 
-        game.main(app, self_name = name, difficulty = arg, draw_los = draw_los, dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"], map = maps_dict[selected_map]["map"], full_screen_mode = full_screen_mode)
+        app.start_sp(args)
 
     def start_mp(arg):
         return "mp_start"
@@ -133,7 +137,6 @@ def main():
     def sp_lob(arg):
         return "single_player_lobby"
 
-    #########################################################################
 
     host = False
     background_tick = 1
@@ -143,38 +146,38 @@ def main():
     t = time.time() - 0.85714285714
     glitch = Glitch(screen)
 
-    x_s = size[0] / 2
+    x_s = size[0]/2
 
     difficulty = "NORMAL"
 
-    button = Button([x_s,100], "Singleplayer", sp_lob, None, gameInstance=app.pygame, glitchInstance=glitch)
-    button2 = Button([x_s,160], "Multiplayer", start_mp, None, gameInstance=app.pygame, glitchInstance=glitch)
+    button = Button([x_s,100], "Singleplayer", sp_lob, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button2 = Button([x_s,160], "Multiplayer", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
 
-    button_settings = Button([x_s,220], "Settings", settings, None, gameInstance=app.pygame, glitchInstance=glitch)
+    button_settings = Button([x_s,220], "Settings", settings, None,gameInstance=app.pygame,glitchInstance=glitch)
 
 
     button3 = Button([x_s,280], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
 
-    button4 = Button([x_s,100], "Host", host_game, "3", gameInstance=app.pygame, glitchInstance=glitch)
-    button5 = Button([x_s,160], "Join", join_game, ip, gameInstance=app.pygame, glitchInstance=glitch)
-    button6 = Button([x_s,220], "Back", main_menu, None, gameInstance=app.pygame, glitchInstance=glitch)
+    button4 = Button([x_s,100], "Host", host_game, "3",gameInstance=app.pygame,glitchInstance=glitch)
+    button5 = Button([x_s,160], "Join", join_game, app.ip,gameInstance=app.pygame,glitchInstance=glitch)
+    button6 = Button([x_s,220], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
 
-    button7 = Button([140,70], "START GAME", start_mp_game, None, gameInstance=app.pygame, glitchInstance=glitch)
-    button7_2 = Button([140,70], "START GAME", start_sp, difficulty, gameInstance=app.pygame, glitchInstance=glitch)
-    button8 = Button([68,130], "Back", kill_server, None, gameInstance=app.pygame, glitchInstance=glitch)
-    button8_2 = Button([68,130], "Back", main_menu, None, gameInstance=app.pygame, glitchInstance=glitch)
+    button7 = Button([140,70], "START GAME", start_mp_game, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button7_2 = Button([140,70], "START GAME", start_sp, difficulty,gameInstance=app.pygame,glitchInstance=glitch)
+    button8 = Button([68,130], "Back", kill_server, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button8_2 = Button([68,130], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
 
     check_box_difficulties = []
 
-    for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD", 280], ["ONSLAUGHT", 320]]:
-        box = hud_elements.Checkbox(screen, 20,  y_pos, caption = text, font_color = [255,255,255], text_offset = [40,5], cant_uncheck = True)
+    for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD",280], ["ONSLAUGHT", 320]]:
+        box = hud_elements.Checkbox(screen, 20,y_pos, caption = text, font_color = [255,255,255], text_offset = [40,5], cant_uncheck = True)
 
         if text == "NORMAL":
             box.__dict__["checked"] = True
         check_box_difficulties.append(box)
 
 
-    background = app.pygame.Surface((size[0]+50, size[1]), app.pygame.SRCALPHA, 32).convert_alpha()
+    background = app.pygame.Surface((size[0]+50,size[1]), app.pygame.SRCALPHA, 32).convert_alpha()
     #
     background.set_alpha(240)
 
@@ -183,21 +186,20 @@ def main():
 
     check_box_inter = hud_elements.Checkbox(screen, 20,400, caption = "Ceaseless Storm", font_color = [255,0,0], text_offset = [40,5])
 
-    if dev:
+    if app.dev:
         check_box_dev_commands.__dict__["checked"] = True
-
 
     check_box_fov = hud_elements.Checkbox(screen, 20, 260, caption = "Fog of War", font_color = [255,255,255], text_offset = [40,5])
 
-    if draw_los:
+    if app.draw_los:
         check_box_fov.__dict__["checked"] = True
 
-    check_box_ultra = hud_elements.Checkbox(screen, 20, 380, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
+    check_box_ultra = hud_elements.Checkbox(screen, 20,340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
     check_box_fs = hud_elements.Checkbox(screen, 20, 340, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
-    if fs:
+    if app.fs:
         check_box_fs.__dict__["checked"] = True
-    if ultraviolence:
+    if app.ultraviolence:
         check_box_ultra.__dict__["checked"] = True
 
     diff_captions = {"NO ENEMIES" : "For testing.",
@@ -209,9 +211,8 @@ def main():
     net = None
     background_vel = 0
 
-
-
     while 1:
+
         if background_tick != 0:
             background_tick -= 1
             background_vel += 0.2
@@ -222,15 +223,15 @@ def main():
 
         clock.tick(60)
 
-        name = textbox_name.__dict__["text"]
-        ip = textbox_ip.__dict__["text"]
+        app.name = textbox_name.__dict__["text"]
+        app.ip = textbox_ip.__dict__["text"]
         events = app.pygame.event.get()
 
         full_screen_mode = check_box_fs.__dict__["checked"]
 
-        dev = check_box_dev_commands.__dict__["checked"]
-        ultraviolence = check_box_ultra.__dict__["checked"]
-        draw_los = check_box_fov.__dict__["checked"]
+        app.dev = check_box_dev_commands.__dict__["checked"]
+        app.ultraviolence = check_box_ultra.__dict__["checked"]
+        app.draw_los = check_box_fov.__dict__["checked"]
 
 
         mouse_pos = app.pygame.mouse.get_pos()
@@ -268,7 +269,7 @@ def main():
             background_tick = 52
             background_vel = 0
             for y in range(10):
-                pos = [random.randint(0, size[0]), random.randint(0, size[1])]
+                pos = [random.randint(0,size[0]), random.randint(0,size[1])]
                 for i in range(5):
                     particle_list.append(classes.Particle(pos, type = "blood_particle", magnitude = 1.3, screen = background))
 
@@ -276,7 +277,7 @@ def main():
 
         background.fill((0, 0, 0, 0))
 
-        background.blit(background2, (0, background_vel))
+        background.blit(background2, (0,background_vel))
 
         screen.blit(background, (0,0))
 
@@ -287,7 +288,7 @@ def main():
             screen.blit(info, [20,150])
 
             s1 = button.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            s2 = button2.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s2= button2.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button3.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
@@ -325,7 +326,7 @@ def main():
 
         if menu_status == "mp_start":
             s4, net1, host = button4.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            list  = button5.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = ip)
+            list  = button5.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = app.ip)
 
             if list != None:
                 s5, net2, a1 = list
@@ -347,7 +348,7 @@ def main():
                 print("Game hosted")
                 mouse_single_tick = False
             if s5 != None:
-                button5.__dict__["args"] = ip
+                button5.__dict__["args"] = app.ip
                 menu_status  = s5
                 mouse_single_tick = False
             if s6 != None:
@@ -360,11 +361,11 @@ def main():
             # screen.blit(text, [400,20])
 
             text = terminal.render("MAP", False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2, 20])
+            screen.blit(text, [430- text.get_rect().size[0]/2,20])
 
             rect_map = maps_dict[selected_map]["image"].get_rect()
 
-            if rect_map.collidepoint(func.minus(mouse_pos, [330,80], "-")):
+            if rect_map.collidepoint(func.minus(mouse_pos,[330,80],"-")):
 
                 if mouse_single_tick:
                     selected_map += 1
@@ -386,7 +387,7 @@ def main():
             rect_map2 = maps_dict[selected_map]["image"].get_rect()
 
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2, 50])
+            screen.blit(text, [430- text.get_rect().size[0]/2,50])
 
             app.pygame.draw.line(screen, [255,255,255], [550, 80], [550, 80 + rect_map2.h])
             app.pygame.draw.line(screen, [255,255,255], [550, 80], [545, 80])
@@ -400,7 +401,7 @@ def main():
             app.pygame.draw.line(screen, [255,255,255], [530, 100 + rect_map2.h], [530, 95 + rect_map2.h])
 
             text = terminal.render(str(round(maps_dict[selected_map]["map"].__dict__["size"][0]/100)) + "m", False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2, 105 + rect_map2.h])
+            screen.blit(text, [430- text.get_rect().size[0]/2,105 + rect_map2.h])
 
 
             check_box_inter.render_checkbox()
@@ -431,7 +432,7 @@ def main():
         if menu_status == "lobby":
 
             text = terminal.render("MAP", False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2, 20])
+            screen.blit(text, [430- text.get_rect().size[0]/2,20])
 
             rect_map = maps_dict[selected_map]["image"].get_rect()
 
@@ -442,7 +443,7 @@ def main():
                 text = terminal.render("HOSTED AT:" + ip_address, False, [255,255,255])
                 screen.blit(text, [500,420])
 
-                if rect_map.collidepoint(func.minus(mouse_pos, [330,80], "-")):
+                if rect_map.collidepoint(func.minus(mouse_pos,[330,80],"-")):
 
                     if mouse_single_tick:
                         selected_map += 1
@@ -460,7 +461,7 @@ def main():
             else:
                 text = terminal.render("LOBBY", False, [255,255,255])
                 screen.blit(text, [30,20])
-                text = terminal.render("HOSTED AT:" + ip, False, [255,255,255])
+                text = terminal.render("HOSTED AT:" + app.ip, False, [255,255,255])
                 screen.blit(text, [500,420])
             #screen.blit(text, [400,20])
 
@@ -468,12 +469,12 @@ def main():
 
 
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2, 50])
+            screen.blit(text, [430- text.get_rect().size[0]/2,50])
 
             rect_map2 = maps_dict[selected_map]["image"].get_rect()
 
             text = terminal.render(maps_dict[selected_map]["map"].__dict__["name"], False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2,50])
+            screen.blit(text, [430- text.get_rect().size[0]/2,50])
 
             app.pygame.draw.line(screen, [255,255,255], [550, 80], [550, 80 + rect_map2.h])
             app.pygame.draw.line(screen, [255,255,255], [550, 80], [545, 80])
@@ -487,7 +488,7 @@ def main():
             app.pygame.draw.line(screen, [255,255,255], [530, 100 + rect_map2.h], [530, 95 + rect_map2.h])
 
             text = terminal.render(str(round(maps_dict[selected_map]["map"].__dict__["size"][0]/100)) + "m", False, [255,255,255])
-            screen.blit(text, [430 - text.get_rect().size[0]/2, 105 + rect_map2.h])
+            screen.blit(text, [430- text.get_rect().size[0]/2,105 + rect_map2.h])
 
             text = terminal.render("Players:", False, [255,255,255])
 
@@ -526,7 +527,7 @@ def main():
                     continue
                 i += 20
                 text = terminal.render(y, False, [255,255,255])
-                screen.blit(text, [30, i])
+                screen.blit(text, [30,i])
             if host:
                 button7.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s8 = button8.tick(screen, mouse_pos, mouse_single_tick, glitch)
@@ -548,9 +549,6 @@ def main():
 
         #print(thread.active_count())
         glitch.tick()
-
-
-
         app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
 
         app.pygame.display.update()
