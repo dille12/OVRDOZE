@@ -102,7 +102,7 @@ class Grenade:
         print("GRENADE INIT")
 
     def get_string(self):
-        return f"GRENADE:{str(round(self.pos[0]))}_{str(round(self.pos[1]))}_{str(round(self.target_pos[0]))}_{str(round(self.target_pos[1]))}"
+        return f"GRENADE:{self.type}_{str(round(self.pos[0]))}_{str(round(self.pos[1]))}_{str(round(self.target_pos[0]))}_{str(round(self.target_pos[1]))}"
 
     def molotov_explode(self, map):
         if self.type != "Molotov":

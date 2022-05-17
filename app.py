@@ -34,6 +34,8 @@ class App:
     def start_sp(self,arg):
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
-        arg,draw_los,dev,skip_intervals,map = arg
-        game.main(self,difficulty = arg, draw_los = draw_los, dev_tools = dev,
-          skip_intervals = skip_intervals, map = map)
+        app,name,arg,draw_los,dev,skip_intervals,map = arg
+
+        game.main(app, self_name = name, difficulty = arg, draw_los = draw_los,
+          dev_tools = dev, skip_intervals = check_box_inter.__dict__["checked"],
+          map = maps_dict[selected_map]["map"])

@@ -225,13 +225,14 @@ def give_weapon(gun):
 
 full_screen_mode = True
 
-def thread_data_collect(net, packet, multiplayer_actors, bullet_list, grenade_list, current_threading):
+def thread_data_collect(net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info):
     try:
-        reply = net.send(packet)
+        reply = net.send(packet).translate({ord('/'): None})
 
-        #time.sleep(0.06)
+        for i, line in enumerate(reply.split("\n")):
+            func.print_s(screen, line, i+4)
 
-        bullet_list, grenade_list = network_parser.gen_from_packet(reply, multiplayer_actors, bullet_list, grenade_list)
+        network_parser.gen_from_packet(reply, player_actor, multiplayer_actors, zomb_info)
 
 
     except Exception as e:
@@ -272,7 +273,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         wave_change_timer = time.time() - 15
 
     if multiplayer:
-        enemy_count = -1
+        enemy_count = 1
 
         packet_dict = {}
 
@@ -314,7 +315,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     wave_anim_ticks = [0,0]
 
-    tick_rate = 1
+    tick_rate = 3
     server_tick = 0
 
     respawn_ticks = 0
@@ -344,8 +345,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             if y == "" or y == self_name:
                 continue
             multiplayer_actors[y] = enemies.Player_Multi(y)
-    else:
-        enemy_up_time = time.time()
+    enemy_up_time = time.time()
 
 
 
@@ -446,7 +446,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         x.__dict__["inv_save"] = player_inventory
         interactables.append(x)
 
-    player_actor = classes.Player(turret_bullets)
+    player_actor = classes.Player(self_name, turret_bullets)
 
     player_melee = armory.Melee(strike_count = 2, damage = 35, hostile = False, owner_object = player_actor)
 
@@ -695,24 +695,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-        grenade_throw_string = ""
 
-        if pressed[pygame.K_g] and grenade_throw == False and player_actor.get_hp() > 0:
-
-            grenade_throw = True
-
-            if player_inventory.get_amount_of_type("HE Grenade") > 0:
-                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos), "HE Grenade"))
-                player_inventory.remove_amount("HE Grenade",1)
-                print("throwing nade")
-
-            elif player_inventory.get_amount_of_type("Molotov") > 0:
-                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos), "Molotov"))
-                player_inventory.remove_amount("Molotov",1)
-                print("throwing nade")
-
-        elif pressed[pygame.K_g] == False:
-            grenade_throw = False
 
 
 
@@ -765,9 +748,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         t = time.time()
 
 
+        pvp = False
 
-
-        if not multiplayer:
+        if not pvp:
 
             if wave:
                 if time.time() - wave_change_timer > wave_length:
@@ -810,7 +793,14 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 elif type_drop < 0.05:
                     type = "bomber"
 
-                enemy_list.append(enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_pos, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points))
+
+                zombo = enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_actor, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points, identificator = random.randint(0,4096))
+                print(f"Zombie spawned with id {zombo.identificator}")
+                enemy_list.append(zombo)
+                if multiplayer:
+                    if "zombies" not in packet_dict:
+                        packet_dict["zombies"] = []
+                    packet_dict["zombies"].append(zombo)
 
             #func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -850,52 +840,67 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         if multiplayer:
 
-            if server_tick == tick_rate:
+            if data_collector == None or data_collector.is_alive() == False and server_tick == tick_rate:
+
+                try:
+                    ping = time.time() - thread_start - 1/60
+                except:
+                    pass
+                thread_start = time.time()
+
+
+                x_pos_1 = str(round(player_pos[0]))
+                y_pos_1 = str(round(player_pos[1]))
+                angle_1 = str(round(player_actor.get_angle()))
+
+                packet = "PACKET\nPLAYER:" + self_name + "_" + x_pos_1 + "_" + y_pos_1 + "_" + angle_1 + "_" + str(player_actor.get_hp()) + "\n"
 
 
 
+                for type_1 in packet_dict:
+                    for x in packet_dict[type_1]:
+                        packet += x.get_string() + "\n"
 
+                for issue in zombie_events:
+                    packet += issue + "\n"
+                packet += "#END"
 
-                if data_collector == None or data_collector.is_alive() == False:
+                packet_dict = {}
 
-                    try:
-                        ping = time.time() - thread_start - 1/60
-                    except:
-                        pass
-                    thread_start = time.time()
+                zomb_info = [interactables, camera_pos, map_render, NAV_MESH, walls_filtered, zombie_hp, zombie_damage]
+                data_collector = threading.Thread(target = thread_data_collect, args = (net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info))
+                data_collector.start()
 
-
-                    x_pos_1 = str(round(player_pos[0]))
-                    y_pos_1 = str(round(player_pos[1]))
-                    angle_1 = str(round(player_actor.get_angle()))
-
-                    packet = "PACKET\nPLAYER:" + self_name + "_" + x_pos_1 + "_" + y_pos_1 + "_" + angle_1 + "_" + str(player_actor.get_hp()) + "\n"
-
-
-
-                    for type_1 in packet_dict:
-                        for x in packet_dict[type_1]:
-                            packet += x.get_string() + "\n"
-                    packet += "#END"
-
-                    packet_dict = {}
-
-                    data_collector = threading.Thread(target = thread_data_collect, args = (net, packet, multiplayer_actors, bullet_list, grenade_list, current_threading))
-                    data_collector.start()
-
-                    server_tick = 1
-
-
-
-            else:
+                server_tick = 0
+            if server_tick < tick_rate:
                 server_tick += 1
-
 
             for x in multiplayer_actors:
                 multiplayer_actors[x].tick(screen, player_pos, camera_pos, walls_filtered)
 
         bullet_list_copy = bullet_list.copy()
         grenade_list_copy = grenade_list.copy()
+
+
+
+        grenade_throw_string = ""
+
+        if pressed[pygame.K_g] and grenade_throw == False and player_actor.get_hp() > 0:
+
+            grenade_throw = True
+
+            if player_inventory.get_amount_of_type("HE Grenade") > 0:
+                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos), "HE Grenade"))
+                player_inventory.remove_amount("HE Grenade",1)
+                print("throwing nade")
+
+            elif player_inventory.get_amount_of_type("Molotov") > 0:
+                grenade_list.append(armory.Grenade(player_pos, func.minus(mouse_pos, camera_pos), "Molotov"))
+                player_inventory.remove_amount("Molotov",1)
+                print("throwing nade")
+
+        elif pressed[pygame.K_g] == False:
+            grenade_throw = False
 
 
         last_bullet_list = tuple(bullet_list)
@@ -1273,6 +1278,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             text = terminal3.render(self_name, False, [255,255,255])
             screen.blit(text, [400,40])
 
+
         if phase != 5:
             try:
                 func.print_s(screen, "FPS: " + str(round(1/(sum(fps)/60))), 1)
@@ -1281,7 +1287,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 pass
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
-            func.print_s(screen, "Melee: " + str(player_melee.strikes_used), 3)
+
 
 
             #func.print_s(screen, "WAVE: " + str(wave_number), 3)

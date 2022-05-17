@@ -47,6 +47,7 @@ def set_multiplayer(arg):
     print("MULTIPLAYER=",multiplayer)
 
 WHITE_COLOR = [255,255,255]
+BLACK = [0,0,0]
 turret_list = []
 enemy_list = []
 bullet_list = []
@@ -56,6 +57,7 @@ kill_counter  =[]
 explosions = []
 burn_list = []
 melee_list = []
+zombie_events = []
 
 last_hp = 0
 free_tick = 0
