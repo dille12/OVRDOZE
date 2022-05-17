@@ -14,7 +14,7 @@ import objects
 import get_preferences
 
 
-a, draw_los, a, ultraviolence, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
@@ -111,8 +111,11 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
         "7.62x39MM": Item("7.62x39MM", "Assault rifle ammo.", "762.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 3, drop_stack = 120),
         "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 3, drop_stack = 2),
         "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 2, drop_stack = 1),
-        "Molotov" : Item("Molotov", "Makeshift firebomb.", "molotov.png", max_stack = 5, pick_up_sound = molotov_pickup, drop_weight = 3, drop_stack = 1)
+        "Molotov" : Item("Molotov", "Makeshift firebomb.", "molotov.png", max_stack = 5, pick_up_sound = molotov_pickup, drop_weight = 3, drop_stack = 1),
+        "5.56x45MM NATO" : Item("5.56x45MM NATO", "Powerful LMG ammo.", "556.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 0.1, drop_stack = 999)
         }
+
+
 
 
 drop_table = {}
@@ -309,8 +312,11 @@ class Inventory:
                         pos_player = player_actor.get_pos()
 
                         turret_bullets = player_actor.__dict__["turret_bullets"]
-
-                        turret_list.append(objects.Turret(pos_player,8,10,500,20,500*turret_bullets))
+                        turr = objects.Turret(pos_player,8,10,500,20,500*turret_bullets)
+                        turret_list.append(turr)
+                        if "turrets" not in packet_dict:
+                            packet_dict["turrets"] = []
+                        packet_dict["turrets"].append(turr)
                         turret_pickup.play()
                     elif content[slot]["item"].__dict__["name"] == "Barricade":
                         pos_player = player_actor.get_pos()
@@ -490,6 +496,14 @@ class Interactable:
             self.image = pygame.transform.scale(pygame.image.load("texture/items/" + self.item.__dict__["im"]), [20,20]).convert_alpha()
             self.rect = self.image.get_rect()
             self.rect.inflate_ip(4,4)
+            if items[self.name].drop_weight < 0.6:
+                self.prompt_color = RED_COLOR
+            elif items[self.name].drop_weight < 1.5:
+                self.prompt_color = PURPLE_COLOR
+            elif items[self.name].drop_weight < 3.5:
+                self.prompt_color = CYAN_COLOR
+            else:
+                self.prompt_color = WHITE_COLOR
 
         self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
         self.inv_save = player_inventory
@@ -535,7 +549,7 @@ class Interactable:
         if self.type == "item":
             self.rect.topleft = func.minus_list(self.pos,camera_pos)
             if self.lifetime % 18 < 9:
-                pygame.draw.rect(screen, WHITE_COLOR, self.rect, 1+round(self.lifetime%18/5))
+                pygame.draw.rect(screen, self.prompt_color, self.rect, 1+round(self.lifetime%18/5))
             self.lifetime -= 1
 
             if self.lifetime == 0:
@@ -808,6 +822,8 @@ class Player:
         self.aim_angle = 0
         self.barricade_in_hand = None
         self.turret_bullets = turret_bullets
+        self.knockback_tick = 0
+        self.knockback_angle = 0
 
     def set_pos(self,pos):
         self.pos = pos
@@ -820,6 +836,11 @@ class Player:
 
     def get_angle(self):
         return self.angle
+
+    def knockback(self,amount,angle, daemon_bullet = False):
+
+        self.knockback_tick = round(amount)
+        self.knockback_angle = angle
 
 
     def get_pos(self):

@@ -14,7 +14,7 @@ import classes
 
 import get_preferences
 
-a, draw_los, a, ultraviolence, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
@@ -112,7 +112,7 @@ class Bullet:
         for x in enemy_list:
             if x.hit_detection(camera_pos, self.__pos, self.__last_pos,self.__damage, enemy_list, draw_blood_parts) == True:
 
-                x.knockback(self.__damage, math.radians(self.__angle))
+                x.knockback(self.__damage, math.radians(self.__angle), daemon_bullet = self.mp)
 
                 try:
                     if x.check_if_alive():
@@ -154,6 +154,9 @@ class Turret:
         self.target = None
 
         self.__damage = damage
+
+    def get_string(self):
+        return f"TURRET:{str(round(self.__pos[0]))}_{str(round(self.__pos[1]))}_{str(self.__turning_speed)}_{str(self.__firerate)}_{str(self.__range)}_{str(self.__damage)}_{str(self.__lifetime)}"
 
     def scan_for_enemies(self,enemy_list, walls):
         lowest = 99999
