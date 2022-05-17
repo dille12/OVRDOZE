@@ -219,7 +219,7 @@ class Zombie:
 
         for melee_hit in melee_list:
             angle_to_melee = 360 - math.degrees(math.atan2(self.pos[1] - melee_hit["pos"][1], self.pos[0] - melee_hit["pos"][0]))
-            if los.get_dist_points(melee_hit["pos"], self.pos) < melee_hit["radius"] and los.get_angle_diff(abs(angle_to_melee), melee_hit["angle"]) < melee_hit["arc"]/2:
+            if los.get_dist_points(melee_hit["pos"], self.pos) < melee_hit["strike_distance"] and los.get_angle_diff(abs(angle_to_melee), melee_hit["angle"]) < melee_hit["arc"]/2:
                 melee_hit_sound.stop()
                 melee_hit_sound.play()
                 self.knockback(melee_hit["damage"], math.radians(angle_to_melee))
