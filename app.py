@@ -10,11 +10,10 @@ class App:
     def __init__(self,pygame,server):
         self.pygame = pygame
         self.server = server
-        self.name = None
-        self.draw_los = None
-        self.dev = None
         self.ip = None
-        self.lastip = None
+        self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.last_ip = get_preferences.pref()
+        pygame.init()
+        pygame.font.init()
 
     def lobby_host(self,thread, ip):
         print("SERVER STARTING")

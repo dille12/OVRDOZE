@@ -24,13 +24,10 @@ import map_creator
 def main():
 
     app = App(pygame,server)
-    app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.last_ip = get_preferences.pref()
 
     maps_dict = app.getMaps()
     selected_map = 0
 
-    pygame.init()
-    pygame.font.init()
     full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
     screen =  app.pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0] # = 2.25
