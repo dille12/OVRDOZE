@@ -138,7 +138,7 @@ class Bullet:
 
 
 class Turret:
-    def __init__(self,pos,turning_speed,firerate,range,damage= 1,lifetime = 100):
+    def __init__(self,pos,turning_speed,firerate,range,damage= 1,lifetime = 100, mp = False):
         self.__pos = pos.copy()
         self.__turning_speed = turning_speed
         self.__firerate = firerate
@@ -149,6 +149,7 @@ class Turret:
         self.__lifetime2 =  lifetime
         self.__tick = 0
         self.__aiming_at = 0
+        self.mp = mp
 
         self.size = turret.get_rect().size[0]/2
         self.target = None
@@ -227,7 +228,7 @@ class Turret:
             turret_fire3.stop()
 
             func.pick_random_from_list(turret_fire).play()
-            bullet_list.append(Bullet([self.__pos[0], self.__pos[1]],self.__angle+random.uniform(-10,10),self.__damage))
+            bullet_list.append(Bullet([self.__pos[0], self.__pos[1]],self.__angle+random.uniform(-10,10),self.__damage, self.mp))
 
             for x in range(random.randint(4,6)):
                 particle_list.append(classes.Particle([self.__pos[0], self.__pos[1]], pre_defined_angle = True, angle = self.__angle+90, magnitude = 2))
