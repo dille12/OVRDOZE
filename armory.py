@@ -21,7 +21,7 @@ a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 prompt = pygame.font.Font('texture/terminal.ttf', 14)
- w
+
 class Melee:
     def __init__(self, mp = False,
             strike_count=2,
