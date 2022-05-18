@@ -196,7 +196,7 @@ def main():
 
     check_box_ultra = hud_elements.Checkbox(screen, 20,340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
-    check_box_fs = hud_elements.Checkbox(screen, 20, 340, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
+    check_box_fs = hud_elements.Checkbox(screen, 20, 380, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
     if app.fs:
         check_box_fs.__dict__["checked"] = True
     if app.ultraviolence:
