@@ -28,10 +28,10 @@ def main():
     maps_dict = app.getMaps()
     selected_map = 0
 
-    full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
+    full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
     screen =  app.pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0] # = 2.25
-    clock = pygame.time.Clock()
+    clock = app.pygame.time.Clock()
     print("run init")
 
     menu_status = "start"
@@ -196,7 +196,7 @@ def main():
 
     check_box_ultra = hud_elements.Checkbox(screen, 20,340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
-    check_box_fs = hud_elements.Checkbox(screen, 20, 340, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
+    check_box_fs = hud_elements.Checkbox(screen, 20, 380, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
     if app.fs:
         check_box_fs.__dict__["checked"] = True
     if app.ultraviolence:
