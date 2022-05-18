@@ -178,6 +178,9 @@ def main():
     button_host_quit = Button([68,130], "Back", kill_server, None,gameInstance=app.pygame,glitchInstance=glitch)
     button_client_quit = Button([68,130], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
 
+    buttonUpnpTest = Button([x_s,280], "dev-test-upnp", upnp_test, "upnp_test",gameInstance=app.pygame,glitchInstance=glitch)
+    buttonUpnpBack = Button([x_s,220], "Back", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
+
     check_box_difficulties = []
 
     for text, y_pos in [["NO ENEMIES", 200], ["NORMAL", 240], ["HARD",280], ["ONSLAUGHT", 320]]:
@@ -350,6 +353,8 @@ def main():
             if app.dev:
                 sButtonUpnp = buttonUpnp.tick(screen, mouse_pos, mouse_single_tick, glitch)
                 print(f"sButtonUpnp:{sButtonUpnp}")
+            else:
+                sButtonUpnp = None
 
             if net == None and net1 != None:
                 net = net1
@@ -379,12 +384,12 @@ def main():
             screen.blit(text, [430- text.get_rect().size[0]/2,20])
             text = terminal.render("{button to enter here only visible with dev tools enabled}", False, [255,255,255])
             screen.blit(text, [430- text.get_rect().size[0]/2,80])
-            buttonUpnpTest = Button([x_s,280], "dev-test-upnp", upnp_test, "upnp_test",gameInstance=app.pygame,glitchInstance=glitch)
+
             sButtonUpnpTest = buttonUpnpTest.tick(screen, mouse_pos, mouse_single_tick, glitch)
             if sButtonUpnpTest != None:
                 print('stub ... exiting game here by design...')
                 sys.exit()
-            buttonUpnpBack = Button([x_s,220], "Back", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
+
             sButtonUpnpBack = buttonUpnpBack.tick(screen, mouse_pos, mouse_single_tick, glitch)
             if sButtonUpnpBack != None:
                 menu_status  = sButtonUpnpBack
