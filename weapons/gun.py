@@ -93,13 +93,6 @@ class Gun(Weapon):
             burst_bullets = self.burst_bullets,
             burst_fire_rate = self.burst_fire_rate
         )
-
-    def set_hostile(self):
-        super().set_hostile()
-
-    def get_image(self):
-        super().get_image()
-
     def get_semi_auto(self):
         return self.semi_auto
 
@@ -207,6 +200,11 @@ class Gun(Weapon):
 
 
 
+
+    def set_hostile(self):
+        super().set_hostile()
+    def get_image(self):
+        super().get_image()
     def get_reload_rate(self):
         return super().get_reload_rate()
     def set_reload_tick(self,val):
@@ -223,4 +221,3 @@ class Gun(Weapon):
         super().weapon_tick()
     def weapon_fire_Tick(self):
         return super.weapon_fire_Tick()
-test = Gun(":test","guns")
