@@ -637,12 +637,12 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
     pl_dist_mult = pl_dist/25
 
-    spread = weapon.__dict__["_Weapon__c_bullet_spread"] + weapon.__dict__["_Weapon__spread"]
+    spread = weapon.__dict__["_c_bullet_spread"] + weapon.__dict__["_spread"]
 
 
     if not pygame.mouse.get_visible():
 
-        if weapon.__dict__["_Weapon__reload_tick"] == 0:
+        if weapon.__dict__["_reload_tick"] == 0:
 
             pos7 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult)]
             pos8 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult)]
@@ -666,7 +666,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         else:
             rect = pygame.Rect(mouse_pos[0]-10,mouse_pos[1]-10, 20, 20)
 
-            angle = 5*math.pi/2  - math.pi*2 * ( weapon.__dict__["_Weapon__reload_tick"] / weapon.__dict__["_Weapon__reload_rate"])
+            angle = 5*math.pi/2  - math.pi*2 * ( weapon.__dict__["_reload_tick"] / weapon.__dict__["_reload_rate"])
 
             pygame.draw.arc(screen, hud_color, rect, math.pi/2, angle, 3)
 
@@ -715,7 +715,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         screen.blit(im,[5+x_d, 5+y_d])
     except:
         pass
-    if weapon.__dict__["_Weapon__reload_tick"] == 0:
+    if weapon.__dict__["_reload_tick"] == 0:
         if clip == clip_size + 1:
             text = terminal.render(str(clip-1) + "+1/" + str(clip_size), False, hud_color)
             screen.blit(text, (15+x_d, 45+y_d)) #
@@ -761,7 +761,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
 
-        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
+        text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
 
     else:
@@ -771,7 +771,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
 
-        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
+        text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
 
 
@@ -826,7 +826,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
 
-    text = terminal2.render(str(weapon.__dict__["_Weapon__name"]), False, hud_color)
+    text = terminal2.render(str(weapon.__dict__["name"]), False, hud_color)
     screen.blit(text, (15+x_d, 15+y_d)) #
 
     player_inventory.draw_inventory(screen, x_d, y_d, mouse_pos, clicked, player_actor.get_pos(), r_click_tick, player_actor)

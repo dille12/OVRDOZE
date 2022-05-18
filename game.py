@@ -36,184 +36,8 @@ terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 
 
 
-weapons = {
-
-
-"M1911": armory.Weapon("M1911",
-                        clip_s = 8,
-                        fire_r = 2000,
-                        spread = 7,
-                        spread_r = 0.94,
-                        reload_r = 45,
-                        damage = 15,
-                        semi_auto = True,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        ammo_cap_lvlup = 1,
-                        image = "m1911.png",
-                        ammo = "INF",
-                        view = 0.0,
-                        handling = 0.7),
-
-"AR-15": armory.Weapon("AR-15",
-                        clip_s = 35,
-                        fire_r = 500,
-                        spread = 1,
-                        spread_r = 0.93,
-                        bullet_speed = 35,
-                        reload_r = 60,
-                        damage = 34,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        sounds = assault_rifle_sounds,
-                        ammo_cap_lvlup = 1,
-                        image = "m16.png",
-                        ammo = "7.62x39MM",
-                        piercing = True,
-                        view = 0.032,
-                        handling = 0.25,
-                        burst = True,
-                        burst_bullets = 3,
-                        burst_fire_rate = 2),
-
-
-
-"AK": armory.Weapon("AK47",
-                        clip_s = 30,
-                        fire_r = 520,
-                        spread = 3,
-                        spread_r = 0.94,
-                        bullet_speed = 25,
-                        reload_r = 60,
-                        damage = 34,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        sounds = assault_rifle_sounds,
-                        ammo_cap_lvlup = 1,
-                        image = "ak.png",
-                        ammo = "7.62x39MM",
-                        piercing = True,
-                        view = 0.03,
-                        handling = 0.35),
-
-
-"SCAR18": armory.Weapon("SCAR18",
-                        clip_s = 20,
-                        fire_r = 240,
-                        spread = 1,
-                        spread_r = 0.93,
-                        bullet_speed = 30,
-                        reload_r = 45,
-                        damage = 45,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        sounds = assault_rifle_sounds2,
-                        ammo_cap_lvlup = 1,
-                        image = "ak.png",
-                        ammo = "INF",
-                        piercing = True,
-                        view = 0.035,
-                        handling = 0.45),
-
-"M134 MINIGUN": armory.Weapon("M134 MINIGUN",
-                        clip_s = 999,
-                        fire_r = 2300,
-                        spread = 2,
-                        spread_r = 0.93,
-                        bullet_speed = 45,
-                        reload_r = 120,
-                        damage = 34,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        sounds = assault_rifle_sounds,
-                        ammo_cap_lvlup = 1,
-                        image = "m134.png",
-                        ammo = "5.56x45MM NATO",
-                        piercing = True,
-                        view = 0.03,
-                        handling = 0.1),
-
-"SPAS": armory.Weapon("SPAS-12",
-                        clip_s = 6,
-                        fire_r = 120,
-                        spread = 5,
-                        spread_per_bullet = 2,
-                        spread_r = 0.93,
-                        reload_r = 60,
-                        damage = 22,
-                        bullet_speed = 15,
-                        bullets_at_once = 8,
-                        shotgun = True,
-                        semi_auto = True,
-                        sounds = shotgun_sounds,
-                        ammo_cap_lvlup = 2,
-                        image = "spas12.png",
-                        ammo = "12 GAUGE",
-                        view = 0.01,
-                        handling = 0.2),
-
-"P90": armory.Weapon("P90",
-                        clip_s = 50,
-                        fire_r = 950,
-                        spread = 7,
-                        spread_r = 0.94,
-                        reload_r = 60,
-                        damage = 21,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        sounds = smg_sounds,
-
-                        #sounds = shotgun_sounds,
-                        ammo_cap_lvlup = 2,
-                        image = "p90.png",
-                        ammo = "9MM",
-                        view = 0.02,
-                        handling = 0.5),
-"GLOCK": armory.Weapon("GLOCK",
-                        clip_s = 20,
-                        fire_r = 350,
-                        spread = 3,
-                        spread_r = 0.92,
-                        reload_r = 30,
-                        damage = 27,
-                        semi_auto = False,
-                        bullets_at_once = 1,
-                        shotgun = False,
-                        ammo_cap_lvlup = 1,
-                        image = "glock.png",
-                        ammo = "45 ACP",
-                        view = 0.017,
-                        handling = 0.9,
-                        burst = True,
-                        burst_bullets = 3,
-                        burst_fire_rate = 3),
-
-"AWP": armory.Weapon("AWP",
-                        clip_s = 10,
-                        fire_r = 50,
-                        spread = 1,
-                        spread_r = 0.965,
-                        spread_per_bullet = 25,
-                        reload_r = 80,
-                        damage = 200,
-                        bullets_at_once = 1,
-                        sounds = sniper_rifle_sounds,
-                        bullet_speed = 55,
-                        shotgun = False,
-                        ammo_cap_lvlup = 1,
-                        image = "awp.png",
-                        ammo = "50 CAL",
-                        piercing = True,
-                        view = 0.045,
-                        handling = 0.15,
-                        semi_auto = True),
-}
-
-
-
-
-def give_weapon(gun):
-    return weapons[gun].copy()
+def give_weapon(kind,name):
+    return armory.__weapons_map[kind][name].copy()
 
 
 
@@ -354,7 +178,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-    weapon_keys = list(weapons.keys())
+    weapon_keys = list(armory.__weapons_map["gun"].keys())
     print("KEYS",weapon_keys)
 
 
@@ -447,7 +271,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     player_actor = classes.Player(self_name, turret_bullets)
 
-    player_melee = armory.Melee(strike_count = 2, damage = 35, hostile = False, owner_object = player_actor)
+    player_melee = armory.Melee.Melee(strike_count = 2, damage = 35, hostile = False, owner_object = player_actor)
 
 
 
@@ -463,7 +287,16 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
-    player_weapons = [give_weapon("M1911"), give_weapon("M134 MINIGUN"), give_weapon("AR-15"), give_weapon("GLOCK"), give_weapon("AWP"), give_weapon("AK"), give_weapon("SPAS"), give_weapon("P90")]
+    player_weapons = [
+        give_weapon("gun","M1911"), 
+        give_weapon("gun","M134 MINIGUN"), 
+        give_weapon("gun","AR-15"), 
+        give_weapon("gun","GLOCK"), 
+        give_weapon("gun","AWP"), 
+        give_weapon("gun","AK"), 
+        give_weapon("gun","SPAS"), 
+        give_weapon("gun","P90")
+        ]
 
 
     c_weapon = (player_weapons[0])
@@ -929,7 +762,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             player_actor.set_angle(player_angle)
 
-            if c_weapon.__dict__["_Weapon__name"] in ["GLOCK", "M1911"]:
+            if c_weapon.__dict__["name"] in ["GLOCK", "M1911"]:
                 pl = player_pistol
             else:
                 pl = player
