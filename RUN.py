@@ -28,10 +28,10 @@ def main():
     maps_dict = app.getMaps()
     selected_map = 0
 
-    full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
+    full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
     screen =  app.pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] / size[0] # = 2.25
-    clock = app.pygame.time.Clock()
+    clock = pygame.time.Clock()
     print("run init")
 
     menu_status = "start"
@@ -71,6 +71,15 @@ def main():
             return join_game(ip, True)
         except:
             return "start", None, None
+
+    def upnp_menu(arg):
+        if app.dev:
+            print('test')
+            return('upnp_menu')
+    def upnp_test(arg):
+        if app.dev:
+            print('upnp_test')
+            return('upnp_test')
 
     def start_multiplayer_client():
         game.main(app, multiplayer = True, net = net, players = players, self_name = app.name, map = maps_dict[selected_map]["map"], full_screen_mode = full_screen_mode)
@@ -161,6 +170,8 @@ def main():
     button4 = Button([x_s,100], "Host", host_game, "3",gameInstance=app.pygame,glitchInstance=glitch)
     button5 = Button([x_s,160], "Join", join_game, app.ip,gameInstance=app.pygame,glitchInstance=glitch)
     button6 = Button([x_s,220], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
+    buttonUpnp = Button([x_s,280], "dev-test-upnp", upnp_menu, "upnp_menu",gameInstance=app.pygame,glitchInstance=glitch)
+
 
     button7 = Button([140,70], "START GAME", start_mp_game, None,gameInstance=app.pygame,glitchInstance=glitch)
     button7_2 = Button([140,70], "START GAME", start_sp, difficulty,gameInstance=app.pygame,glitchInstance=glitch)
@@ -336,6 +347,9 @@ def main():
                 a1 = None
 
             s6 = button6.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            if app.dev:
+                sButtonUpnp = buttonUpnp.tick(screen, mouse_pos, mouse_single_tick, glitch)
+                print(f"sButtonUpnp:{sButtonUpnp}")
 
             if net == None and net1 != None:
                 net = net1
@@ -353,6 +367,27 @@ def main():
                 mouse_single_tick = False
             if s6 != None:
                 menu_status  = s6
+                mouse_single_tick = False
+            if sButtonUpnp != None:
+                menu_status  = sButtonUpnp
+                print(f'--------------menu status:{menu_status}')
+                mouse_single_tick = False
+
+        if menu_status == "upnp_menu":
+            print('tst2')
+            text = terminal.render("This is a STUB menu - more to come.", False, [255,255,255])
+            screen.blit(text, [430- text.get_rect().size[0]/2,20])
+            text = terminal.render("{button to enter here only visible with dev tools enabled}", False, [255,255,255])
+            screen.blit(text, [430- text.get_rect().size[0]/2,80])
+            buttonUpnpTest = Button([x_s,280], "dev-test-upnp", upnp_test, "upnp_test",gameInstance=app.pygame,glitchInstance=glitch)
+            sButtonUpnpTest = buttonUpnpTest.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            if sButtonUpnpTest != None:
+                print('stub ... exiting game here by design...')
+                sys.exit()
+            buttonUpnpBack = Button([x_s,220], "Back", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
+            sButtonUpnpBack = buttonUpnpBack.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            if sButtonUpnpBack != None:
+                menu_status  = sButtonUpnpBack
                 mouse_single_tick = False
 
         if menu_status == "single_player_lobby":
