@@ -10,11 +10,10 @@ class App:
     def __init__(self,pygame,server):
         self.pygame = pygame
         self.server = server
-        self.name = None
-        self.draw_los = None
-        self.dev = None
         self.ip = None
-        self.lastip = None
+        self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.last_ip = get_preferences.pref()
+        pygame.init()
+        pygame.font.init()
 
     def lobby_host(self,thread, ip):
         print("SERVER STARTING")
@@ -34,7 +33,8 @@ class App:
     def start_sp(self,arg):
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
-        app,name,arg,draw_los,dev,skip_intervals,map = arg
+        app,name,arg,draw_los,dev,skip_intervals,map,full_screen_mode = arg
 
         game.main(app, self_name = name, difficulty = arg, draw_los = draw_los,
-          dev_tools = dev, skip_intervals = skip_intervals, map = map)
+          dev_tools = dev, skip_intervals = skip_intervals, map = map,
+          full_screen_mode = full_screen_mode)
