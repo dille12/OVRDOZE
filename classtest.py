@@ -11,6 +11,7 @@ import numpy
 import func
 import los
 from itertools import accumulate
+import ast
 
 
 from values import *
@@ -139,7 +140,28 @@ class Map:
         x,y,width,height = polygon
         self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
 
+    def read_navmesh(self, walls_filtered):
+        NAV_MESH = []
+        try:
+            file = open(self.nav_mesh_name, "r")
+            lines = file.readlines()
+            file.close()
+            for line in lines:
+                ref_point = {"point" : ast.literal_eval(line), "connected" : []}
+                NAV_MESH.append(ref_point)
+            for ref_point in NAV_MESH:
+                for point_dict in NAV_MESH:
+                    point = point_dict["point"]
+                    if point == ref_point["point"]:
+                        continue
+                    if los.check_los(point, ref_point["point"], walls_filtered):
+                        ref_point["connected"].append(point)
 
+
+        except Exception as e:
+            print(e)
+
+        return NAV_MESH
 
 
     def checkcollision(self, pos, movement,collider_size, map_size, damage_barricades = False, damager = None, ignore_barricades = False, collider_rect = False, check_only_collision = False):
@@ -350,19 +372,15 @@ class Map:
                 if p1 in wall_points or p2 in wall_points:
                     continue
                 if los.intersect(wall_points[0], wall_points[1], func.minus(p1,[-2,-2]), func.minus(p2,[2,2])):
-                    print("INTERSECTING LINE")
-                    print(wall_points, [p1,p2])
                     intersecting_walls.append([wall_1, wall_2])
         # for wall_1, wall_2 in intersecting_walls:
                     a,b = wall_1.get_points()
                     c,d = wall_2.get_points()
-                    print(a,b,c,d)
 
                     res_key = min([a,b], key=lambda x: sum(x))
                     res_key2 = min([c,d], key=lambda x: sum(x))
                     res_key_max = max([a,b], key=lambda x: sum(x))
                     res_key_max2 = max([c,d], key=lambda x: sum(x))
-                    print("SMALLER VALUES:",res_key, res_key2)
                     wall_1.set_new_points(res_key,res_key2)
                     wall_2.set_new_points(res_key_max,res_key_max2)
         remove_list = []
@@ -391,14 +409,11 @@ class Map:
                 if interlink1 != None and interlink2 != None:
                     wall_points = list(wall_1.get_points())
                     wall_points_2 = list(wall_2.get_points())
-                    print("INTERSECT:", interlink1)
-                    print("WALL POINTS:", wall_points, wall_points_2)
+
                     wall_points.remove(interlink1)
                     wall_points_2.remove(interlink2)
 
                     if los.intersect(wall_points[0], wall_points_2[0], func.minus(interlink1,[-2,-2]), func.minus(interlink1,[2,2])):
-                        print(wall_points[0], wall_points_2[0], func.minus(interlink1,[-2,-2]), func.minus(interlink1,[2,2]))
-                        print("COMBINING WALL")
                         remove_list.append(wall_2)
                         wall_1.set_new_points(wall_points[0], wall_points_2[0])
 

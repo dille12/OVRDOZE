@@ -30,8 +30,8 @@ def main():
 
     full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
     screen =  app.pygame.Surface(size).convert()
-    mouse_conversion = fs_size[0] / size[0] # = 2.25
-    clock = pygame.time.Clock()
+    mouse_conversion = fs_size[0] /  size[0] # = 2.25
+    clock = app.pygame.time.Clock()
     print("run init")
 
     menu_status = "start"
@@ -159,24 +159,24 @@ def main():
 
     difficulty = "NORMAL"
 
-    button = Button([x_s,100], "Singleplayer", sp_lob, None,gameInstance=app.pygame,glitchInstance=glitch)
-    button2 = Button([x_s,160], "Multiplayer", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
-
+    button_sp_menu = Button([x_s,100], "Singleplayer", sp_lob, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_mp_menu = Button([x_s,160], "Multiplayer", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
     button_settings = Button([x_s,220], "Settings", settings, None,gameInstance=app.pygame,glitchInstance=glitch)
 
+    button_quit_game = Button([x_s,280], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
 
-    button3 = Button([x_s,280], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
 
-    button4 = Button([x_s,100], "Host", host_game, "3",gameInstance=app.pygame,glitchInstance=glitch)
-    button5 = Button([x_s,160], "Join", join_game, app.ip,gameInstance=app.pygame,glitchInstance=glitch)
-    button6 = Button([x_s,220], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
+
+    button_host_game = Button([x_s,100], "Host", host_game, "3",gameInstance=app.pygame,glitchInstance=glitch)
+    button_join_game = Button([x_s,160], "Join", join_game, app.ip,gameInstance=app.pygame,glitchInstance=glitch)
+    button_back = Button([x_s,220], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
     buttonUpnp = Button([x_s,280], "dev-test-upnp", upnp_menu, "upnp_menu",gameInstance=app.pygame,glitchInstance=glitch)
 
 
-    button7 = Button([140,70], "START GAME", start_mp_game, None,gameInstance=app.pygame,glitchInstance=glitch)
-    button7_2 = Button([140,70], "START GAME", start_sp, difficulty,gameInstance=app.pygame,glitchInstance=glitch)
-    button8 = Button([68,130], "Back", kill_server, None,gameInstance=app.pygame,glitchInstance=glitch)
-    button8_2 = Button([68,130], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_start_sp = Button([140,70], "START GAME", start_mp_game, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_start_mp = Button([140,70], "START GAME", start_sp, difficulty,gameInstance=app.pygame,glitchInstance=glitch)
+    button_host_quit = Button([68,130], "Back", kill_server, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_client_quit = Button([68,130], "Back", main_menu, None,gameInstance=app.pygame,glitchInstance=glitch)
 
     check_box_difficulties = []
 
@@ -205,9 +205,9 @@ def main():
     if app.draw_los:
         check_box_fov.__dict__["checked"] = True
 
-    check_box_ultra = hud_elements.Checkbox(screen, 20,340, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
+    check_box_ultra = hud_elements.Checkbox(screen, 20,380, caption = "Ultraviolence", font_color = [255,0,0], text_offset = [40,5])
 
-    check_box_fs = hud_elements.Checkbox(screen, 20, 380, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
+    check_box_fs = hud_elements.Checkbox(screen, 20, 340, caption = "Fullscreen", font_color = [255,255,255], text_offset = [40,5])
     if app.fs:
         check_box_fs.__dict__["checked"] = True
     if app.ultraviolence:
@@ -298,10 +298,10 @@ def main():
         if menu_status == "start":
             screen.blit(info, [20,150])
 
-            s1 = button.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            s2= button2.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s1 = button_sp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s2= button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            button3.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             if s1 != None:
                 menu_status = s1
@@ -316,7 +316,7 @@ def main():
 
         if menu_status == "settings":
 
-            s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s8_2 = button_client_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             text = terminal.render("Name:", False, [255,255,255])
             screen.blit(text, [20,207])
@@ -336,8 +336,8 @@ def main():
                 mouse_single_tick = False
 
         if menu_status == "mp_start":
-            s4, net1, host = button4.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            list  = button5.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = app.ip)
+            s4, net1, host = button_host_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            list  = button_join_game.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = app.ip)
 
             if list != None:
                 s5, net2, a1 = list
@@ -346,7 +346,7 @@ def main():
                 net2 = None
                 a1 = None
 
-            s6 = button6.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s6 = button_back.tick(screen, mouse_pos, mouse_single_tick, glitch)
             if app.dev:
                 sButtonUpnp = buttonUpnp.tick(screen, mouse_pos, mouse_single_tick, glitch)
                 print(f"sButtonUpnp:{sButtonUpnp}")
@@ -362,7 +362,7 @@ def main():
                 print("Game hosted")
                 mouse_single_tick = False
             if s5 != None:
-                button5.__dict__["args"] = app.ip
+                button_join_game.__dict__["args"] = app.ip
                 menu_status  = s5
                 mouse_single_tick = False
             if s6 != None:
@@ -449,10 +449,10 @@ def main():
 
                 if diff.__dict__["checked"]:
                     difficulty = diff.__dict__["caption"]
-                    button7_2.__dict__["args"] = difficulty
+                    button_start_mp.__dict__["args"] = difficulty
 
-            s7_2 = button7_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            s8_2 = button8_2.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s7_2 = button_start_mp.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s8_2 = button_client_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             text = terminal2.render(diff_captions[difficulty], False, [255,255,255])
             screen.blit(text, [20, 370])
@@ -564,8 +564,8 @@ def main():
                 text = terminal.render(y, False, [255,255,255])
                 screen.blit(text, [30,i])
             if host:
-                button7.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            s8 = button8.tick(screen, mouse_pos, mouse_single_tick, glitch)
+                button_start_sp.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s8 = button_host_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
             if s8 != None:
                 menu_status  = s8
 
