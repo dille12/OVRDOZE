@@ -28,11 +28,11 @@ class Melee:
             damage=10,
             hostile = True,
             owner_object = None,
-            strike_distance=150):
+            strike_range=150):
         self.owner = owner_object
         self.mp=mp;
         self.arc=1*math.pi;
-        self.strike_distance = strike_range # what's a good melee range number? - lets see if we can't make this more adjustable  ## The attack distance for zombies is 100, so at least 150
+        self.strike_range = strike_range # what's a good melee range number? - lets see if we can't make this more adjustable  ## The attack distance for zombies is 100, so at least 150
         self.strikes_used=0;
         self.strikes=strike_count;
         self.damage = damage;
