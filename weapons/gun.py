@@ -57,7 +57,7 @@ class Gun(Weapon):
         self._c_bullet_spread = 0
         self.ammo = ammo
         self.handling = handling
-
+        self.random_reload_tick = random.randint(round(self._reload_rate/4), round(3*self._reload_rate/4))
         self.burst = burst
         self.burst_bullets = burst_bullets
         self.burst_fire_rate = burst_fire_rate
@@ -163,6 +163,7 @@ class Gun(Weapon):
         return self._bullets_in_clip
 
     def reload(self, player_inventory):
+        self.random_reload_tick = random.randint(round(self._reload_rate/4), round(3*self._reload_rate/4))
 
         if self.ammo == "INF":
             availabe_ammo = 1000
