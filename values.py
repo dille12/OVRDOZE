@@ -210,6 +210,8 @@ thuds = mixer.get_sound_Variants("sound","thud")
 kill_sound = pygame.mixer.Sound("sound/kill_sound.wav")
 menu_click =  pygame.mixer.Sound("sound/menu_click.wav")
 menu_click2 =  pygame.mixer.Sound("sound/menu_click2.wav")
+q_r_success =  pygame.mixer.Sound("sound/sfx/quick_reload_success.wav")
+q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
 

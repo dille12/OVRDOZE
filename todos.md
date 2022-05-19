@@ -36,7 +36,7 @@ or for new people who want to help: here are things that still need to get done.
 5. Melee combat system
 6. ~~Right clicking on ammo from a box should automatically add it to inventory~~ Shift clicking quicktransfers items from boxes
 7. Gun jamming
-8. Quick reloading (tapping R at correct time during reload)
+8. ~~Quick reloading (tapping R at correct time during reload)~~
 
 ### systems / networking / multiplayer
 1. Correct IP scanning

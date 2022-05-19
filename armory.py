@@ -114,7 +114,11 @@ class Grenade:
             if list(classtest.getcollisionspoint(map.rectangles, pos)) == []:
                 burn_list.append(classes.Burn(pos, 3, random.randint(500,600)))
         molotov_explode_sound.play()
-        grenade_list.remove(self)
+        try:
+            grenade_list.remove(self)
+        except:
+            pass
+
 
 
     def tick(self,screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
@@ -397,6 +401,8 @@ class Weapon:
 
     def reload(self, player_inventory):
 
+        self.random_reload_tick = random.randint(round(self.__reload_rate/4), round(3*self.__reload_rate/4))
+        print(self.random_reload_tick)
         if self.ammo == "INF":
             availabe_ammo = 1000
         else:

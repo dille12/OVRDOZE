@@ -54,8 +54,6 @@ class Button:
                 self.targeted = True
                 menu_click.play()
 
-
-
             if click:
                 menu_click2.play()
                 glitch.glitch_tick = 5
