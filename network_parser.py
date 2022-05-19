@@ -9,8 +9,7 @@ import ast
 # #END
 
 def parse_packet(packet):
-    packet_data = packet.split("#END")[0]
-    packet_lines = packet_data.split("\n")
+    packet_data = packet.split("#END")
 
     players = []
     bullets = []
@@ -20,47 +19,42 @@ def parse_packet(packet):
     turrets = []
     barricades = []
 
+    for packet_data_2 in packet_data:
+        packet_lines = packet_data_2.split("\n")
 
-    for line in packet_lines:
-        try:
-            type, data = line.split(":")
-            if type == "BULLET":
-                x, y, angle, damage, speed = data.split("_")
-                bullets.append([x, y, angle, damage, speed])
+        for line in packet_lines:
+            try:
+                type, data = line.split(":")
+                if type == "BULLET":
+                    if data.split("_") not in bullets:
+                        bullets.append(data.split("_"))
 
-            elif type == "PLAYER":
-                name, x, y, angle, hp = data.split("_")
+                elif type == "PLAYER":
+                    if data.split("_") not in players:
+                        players.append(data.split("_"))
 
-                players.append([name, x, y, angle, hp])
+                elif type == "GRENADE":
+                    print("Parsed a grenade")
+                    if data.split("_") not in grenades:
+                        grenades.append(data.split("_"))
 
-            elif type == "GRENADE":
-                print("Parsed a grenade")
-                type, x, y ,t_x, t_y = data.split("_")
-                grenades.append([type, x, y ,t_x, t_y])
+                elif type == "ZOMBIE":
+                    if data.split("_") not in zombies:
+                        zombies.append(data.split("_"))
+                elif type == "ZEVENT":
+                    if data.split("_") not in z_events:
+                        z_events.append(data.split("_"))
 
-            elif type == "ZOMBIE":
-                try:
-                    print("Parsed a zombie")
-                    x, y, id, target_name, power, type = data.split("_")
-                    zombies.append([x, y, id, target_name, power, type])
-                except Exception as e:
-                    print(f"ZOMBIE EXCEPTION: {e}")
-            elif type == "ZEVENT":
-                try:
-                    id, z_event, outcome  = data.split("_")
-                    z_events.append([id, z_event, outcome])
-                except Exception as e:
-                    print(f"ZEVENT Exception {e}")
+                elif type == "TURRET":
+                    if data.split("_") not in turrets:
+                        turrets.append(data.split("_"))
 
-            elif type == "TURRET":
-                print("Parsing a turret")
-                turrets.append(data.split("_"))
+                elif type == "BARRICADE":
+                    if data.split("_") not in barricades:
+                        barricades.append(data.split("_"))
 
-            elif type == "BARRICADE":
-                barricades.append(data.split("_"))
-
-        except:
-            pass
+            except:
+                pass
     return players, bullets, grenades, zombies, z_events, turrets, barricades
 
 def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
@@ -80,7 +74,7 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
 
     for x, y, angle, damage, speed in bullets:
         print("GENERATING A BULLET")
-        bullet_list.append(Bullet([int(x), int(y)], int(angle), int(damage), speed = int(speed), mp = True))
+        bullet_list.append(Bullet.Bullet([int(x), int(y)], int(angle), int(damage), speed = int(speed), mp = True))
 
     for type, x, y ,t_x, t_y in grenades:
         print("GENERATING A GRENADE")
@@ -98,8 +92,8 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
 
         gen = list(get_zombie_by_id(int(id)))
         if len(gen) == 0:
-            #print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
-            zombie_events2.append(f"ZEVENT:{id}_terminate_1")
+            print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
+            #zombie_events2.append(f"ZEVENT:{id}_terminate_1")
         for target in gen:
             print(id, z_event, outcome)
             if z_event == "terminate":
@@ -108,6 +102,7 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
                 target.pos = ast.literal_eval(outcome)
             elif z_event == "setroute":
                 target.route = ast.literal_eval(outcome)
+
             # else:
             #     if z_event == player_actor.name:
             #         target.target = player_actor
