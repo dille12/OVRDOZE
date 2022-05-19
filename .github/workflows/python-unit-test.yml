@@ -9,11 +9,11 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  matrix:
     strategy:
-      matrix:
-        python-version: ["2.7", "3.6", "3.7", "3.8", "3.9"]
+      os: [windows-latest,ubuntu-latest]
+      python-version: ["3.6", "3.7", "3.8", "3.9"]
+    runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python-version }}
