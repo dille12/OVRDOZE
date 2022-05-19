@@ -1,10 +1,12 @@
 # how to normalize this more to a game object?
-from game_object import Game_Object
-
-class Barricade(game_object):
-    def __init__(self, origin):
+from game_objects.game_object import Game_Object
+import classtest
+from values import *
+class Barricade(Game_Object):
+    def __init__(self, origin,pygame):
+        super().__init__(name="barricade",pos=origin,lifetime=100,texture=barricade_texture)
         self.pos = origin
-
+        self.ref=pygame;
         self.hp = 1000
 
         self.stage = "building_1"
@@ -19,7 +21,7 @@ class Barricade(game_object):
         if self.stage == "building_1":
             x = mouse_pos[0] + camera_pos[0]
             y = mouse_pos[1] + camera_pos[1]
-            pygame.draw.circle(screen, [0,204,0], [x-camera_pos[0],y-camera_pos[1]], 5)
+            self.ref.draw.circle(screen, [0,204,0], [x-camera_pos[0],y-camera_pos[1]], 5)
 
             if clicked:
                 self.pos = [x,y]
@@ -58,9 +60,9 @@ class Barricade(game_object):
                 clear = True
                 color = [0,204,0]
 
-            rect_1 = pygame.Rect(x, y, w, h)
+            rect_1 = self.ref.Rect(x, y, w, h)
 
-            rect_2 = pygame.Rect(x+camera_pos[0], y+camera_pos[1], w, h)
+            rect_2 = self.ref.Rect(x+camera_pos[0], y+camera_pos[1], w, h)
 
             collisions = list(classtest.getcollisions(map.__dict__["rectangles"], rect_2))
             if collisions:
@@ -68,16 +70,16 @@ class Barricade(game_object):
                 color = [204,0,0]
 
 
-            pygame.draw.rect(screen, color, rect_1 ,3)
+            self.ref.draw.rect(screen, color, rect_1 ,3)
 
             if clicked and clear:
                 self.width = w
                 self.height = h
                 self.stage = "built"
                 self.pos = [x + camera_pos[0],y + camera_pos[1]]
-                self.rect = pygame.Rect(self.pos[0], self.pos[1], self.width, self.height)
+                self.rect = self.ref.Rect(self.pos[0], self.pos[1], self.width, self.height)
 
-                self.surf = pygame.Surface([w,h]).convert()
+                self.surf = self.ref.Surface([w,h]).convert()
 
                 for x in range(round(w/100+0.49)):
                     for y in range(round(h/100+0.49)):

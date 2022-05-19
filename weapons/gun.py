@@ -5,7 +5,7 @@ import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from values import *
-import objects
+from objects import *
 import classes
 
 from weapons.weapon import Weapon
@@ -88,6 +88,7 @@ class Gun(Weapon):
             ammo = self.ammo,
             piercing = self.piercing_bullets,
             view = self.view,
+            hostile=self.hostile,
             handling = self.handling,
             burst = self.burst,
             burst_bullets = self.burst_bullets,
@@ -111,7 +112,14 @@ class Gun(Weapon):
         for x in range(self._bullets_at_once):
 
             if self._bullets_in_clip > 0:
-                bullet_list.append(objects.Bullet(bul_pos,angle+random.uniform(-self._spread-self._c_bullet_spread,self._spread+self._c_bullet_spread),self._damage * multiplier, team = self.team, speed = self.bullet_speed, piercing = self.piercing_bullets))   #BULLET
+                bullet_list.append(Bullet.Bullet(
+                    bul_pos,
+                    angle+random.uniform(-self._spread-self._c_bullet_spread,self._spread+self._c_bullet_spread),
+                    self._damage * multiplier, 
+                    hostile = self.hostile, 
+                    speed = self.bullet_speed, 
+                    piercing = self.piercing_bullets)
+                )   #BULLET
                 for x in range(random.randint(8,16)):
                     particle_list.append(classes.Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self._damage**0.1- 0.5, screen = screen))
 
@@ -220,4 +228,4 @@ class Gun(Weapon):
     def weapon_tick(self):
         super().weapon_tick()
     def weapon_fire_Tick(self):
-        return super.weapon_fire_Tick()
+        return super().weapon_fire_Tick()

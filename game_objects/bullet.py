@@ -1,7 +1,26 @@
-from game_object import Game_Object
+from game_objects.game_object import Game_Object
+from values import *
+import func
+import classes
 class Bullet(Game_Object):
-    def __init__(self, pos,angle,damage, hostile = True, speed = 20, piercing = False, mp = False):
-        super("bullet",pos,hostile,angle,damage,friendly_fire=False,lifetime=30)
+    def __init__(self, 
+            pos,
+            angle,
+            damage, 
+            hostile = True, 
+            speed = 20, 
+            piercing = False, 
+            mp = False
+        ):
+        super().__init__(
+            name="bullet",
+            pos=pos,
+            hostile=hostile,
+            angle=angle,
+            damage=damage,
+            friendly_fire=False,
+            lifetime=30,
+            texture=bullet_texture)
         self.mp = mp
         self.speed = speed * random.uniform(0.9,1.1)
         self.im = bullet_length[round(self.speed)]
@@ -10,12 +29,12 @@ class Bullet(Game_Object):
 
     def get_string(self):
        return super().get_string("BULLET")
-    def move():
+    def move(self):
         self._last_pos = self._pos.copy()
         self._pos[0] += math.sin(self._angle_radians)*self.speed
         self._pos[1] += math.cos(self._angle_radians)*self.speed
         pass
-    def draw():
+    def draw(self):
         pass
     def detect_collision(self):
         pass;
@@ -102,5 +121,5 @@ class Bullet(Game_Object):
 
         bullet_draw_pos = [rot_bullet_rect[0] , rot_bullet_rect[1] ]
 
-        screen.blit(rot_bullet,func.draw_pos(self.__pos,camera_pos))
+        screen.blit(rot_bullet,func.draw_pos(self._pos,camera_pos))
         return dead

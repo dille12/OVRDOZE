@@ -1,4 +1,9 @@
 import math
+import los
+import func
+from values import *
+import classes
+import classtest
 class Grenade:
     def __init__(self, pos, target_pos, type, mp = False):
         self.pos = pos
@@ -98,7 +103,7 @@ class Explosion:
         self.particles = particles
         self.c_o = color_override
 
-    def damage_actor(self, actor, camera_pos, blood_surf, enemy = False, enemy_list = [], multi_kill = 0, multi_kill_ticks = 0, walls = []):
+    def damage_actor(self, actor, camera_pos, blood_surf=None, enemy = False, enemy_list = [], multi_kill = 0, multi_kill_ticks = 0, walls = []):
         dist = func.get_dist_points(actor.get_pos(), self.pos)
         if dist < self.range:
             if los.check_los(self.pos, actor.get_pos(), walls) == False:

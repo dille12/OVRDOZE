@@ -1,3 +1,5 @@
-import objects.turret as Turret
-import objects.bullet as Bullet
-import objects.Barricade as Barricade
+import game_objects.turret as Turret
+import game_objects.bullet as Bullet
+import game_objects.barricade as Barricade
+
+

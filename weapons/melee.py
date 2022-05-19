@@ -1,5 +1,5 @@
 import math
-
+from values import *
 class Melee:
     def __init__(self, mp = False,
             strike_count=2,
@@ -38,7 +38,7 @@ class Melee:
         if self.check_for_strike(r_click):
             melee_sound.stop()
             melee_sound.play()
-            melee_list.append({"pos" : pos, "angle" : angle, "damage" : self.damage, "distance" : self.strike_distance, "arc" : self.arc})   #BULLET
+            melee_list.append({"pos" : pos, "angle" : angle, "damage" : self.damage, "strike_range" : self.strike_range, "arc" : self.arc})   #BULLET
             self.strikes_used += 1
         if self.strikes_used > 0:
             self.strikes_used -= 0.01

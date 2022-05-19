@@ -18,6 +18,7 @@ class Weapon:
         self._double_damage_time = 0
         self._weapon_fire_Tick = 0
         self.enemy_weapon = hostile
+        self.hostile=hostile;
         self.team = "hostile" if hostile else "friendly"
         self.kind = kind;
 
