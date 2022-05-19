@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SDL_AUDIODRIVER: 'dsp'
+      SDL_AUDIODRIVER: 'ALSA'
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
