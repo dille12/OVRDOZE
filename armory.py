@@ -1,12 +1,8 @@
-
 from values import *
 import weapons.melee as Melee
 import weapons.gun as W
 from weapons.area import Grenade
 from weapons.area import Explosion
-
-
-
 
 guns = {
     "M1911": W.Gun(

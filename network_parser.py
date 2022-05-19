@@ -67,7 +67,7 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
     players_info, bullets, grenades, zombies, z_events, turrets, barricades = parse_packet(packet)
 
     interctables, camera_pos, map_render, NAV_MESH, walls, hp_diff, dam_diff = zomb_info
-
+    zombie_events2 = []
     for name, x, y, angle, hp in players_info:
 
         if name not in multiplayer_actors:
@@ -98,7 +98,8 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
 
         gen = list(get_zombie_by_id(int(id)))
         if len(gen) == 0:
-            print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
+            #print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
+            zombie_events2.append(f"ZEVENT:{id}_terminate_1")
         for target in gen:
             print(id, z_event, outcome)
             if z_event == "terminate":
@@ -116,11 +117,14 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
     for x, y, ang_spe, fire_r, range, damage, lifetime in turrets:
         try:
             print(f"GENERATING A TURRET")
-            turret_list.append(Turret([int(x),int(y)],int(ang_spe),int(fire_r),int(range), damage = int(damage), lifetime = round(float(lifetime))))
+            turret_list.append(Turret([int(x),int(y)],int(ang_spe),int(fire_r),int(range), damage = 0, lifetime = round(float(lifetime)), mp = True))
         except Exception as e:
             print(f"TURRET EXCEPTION: {e}")
 
     zombie_events.clear()
+    for x in zombie_events2:
+
+        zombie_events.append(x)
 
 
 # PACKET

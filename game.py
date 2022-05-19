@@ -51,10 +51,6 @@ def give_weapon(kind,name):
 def thread_data_collect(net, packet, player_actor, multiplayer_actors, bullet_list, grenade_list, current_threading, zomb_info):
     try:
         reply = net.send(packet).translate({ord('/'): None})
-
-        for i, line in enumerate(reply.split("\n")):
-            func.print_s(screen, line, i+4)
-
         network_parser.gen_from_packet(reply, player_actor, multiplayer_actors, zomb_info)
 
 
@@ -234,25 +230,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     player_pos = map.get_random_point(walls_filtered)
     camera_pos = [0,0]
 
-    NAV_MESH = []
-    try:
-        file = open(map.__dict__["nav_mesh_name"], "r")
-        lines = file.readlines()
-        file.close()
-        for line in lines:
-            ref_point = {"point" : ast.literal_eval(line), "connected" : []}
-            NAV_MESH.append(ref_point)
-        for ref_point in NAV_MESH:
-            for point_dict in NAV_MESH:
-                point = point_dict["point"]
-                if point == ref_point["point"]:
-                    continue
-                if los.check_los(point, ref_point["point"], walls_filtered):
-                    ref_point["connected"].append(point)
-
-
-    except Exception as e:
-        print(e)
+    NAV_MESH = map.read_navmesh(walls_filtered)
 
 
     interactables = []
@@ -341,11 +319,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         click_single_tick = False
         if app.pygame.mouse.get_pressed()[0] and clicked == False:
-
             clicked = True
-
             click_single_tick = True
-
         elif app.pygame.mouse.get_pressed()[0] == False:
             clicked = False
 
@@ -503,6 +478,12 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
+        key_r_click = False
+        if pressed[app.pygame.K_r] and r_1 == False:
+            r_1 = True
+            key_r_click = True
+        elif pressed[app.pygame.K_r] == False:
+            r_1 = False
 
 
 
@@ -516,7 +497,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         except Exception as e:
             print("EXCEPTION", e)
         fps_counter = time.time()
-        func.keypress_manager(pressed,c_weapon, player_inventory)
+        func.keypress_manager(key_r_click,c_weapon, player_inventory)
 
         last_camera_pos = camera_pos.copy()
 
@@ -733,6 +714,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         elif pressed[app.pygame.K_g] == False:
             grenade_throw = False
+
 
 
         last_bullet_list = tuple(bullet_list)
