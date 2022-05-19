@@ -14,6 +14,8 @@ jobs:
       os: [windows-latest,ubuntu-latest]
       python-version: ["3.6", "3.7", "3.8", "3.9"]
     runs-on: ${{matrix.os}}
+    env:
+      SDL_AUDIODRIVER: 'alsa'
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python-version }}
