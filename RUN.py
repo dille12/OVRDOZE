@@ -24,7 +24,10 @@ import map_creator
 def main():
 
     app = App(pygame,server)
-
+    
+    terminal = pygame.font.Font('texture/terminal.ttf', 20)
+    terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
+    prompt = pygame.font.Font('texture/terminal.ttf', 14)
     maps_dict = app.getMaps()
     selected_map = 0
 

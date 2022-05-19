@@ -14,6 +14,8 @@ class App:
         self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.last_ip = get_preferences.pref()
         pygame.init()
         pygame.font.init()
+              
+
 
     def lobby_host(self,thread, ip):
         print("SERVER STARTING")
