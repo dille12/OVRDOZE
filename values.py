@@ -54,6 +54,7 @@ BLACK = [0,0,0]
 turret_list = []
 enemy_list = []
 bullet_list = []
+meele_list = []
 particle_list = []
 grenade_list = []
 kill_counter  =[]
@@ -155,7 +156,7 @@ zombie_big = pygame.transform.scale(pygame.image.load("texture/zombie.png"),[rou
 
 
 player_firing = pygame.transform.scale(pygame.image.load("texture/player_firing.png"),[round(225/multiplier),round(100/multiplier)]).convert_alpha()
-bullet = pygame.transform.scale(pygame.image.load("texture/bullet.png"), (15,4)).convert_alpha()
+bullet_texture = pygame.transform.scale(pygame.image.load("texture/bullet.png"), (15,4)).convert_alpha()
 bullet_length = []
 for x in range(100):
     x += 5

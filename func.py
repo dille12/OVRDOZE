@@ -448,13 +448,13 @@ def keypress_manager(key_r_click,c_weapon, player_inventory):
             if abs(c_weapon.reload_tick() - c_weapon.__dict__["random_reload_tick"]) <= 7:
                 print("Successful quick reload")
                 q_r_success.play()
-                c_weapon.__dict__["_Weapon__reload_tick"] = 0
+                c_weapon.__dict__["_reload_tick"] = 0
 
             elif c_weapon.__dict__["random_reload_tick"] != -1:
                 print("Reload failed")
                 q_r_fail.play()
                 c_weapon.__dict__["random_reload_tick"] = -1
-                c_weapon.__dict__["_Weapon__reload_tick"] = c_weapon.__dict__["_Weapon__reload_rate"]
+                c_weapon.__dict__["_reload_tick"] = c_weapon.__dict__["_reload_rate"]
 
 
 def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, ai = False):
@@ -649,12 +649,12 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
     pl_dist_mult = pl_dist/25
 
-    spread = weapon.__dict__["_Weapon__c_bullet_spread"] + weapon.__dict__["_Weapon__spread"]
+    spread = weapon.__dict__["_c_bullet_spread"] + weapon.__dict__["_spread"]
 
 
     if not pygame.mouse.get_visible():
 
-        if weapon.__dict__["_Weapon__reload_tick"] == 0:
+        if weapon.__dict__["_reload_tick"] == 0:
 
             pos7 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist-pl_dist_mult)]
             pos8 = [pl_pos[0] + math.cos(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult), pl_pos[1] - math.sin(math.radians(pl_angl2)) * (pl_dist+pl_dist_mult)]
@@ -685,7 +685,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
                 rect2 = pygame.Rect(mouse_pos[0]-16,mouse_pos[1]-16, 32, 32)
                 rect3 = pygame.Rect(mouse_pos[0]-12,mouse_pos[1]-12, 24, 24)
 
-                angle = 5*math.pi/2  - math.pi*2 * ( weapon.__dict__["_Weapon__reload_tick"] / weapon.__dict__["_Weapon__reload_rate"])
+                angle = 5*math.pi/2  - math.pi*2 * ( weapon.__dict__["_reload_tick"] / weapon.__dict__["_reload_rate"])
 
 
 
@@ -694,8 +694,8 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
                 pygame.draw.arc(screen, hud_color, rect3, math.pi/2, angle, 2)
 
                 if weapon.__dict__["random_reload_tick"] != -1:
-                    angle1 = 5*math.pi/2  - math.pi*2 * ((weapon.__dict__["random_reload_tick"] - 2) / weapon.__dict__["_Weapon__reload_rate"])
-                    angle2 = 5*math.pi/2  - math.pi*2 * ((weapon.__dict__["random_reload_tick"] + 2) / weapon.__dict__["_Weapon__reload_rate"])
+                    angle1 = 5*math.pi/2  - math.pi*2 * ((weapon.__dict__["random_reload_tick"] - 2) / weapon.__dict__["_reload_rate"])
+                    angle2 = 5*math.pi/2  - math.pi*2 * ((weapon.__dict__["random_reload_tick"] + 2) / weapon.__dict__["_reload_rate"])
                     pygame.draw.arc(screen, [0,0,255], rect2, angle1, angle2-angle1, 6)
 
             else:
@@ -704,7 +704,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
 
-                height =  22 * weapon.__dict__["_Weapon__reload_tick"] / weapon.__dict__["_Weapon__reload_rate"]
+                height =  22 * weapon.__dict__["_reload_tick"] / weapon.__dict__["_reload_rate"]
 
                 rect2 = pygame.Rect(mouse_pos[0]-2 + x_d,mouse_pos[1] - height + 12  + y_d, 4, height)
 
@@ -723,8 +723,8 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
 
-                    q_r_pos1 = 22 *(weapon.__dict__["random_reload_tick"] - 7) / weapon.__dict__["_Weapon__reload_rate"]
-                    q_r_pos2 = 22 *(weapon.__dict__["random_reload_tick"] + 7) / weapon.__dict__["_Weapon__reload_rate"]
+                    q_r_pos1 = 22 *(weapon.__dict__["random_reload_tick"] - 7) / weapon.__dict__["_reload_rate"]
+                    q_r_pos2 = 22 *(weapon.__dict__["random_reload_tick"] + 7) / weapon.__dict__["_reload_rate"]
 
                     rect3 = pygame.Rect(mouse_pos[0]-2 + x_d,mouse_pos[1] - q_r_pos2 + 12  + y_d, 4, q_r_pos2 - q_r_pos1)
 
@@ -788,7 +788,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         screen.blit(im,[5+x_d, 5+y_d])
     except:
         pass
-    if weapon.__dict__["_Weapon__reload_tick"] == 0:
+    if weapon.__dict__["_reload_tick"] == 0:
         if clip == clip_size + 1:
             text = terminal.render(str(clip-1) + "+1/" + str(clip_size), False, hud_color)
             screen.blit(text, (15+x_d, 45+y_d)) #
@@ -834,7 +834,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
 
-        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
+        text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
 
     else:
@@ -844,7 +844,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
 
-        text = terminal3.render(str(weapon.__dict__["_Weapon__bullet_per_min"]) + "RPM", False, hud_color)
+        text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
 
 
@@ -899,7 +899,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
 
 
 
-    text = terminal2.render(str(weapon.__dict__["_Weapon__name"]), False, hud_color)
+    text = terminal2.render(str(weapon.__dict__["name"]), False, hud_color)
     screen.blit(text, (15+x_d, 15+y_d)) #
 
     player_inventory.draw_inventory(screen, x_d, y_d, mouse_pos, clicked, player_actor.get_pos(), r_click_tick, player_actor)
