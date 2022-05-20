@@ -12,13 +12,11 @@ jobs:
   matrix:
     strategy:
       matrix:
-        os: [windows-latest,ubuntu-latest]
+        os: [ubuntu-latest]
         python-version: ["3.6", "3.7", "3.8", "3.9"]
     runs-on: ${{matrix.os}}
     env:
       SDL_VIDEODRIVER: "x11"
-      if: contains(${{matrix.os}}==windows-latest) 
-      SDL_VIDEODRIVER: "directx"
       SDL_AUDIODRIVER: "disk"
     steps:
       - uses: actions/checkout@v3
