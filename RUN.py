@@ -24,7 +24,7 @@ import map_creator
 def main():
 
     app = App(pygame,server)
-    
+
     terminal = pygame.font.Font('texture/terminal.ttf', 20)
     terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
     prompt = pygame.font.Font('texture/terminal.ttf', 14)
@@ -53,7 +53,7 @@ def main():
     textbox_name = hud_elements.text_box((100,200), app.name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
-    textbox_ip.__dict__["te xt"] = app.last_ip
+    textbox_ip.__dict__["text"] = app.last_ip
     players = []
     port = 5555
 
@@ -72,7 +72,7 @@ def main():
         try:
             start_new_thread(app.lobby_host, ("1", ip) )
             return join_game(ip, True)
-        except:
+        except:ww
             return "start", None, None
 
     def upnp_menu(arg):
