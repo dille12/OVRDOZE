@@ -30,6 +30,6 @@ jobs:
           pip install -r requirements.txt
       - name: confirm display
         run: |
-          echo "temp test"
+          echo "temp test confirm display driver is active and avalible... in the future when tests are actually written"
       - name: Run tests with unittest 
         run: python -m unittest test.py 
