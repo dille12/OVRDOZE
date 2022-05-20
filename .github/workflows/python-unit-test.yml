@@ -16,9 +16,8 @@ jobs:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
     runs-on: ${{matrix.os}}
     env:
-      SDL_VIDEODRIVER: "x11"
+      SDL_VIDEODRIVER: "dummy"
       SDL_AUDIODRIVER: "disk"
-      DISPLAY: 0
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python-version }}
@@ -31,6 +30,6 @@ jobs:
           pip install -r requirements.txt
       - name: confirm display
         run: |
-          xrandr
+          echo "temp test"
       - name: Run tests with unittest 
         run: python -m unittest test.py 
