@@ -88,7 +88,9 @@ def threaded_client(conn):
                     players[conn]["grenades"].remove(grenade_1)
 
                 for zombie_1 in players[conn]["zombies"]:
+
                     x, y, id, target_name, power, type = zombie_1
+                    print(f"Server got zombie {id}")
                     string += f"ZOMBIE:{x}_{y}_{id}_{target_name}_{power}_{type}\n"
                     players[conn]["zombies"].remove(zombie_1)
 

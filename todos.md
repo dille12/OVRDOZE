@@ -2,8 +2,8 @@
 
 here is a way to organize future features, and coordinate work on the game.
 or for new people who want to help: here are things that still need to get done.
-* [Important](#important) 
-* [Easy](#easy-to-dos) 
+* [Important](#important)
+* [Easy](#easy-to-dos)
 * [If there's time](#if-theres-time)
 * [Megahard changes](#megahard-changes)
 
@@ -20,13 +20,13 @@ or for new people who want to help: here are things that still need to get done.
 5. In-game settings menu (volume / quit to menu / resolution)
 
 ### creative / artwork
-1. Fire animations, molotovs and flamers
+1. ~~Fire animations, molotovs~~ and flamers
 2. More and better OST
 3. Animate the player sprite
 4. Laser/Explosive weapons
 5. More/Bigger maps
 6. More items (body shields, decoys, radars) (also mechanics)
-7. Ingame map editor 
+7. Ingame map editor
 
 ### mechanics / gameplay
 1. More zombie types (~~bombers~~, runners, rangers)
@@ -55,6 +55,6 @@ or for new people who want to help: here are things that still need to get done.
 
 # Megahard changes:
 
-1. Changing the rendering resolution (it's capped to 854x480) 
+1. Changing the rendering resolution (it's capped to 854x480)
 2. Ability to change fps cap (Everything is tied to 60fps)
 3. Procedural map generation

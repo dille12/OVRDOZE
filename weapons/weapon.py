@@ -5,11 +5,11 @@ from values import *
 class Weapon:
     def __init__(
             self,
-            name="weapon", 
+            name="weapon",
             damage=10,
-            image = "", 
+            image = "",
             hostile = False,
-            sounds = {"fire": weapon_fire_Sounds, "reload":reload }, 
+            sounds = {"fire": weapon_fire_Sounds, "reload":reload },
             view = 0.03,
             kind = "unknown"
         ):
@@ -22,6 +22,8 @@ class Weapon:
         self.team = "hostile" if hostile else "friendly"
         self.kind = kind;
 
+        self.kind = "guns"
+
         self.sounds = sounds["fire"] if sounds["fire"] else "-"
         self.reload_sound = sounds["reload"]
 
@@ -30,12 +32,11 @@ class Weapon:
 
         self.image_file_name = image
         self.view = view
-        self.image=None;
         if image != "":
-
             self.image = func.colorize(
-                pygame.image.load(f"texture/{self.kind}/{image}"), 
+                pygame.image.load(f"texture/{self.kind}/{image}"),
                 pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
+            self.image.set_alpha(100)
             print("Image loaded")
 
     def set_hostile(self):
@@ -70,4 +71,3 @@ class Weapon:
         return self._weapon_fire_Tick
     def use(self):
         func.list_play(self.sounds)
-
