@@ -13,14 +13,17 @@ multi_kill = 0
 camera_pan = 0.03
 respawn_ticks = 0
 
-monitors = get_monitors()
-m=monitors[0];#get first in list or primary if set
-for n in monitors:
-    if n.is_primary==True:
-        m=n;
-        break;
+try:
+    monitors = get_monitors()
+    m=monitors[0];#get first in list or primary if set
+    for n in monitors:
+        if n.is_primary==True:
+            m=n;
+            break;
 
-fs_size = (m.width,m.height)
+    fs_size = (m.width,m.height)
+except:
+    fs_size=(1920,1080)
 
 size = 854,480
 multi_kill_ticks = 0
