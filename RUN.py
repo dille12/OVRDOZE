@@ -72,7 +72,7 @@ def main():
         try:
             start_new_thread(app.lobby_host, ("1", ip) )
             return join_game(ip, True)
-        except:ww
+        except:
             return "start", None, None
 
     def upnp_menu(arg):
