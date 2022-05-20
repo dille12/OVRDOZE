@@ -18,6 +18,7 @@ jobs:
     env:
       SDL_VIDEODRIVER: "x11"
       SDL_AUDIODRIVER: "disk"
+      DISPLAY: 0
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python-version }}
