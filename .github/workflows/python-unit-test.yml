@@ -9,14 +9,14 @@ on:
       - main
 
 jobs:
-  matrix:
-    strategy:
+  strategy:
+    matrix:
       os: [windows-latest,ubuntu-latest]
       python-version: ["3.6", "3.7", "3.8", "3.9"]
     runs-on: ${{matrix.os}}
-      env:
-        SDL_VIDEODRIVER: "dummy"
-        SDL_AUDIODRIVER: "disk"
+    env:
+      SDL_VIDEODRIVER: "dummy"
+      SDL_AUDIODRIVER: "disk"
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python-version }}
