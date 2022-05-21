@@ -65,7 +65,8 @@ def write_packet(object):
     return string
 
 
-def quit(arg):
+def quit(app):
+    app.pygame.mixer.music.unload()
     print("Quitting game")
 
     RUN.main()
@@ -145,7 +146,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     app.pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
-        full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN, vsync=1) #
+        full_screen = app.pygame.display.set_mode(fs_size, flags = pygame.FULLSCREEN, vsync=1) #
+        print(pygame.display.get_driver())
+        print(app.pygame.display.Info())
         screen =  app.pygame.Surface(size).convert()
         mouse_conversion = fs_size[0] / size[0]
     else:
@@ -296,12 +299,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     glitch = Glitch(screen)
 
-    resume_button = button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=app.pygame,glitchInstance=glitch)
-    quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=app.pygame,glitchInstance=glitch)
+    resume_button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=app.pygame,glitchInstance=glitch)
+    quit_button = Button([size[0]/2,200], "Quit", quit, app,gameInstance=app.pygame,glitchInstance=glitch)
     drying_time = time.time()
 
 
     while 1:
+
 
 
 
@@ -336,7 +340,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             screen.blit(background_surf,(0,0))
 
             s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
-            quit_button.tick(screen, mouse_pos, click_single_tick, glitch)
+            quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg = app)
 
 
             pressed = app.pygame.key.get_pressed()
@@ -568,6 +572,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             if wave:
                 if time.time() - wave_change_timer > wave_length:
                     wave = False
+                    pygame.display.set_gamma(1,1.1,1.1)
                     wave_change_timer = time.time()
 
                     wave_anim_ticks = [120, 0]
@@ -588,6 +593,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     wave_length += 3
                     #wave_interval += 1
                     wave = True
+                    pygame.display.set_gamma(1 + wave_number/10,0.9,0.9)
                     wave_number += 1
 
                     wave_text_tick = -20

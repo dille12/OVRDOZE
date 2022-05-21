@@ -75,6 +75,7 @@ class Turret(Game_Object):
             self._angle = round(self._angle/self._turning_speed)*self._turning_speed
             self._aiming_at = round(self._aiming_at/self._turning_speed)*self._turning_speed
         return shoot,aim_at
+
     def draw_bead_on(self,aim_at,shoot):
         angle2=0;
         if abs((360-self._aiming_at) - self._angle) > self._turning_speed * 2 -1 :
@@ -102,27 +103,29 @@ class Turret(Game_Object):
 
         if abs(los.get_angle_diff(360 - (func.get_angle(self._pos,player_pos)), self._angle)) < 20 or los.get_dist_points(player_pos, self._pos) < 25:
             shoot = False
+
+
+
+
         return shoot,angle2, turret2,turret_rect
     def draw(self, screen,camera_pos,turret2,turret_rect):
 
         dp = func.draw_pos(self._pos,camera_pos)
         screen.blit(turret_leg, [dp[0] - self.size, dp[1] - self.size])
         screen.blit(turret2,func.draw_pos(turret_rect,camera_pos))
+        if self._lifetime/self._lifetime2 <= 0.2:
+            func.render_cool(huuto,[turret_rect[0]+35-camera_pos[0], turret_rect[1]+35-camera_pos[1]],self._tick,16,True, screen = screen)
+            self._tick += 1
 
     def clean_up(self):
         if self._lifetime<=0:
             super().clean_up(turret_list)
-        if self._lifetime/self._lifetime2 <= 0.2:
-            func.render_cool(huuto,[turret_rect[0]+35-camera_pos[0], turret_rect[1]+35-camera_pos[1]],self._tick,16,True, screen = screen)
-            self._tick += 1
+
 
 
     def tick(self, screen ,camera_pos,enemy_list,tick, walls, player_pos):
         shoot,aim_at = self.handle_scanning(enemy_list, walls, los)
         shoot,angle2,turret2,turret_rect = self.draw_bead_on(aim_at, shoot)
         self.shoot(shoot,angle2)
-        self.draw(screen,camera_pos,turret2,turret_rect)       
+        self.draw(screen,camera_pos,turret2,turret_rect)
         self.clean_up()
-
-
-
