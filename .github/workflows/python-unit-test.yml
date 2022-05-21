@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          apt-get install -y xserver-xorg
       - name: confirm display
         run: |
           echo "temp test confirm display driver is active and available... in the future when tests are actually written"
