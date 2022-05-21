@@ -31,8 +31,9 @@ jobs:
       - name: Install ubuntu dependencies
         if: ${{matrix.os}}=='ubuntu-latest'
         run: |
-          echo ${{matrix.os}} 
-          echo "is matrix.os
+          echo ${{matrix.os}}=='ubuntu-latest'
+          echo ${{matrix.os}}
+          echo "is matrix.os"
           sudo apt-get install -y xserver-xorg
       - name: confirm display
         run: echo "temp test confirm display driver is active and available... in the future when tests are actually written"
