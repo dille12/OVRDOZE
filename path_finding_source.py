@@ -4,13 +4,14 @@ from maps import maps
 import time
 import ast
 import math
+from path_finding import get_complete_routes
 
 
 """
 C accelerated route calculator, couldn't get this to work properly
 """
 
-def calc_route(start_pos, end_pos, NAV_MESH, walls):
+def calc_route(start_pos, end_pos, NAV_MESH, walls, stat = "1"):
     """
     Calculates the shortest route to a point using the navmesh points
     """
@@ -36,8 +37,11 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
     for conne in start_nav_point["connected"]:
         routes.append([start_nav_point["point"], conne])
 
+    if stat == "1":
+        complete_routes = py_routes(routes, end_nav_point, NAV_MESH)
+    else:
+        complete_routes = get_complete_routes(routes, end_nav_point, NAV_MESH)
 
-    complete_routes = get_complete_routes(routes, end_nav_point)
 
     shortest_route = {"dist" : 10000, "route" : []}
     for route in complete_routes:
@@ -52,8 +56,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
 
     return shortest_route["route"]
 
-@jit(nopython=True)
-def get_complete_routes(routes, end_nav_point):
+def py_routes(routes, end_nav_point, NAV_MESH):
     complete_routes = []
     while routes != []:
         route = routes[0]
@@ -118,7 +121,9 @@ if __name__ == "__main__":
 
     print("STARTING")
 
-    start = time.time()
-    route = calc_route([50,50], [1800, 1400], NAV_MESH, wall_points)
-    print(f"GOT ROUTE {route}")
-    print(f"completed {time.time() - start}")
+    for x in ["1", "2"]:
+        for y in range(10):
+            start = time.time()
+            route = calc_route([50,50], [1800, 1400], NAV_MESH, wall_points, stat = x)
+            print(f"GOT ROUTE {route} {x }")
+            print(f"completed {time.time() - start}")

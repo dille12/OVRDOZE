@@ -783,10 +783,9 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
     screen.blit(wave_surf,(0,10+y_d))
 
     try:
-        im = weapon.get_image()
-        im.set_alpha(100)
+        im = weapon.__dict__["image"]
         screen.blit(im,[5+x_d, 5+y_d])
-    except:
+    except Exception as e:
         pass
     if weapon.__dict__["_reload_tick"] == 0:
         if clip == clip_size + 1:

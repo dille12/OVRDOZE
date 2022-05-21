@@ -24,7 +24,7 @@ import map_creator
 def main():
 
     app = App(pygame,server)
-    
+
     terminal = pygame.font.Font('texture/terminal.ttf', 20)
     terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
     prompt = pygame.font.Font('texture/terminal.ttf', 14)
@@ -32,6 +32,7 @@ def main():
     selected_map = 0
 
     full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
+
     screen =  app.pygame.Surface(size).convert()
     mouse_conversion = fs_size[0] /  size[0] # = 2.25
     clock = app.pygame.time.Clock()
@@ -53,7 +54,7 @@ def main():
     textbox_name = hud_elements.text_box((100,200), app.name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
-    textbox_ip.__dict__["te xt"] = app.last_ip
+    textbox_ip.__dict__["text"] = app.last_ip
     players = []
     port = 5555
 

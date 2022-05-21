@@ -65,7 +65,8 @@ def write_packet(object):
     return string
 
 
-def quit(arg):
+def quit(app):
+    app.pygame.mixer.music.unload()
     print("Quitting game")
 
     RUN.main()
@@ -145,7 +146,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     app.pygame.mixer.music.fadeout(2000)
 
     if full_screen_mode:
-        full_screen = app.pygame.display.set_mode(fs_size, pygame.FULLSCREEN, vsync=1) #
+        full_screen = app.pygame.display.set_mode(fs_size, flags = pygame.FULLSCREEN, vsync=1) #
+        print(pygame.display.get_driver())
+        print(app.pygame.display.Info())
         screen =  app.pygame.Surface(size).convert()
         mouse_conversion = fs_size[0] / size[0]
     else:
@@ -266,13 +269,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
     player_weapons = [
-        give_weapon("gun","M1911"), 
-        give_weapon("gun","M134 MINIGUN"), 
-        give_weapon("gun","AR-15"), 
-        give_weapon("gun","GLOCK"), 
-        give_weapon("gun","AWP"), 
-        give_weapon("gun","AK"), 
-        give_weapon("gun","SPAS"), 
+        give_weapon("gun","M1911"),
+        give_weapon("gun","M134 MINIGUN"),
+        give_weapon("gun","AR-15"),
+        give_weapon("gun","GLOCK"),
+        give_weapon("gun","AWP"),
+        give_weapon("gun","AK"),
+        give_weapon("gun","SPAS"),
         give_weapon("gun","P90")
         ]
 
@@ -296,8 +299,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     glitch = Glitch(screen)
 
-    resume_button = button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=app.pygame,glitchInstance=glitch)
-    quit_button = button = Button([size[0]/2,200], "Quit", quit, None,gameInstance=app.pygame,glitchInstance=glitch)
+    resume_button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=app.pygame,glitchInstance=glitch)
+    quit_button = Button([size[0]/2,200], "Quit", quit, app,gameInstance=app.pygame,glitchInstance=glitch)
     drying_time = time.time()
 
 
@@ -305,7 +308,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-        clock.tick(tick_count)
+
+        clock.tick(60)
 
         t = time.time()
         time_stamps = {}
@@ -336,7 +340,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             screen.blit(background_surf,(0,0))
 
             s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
-            quit_button.tick(screen, mouse_pos, click_single_tick, glitch)
+            quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg = app)
 
 
             pressed = app.pygame.key.get_pressed()
@@ -568,6 +572,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             if wave:
                 if time.time() - wave_change_timer > wave_length:
                     wave = False
+                    pygame.display.set_gamma(1,1.1,1.1)
                     wave_change_timer = time.time()
 
                     wave_anim_ticks = [120, 0]
@@ -588,6 +593,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     wave_length += 3
                     #wave_interval += 1
                     wave = True
+                    pygame.display.set_gamma(1 + wave_number/10,0.9,0.9)
                     wave_number += 1
 
                     wave_text_tick = -20
@@ -925,29 +931,6 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             draw_time += time.time() - start
 
-            # los_image2 = pygame.transform.scale(los_image, [1920,1080])
-            #
-            #
-            # los_image2.set_colorkey((255,255,255))
-            #
-            # los_image2.set_alpha(100)
-            #
-            # screen.blit(los_image2, (0,0))
-            #
-            #
-            #
-            # func.debug_render(draw_time)
-
-
-
-
-
-            #screen.blit(los_image2,(0,0))
-
-
-
-        #pygame.transform.scale(screen, (1920,1080), fullscreen)
-
         try:
             if multiplayer:
                 func.print_s(screen, "PING: " + str(round(last_ping*1000)) + "ms", 3)
@@ -978,12 +961,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             else:
                 color = [255,0,0]
 
-            #func.print_s(screen, ("LOS DRAW TIME:" + str(los_total_draw_time_frame) + " frames."), 2, color)
-
             perc1 = round(100*draw_time/(draw_time+draw_time2))
             perc2 = round(100*draw_time2/(draw_time+draw_time2))
-
-        #func.print_s(screen, str(perc1) + "% drawing/" + str(perc2) + "% blitting.", 3, color)
 
         if phase != 0:
             if phase == 1:
@@ -1111,17 +1090,6 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
 
-
-
-            #func.print_s(screen, "WAVE: " + str(wave_number), 3)
-
-            # if c_weapon.__dict__["burst"]:
-            #
-            #     func.print_s(screen, "burst_tick: " + str(c_weapon.__dict__["burst_tick"]), 3)
-            #     func.print_s(screen, "current_burst_bullet: " + str(c_weapon.__dict__["current_burst_bullet"]), 4)
-            #     func.print_s(screen, "weapon_fire_Tick: " + str(c_weapon.weapon_fire_Tick()), 5)
-
-
         else:
             obje = enumerate(time_stamps, 1)
             total = 0
@@ -1145,8 +1113,6 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         last_time_stamp = time_stamps.copy()
-        #func.print_s(screen, str(wave_text_tick), 5)
-
 
         if wave_anim_ticks[0] != 0:
             wave_anim_ticks[0] -= 1
@@ -1170,11 +1136,6 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         except Exception as e:
             print(e)
-
-
-
-
-
 
         if pause:
             background_surf.blit(screen, (0,0))
