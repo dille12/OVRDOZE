@@ -1,6 +1,6 @@
-username=Client614126
+username=
 FOV=True
-DEV=False
-FS=False
+DEV=True
+FS=True
 ULTRA=False
 LASTIP=
