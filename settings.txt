@@ -1,4 +1,4 @@
-username=Client38
+username=
 FOV=True
 DEV=True
 FS=True

@@ -41,7 +41,14 @@ class Weapon:
 
     def set_hostile(self):
         self.team = "hostile"
+    def get_string(self,kind):
+        x=str(round(self.pos[0]))
+        y=str(round(self.pos[1]))
+        tx=str(round(self.target_pos[0]))
+        ty=str(round(self.target_pos[1]))
+        string = f"{kind}: {x}_{y}_{tx}_{ty}"
 
+        return string
     def get_image(self):
         return self.image
 

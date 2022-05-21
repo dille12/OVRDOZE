@@ -17,9 +17,7 @@ class Melee:
 
 
     def get_string(self):
-
-        string = "MELEE:" + str(round(self.pos[0])) + "_" + str(round(self.pos[1])) + "_"+ str(round(self.target_pos[0])) + "_"+ str(round(self.target_pos[1]))
-        return string
+        return super().get_string("MEELE")
 
 
     def check_for_strike(self,r_click):
