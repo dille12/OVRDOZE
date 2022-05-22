@@ -156,12 +156,7 @@ def server_run():
     global players, running, stop_threads
 
     print("Starting host")
-
     print(socket.gethostbyname(socket.gethostname()))
-
-
-
-    #############
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -170,7 +165,6 @@ def server_run():
     print(ip_address)
     port = 5555
 
-    #server_ip = socket.gethostbyname(server)
     print("INITTING")
     try:
         print("Trying")
@@ -188,7 +182,10 @@ def server_run():
         print("Server ticking...")
         conn, addr = s.accept()
         print("SERVER: Connected to: ", addr)
-        players[conn] = {"username": "", "x": "0", "y": "0", "a": "0", "hp": "100", "bullets": [], "grenades": [], "zombies" : [], "z_events" : [], "turrets" : [], "barricades" : []}
+        players[conn] = {"username": "", "x": "0", "y": "0", "a": "0",
+                         "hp": "100", "bullets": [], "grenades": [],
+                         "zombies" : [], "z_events" : [], "turrets" : [],
+                         "barricades" : []}
 
         start_new_thread(threaded_client, (conn,))
     stop_threads = True
