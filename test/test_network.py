@@ -1,9 +1,6 @@
 import unittest
 from network import *
 import threading
-import os
-cwd = os.getcwd();
-sys.path.append(f'{cwd}/test')
 from _socketEchoServer import socketEchoServerMock
 
 class TestNetwork(unittest.TestCase):
