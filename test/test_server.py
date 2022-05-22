@@ -8,24 +8,39 @@ from network import *
 from _socketEchoServer import socketEchoServerMock
 
 class TestServer(unittest.TestCase):
-    def startActualServer(self):
-        print('a01')
-        est = threading.Thread(target=server_run)
-        est.daemon = True
-        est.start()
-        self.est = est
-        print('a2')
-        
+    @classmethod
+    def setUpClass(cls):
+        cls.est=None;
+        print("setting up class",cls)
+        try:
+           print("trying");
+           cls.startActualServer()
+        except Exception as e:
+            print("tearing down due to error: ",e)
+            cls.tearDownClass()
+            raise
+    @classmethod    
+    def startActualServer(cls):
+        print('startActualServer')
+        cls.est = threading.Thread(target=server_run)
 
-    def test_threaded_client(self):
+        cls.est.daemon = True
+        cls.est.start()
+        print("server started")
+         # to still mark the test as failed.
+    def test_threaded_client(cls):
+        print('test_threaded_client')
         pass
-    def test_return_players(self):
+    def test_return_players(cls):
+        print('test_return_players')
+  
         ret = return_players()
         assert ret == {}
-    def test_server_run(self):
+    def test_server_run(cls):
+        print('test_server_run')
         pass # only for now
-        '''print('a')
-        self.startActualServer()
+        print('a')
+        cls.startActualServer()
         print('b')
         hostname = socket.gethostname()
         net = Network(socket.gethostbyname(hostname))
