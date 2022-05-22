@@ -3,8 +3,8 @@ import threading
 import os,sys
 from server import *
 from network import *
-cwd = os.getcwd();
-sys.path.append(f'{cwd}/test')
+# cwd = os.getcwd();
+# sys.path.append(f'{cwd}/test')
 from _socketEchoServer import socketEchoServerMock
 
 class TestServer(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestServer(unittest.TestCase):
         net = Network(socket.gethostbyname(hostname))
         assert net.client._closed == False
         net.client.close()
-        assert net.client._closed == True        
+        assert net.client._closed == True
         # connect
         # should get 'ok'
         #send empty data to close?
