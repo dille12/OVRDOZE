@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install cython
       - name: Install ubuntu dependencies
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -35,6 +36,8 @@ jobs:
           echo ${{matrix.os}}
           echo "is matrix.os"
           sudo apt-get install -y xserver-xorg
+          sudo apt-get install python-dev
+          echo "installed python dev and xserver-xorg to test python cython dep for fixing weird segment fault issue"
       - name: confirm display
         run: echo "temp test confirm display driver is active and available... in the future when tests are actually written"
       - name: Run tests with unittest 
