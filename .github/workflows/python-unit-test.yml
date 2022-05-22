@@ -40,6 +40,20 @@ jobs:
           echo "is matrix.os"
           sudo apt-get install -y xserver-xorg
           sudo apt-get install python-dev
+          sudo apt-get install python-setuptools 
+          sudo apt-get install python-pygame 
+          sudo apt-get install python-opengl
+          sudo apt-get install 
+          sudo apt-get install python-gst0.10 
+          sudo apt-get install python-enchant 
+          sudo apt-get install gstreamer0.10-plugins-good 
+          sudo apt-get install build-essential 
+          sudo apt-get install libgl1-mesa-dev 
+          sudo apt-get install libgles2-mesa-dev 
+          sudo apt-get install cython
+          
+          
+          
           echo "installed python dev and xserver-xorg to test python cython dep for fixing weird segment fault issue"
       - name: confirm display
         run: echo "temp test confirm display driver is active and available... in the future when tests are actually written"
