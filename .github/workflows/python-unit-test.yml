@@ -43,8 +43,6 @@ jobs:
           sudo apt-get install python-setuptools 
           sudo apt-get install python-pygame 
           sudo apt-get install python-opengl
-          sudo apt-get install python-enchant 
-          sudo apt-get install gstreamer0.10-plugins-good 
           sudo apt-get install build-essential 
           sudo apt-get install libgl1-mesa-dev 
           sudo apt-get install libgles2-mesa-dev 
