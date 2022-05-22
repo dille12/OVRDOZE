@@ -44,7 +44,6 @@ jobs:
           sudo apt-get install python-pygame 
           sudo apt-get install python-opengl
           sudo apt-get install 
-          sudo apt-get install python-gst0.10 
           sudo apt-get install python-enchant 
           sudo apt-get install gstreamer0.10-plugins-good 
           sudo apt-get install build-essential 
