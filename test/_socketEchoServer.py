@@ -1,5 +1,7 @@
+# very basic socket echo server and client
+# exists to support tests only
+
 import socket
-# from _thread import *
 import threading
 
 class socketEchoServerMock :
@@ -15,7 +17,6 @@ class socketEchoServerMock :
             s.listen()
             conn, addr = s.accept()
             with conn:
-                print(f"Connected by {addr}")
                 data = b"testStr"
                 conn.sendall(data)
                 while True:
@@ -30,12 +31,6 @@ class socketEchoServerMock :
                         conn.sendall(data)
                         break
 
-    def startMockEchoServer(self,autoReply=False):
-            print(f"Starting threaded_test_server. autoreply: {autoReply}")
-            self.eg = threading.Thread(target=self.threaded_test_server,args=(autoReply))
-            self.eg.start()
-
-
     def startTestClient(self):
         HOST = "127.0.0.1"  # The server's hostname or IP address
         PORT = 5555  # The port used by the server
@@ -44,5 +39,3 @@ class socketEchoServerMock :
             s.connect((HOST, PORT))
             s.sendall(b"Hello, world")
             data = s.recv(1024)
-
-        print(f"Received {data!r}")
