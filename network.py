@@ -38,3 +38,6 @@ class Network:
         except socket.error as e:
             print("SOCKET ERROR:",e)
             return "KILL"
+
+    def __del__(self):
+      self.client.close()
