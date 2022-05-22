@@ -18,6 +18,10 @@ class TestNetwork(unittest.TestCase):
             self.est = est
 
     def test_connect(self):
+        # test test_connect
+        # however Newwork.init expect connecting client to send
+        # data ... mock server has a flag to get around this,
+        # without having to include network.send in this test
         self.startMockEchoServer(autoReply=True)
         net = Network('127.0.0.1')
         assert net.client._closed == False
