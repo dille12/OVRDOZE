@@ -25,11 +25,17 @@ class TestNetwork(unittest.TestCase):
         print('entered: test_send')
         self.startMockEchoServer()
         net = Network('127.0.0.1')
+        # test send 
         ret = net.send("test_str")
         assert ret == "test_str"
         ret = net.send("shutdown_server")
+        # test send w/ socket _closed
+        # expect network.send to return "KILL"
         net.client.close()
-    # 
+        ret = net.send("test_str")
+        assert ret == "KILL"
+
+    #
     # def test_send_with_dead_con(self):
     #     print('entered: test_send_with_dead_con')
     #     self.startMockEchoServer()
