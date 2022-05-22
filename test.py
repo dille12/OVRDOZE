@@ -20,3 +20,10 @@ from test_classes import *
 from test_armory import *
 from test_glitch import *
 from test_button import *
+from test_weapon import *
+from test_gun import *
+from test_area import *
+from test_barricade import *
+from test_bullet import *
+from test_game_object import *
+from test_turret import *

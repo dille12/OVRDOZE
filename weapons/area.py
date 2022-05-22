@@ -4,7 +4,9 @@ import func
 from values import *
 import classes
 import classtest
-class Grenade:
+from weapons.weapon import Weapon
+
+class Grenade(Weapon):
     def __init__(self, pos, target_pos, type, mp = False):
         self.pos = pos
         self.mp = mp
@@ -29,7 +31,7 @@ class Grenade:
         print("GRENADE INIT")
 
     def get_string(self):
-        return f"GRENADE:{self.type}_{str(round(self.pos[0]))}_{str(round(self.pos[1]))}_{str(round(self.target_pos[0]))}_{str(round(self.target_pos[1]))}"
+        return super().get_string("GRENADE")
 
     def molotov_explode(self, map):
         if self.type != "Molotov":
