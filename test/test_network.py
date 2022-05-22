@@ -1,8 +1,10 @@
 import unittest
 from network import *
 import threading
-
-from test._socketEchoServer import socketEchoServerMock
+import os
+cwd = os.getcwd();
+sys.path.append(f'{cwd}/test')
+from _socketEchoServer import socketEchoServerMock
 
 class TestNetwork(unittest.TestCase):
 
@@ -25,24 +27,12 @@ class TestNetwork(unittest.TestCase):
         print('entered: test_send')
         self.startMockEchoServer()
         net = Network('127.0.0.1')
-        # test send 
+        # test send
         ret = net.send("test_str")
         assert ret == "test_str"
         ret = net.send("shutdown_server")
-        # test send w/ socket _closed
+        # test send w/ socket _closed - forcing socket error exception
         # expect network.send to return "KILL"
         net.client.close()
         ret = net.send("test_str")
         assert ret == "KILL"
-
-    #
-    # def test_send_with_dead_con(self):
-    #     print('entered: test_send_with_dead_con')
-    #     self.startMockEchoServer()
-    #     print('....')
-    #     net = Network('127.0.0.1')
-    #     print('close..')
-    #     net.client.close()
-    #     print('sending')
-    #     ret = net.send("test_str")
-    #     assert ret == "KILL"
