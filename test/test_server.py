@@ -15,7 +15,7 @@ class TestServer(unittest.TestCase):
         est.start()
         self.est = est
         print('a2')
-
+        
 
     def test_threaded_client(self):
         pass
@@ -39,5 +39,6 @@ class TestServer(unittest.TestCase):
         net.client.close()
         assert net.client._closed == True
         # connect
+        del net
         # should get 'ok'
         #send empty data to close?
