@@ -55,6 +55,6 @@ class TestServer(unittest.TestCase):
         net.client.close()
         assert net.client._closed == True
         # connect
-        #del net
+        del net
         # should get 'ok'
         #send empty data to close?'''
