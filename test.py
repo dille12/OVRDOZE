@@ -7,7 +7,7 @@ from test_values import *
 from test_server import *
 #broken from test_run import *
 from test_objects import *
-from test_network import *
+#from test_network import *
 from test_network_parser import *
 from test_maps import *
 #from test_map_generator import *
