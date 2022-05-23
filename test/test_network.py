@@ -1,39 +1,59 @@
 import unittest
 from network import *
 import threading
+from time import sleep
 from _socketEchoServer import socketEchoServerMock
 
 class TestNetwork(unittest.TestCase):
-
+    @classmethod
+    def setUpClass(self):
+        self.network=None;
+        self.est=None;
+    @classmethod
+    def tearDownClass(self):
+        print("tear down");
+        print(self.network);
+        print(self.est)
+        print("tear down down")
+        self.network=None;
+        self.est=None;
+        sleep(1)
+    @classmethod
     def startMockEchoServer(self,autoReply=False):
             # echo server..
             es = socketEchoServerMock()
-            est = threading.Thread(target=es.threaded_test_server,
+            self.est = threading.Thread(target=es.threaded_test_server,
                                    kwargs={'autoReply': autoReply})
-            est.daemon = True
-            est.start()
-            self.est = est
-
+            self.est.daemon = True
+            self.est.start()
+            
     def test_connect(self):
-        # test test_connect
-        # however Newwork.init expect connecting client to send
-        # data ... mock server has a flag to get around this,
-        # without having to include network.send in this test
         self.startMockEchoServer(autoReply=True)
-        net = Network('127.0.0.1')
-        assert net.client._closed == False
-        net.client.close()
-        assert net.client._closed == True
+        self.network = Network('127.0.0.1') 
+        assert self.network.client._closed == False
+        self.network.client.close()
+        assert self.network.client._closed == True
     def test_send(self):
         print('entered: test_send')
         self.startMockEchoServer()
-        net = Network('127.0.0.1')
-        # test send
-        ret = net.send("test_str")
+        self.network = Network('127.0.0.1')
+        # test send 
+        ret = self.network.send("test_str")
         assert ret == "test_str"
-        ret = net.send("shutdown_server")
-        # test send w/ socket _closed - forcing socket error exception
+        ret = self.network.send("shutdown_server")
+        # test send w/ socket _closed
         # expect network.send to return "KILL"
-        net.client.close()
-        ret = net.send("test_str")
+        self.network.client.close()
+        ret = self.network.send("test_str")
         assert ret == "KILL"
+    #
+    # def test_send_with_dead_con(self):
+    #     print('entered: test_send_with_dead_con')
+    #     self.startMockEchoServer()
+    #     print('....')
+    #     net = Network('127.0.0.1')
+    #     print('close..')
+    #     net.client.close()
+    #     print('sending')
+    #     ret = net.send("test_str")
+    #     assert ret == "KILL"
