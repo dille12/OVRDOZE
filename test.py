@@ -4,7 +4,7 @@ cwd = os.getcwd();
 sys.path.append(f'{cwd}/test')
 from test_func import *
 from test_values import *
-#from test_server import *
+from test_server import *
 #broken from test_run import *
 from test_objects import *
 from test_network import *
