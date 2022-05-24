@@ -18,34 +18,35 @@ class TestNetwork(unittest.TestCase):
         print("tear down down\n\n\n")
         self.network=None;
         self.est=None;
-        sleep(1)
+        sleep(5)
     
-    def startMockEchoServer(self,autoReply=False):
+    def getMockEchoServer(self,autoReply=False):
             # echo server..
             es = socketEchoServerMock()
-            self.est = threading.Thread(target=es.threaded_test_server,
+            est = threading.Thread(target=es.threaded_test_server,
                                    kwargs={'autoReply': autoReply})
-            self.est.daemon = True
-            self.est.start()
+            est.daemon = True
+            est.start()
+            return est
             
     def test_connect(self):
-        self.startMockEchoServer(autoReply=True)
+        self.est=self.startMockEchoServer(autoReply=True)
         self.network = Network('127.0.0.1') 
         assert self.network.client._closed == False
         self.network.client.close()
         assert self.network.client._closed == True
     async def test_send(self):
         print('entered: test_send')
-        self.startMockEchoServer()
+        self.est=self.startMockEchoServer()
         self.network = Network('127.0.0.1')
         # test send 
-        ret = self.network.send("test_str")
+        ret = await self.network.send("test_str")
         assert ret == "test_str"
         ret = await self.network.send("shutdown_server")
         # test send w/ socket _closed
         # expect network.send to return "KILL"
         self.network.client.close()
-        ret = self.network.send("test_str")
+        ret = await self.network.send("test_str")
         assert ret == "KILL"
     #
     # def test_send_with_dead_con(self):
