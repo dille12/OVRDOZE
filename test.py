@@ -27,3 +27,4 @@ from test_barricade import *
 from test_bullet import *
 from test_game_object import *
 from test_turret import *
+from test_menu import *
