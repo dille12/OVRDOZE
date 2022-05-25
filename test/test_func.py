@@ -59,7 +59,7 @@ class TestFunc(unittest.TestCase):
             p_simple = [round(p[0],2),round(p[1],2)]
             print("r1 ",p1,"=>",p_simple,"==",round(r1,2));
             print("r2 ",p2,"=>",p_simple,"==",round(r2,2));
-            self.assertAlmostEqual(r1,a1[i])
+            self.assertAlmostEquals(r1,a1[i])
             self.assertEqual(r1,a2[i])
 
     def test_minus(self):

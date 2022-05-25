@@ -8,39 +8,23 @@ from network import *
 from _socketEchoServer import socketEchoServerMock
 
 class TestServer(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.est=None;
-        print("setting up class",cls)
-        try:
-           print("trying");
-           cls.startActualServer()
-        except Exception as e:
-            print("tearing down due to error: ",e)
-            cls.tearDownClass()
-            raise
-    @classmethod    
-    def startActualServer(cls):
-        print('startActualServer')
-        cls.est = threading.Thread(target=server_run)
+    def startActualServer(self):
+        print('a01')
+        est = threading.Thread(target=server_run)
+        est.daemon = True
+        est.start()
+        self.est = est
+        print('a2')
 
-        cls.est.daemon = True
-        cls.est.start()
-        print("server started")
-         # to still mark the test as failed.
-    def test_threaded_client(cls):
-        print('test_threaded_client')
+
+    def test_threaded_client(self):
         pass
-    def test_return_players(cls):
-        print('test_return_players')
-  
+    def test_return_players(self):
         ret = return_players()
         assert ret == {}
-    def test_server_run(cls):
-        print('test_server_run')
-        pass # only for now
+    def test_server_run(self):
         print('a')
-        cls.startActualServer()
+        self.startActualServer()
         print('b')
         hostname = socket.gethostname()
         net = Network(socket.gethostbyname(hostname))
@@ -55,6 +39,5 @@ class TestServer(unittest.TestCase):
         net.client.close()
         assert net.client._closed == True
         # connect
-        del net
         # should get 'ok'
-        #send empty data to close?'''
+        #send empty data to close?
