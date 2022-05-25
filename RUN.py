@@ -20,7 +20,7 @@ from button import Button
 #import path_finding
 from app import App
 import map_creator
-
+from menu import Menu
 def main():
 
     app = App(pygame,server)
@@ -57,6 +57,8 @@ def main():
     textbox_ip.__dict__["text"] = app.last_ip
     players = []
     port = 5555
+
+
 
     def start_mp_game(arg):
         reply = net.send("start_game")
@@ -228,8 +230,66 @@ def main():
 
     net = None
     background_vel = 0
+    buttons =[
+        button_sp_menu,
+        button_mp_menu,
+        button_settings,
+        button_host_game,
+        button_join_game,
+        button_start_mp,
+        buttonUpnp,
+        button_start_sp,
+        button_start_mp,
+        button_host_quit,
+        button_client_quit,
+        buttonUpnpTest,
+        buttonUpnpBack,
+        button_back,
+        button_quit_game,
+    ]
+    checkboxes=[
+        check_box_difficulties,
+        check_box_dev_commands,
+        check_box_inter,
+        check_box_fov,
+        check_box_ultra,
+        check_box_fs,
+
+
+    ]
+    game_state = {
+        "selected_map":selected_map,
+        "players":players,
+        "hostname":hostname,
+        "ip":ip_address,
+        "port":port,
+        "difficulty":difficulty,
+        "background_tick":background_tick,
+        "background_vel":background_vel,
+        "checked_boxes":[],
+        "get_mouse_pos":app.pygame.mouse.get_pos,#ref to func to call from menue
+        "mouse_pos":app.pygame.mouse.get_pos()
+        }
+
+
+
+    game_menu = Menu(
+        buttons=buttons,
+        checkboxes=checkboxes,
+        background=background,
+        screen=screen,
+        terminal1=terminal,
+        terminal2=terminal2,
+        particle_list=particle_list,
+
+        )
+
+
 
     while 1:
+        #game_menu.update(game_state)
+        #menu should cover a lot of the while loop -
+
 
         if background_tick != 0:
             background_tick -= 1
@@ -255,7 +315,7 @@ def main():
         mouse_pos = app.pygame.mouse.get_pos()
 
         mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
-
+        game_state["mouse_pos"]=mouse_pos
         for event in events:
             if menu_status == "settings":
                 check_box_fov.update_checkbox(event, mouse_pos)

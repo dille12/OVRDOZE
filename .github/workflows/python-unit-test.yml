@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest,windows-latest,macos-latest]
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.9","3.10"]
     runs-on: ${{matrix.os}}
     env:
       SDL_VIDEODRIVER: "dummy"
@@ -26,8 +26,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install universal dependencies
         run: |
+          python3 -m pip install --upgrade pip
           python -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+          pip3 install cython
+          pip3 install wheel
+          pip install wheel
           pip install -r requirements.txt
+          pip install cython
       - name: Install ubuntu dependencies
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -35,6 +41,18 @@ jobs:
           echo ${{matrix.os}}
           echo "is matrix.os"
           sudo apt-get install -y xserver-xorg
+          sudo apt-get install python-dev
+          sudo apt-get install python-setuptools 
+          sudo apt-get install python-pygame 
+          sudo apt-get install python-opengl
+          sudo apt-get install build-essential 
+          sudo apt-get install libgl1-mesa-dev 
+          sudo apt-get install libgles2-mesa-dev 
+          sudo apt-get install cython
+          
+          
+          
+          echo "installed python dev and xserver-xorg to test python cython dep for fixing weird segment fault issue"
       - name: confirm display
         run: echo "temp test confirm display driver is active and available... in the future when tests are actually written"
       - name: Run tests with unittest 
