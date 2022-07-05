@@ -263,17 +263,13 @@ def check_los_points(p1,p2,los_walls):
     return True
 
 
-def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None):
+def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None, quick_render = False):
 
     time_stamps = {}
 
     t = time.time()
 
     start = time.time()
-
-
-
-
 
 
     camera_pos = ratio(camera_pos,size_ratio)
@@ -283,7 +279,8 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
 
 
     #los.set_colorkey((255,255,255))
-    los.fill(pygame.Color([0,0,0]))
+    if not quick_render:
+        los.fill(pygame.Color([0,0,0]))
 
     point_dict = {}
     point_dict_dist = {}
@@ -292,6 +289,9 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
     for point in [(0,0), (size[0],0),(size[0],size[1]),(0,size[1])]:
         angle = 180 + math.degrees(math.atan2(point[1] - start_pos[1],point[0] - start_pos[0]))
         point_dict[angle] = point
+
+    time_stamps["angle calcs"] = time.time() - t
+    t = time.time()
 
     if los_angle != None:
 
@@ -303,7 +303,8 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
         line = [start_pos[0] + math.cos(math.radians(los_angle2)) * draw_distance, start_pos[1] + math.sin(math.radians(los_angle2)) * draw_distance]
         point_dict[los_angle2] = line
 
-
+    time_stamps["los_angle"] = time.time() - t
+    t = time.time()
 
 
     angle_possible_intersections = {}
@@ -534,6 +535,7 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
     skip_point = []
     drawable_point = {}
     visible_points = []
+
     for angle in point_dict:
         point = point_dict[angle]
         intersecting_ray = False

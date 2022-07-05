@@ -266,7 +266,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     phase = 0
 
 
-    #turret_list.append(classes.Turret([100,300],8,10,500,20,500))
+    turret_list.append(objects.MovingTurret.MovingTurret([100,300],4,15,500,40,500, NAV_MESH = NAV_MESH, walls = walls_filtered, map = map))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
     player_weapons = [
         give_weapon("gun","M1911"),
@@ -920,6 +920,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         if draw_los:
             los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
+
+            ###
+            ### OPTIMZE point_inits, finishing
+            ###
+
             time_stamps["los_compute"] = time.time() - t
             t = time.time()
             #draw_time = 0

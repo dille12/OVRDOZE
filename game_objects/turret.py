@@ -104,10 +104,8 @@ class Turret(Game_Object):
         if abs(los.get_angle_diff(360 - (func.get_angle(self._pos,player_pos)), self._angle)) < 20 or los.get_dist_points(player_pos, self._pos) < 25:
             shoot = False
 
-
-
-
         return shoot,angle2, turret2,turret_rect
+
     def draw(self, screen,camera_pos,turret2,turret_rect):
 
         dp = func.draw_pos(self._pos,camera_pos)

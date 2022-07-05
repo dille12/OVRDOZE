@@ -194,7 +194,9 @@ inv_click = pygame.mixer.Sound("sound/inv_click.wav")
 inv_open = pygame.mixer.Sound("sound/inv_open.wav")
 inv_close = pygame.mixer.Sound("sound/inv_close.wav")
 
-
+mov_turret_base = pygame.transform.scale(pygame.image.load("texture/movingturret_base.png"), [35,35]).convert_alpha()
+mov_turret_gun = pygame.transform.scale(pygame.image.load("texture/movingturret_gun.png"), [35,35]).convert_alpha()
+mov_fire = pygame.mixer.Sound("sound/mov_turret_fire.wav")
 
 turret_leg =   pygame.transform.scale(pygame.image.load("texture/turret_leg.png"), [35,35]).convert_alpha()
 turret =  pygame.transform.scale(pygame.image.load("texture/turret.png"), [35,35]).convert_alpha()

@@ -93,15 +93,18 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
         gen = list(get_zombie_by_id(int(id)))
         if len(gen) == 0:
             print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
-            #zombie_events2.append(f"ZEVENT:{id}_terminate_1")
+            zombie_events2.append(f"ZEVENT:{id}_getinfo_1")
         for target in gen:
-            print(id, z_event, outcome)
+            #print(id, z_event, outcome)
             if z_event == "terminate":
                 target.kill(camera_pos, enemy_list, map_render, zevent = True)
             elif z_event == "setpos":
                 target.pos = ast.literal_eval(outcome)
             elif z_event == "setroute":
                 target.route = ast.literal_eval(outcome)
+            elif z_event == "getinfo" and target not in packet_dict:
+                print(f"Sending zombie {id} back")
+                packet_dict["zombies"].append(target)
 
             # else:
             #     if z_event == player_actor.name:

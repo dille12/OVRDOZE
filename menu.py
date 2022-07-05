@@ -7,7 +7,7 @@ class Menu:
         self.terminal1=terminal1;
         self.terminal2=terminal2;
         self.cb_a=checkboxes
-        self.b_a=buttons    
+        self.b_a=buttons
         self.screen=screen
         self.menu_state="start"
         self.clock=clock;
@@ -21,7 +21,7 @@ class Menu:
         elif self.menu_state=="upnp_menu"           :self.upnp_menu(               state)
         elif self.menu_state=="single_player_lobby" :self.single_player_lobby_menu(state)
         elif self.menu_state=="lobby"               :self.lobby_menu(              state)
-        elif self.meue_state=="mp_menu"             :self.mp_menu(                 state)
+        elif self.menu_state=="mp_menu"             :self.mp_menu(                 state)
     def _update_basic_state(self,state):
         ##
         ##here goes the basic menu state updates regardless of screen
@@ -29,7 +29,7 @@ class Menu:
         for x in self.particle_list:
             x.tick(self.screen,[0,0])
 
-        #make mouse_pos current mouse pos    
+        #make mouse_pos current mouse pos
         state["mouse_pos"]=state["get_mouse_pos"]()
 
     def start_menu(self,state):

@@ -542,7 +542,7 @@ def get_point_from_list(point,dict):
 
 
 
-def calc_route(start_pos, end_pos, NAV_MESH, walls):
+def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
     """
     Calculates the shortest route to a point using the navmesh points
     """
@@ -602,6 +602,37 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls):
 
         if route_ref["dist"] < shortest_route["dist"]:
             shortest_route = route_ref
+
+    if not quick:
+        obs_points = []
+        last_point = None
+        for route_point in shortest_route["route"]:
+            if last_point == None:
+                last_point = route_point
+                continue
+            if los.check_los(start_pos, route_point, walls):
+                obs_points.append(last_point)
+                last_point = route_point
+            else:
+                break
+
+        last_point = None
+        for route_point in reversed(shortest_route["route"]):
+            if last_point == None:
+                last_point = route_point
+                continue
+            if los.check_los(end_pos, route_point, walls):
+                obs_points.append(last_point)
+                last_point = route_point
+            else:
+                break
+
+        for point in obs_points:
+            try:
+                shortest_route["route"].remove(obs_points)
+            except:
+                print("COULDNT DELETE POINT")
+
 
 
 
