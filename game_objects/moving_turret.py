@@ -5,6 +5,7 @@ import los
 import classes
 import func
 import math
+import numpy as np
 class MovingTurret(Game_Object):
     def __init__(self,pos,turning_speed,firerate,_range,damage= 1,lifetime = 100, NAV_MESH = [], walls = [], map = None):
         super().__init__("turret", pos, False, 0, damage,lifetime=lifetime,texture=turret)
@@ -17,9 +18,11 @@ class MovingTurret(Game_Object):
         self._aiming_at = 0
         self.base_angle = 0
         self.moving_speed = 4
-        self.turning_speed = 2
+        self.turning_speed = 3
         self.route_tick = 0
         self.stationary = 0
+
+        self.acceleration = 0.5
 
         self.target_move_pos = pos
 
@@ -28,6 +31,8 @@ class MovingTurret(Game_Object):
         self.map_ref = map
 
         self.route = []
+
+        self.velocity = 0
 
         self.size = turret.get_rect().size[0]/2
         self.target = None
@@ -51,12 +56,12 @@ class MovingTurret(Game_Object):
             mov_fire.stop()
 
             mov_fire.play()
-            bullet_list.append(Bullet([self._pos[0], self._pos[1]],self._angle+random.uniform(-10,10),self._damage, hostile = False, speed = 40))
+            bullet_list.append(Bullet([self._pos[0], self._pos[1]],self._angle+random.uniform(-10,10),self._damage, hostile = False, speed = 25))
 
             for x in range(random.randint(4,6)):
                 particle_list.append(classes.Particle([self._pos[0], self._pos[1]], pre_defined_angle = True, angle = self._angle+90, magnitude = 2))
-
-            self._lifetime -= 1
+            if self._lifetime > 0:
+                self._lifetime -= 1
 
             self._turret_tick = self._firerate
         elif self._turret_tick != 0 and shoot == True:
@@ -137,7 +142,7 @@ class MovingTurret(Game_Object):
         # pygame.draw.circle(screen, [255,0,0], func.minus(self.target_move_pos,camera_pos, op="-"), 10)
 
     def clean_up(self):
-        if self._lifetime<=0:
+        if self._lifetime == 0:
             super().clean_up(turret_list)
 
     def get_route_to_target(self, target):
@@ -154,7 +159,9 @@ class MovingTurret(Game_Object):
             self.route_tick -= 1
         last_pos = self._pos.copy()
 
-        if self.target_move_pos != self._pos:
+        if los.get_dist_points(self._pos,self.target_move_pos) > 20:
+
+            self.moving = True
 
             self.mov_angle = 180 - math.degrees(math.atan2(self._pos[1] - self.target_move_pos[1], self._pos[0] - self.target_move_pos[0]))
 
@@ -162,7 +169,7 @@ class MovingTurret(Game_Object):
 
             if self.mov_angle != self.base_angle:
                 angle_diff = los.get_angle_diff(self.mov_angle, self.base_angle)
-                if abs(angle_diff) <= self.moving_speed:
+                if abs(angle_diff) <= self.turning_speed:
                     self.base_angle = self.mov_angle
                 else:
 
@@ -171,16 +178,45 @@ class MovingTurret(Game_Object):
 
             self.angle_rad = math.radians(self.base_angle)
 
-            diff_from_angle = (1 - abs(los.get_angle_diff(self.mov_angle, self.base_angle))/360)**10
+            angle_diff2 = los.get_angle_diff(self.mov_angle, self.base_angle)
 
-            self._pos = [self._pos[0] + math.cos(self.angle_rad) *self.moving_speed * diff_from_angle, self._pos[1] - math.sin(self.angle_rad) *self.moving_speed * diff_from_angle]
+            if (1-abs(angle_diff2)/90) < 0:
+                self.diff_from_angle = (1-abs(angle_diff2)/90)**3
+            else:
+                self.diff_from_angle = (1-abs(angle_diff2)/90)
+
+            self.velocity += self.acceleration
+
+            #func.minus(self.velocity,[math.cos(self.angle_rad) *self.acceleration * diff_from_angle, - math.sin(self.angle_rad) * self.acceleration * diff_from_angle ]) #-
+
+            if self.velocity > self.moving_speed:
+                self.velocity = self.moving_speed
+
+            # if los.get_dist_points([0,0], self.velocity) > self.moving_speed:
+            #     print("TOO FAST")
+            #     norm = los.get_dist_points([0,0], self.velocity)
+            #     print(norm)
+            #     delta = self.moving_speed / norm
+            #
+            #     self.velocity = func.mult(self.velocity,delta)
+
+
 
             collision_types, coll_pos = self.map_ref.checkcollision(self._pos,[math.cos(self.angle_rad) *self.moving_speed, self._pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, self.map_ref.size)
+            if self._pos != coll_pos:
+                print("COLLIDED")
+                #self.velocity = [0,0]
             self._pos = coll_pos
-            if los.get_dist_points(self._pos,self.target_move_pos) < 10 or los.get_dist_points(self._pos, player_pos) < 100:
+            if los.get_dist_points(self._pos,self.target_move_pos) < 20 or los.get_dist_points(self._pos, player_pos) < 50:
                 self.target_move_pos = self._pos
 
         else:
+
+            # self._pos = func.minus(self._pos, self.velocity)
+            #
+            # self.velocity = func.mult(self.velocity,0.9)
+
+
             if self.route != []:
 
                 if los.check_los(player_pos, self._pos, self.wall_ref):
@@ -194,7 +230,6 @@ class MovingTurret(Game_Object):
                         self.route.remove(route)
 
                         if self._pos != self.target_move_pos:
-                            print("PICKED ROUTE TO ", self.target_move_pos)
                             break
 
                 if last_pos == self._pos and not los.check_los(player_pos, self._pos, self.wall_ref):
@@ -212,8 +247,11 @@ class MovingTurret(Game_Object):
                 if los.check_los(player_pos, self._pos, self.wall_ref):
                     self.target_move_pos = player_pos.copy()
                 else:
-                    print("Calculating")
                     self.get_route_to_target(player_pos)
+
+        self._pos = func.minus(self._pos,[math.cos(self.angle_rad) *self.velocity * self.diff_from_angle, - math.sin(self.angle_rad) * self.velocity * self.diff_from_angle ])
+        self.velocity *= 0.9
+
 
 
 

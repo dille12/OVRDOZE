@@ -266,7 +266,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     phase = 0
 
 
-    turret_list.append(objects.MovingTurret.MovingTurret([100,300],4,15,500,40,500, NAV_MESH = NAV_MESH, walls = walls_filtered, map = map))
+    turret_list.append(objects.MovingTurret.MovingTurret([100,300],4,5,500,20,-1, NAV_MESH = NAV_MESH, walls = walls_filtered, map = map))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
     player_weapons = [
         give_weapon("gun","M1911"),
@@ -582,18 +582,19 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             else:
 
 
-                if False: #Kill enemies if no wave.
+                if True: #Kill enemies if no wave.
 
                     if len(enemy_list) != 0:
-                        if random.uniform(0,1) < 0.1:
-                            func.pick_random_from_list(enemy_list).kill(camera_pos, enemy_list, map_render, silent = True)
+                        rand_enemy = func.pick_random_from_list(enemy_list)
+                        if random.uniform(0,1) < 1 and los.check_los(player_actor.pos, rand_enemy.pos, walls_filtered):
+                            rand_enemy.kill(camera_pos, enemy_list, map_render, silent = True)
 
 
                 if time.time() - wave_change_timer > wave_interval:
                     wave_length += 3
                     #wave_interval += 1
                     wave = True
-                    pygame.display.set_gamma(1 + wave_number/10,0.9,0.9)
+                    pygame.display.set_gamma(1.2,0.9,0.9)
                     wave_number += 1
 
                     wave_text_tick = -20
@@ -988,7 +989,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         if player_actor.get_hp() > 0:
-            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, wave_text_tick, wave_number)
+            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, wave_text_tick, wave_number)
             player_actor.set_sanity(0.005*sanity_drain)
 
 

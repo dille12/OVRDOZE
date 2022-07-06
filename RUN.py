@@ -50,7 +50,7 @@ def main():
 
 
     ip = ""
-    app.name += str(random.randint(1,109))
+    #app.name += str(random.randint(1,109))
     textbox_name = hud_elements.text_box((100,200), app.name)
     textbox_ip = hud_elements.text_box((640,415), ip)
 
@@ -99,7 +99,7 @@ def main():
             net = Network(arg)
 
             print("CLIENT: STARTING SEARCH")
-
+g
             reply = net.send(app.name)
             if reply != [""]:
 

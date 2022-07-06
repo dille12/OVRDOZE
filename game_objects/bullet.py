@@ -3,13 +3,13 @@ from values import *
 import func
 import classes
 class Bullet(Game_Object):
-    def __init__(self, 
+    def __init__(self,
             pos,
             angle,
-            damage, 
-            hostile = True, 
-            speed = 20, 
-            piercing = False, 
+            damage,
+            hostile = True,
+            speed = 20,
+            piercing = False,
             mp = False
         ):
         super().__init__(
@@ -24,6 +24,10 @@ class Bullet(Game_Object):
         self.mp = mp
         self.speed = speed * random.uniform(0.9,1.1)
         self.im = bullet_length[round(self.speed)]
+
+        
+
+
         self.piercing = piercing
 
 
@@ -40,11 +44,11 @@ class Bullet(Game_Object):
         pass;
     def move_and_draw_Bullet(self,
             screen,
-            camera_pos, 
+            camera_pos,
             map_boundaries,
             map, enemy_list,
-            player, 
-            draw_blood_parts = screen, 
+            player,
+            draw_blood_parts = screen,
             dummies = {}
         ):
         super().update_life(bullet_list)

@@ -130,6 +130,17 @@ def get_angle(pos1,pos2):
     mydegrees = math.degrees(myradians)
     return mydegrees
 
+def mult(list1, am):
+    try:
+        list_1 = list1.copy()
+    except:
+        list_1 = list1
+
+    for x in range(len(list1)):
+        list_1[x] *= am
+    return list_1
+
+
 def minus(list1,list2, op = "+"):
     try:
         list_1 = list1.copy()
@@ -644,8 +655,9 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
 
 
 
-def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_actor, mouse_pos, clicked, r_click_tick, wave, wave_anim_ticks, wave_text_tick, wave_number):
+def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick, wave, wave_anim_ticks, wave_text_tick, wave_number):
     global last_hp, damage_ticks
+    hud_color = [255, round(255 * player_actor.hp/100), round(255* player_actor.hp/100)]
     x_d, y_d =cam_delta
     x_d = -x_d
     y_d = -y_d
@@ -664,6 +676,10 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
     except Exception as e:
         print(e)
 
+    hp_d = 4 - player_actor.hp/25
+
+    x_d += random.uniform(- hp_d, hp_d)
+    y_d += random.uniform(- hp_d, hp_d)
     clip_size = weapon.get_clip_size()
     clip = weapon.get_Ammo()
     pl_pos = minus_list(player_actor.get_pos(),camera_pos)
@@ -877,6 +893,16 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_act
         text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
         screen.blit(text, (150+x_d, 65+y_d)) #
 
+    y_pos = 80
+
+    for w_1 in player_weapons:
+        if w_1 == weapon:
+            screen.blit(w_1.icon_active, [20,y_pos])
+        elif player_inventory.get_amount_of_type(w_1.ammo) != 0 or w_1.ammo == "INF":
+            screen.blit(w_1.icon, [20,y_pos])
+        else:
+            screen.blit(w_1.icon_no_ammo, [20,y_pos])
+        y_pos += 15
 
 
 

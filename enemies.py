@@ -137,19 +137,22 @@ class Zombie:
         if not zevent:
             self.issue_event("terminate_1")
 
-        func.list_play(death_sounds)
+
         if not silent:
+            func.list_play(death_sounds)
             func.list_play(kill_sounds)
 
-        if self.type == "bomber":
-            explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood", color_override = "yellow"))
+            if self.type == "bomber":
+                explosions.append(armory.Explosion(func.minus(self.pos,[25,25]), expl_blood, player_nade = True, range = 150, particles = "blood", color_override = "yellow"))
 
-        self.inventory.drop_inventory(self.pos)
+            self.inventory.drop_inventory(self.pos)
+
+            for i in range(5):
+                particle_list.append(classes.Particle(func.minus(self.pos,camera_pos), type = "blood_particle", magnitude = 1, screen = draw_blood_parts))
 
         self.killed = True
 
-        for i in range(5):
-            particle_list.append(classes.Particle(func.minus(self.pos,camera_pos), type = "blood_particle", magnitude = 1, screen = draw_blood_parts))
+
 
 
     def get_string(self):

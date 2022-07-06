@@ -39,6 +39,15 @@ class Weapon:
             self.image.set_alpha(100)
             print("Image loaded")
 
+
+            temp = pygame.transform.scale(pygame.image.load(f"texture/{self.kind}/{image}"), [30,10]).convert_alpha()
+            self.icon = func.colorize(temp, pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
+            self.icon.set_alpha(100)
+            self.icon_active = func.colorize(temp, pygame.Color(0, 255, 0))
+            self.icon_active.set_alpha(100)
+            self.icon_no_ammo = func.colorize(temp, pygame.Color(255, 0, 0))
+            self.icon_no_ammo.set_alpha(100)
+
     def set_hostile(self):
         self.team = "hostile"
     def get_string(self,kind):

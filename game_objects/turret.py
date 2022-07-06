@@ -41,7 +41,7 @@ class Turret(Game_Object):
             turret_fire3.stop()
 
             func.pick_random_from_list(turret_fire).play()
-            bullet_list.append(Bullet([self._pos[0], self._pos[1]],self._angle+random.uniform(-10,10),self._damage))
+            bullet_list.append(Bullet([self._pos[0], self._pos[1]],self._angle+random.uniform(-10,10),self._damage, hostile = False))
 
             for x in range(random.randint(4,6)):
                 particle_list.append(classes.Particle([self._pos[0], self._pos[1]], pre_defined_angle = True, angle = self._angle+90, magnitude = 2))
