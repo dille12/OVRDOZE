@@ -99,7 +99,7 @@ def main():
             net = Network(arg)
 
             print("CLIENT: STARTING SEARCH")
-g
+
             reply = net.send(app.name)
             if reply != [""]:
 
