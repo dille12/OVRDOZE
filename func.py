@@ -205,17 +205,17 @@ def get_closest_point(pos, list):
 def player_movement2(pressed, player_pos, x_vel, y_vel):
     global evading, evade_skip_tick
 
-    if pressed[pygame.K_SPACE] and evading == False and evade_skip_tick == 0:
+    if pressed[pygame.K_SPACE] and evading == False and evade_skip_tick <= 0:
         if pressed[pygame.K_w]:
-            y_vel = -evade_speed
+            y_vel = timedelta.mod(-evade_speed)
         elif pressed[pygame.K_s]:
-            y_vel = evade_speed
+            y_vel = timedelta.mod(evade_speed)
         else:
             y_vel = 0
         if pressed[pygame.K_d]:
-            x_vel = evade_speed
+            x_vel = timedelta.mod(evade_speed)
         elif pressed[pygame.K_a]:
-            x_vel = -evade_speed
+            x_vel = timedelta.mod(-evade_speed)
         else:
             x_vel = 0
 
@@ -231,28 +231,28 @@ def player_movement2(pressed, player_pos, x_vel, y_vel):
 
         if pressed[pygame.K_LSHIFT]:
             sprinting = True
-            velocity_cap = 9/1.875
+            velocity_cap = timedelta.mod(9/1.875)
         elif pressed[pygame.K_LCTRL]:
             crouching = True
-            velocity_cap = 2.75/1.875
+            velocity_cap = timedelta.mod(2.75/1.875)
         else:
             sprinting = False
-            velocity_cap = 5/1.875
+            velocity_cap = timedelta.mod(5/1.875)
         if pressed[pygame.K_w]:
-            y_acc = -acceleration
+            y_acc = timedelta.mod(-acceleration)
         elif pressed[pygame.K_s]:
-            y_acc = acceleration
+            y_acc = timedelta.mod(acceleration)
         else:
             y_acc = 0
         if pressed[pygame.K_d]:
-            x_acc = acceleration
+            x_acc = timedelta.mod(acceleration)
         elif pressed[pygame.K_a]:
-            x_acc = -acceleration
+            x_acc = timedelta.mod(-acceleration)
         else:
             x_acc = 0
 
     else:
-        velocity_cap = 5/1.875
+        velocity_cap = timedelta.mod(5/1.875)
         x_acc, y_acc = 0,0
 
         if math.sqrt(x_vel**2 + y_vel**2) < velocity_cap:
@@ -260,21 +260,21 @@ def player_movement2(pressed, player_pos, x_vel, y_vel):
 
 
     if abs(x_vel) < velocity_cap:
-        x_vel += x_acc/tick_count
+        x_vel += timedelta.mod(x_acc/tick_count)
     if abs(y_vel) < velocity_cap:
-        y_vel += y_acc/tick_count
+        y_vel += timedelta.mod(y_acc/tick_count)
 
     if abs(x_vel) > 0.1:
-        x_vel *= breaking
+        x_vel *= timedelta.exp(breaking)
     else:
         x_vel = 0
     if abs(y_vel) > 0.1:
-        y_vel *= breaking
+        y_vel *= timedelta.exp(breaking)
     else:
         y_vel = 0
 
-    if evade_skip_tick != 0:
-        evade_skip_tick -= 1
+    if evade_skip_tick > 0:
+        evade_skip_tick -= timedelta.mod(1)
     else:
         evading = False
 
@@ -657,11 +657,21 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
 
 def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick, wave, wave_anim_ticks, wave_text_tick, wave_number):
     global last_hp, damage_ticks
-    hud_color = [255, round(255 * player_actor.hp/100), round(255* player_actor.hp/100)]
+
+    hp = min([round(player_actor.__dict__["hp"]),100])
+
+    heartbeat_tick.tick()
+    heartbeat_value = 1 - heartbeat_tick.value/30 * (100 - hp)/100
+
+
+
+
+    hud_color = [20 + round(200*heartbeat_value) + round(35 * player_actor.hp/100), round(255 * player_actor.hp/100), round(255* player_actor.hp/100)]
+    print(hud_color)
     x_d, y_d =cam_delta
     x_d = -x_d
     y_d = -y_d
-    hp = player_actor.__dict__["hp"]
+
 
     try:
         if hp < last_hp:
@@ -792,10 +802,10 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
 
     wave_surf = pygame.Surface((size[0], 30), pygame.SRCALPHA, 32).convert_alpha()
     wave_surf.set_colorkey([255,255,255])
-    if wave or wave_anim_ticks[0] != 0:
+    if wave or wave_anim_ticks[0] >= 0:
         wave_end_tick, wave_start_tick = wave_anim_ticks
 
-        if round(wave_text_tick/30)%2 == 0:
+        if round(abs(wave_text_tick)/30)%2 == 0:
 
             color1 = [255,255,255]
             color2 = [255,0,0]
@@ -890,18 +900,26 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
         text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
         screen.blit(text, (80+x_d, 65+y_d)) #
 
+        ammo_text_len = 80 + text.get_rect().size[0] + 20
+        #print(ammo_text_len)
+
         text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
-        screen.blit(text, (150+x_d, 65+y_d)) #
+        screen.blit(text, (max([150+x_d, ammo_text_len+x_d]), 65+y_d)) #
 
     y_pos = 80
 
     for w_1 in player_weapons:
         if w_1 == weapon:
             screen.blit(w_1.icon_active, [20,y_pos])
-        elif player_inventory.get_amount_of_type(w_1.ammo) != 0 or w_1.ammo == "INF":
+            pygame.draw.rect(screen, [0,255,0], [20, y_pos, 30, 10], 1)
+        elif player_inventory.get_amount_of_type(w_1.ammo) != 0 or w_1.ammo == "INF" or w_1.get_Ammo() != 0:
             screen.blit(w_1.icon, [20,y_pos])
-        else:
+            if w_1.name in not_used_weapons:
+                not_used_weapons.remove(w_1.name)
+        elif w_1.name not in not_used_weapons:
             screen.blit(w_1.icon_no_ammo, [20,y_pos])
+        else:
+            y_pos -= 15
         y_pos += 15
 
 

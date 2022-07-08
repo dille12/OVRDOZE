@@ -906,6 +906,7 @@ class Wall:
 
 
 
+
 class Burn:
     def __init__(self, pos, magnitude, lifetime):
         self.pos = pos
@@ -930,6 +931,6 @@ class Burn:
 
             pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
 
-            pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,3),random.randint(1,3)])
+            pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,7),random.randint(1,7)])
 
-        self.lifetime -= 1
+        self.lifetime -= timedelta.mod(1)

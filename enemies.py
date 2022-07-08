@@ -241,8 +241,8 @@ class Zombie:
 
 
 
-        if self.attack_tick != 0:
-            self.attack_tick -= 1
+        if self.attack_tick > 0:
+            self.attack_tick -= timedelta.mod(1)
 
         self.temp_pos = func.minus_list(self.pos,camera_pos)
         player_pos = self.target.pos
@@ -271,7 +271,7 @@ class Zombie:
 
         for x in burn_list:
             if los.get_dist_points(x.pos, self.pos) < 25:
-                self.hp -= 1
+                self.hp -= timedelta.mod(1)
 
         self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - self.target_pos[1], self.pos[0] - self.target_pos[0]))
 
@@ -315,7 +315,7 @@ class Zombie:
             else:
                 self.target_pos = self.pos
 
-                if self.attack_tick == 0:
+                if self.attack_tick <= 0:
                     self.attack_tick = self.attack_speed
                     if self.type != "bomber":
                         self.target.hp -= self.damage
@@ -326,7 +326,7 @@ class Zombie:
                             pass
                     for i in range(3):
                         particle_list.append(classes.Particle(func.minus(self.target.pos, camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
-                elif self.attack_tick == 1 and self.type == "bomber":
+                elif 0 < self.attack_tick < self.attack_speed/2 and self.type == "bomber":
                     self.kill(camera_pos, enemy_list, map_render)
 
         if phase == 6:
@@ -336,7 +336,7 @@ class Zombie:
         if self.angle != self.target_angle:
 
             if abs(self.target_angle - self.angle) > 1:
-                self.angle = self.angle + los.get_angle_diff(self.target_angle, self.angle)*self.anglular_acceleration
+                self.angle = self.angle + timedelta.mod(los.get_angle_diff(self.target_angle, self.angle)*(self.anglular_acceleration))
             else:
                 self.angle = self.target_angle
 
@@ -347,9 +347,9 @@ class Zombie:
 
             #self.angle_rad = math.pi*2 - math.atan2(self.target_pos[1] - self.pos[1], self.target_pos[0] - self.pos[0])
             self.angle_rad = math.radians(self.angle)
-            self.pos = [self.pos[0] + math.cos(self.angle_rad) *self.moving_speed, self.pos[1] - math.sin(self.angle_rad) *self.moving_speed]
+            self.pos = [self.pos[0] + timedelta.mod(math.cos(self.angle_rad) *self.moving_speed), self.pos[1] - timedelta.mod(math.sin(self.angle_rad) *self.moving_speed)]
 
-            if self.attack_tick == 0:
+            if self.attack_tick <= 0:
                 i = True
             else:
                 i = False

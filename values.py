@@ -185,6 +185,42 @@ info = pygame.image.load("texture/info.png").convert_alpha()
 hud_color = [255, 255, 255]
 
 
+not_used_weapons = []
+
+
+class TimeDelta():
+    def __init__(self):
+        self.timedelta = 1
+
+    def tick(self, am):
+        return round(am / self.timedelta)
+
+    def mod(self, am):
+        return am * self.timedelta
+
+    def exp(self, am):
+        return am ** self.timedelta
+
+    def exp_rev(self, am):
+        return am ** (1/self.timedelta)
+
+
+timedelta = TimeDelta()
+
+class GameTick:
+    def __init__(self, max_value = 30):
+        self.value = 0
+        self.max_value = max_value
+
+    def tick(self):
+        self.value += timedelta.mod(1)
+        if self.value < self.max_value:
+            print("Not ticking")
+            return False
+        else:
+            print("Setting to 0")
+            self.value = 0
+            return True
 
 
 last_hp = 0
@@ -217,6 +253,8 @@ q_r_success =  pygame.mixer.Sound("sound/sfx/quick_reload_success.wav")
 q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
+
+heartbeat_tick = GameTick(max_value = 30)
 
 kill_sounds = get_sound_Variants("sound","kill")
 # kill_sound = pygame.mixer.Sound("sound/kill5.wav")

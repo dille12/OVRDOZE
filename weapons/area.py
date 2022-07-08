@@ -5,6 +5,7 @@ from values import *
 import classes
 import classtest
 from weapons.weapon import Weapon
+from objects import *
 
 class Grenade(Weapon):
     def __init__(self, pos, target_pos, type, mp = False):
@@ -49,7 +50,7 @@ class Grenade(Weapon):
     def tick(self,screen, map_boundaries, player_pos, camera_pos, grenade_list, explosions, expl1, map, walls):
 
         self.last_pos = self.pos.copy()
-        self.pos = [self.pos[0] + math.cos(self.angle_rad) * self.velocity, self.pos[1] + math.sin(self.angle_rad) *self.velocity - self.vert_vel ]
+        self.pos = [self.pos[0] + timedelta.mod(math.cos(self.angle_rad) * self.velocity), self.pos[1] + timedelta.mod(math.sin(self.angle_rad) *self.velocity - self.vert_vel) ]
 
         coll_pos, vert_coll, hor_coll = map.check_collision(self.pos.copy(), map_boundaries, collision_box = 5, dir_coll = True)
         if coll_pos:
@@ -67,9 +68,9 @@ class Grenade(Weapon):
 
 
         if abs(self.velocity) > 0.25:
-            self.vert_vel -= 0.2
-            self.height += self.vert_vel
-            self.angle += self.direction * self.angular_velocity
+            self.vert_vel -= timedelta.mod(0.2)
+            self.height += timedelta.mod(self.vert_vel)
+            self.angle += timedelta.mod(self.direction * self.angular_velocity)
         st_i, st_rect = func.rot_center(self.image, self.angle, self.pos[0], self.pos[1])
         if los.check_los(player_pos, self.pos, walls):
             screen.blit(st_i, func.minus_list(st_rect[:2],camera_pos))
@@ -85,10 +86,19 @@ class Grenade(Weapon):
         # else:
         #     self.velocity = 0
         #     self.vert_vel = 0
-        self.lifetime -= 1
-        if self.lifetime == 0:
+        self.lifetime -= timedelta.mod(1)
+        if self.lifetime <= 0:
             grenade_list.remove(self)
             explosions.append(Explosion(self.pos, expl1, player_nade = True))
+            for i in range(50):
+                bullet_list.append(Bullet.Bullet(
+                    self.pos,
+                    random.uniform(0,360),
+                    15,
+                    hostile = True,
+                    speed = 15,
+                    piercing = False)
+                )   #BULLET)
 
 
 
@@ -165,4 +175,3 @@ class Explosion:
         if self.ticks == len(self.images):
             explosions.remove(self)
         return multi_kill, multi_kill_ticks
-

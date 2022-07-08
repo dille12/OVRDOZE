@@ -100,9 +100,13 @@ class Map:
         self.size = size
         self.polygons = []
 
+
+
         self.nav_mesh_available_spots = []
 
         self.conv = 1920/854
+
+        self.size_converted = func.mult(self.size, 1/self.conv)
 
         # self.conv = conv
         self.points_inside_polygons = []

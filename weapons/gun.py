@@ -12,28 +12,28 @@ from weapons.weapon import Weapon
 class Gun(Weapon):
     def __init__(
             self,
-            name="weapon", 
+            name="weapon",
             clip_s=10,
             fire_r=10,
             spread=10,
             spread_r=10,
             reload_r=10,
             damage=10,
-            bullets_at_once = 1, 
-            burst = False, 
-            burst_fire_rate = 3, 
-            burst_bullets = 3, 
-            shotgun = False, 
-            spread_per_bullet = 1, 
-            handling = 1, 
-            semi_auto = False, 
-            bullet_speed = 20, 
-            piercing = False, 
-            ammo_cap_lvlup = 5, 
-            ammo = "9MM", 
-            image = "", 
-            hostile = False, 
-            sounds = {"fire":weapon_fire_Sounds,"reload":reload}, 
+            bullets_at_once = 1,
+            burst = False,
+            burst_fire_rate = 3,
+            burst_bullets = 3,
+            shotgun = False,
+            spread_per_bullet = 1,
+            handling = 1,
+            semi_auto = False,
+            bullet_speed = 20,
+            piercing = False,
+            ammo_cap_lvlup = 5,
+            ammo = "9MM",
+            image = "",
+            hostile = False,
+            sounds = {"fire":weapon_fire_Sounds,"reload":reload},
             view = 0.03
         ):
         super().__init__(name,damage,image,hostile,sounds,view,kind="guns")
@@ -70,7 +70,7 @@ class Gun(Weapon):
     def copy(self):
         x=self.name;
         return Gun(
-            name=self.name, 
+            name=self.name,
             clip_s = self._clip_size,
             fire_r = self._bullet_per_min,
             spread = self._spread,
@@ -115,9 +115,9 @@ class Gun(Weapon):
                 bullet_list.append(Bullet.Bullet(
                     bul_pos,
                     angle+random.uniform(-self._spread-self._c_bullet_spread,self._spread+self._c_bullet_spread),
-                    self._damage * multiplier, 
-                    hostile = self.hostile, 
-                    speed = self.bullet_speed, 
+                    self._damage * multiplier,
+                    hostile = self.hostile,
+                    speed = self.bullet_speed,
                     piercing = self.piercing_bullets)
                 )   #BULLET
                 for x in range(random.randint(8,16)):
@@ -135,13 +135,13 @@ class Gun(Weapon):
             self._bullets_in_clip -= 1
 
         if self.burst:
-            self.burst_tick = self.burst_fire_rate
+            self.burst_tick = timedelta.tick(self.burst_fire_rate)
             self.current_burst_bullet -= 1
 
         self.add_weapon_fire_tick(self._firerate)
 
     def spread_recoverial(self):
-        self._c_bullet_spread *= self._spread_recovery
+        self._c_bullet_spread *= timedelta.exp(self._spread_recovery)
 
     def check_for_Fire(self,click):
 
@@ -155,7 +155,7 @@ class Gun(Weapon):
 
         elif self.burst:
 
-            return bool(click and self.burst_tick == 0 and self.current_burst_bullet == 0 and self._bullets_in_clip > 0)
+            return bool(click and self.burst_tick <= 0 and self.current_burst_bullet == 0 and self._bullets_in_clip > 0)
 
         return click == True and self._bullets_in_clip > 0
 

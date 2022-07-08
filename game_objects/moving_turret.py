@@ -52,7 +52,7 @@ class MovingTurret(Game_Object):
                 closest_enemy = x
         return closest_enemy
     def shoot(self,shoot,angle2):
-        if shoot == True and self._turret_tick == 0 and abs(angle2-self._angle) < self._turning_speed * 4:
+        if shoot == True and self._turret_tick <= 0 and abs(angle2-self._angle) < self._turning_speed * 4:
             mov_fire.stop()
 
             mov_fire.play()
@@ -64,8 +64,8 @@ class MovingTurret(Game_Object):
                 self._lifetime -= 1
 
             self._turret_tick = self._firerate
-        elif self._turret_tick != 0 and shoot == True:
-            self._turret_tick -= 1
+        elif self._turret_tick > 0 and shoot == True:
+            self._turret_tick -= timedelta.mod(1)
     def handle_scanning(self,enemy_list,walls,los):
         shoot = False
         aim_at = None
@@ -106,9 +106,9 @@ class MovingTurret(Game_Object):
                 self._angle = angle2
             else:
                 if angle2 > self._angle:
-                    self._angle += self._turning_speed
+                    self._angle += timedelta.mod(self._turning_speed)
                 elif angle2 < self._angle:
-                    self._angle -= self._turning_speed
+                    self._angle -= timedelta.mod(self._turning_speed)
         else:
 
             angle2 = self._angle
@@ -173,7 +173,7 @@ class MovingTurret(Game_Object):
                     self.base_angle = self.mov_angle
                 else:
 
-                    self.base_angle += angle_diff/abs(angle_diff)*self.turning_speed
+                    self.base_angle += timedelta.mod(angle_diff/abs(angle_diff)*self.turning_speed)
             # else:
 
             self.angle_rad = math.radians(self.base_angle)
@@ -181,16 +181,19 @@ class MovingTurret(Game_Object):
             angle_diff2 = los.get_angle_diff(self.mov_angle, self.base_angle)
 
             if (1-abs(angle_diff2)/90) < 0:
-                self.diff_from_angle = (1-abs(angle_diff2)/90)**3
+                self.diff_from_angle = (1-abs(angle_diff2)/90)**9
             else:
                 self.diff_from_angle = (1-abs(angle_diff2)/90)
 
-            self.velocity += self.acceleration
+            self.diff_from_angle *= 1.25
+            self.diff_from_angle -= 0.25
+
+            self.velocity += self.acceleration  * self.diff_from_angle * timedelta.timedelta
 
             #func.minus(self.velocity,[math.cos(self.angle_rad) *self.acceleration * diff_from_angle, - math.sin(self.angle_rad) * self.acceleration * diff_from_angle ]) #-
 
-            if self.velocity > self.moving_speed:
-                self.velocity = self.moving_speed
+            if self.velocity > timedelta.mod(self.moving_speed):
+                self.velocity = timedelta.mod(self.moving_speed)
 
             # if los.get_dist_points([0,0], self.velocity) > self.moving_speed:
             #     print("TOO FAST")
@@ -202,10 +205,7 @@ class MovingTurret(Game_Object):
 
 
 
-            collision_types, coll_pos = self.map_ref.checkcollision(self._pos,[math.cos(self.angle_rad) *self.moving_speed, self._pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, self.map_ref.size)
-            if self._pos != coll_pos:
-                print("COLLIDED")
-                #self.velocity = [0,0]
+            collision_types, coll_pos = self.map_ref.checkcollision(self._pos,[math.cos(self.angle_rad) *self.moving_speed, self._pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, self.map_ref.size_converted)
             self._pos = coll_pos
             if los.get_dist_points(self._pos,self.target_move_pos) < 20 or los.get_dist_points(self._pos, player_pos) < 50:
                 self.target_move_pos = self._pos
@@ -249,8 +249,9 @@ class MovingTurret(Game_Object):
                 else:
                     self.get_route_to_target(player_pos)
 
-        self._pos = func.minus(self._pos,[math.cos(self.angle_rad) *self.velocity * self.diff_from_angle, - math.sin(self.angle_rad) * self.velocity * self.diff_from_angle ])
-        self.velocity *= 0.9
+        self._pos = func.minus(self._pos,[math.cos(self.angle_rad) *self.velocity, - math.sin(self.angle_rad) * self.velocity])
+
+        self.velocity *= timedelta.exp(0.965)
 
 
 
@@ -259,8 +260,8 @@ class MovingTurret(Game_Object):
 
     def tick(self, screen ,camera_pos,enemy_list,tick, walls, player_pos):
         shoot,aim_at = self.handle_scanning(enemy_list, walls, los)
-        shoot,angle2,turret2,turret_rect = self.draw_bead_on(aim_at, shoot)
         self.move(player_pos)
+        shoot,angle2,turret2,turret_rect = self.draw_bead_on(aim_at, shoot)
         self.shoot(shoot,angle2)
         self.draw(screen,camera_pos,turret2,turret_rect)
         self.clean_up()

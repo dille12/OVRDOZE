@@ -42,9 +42,9 @@ class Weapon:
 
             temp = pygame.transform.scale(pygame.image.load(f"texture/{self.kind}/{image}"), [30,10]).convert_alpha()
             self.icon = func.colorize(temp, pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
-            self.icon.set_alpha(100)
+            #self.icon.set_alpha(100)
             self.icon_active = func.colorize(temp, pygame.Color(0, 255, 0))
-            self.icon_active.set_alpha(100)
+            #self.icon_active.set_alpha(100)
             self.icon_no_ammo = func.colorize(temp, pygame.Color(255, 0, 0))
             self.icon_no_ammo.set_alpha(100)
 
@@ -76,12 +76,14 @@ class Weapon:
     def get_reload_rate(self):
         return self._reload_rate
     def weapon_tick(self):
-        if self._reload_tick != 0:
-            self._reload_tick -= 1
+        if self._reload_tick > 0:
+            self._reload_tick -= timedelta.mod(1)
+            if self._reload_tick < 0:
+                self._reload_tick = 0
         if self._weapon_fire_Tick > 0:
             self._weapon_fire_Tick -= 1
     def add_weapon_fire_tick(self,v):
-        self._weapon_fire_Tick+=v
+        self._weapon_fire_Tick += timedelta.tick(v)
 
     def weapon_fire_Tick(self):
         return self._weapon_fire_Tick

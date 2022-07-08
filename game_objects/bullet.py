@@ -23,9 +23,13 @@ class Bullet(Game_Object):
             texture=bullet_texture)
         self.mp = mp
         self.speed = speed * random.uniform(0.9,1.1)
-        self.im = bullet_length[round(self.speed)]
+        if type != "shrapnel":
+            self.im = bullet_length[round(self.speed)]
+            self.type = "bullet"
+        else:
+            self.type = "shrapnel"
 
-        
+
 
 
         self.piercing = piercing
@@ -35,8 +39,8 @@ class Bullet(Game_Object):
        return super().get_string("BULLET")
     def move(self):
         self._last_pos = self._pos.copy()
-        self._pos[0] += math.sin(self._angle_radians)*self.speed
-        self._pos[1] += math.cos(self._angle_radians)*self.speed
+        self._pos[0] += math.sin(self._angle_radians)*self.speed * timedelta.timedelta
+        self._pos[1] += math.cos(self._angle_radians)*self.speed * timedelta.timedelta
         pass
     def draw(self):
         pass
@@ -67,7 +71,9 @@ class Bullet(Game_Object):
             print("exception")
             print(e)
 
-        rot_bullet, rot_bullet_rect = func.rot_center(self.im,self._angle,self._pos[0],self._pos[1])
+        if self.type == "bullet":
+
+            rot_bullet, rot_bullet_rect = func.rot_center(self.im,self._angle,self._pos[0],self._pos[1])
 
         crystal_pay = False
 
@@ -123,7 +129,10 @@ class Bullet(Game_Object):
                     pass
 
 
-        bullet_draw_pos = [rot_bullet_rect[0] , rot_bullet_rect[1] ]
 
-        screen.blit(rot_bullet,func.draw_pos(self._pos,camera_pos))
+        if self.type == "bullet":
+            bullet_draw_pos = [rot_bullet_rect[0] , rot_bullet_rect[1] ]
+            screen.blit(rot_bullet,func.draw_pos(self._pos,camera_pos))
+        else:
+            pygame.draw.circle(screen, [255, 153, 0], self._pos, 3)
         return dead

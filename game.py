@@ -239,7 +239,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     interactables = []
 
     player_inventory = classes.Inventory(interactables, player = True)
-    player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }})
+    player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }, 2 : {"item" : items["5.56x45MM NATO"], "amount" : 999}})
 
 
 
@@ -279,6 +279,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         give_weapon("gun","P90")
         ]
 
+    for weapon_1 in player_weapons:
+        not_used_weapons.append(weapon_1.name)
+
 
     c_weapon = (player_weapons[0])
     weapon_scroll = 0
@@ -303,13 +306,21 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     quit_button = Button([size[0]/2,200], "Quit", quit, app,gameInstance=app.pygame,glitchInstance=glitch)
     drying_time = time.time()
 
+    last_tick = time.time() - 1
+
 
     while 1:
 
 
+        tick_time = time.time() - last_tick
+        last_tick = time.time()
+
+        tick_delta = tick_time/(1/60)
+
+        timedelta.timedelta = tick_delta
 
 
-        clock.tick(60)
+        clock.tick(144)
 
         t = time.time()
         time_stamps = {}
@@ -507,6 +518,23 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         camera_pos = func.camera_aling(camera_pos,player_pos)
+
+        if False: # Camera snaps to map corners
+
+            camera_map_edge_tolerance = 100
+
+            if camera_pos[0] < - camera_map_edge_tolerance:
+                camera_pos[0] = - camera_map_edge_tolerance
+            elif camera_pos[0] > map.size_converted[0] - size[0] + camera_map_edge_tolerance:
+                camera_pos[0] = map.size_converted[0] - size[0] + camera_map_edge_tolerance
+
+            if camera_pos[1] <- camera_map_edge_tolerance:
+                camera_pos[1] = - camera_map_edge_tolerance
+            elif camera_pos[1] > map.size_converted[1] - size[1] + camera_map_edge_tolerance:
+                camera_pos[1] = map.size_converted[1] - size[1] + camera_map_edge_tolerance
+
+
+
         cam_delta = func.minus_list(last_camera_pos,camera_pos)
 
 
@@ -576,7 +604,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     wave_change_timer = time.time()
 
                     wave_anim_ticks = [120, 0]
-                wave_text_tick += 1
+                wave_text_tick += timedelta.mod(1)
 
 
             else:
@@ -586,7 +614,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                     if len(enemy_list) != 0:
                         rand_enemy = func.pick_random_from_list(enemy_list)
-                        if random.uniform(0,1) < 1 and los.check_los(player_actor.pos, rand_enemy.pos, walls_filtered):
+                        if random.uniform(0,1) < 1 and not los.check_los(player_actor.pos, rand_enemy.pos, walls_filtered):
                             rand_enemy.kill(camera_pos, enemy_list, map_render, silent = True)
 
 
@@ -745,7 +773,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             player_angle = player_actor.get_angle()
 
             if abs(angle - player_angle) > 1:
-                player_angle = player_angle + los.get_angle_diff(angle, player_angle)*weapon_pan_rate
+                player_angle = player_angle + timedelta.mod(los.get_angle_diff(angle, player_angle)* (weapon_pan_rate))
             else:
                 player_angle = angle
 
@@ -777,7 +805,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             for x in burn_list:
                 if los.get_dist_points(x.pos, player_pos) < 25:
-                    player_actor.set_hp(1, reduce = True)
+                    player_actor.set_hp(timedelta.mod(1), reduce = True)
 
             if player_actor.__dict__["barricade_in_hand"] != None:
                 func.print_s(screen, str(player_actor.__dict__["barricade_in_hand"].__dict__["stage"]), 3)
@@ -817,9 +845,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         if last_hp == player_actor.get_hp() and player_alive == True:
-            free_tick += 1
+            free_tick += timedelta.mod(1)
             if free_tick > 60 and player_actor.get_hp() < 100:
-                player_actor.set_hp(-1, reduce = True)
+                player_actor.set_hp(timedelta.mod(-1), reduce = True)
+                if player_actor.get_hp() >= 100:
+                    player_actor.hp = 100
 
 
 
@@ -989,7 +1019,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         if player_actor.get_hp() > 0:
-            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, wave_text_tick, wave_number)
+            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, round(wave_text_tick), wave_number)
             player_actor.set_sanity(0.005*sanity_drain)
 
 
@@ -1120,10 +1150,10 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         last_time_stamp = time_stamps.copy()
 
-        if wave_anim_ticks[0] != 0:
-            wave_anim_ticks[0] -= 1
-        if wave_anim_ticks[1] != 0:
-            wave_anim_ticks[1] -= 1
+        if wave_anim_ticks[0] > 0:
+            wave_anim_ticks[0] -= timedelta.mod(1)
+        if wave_anim_ticks[1] > 0:
+            wave_anim_ticks[1] -= timedelta.mod(1)
         try:
 
             if multiplayer:
