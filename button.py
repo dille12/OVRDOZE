@@ -1,7 +1,7 @@
 from values import *
 
 class Button:
-    def __init__(self, pos, text, action, args,gameInstance,glitchInstance):
+    def __init__(self, pos, text, action, args,gameInstance,glitchInstance = None):
         self.glitch = glitchInstance
         self.pygame = gameInstance
         self.pos = pos
@@ -56,7 +56,8 @@ class Button:
 
             if click:
                 menu_click2.play()
-                glitch.glitch_tick = 5
+                if glitch != None:
+                    glitch.glitch_tick = 5
                 print("ACTION")
                 return self.action(arg) if arg != None else self.action(self.args)
         else:

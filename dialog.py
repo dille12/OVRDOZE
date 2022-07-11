@@ -2,8 +2,6 @@ import func
 from values import *
 import get_preferences
 from button import Button
-import glitch
-glitch = glitch.Glitch(screen)
 
 player_name, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
@@ -42,8 +40,8 @@ def advance(arg):
     dialogue[0].linenumber += 1
     dialogue[0].letternumber = 0
 
-shop_quit_button = Button([7*size[0]/8,7*size[1]/8], "Exit", advance, None, gameInstance=pygame, glitchInstance=glitch)
-shop_buy_button = Button([3*size[0]/8,7*size[1]/8], "BUY", purchase_weapon, None, gameInstance=pygame, glitchInstance=glitch)
+shop_quit_button = Button([7*size[0]/8,7*size[1]/8], "Exit", advance, None, gameInstance=pygame, glitchInstance=None)
+shop_buy_button = Button([3*size[0]/8,7*size[1]/8], "BUY", purchase_weapon, None, gameInstance=pygame, glitchInstance=None)
 
 def open_shop(screen, click, mouse_pos, player_inventory, items):
     screen.blit(surf_back, [0,0])
@@ -54,13 +52,13 @@ def open_shop(screen, click, mouse_pos, player_inventory, items):
     text = terminal.render("In stock:", False, [255,255,255])
     screen.blit(text, [20,70])
 
-    shop_quit_button.tick(screen, mouse_pos, click, glitch)
+    shop_quit_button.tick(screen, mouse_pos, click, None)
 
     for x in ruperts_shop_selections:
         x.tick(screen, 0, mouse_pos, click)
 
         if x.active:
-            shop_buy_button.tick(screen, mouse_pos, click, glitch, arg = [player_inventory, items])
+            shop_buy_button.tick(screen, mouse_pos, click, None, arg = [player_inventory, items])
 
 
 
