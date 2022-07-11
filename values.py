@@ -63,6 +63,7 @@ explosions = []
 burn_list = []
 melee_list = []
 zombie_events = []
+npcs = []
 
 last_hp = 0
 free_tick = 0
@@ -187,6 +188,8 @@ hud_color = [255, 255, 255]
 
 not_used_weapons = []
 
+player_weapons = []
+
 
 class TimeDelta():
     def __init__(self):
@@ -215,12 +218,14 @@ class GameTick:
     def tick(self):
         self.value += timedelta.mod(1)
         if self.value < self.max_value:
-            print("Not ticking")
             return False
         else:
-            print("Setting to 0")
             self.value = 0
             return True
+
+
+dialogue = []
+dialogue_tick = GameTick(40)
 
 
 last_hp = 0
@@ -254,7 +259,7 @@ q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
 
-heartbeat_tick = GameTick(max_value = 30)
+heartbeat_tick = GameTick(max_value = 20)
 
 kill_sounds = get_sound_Variants("sound","kill")
 # kill_sound = pygame.mixer.Sound("sound/kill5.wav")
@@ -266,6 +271,10 @@ shotgun_sounds = {"fire": get_sound_Variants("sound","shotgun"),"reload":reload}
 assault_rifle_sounds = {"fire": get_sound_Variants("sound","assault"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 sniper_rifle_sounds = {"fire": get_sound_Variants("sound","sniper"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 smg_sounds = {"fire": get_sound_Variants("sound","smg"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
+
+typing = get_sound_Variants("sound", "type")
+
+ruperts_shop_selections = []
 
 assault_rifle_sounds2 = {"fire": get_sound_Variants("sound","ar2_fire"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
 

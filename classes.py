@@ -12,6 +12,7 @@ import pyperclip
 width, height = size
 import objects
 import get_preferences
+from dialog import *
 
 a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
@@ -474,7 +475,7 @@ class Inventory:
 
 
 class Interactable:
-    def __init__(self, pos, player_inventory, list = [], name = "Box", type = "crate", item = None, amount = 1, collide = False, map = None):
+    def __init__(self, pos, player_inventory, list = [], name = "Box", type = "crate", item = None, amount = 1, collide = False, map = None, image = None):
         self.pos = pos
         self.button_prompt = ""
 
@@ -504,7 +505,14 @@ class Interactable:
             else:
                 self.prompt_color = WHITE_COLOR
 
+        elif self.type == "NPC":
+            self.name = name
+            self.image = pygame.transform.scale(pygame.image.load("texture/" + image),[round(119/multiplier),round(119/multiplier)]).convert_alpha()
+            self.npc_active = False
+
+
         self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
+
         self.inv_save = player_inventory
         self.contents = {}
 
@@ -555,11 +563,12 @@ class Interactable:
                 self.alive = False
 
 
-
         screen.blit(self.image, func.minus_list(self.pos,camera_pos))
 
 
         if los.get_dist_points(player_pos, self.center_pos) < 100:
+            if self.type == "NPC" and dialogue != []:
+                return
             self.button_prompt = button_prompt(self, self.inv_save)
 
         else:
@@ -577,6 +586,16 @@ class Interactable:
                 self.alive = False
             else:
                 self.amount = cond
+
+        elif self.type == "NPC":
+            self.npc_active = True
+            dialogue.clear()
+            dialogue.append(Dialogue("Rupert"))
+            print("INTERACTED")
+
+            print(dialogue)
+
+
 
 
 
@@ -602,7 +621,7 @@ class button_prompt:
                 self.text_render2 = prompt.render(self.object.__dict__["name"] + " (Empty)", False, [255,255,255])
             else:
                 self.text_render2 = prompt.render(self.object.__dict__["name"], False, [255,255,255])
-        else:
+        elif self.object.type == "item":
             self.text_render2 = prompt.render(self.object.__dict__["name"] + " (" + str(self.object.__dict__["amount"]) + ")", False, [255,255,255])
 
             if player_inventory.append_to_inv(self.object, self.object.__dict__["amount"], scan_only = True) != self.object.__dict__["amount"]:
@@ -612,6 +631,11 @@ class button_prompt:
             else:
 
                 self.text_render = prompt.render("NO ROOM IN INVENTORY", False, [255,0,0])
+
+        elif self.object.type == "NPC":
+            self.text_render2 = prompt.render(self.object.__dict__["name"], False, [255,255,255])
+            self.text_render = prompt.render("F to talk", False, [255,255,255])
+
 
         self.rect = self.text_render.get_rect().center
         self.rect2 = self.text_render2.get_rect().center
@@ -701,10 +725,11 @@ class kill_count_render:
 
 
 class Particle:
-    def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen, dont_copy = False, color_override = "red"):
+    def __init__(self,pos, pre_defined_angle = False,angle = 0, magnitude = 1,type = "normal", screen = screen, dont_copy = False, color_override = "red", fire_velocity_mod = 1):
         self.__pos = pos
         self.__type = type
-        self.fire_x_vel = random.randint(-1,1)
+        self.fire_velocity_mod = fire_velocity_mod
+        self.fire_x_vel = random.randint(-1,1) * self.fire_velocity_mod
         if pre_defined_angle == False:
             self.__direction = math.radians(random.randint(0,360))
         else:
@@ -741,8 +766,8 @@ class Particle:
         if self.__lifetime > 0:
 
             if self.__type == "fire":
-                self.fire_x_vel += random.uniform(-0.5,0.7)
-                self.__pos = [self.__pos[0] + self.fire_x_vel, self.__pos[1] - random.randint(1,4)]
+                self.fire_x_vel += random.uniform(-0.5,0.7) * self.fire_velocity_mod
+                self.__pos = [self.__pos[0] + self.fire_x_vel, self.__pos[1] - random.randint(1,4) * self.fire_velocity_mod]
                 self.__color = [255,round(255*(self.__lifetime/(self.max_life+5))), round(255*((self.__lifetime/(self.max_life+5))**2))]
                 self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), 2*self.__lifetime/3,2*self.__lifetime/3]
             else:
@@ -908,11 +933,13 @@ class Wall:
 
 
 class Burn:
-    def __init__(self, pos, magnitude, lifetime):
+    def __init__(self, pos, magnitude, lifetime, infinite = False, magnitude2 = 1):
         self.pos = pos
         self.magnitude = magnitude
         self.life_max = lifetime
         self.lifetime = lifetime
+        self.infinite = infinite
+        self.magnitude2 = magnitude2
 
     def tick(self, screen, map_render = None):
 
@@ -921,7 +948,7 @@ class Burn:
             return
 
         for x in range(1):
-            particle_list.append(Particle([self.pos[0]+random.randint(-4,4)*2,self.pos[1]+random.randint(-4,4)*2], type = "fire", magnitude = (self.magnitude * (self.lifetime/self.life_max)**0.7),screen = screen))
+            particle_list.append(Particle([self.pos[0]+random.randint(-4,4)*2,self.pos[1]+random.randint(-4,4)*2], type = "fire", magnitude = (self.magnitude * (self.lifetime/self.life_max)**0.7),screen = screen, fire_velocity_mod = self.magnitude2))
 
         if map_render != None and self.lifetime / self.life_max > random.randint(0, 2):
             random_angle = random.randint(0, 360)
@@ -931,6 +958,8 @@ class Burn:
 
             pos = [self.pos[0] + math.cos(random_angle)*dist, self.pos[1] + math.sin(random_angle)*dist]
 
-            pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,7),random.randint(1,7)])
 
-        self.lifetime -= timedelta.mod(1)
+            if not self.infinite:
+                pygame.draw.rect(map_render,[0,0,0],[pos[0], pos[1],random.randint(1,7),random.randint(1,7)])
+        if not self.infinite:
+            self.lifetime -= timedelta.mod(1)

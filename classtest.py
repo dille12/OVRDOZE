@@ -132,7 +132,7 @@ class Map:
             self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
         self.objects = objects
 
-        self.background = pygame.transform.scale(pygame.image.load("texture/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
+        self.background = pygame.transform.scale(pygame.image.load("texture/maps/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
 
     def get_polygons(self):
         return self.polygons
@@ -147,7 +147,7 @@ class Map:
     def read_navmesh(self, walls_filtered):
         NAV_MESH = []
         try:
-            file = open(self.nav_mesh_name, "r")
+            file = open("texture/maps/" + self.nav_mesh_name, "r")
             lines = file.readlines()
             file.close()
             for line in lines:
@@ -629,7 +629,12 @@ class Map:
 
     def compile_navmesh(self, conv):
         for x1 in range(round(self.size[0] / 100) + 1):
+            if x1 >= size[0]:
+                continue
+
             for y1 in range(round(self.size[1] / 100) + 1):
+                if y1 >= size[1]:
+                    continue
                 point = [x1*100/conv,y1*100/conv]
                 point[0] += 15
                 point[1] += 15
@@ -704,8 +709,8 @@ class Map:
             print(polygon)
             #pygame.draw.polygon(self.map_rendered, [0,0,0], polygon)
 
-        for point in self.nav_mesh_available_spots:
-            pygame.draw.rect(self.map_rendered, [255,0,0], [point[0], point[1], 1,1])
+        # for point in self.nav_mesh_available_spots:
+        #     pygame.draw.rect(self.map_rendered, [255,0,0], [point[0], point[1], 1,1])
 
 
         self.map_rendered_alpha = self.map_rendered.copy()

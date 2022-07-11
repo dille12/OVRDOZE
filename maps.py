@@ -48,6 +48,22 @@ classes.Interactable([2,622], None, name = "Box")
 ]
 ),
 
+
+Map("Overworld", "overworld.png", "nav_mesh_overworld.txt", [0,0], mouse_conversion, [2500,2500],
+[ #x,y,width,height
+[2, 1503, 1500, 997],
+[1501, 2259, 506, 239],
+[2008, 1503, 492, 996],
+[828,2, 1670, 744]
+
+
+],
+
+[
+classes.Interactable([100,100], None, name = "Rupert", type = "NPC", image = "placeholder_npc.png")
+]
+),
+
 Map("Manufactory", "map2.png", "nav_mesh_manufactory.txt", [0,0], mouse_conversion, [2500,2500],
 [ #x,y,width,height
 [467,2,156,74],

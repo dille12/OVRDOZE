@@ -66,6 +66,7 @@ class MovingTurret(Game_Object):
             self._turret_tick = self._firerate
         elif self._turret_tick > 0 and shoot == True:
             self._turret_tick -= timedelta.mod(1)
+
     def handle_scanning(self,enemy_list,walls,los):
         shoot = False
         aim_at = None
@@ -205,7 +206,7 @@ class MovingTurret(Game_Object):
 
 
 
-            collision_types, coll_pos = self.map_ref.checkcollision(self._pos,[math.cos(self.angle_rad) *self.moving_speed, self._pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, self.map_ref.size_converted)
+            collision_types, coll_pos = self.map_ref.checkcollision(self._pos,[math.cos(self.angle_rad) *self.moving_speed, self._pos[1] - math.sin(self.angle_rad) *self.moving_speed], self.size, self.map_ref.size_converted, ignore_barricades = True)
             self._pos = coll_pos
             if los.get_dist_points(self._pos,self.target_move_pos) < 20 or los.get_dist_points(self._pos, player_pos) < 50:
                 self.target_move_pos = self._pos

@@ -35,7 +35,7 @@ class Turret(Game_Object):
                 closest_enemy = x
         return closest_enemy
     def shoot(self,shoot,angle2):
-        if shoot == True and self._turret_tick == 0 and abs(angle2-self._angle) < self._turning_speed * 2:
+        if shoot == True and self._turret_tick <= 0 and abs(angle2-self._angle) < self._turning_speed * 2:
             turret_fire1.stop()
             turret_fire2.stop()
             turret_fire3.stop()
@@ -49,8 +49,8 @@ class Turret(Game_Object):
             self._lifetime -= 1
 
             self._turret_tick = self._firerate
-        elif self._turret_tick != 0 and shoot == True:
-            self._turret_tick -= 1
+        elif self._turret_tick > 0 and shoot == True:
+            self._turret_tick -= timedelta.mod(1)
 
     def handle_scanning(self,enemy_list,walls,los):
         shoot = False
@@ -92,9 +92,9 @@ class Turret(Game_Object):
                 self._angle = angle2
             else:
                 if angle2 > self._angle:
-                    self._angle += self._turning_speed
+                    self._angle += timedelta.mod(self._turning_speed)
                 elif angle2 < self._angle:
-                    self._angle -= self._turning_speed
+                    self._angle -= timedelta.mod(self._turning_speed)
         else:
 
             angle2 = self._angle

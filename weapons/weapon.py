@@ -36,8 +36,18 @@ class Weapon:
             self.image = func.colorize(
                 pygame.image.load(f"texture/{self.kind}/{image}"),
                 pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
+
             self.image.set_alpha(100)
+
+            self.image_non_alpha = func.colorize(
+                pygame.image.load(f"texture/{self.kind}/{image}"),
+                pygame.Color(255, 155, 155))
+
+            self.image.set_alpha(200)
+
             print("Image loaded")
+
+
 
 
             temp = pygame.transform.scale(pygame.image.load(f"texture/{self.kind}/{image}"), [30,10]).convert_alpha()

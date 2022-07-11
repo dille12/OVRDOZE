@@ -1,6 +1,6 @@
-username=
+username=Squid games
 FOV=True
 DEV=True
 FS=True
 ULTRA=False
-LASTIP=
+LASTIP=25.90.55.6

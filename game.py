@@ -13,6 +13,7 @@ from network import Network
 import ast
 import network_parser
 from app import App
+from weapon_button import weapon_button
 from button import Button
 from glitch import Glitch
 from values import *
@@ -25,6 +26,8 @@ import armory
 import objects
 import enemies
 import RUN
+
+import enem_obs
 
 print("IMPORTS COMPLETE")
 
@@ -235,12 +238,16 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     NAV_MESH = map.read_navmesh(walls_filtered)
 
-
+    if map.name == "Overworld":
+        burn_list.append(classes.Burn([2362/mouse_conversion,982/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
+        burn_list.append(classes.Burn([2315/mouse_conversion,967/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
+        burn_list.append(classes.Burn([2335/mouse_conversion,1000/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
     interactables = []
 
-    player_inventory = classes.Inventory(interactables, player = True)
-    player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }, 2 : {"item" : items["5.56x45MM NATO"], "amount" : 999}})
+    #[100,100],0, player_inventory, , "placeholder_npc.png", "placeholder_npc_potrait.png")
 
+    player_inventory = classes.Inventory(interactables, player = True)
+    #player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }, 2 : {"item" : items["5.56x45MM NATO"], "amount" : 999}})
 
 
     #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
@@ -268,17 +275,30 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     turret_list.append(objects.MovingTurret.MovingTurret([100,300],4,5,500,20,-1, NAV_MESH = NAV_MESH, walls = walls_filtered, map = map))
     barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
-    player_weapons = [
-        give_weapon("gun","M1911"),
-        give_weapon("gun","M134 MINIGUN"),
-        give_weapon("gun","AR-15"),
-        give_weapon("gun","GLOCK"),
-        give_weapon("gun","AWP"),
-        give_weapon("gun","AK"),
-        give_weapon("gun","SPAS"),
-        give_weapon("gun","P90")
-        ]
+    player_weapons.clear()
+    player_weapons.append(give_weapon("gun","M1911"))
+        #give_weapon("gun", "SCAR18"),
+        # give_weapon("gun","M134 MINIGUN"),
+        # give_weapon("gun","AR-15"),
+        # give_weapon("gun","GLOCK"),
+        # give_weapon("gun","AWP"),
+        # give_weapon("gun","AK"),
+        # give_weapon("gun","SPAS"),
+        # give_weapon("gun","P90")
+        # ]
 
+    gun_name_list = ["M1911", "SCAR18", "M134 MINIGUN", "AR-15", "GLOCK", "AWP", "AK", "SPAS", "P90"]
+    in_ruperts_shop = gun_name_list.copy()
+    ruperts_shop_selections.clear()
+    for x in range(3):
+        pick = func.pick_random_from_list(in_ruperts_shop)
+        ruperts_shop_selections.append(weapon_button(give_weapon("gun", pick),x))
+        in_ruperts_shop.remove(pick)
+
+
+    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AR-15"),1))
+    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AK"),2))
+    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "SPAS"),3))
     for weapon_1 in player_weapons:
         not_used_weapons.append(weapon_1.name)
 
@@ -292,7 +312,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     path = os.path.abspath(os.getcwd()) + "/sound/songs/"
     songs = []
     for file in os.listdir(path):
-        if file.endswith(".wav") and file != "menu_loop.wav":
+        if file.endswith(".wav") and file != "menu_loop.wav" and file != "overworld_loop.wav":
             songs.append("sound/songs/" + file)
 
     pause_tick = False
@@ -302,11 +322,16 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     glitch = Glitch(screen)
 
+
     resume_button = Button([size[0]/2,100], "Resume", cont_game, None,gameInstance=app.pygame,glitchInstance=glitch)
     quit_button = Button([size[0]/2,200], "Quit", quit, app,gameInstance=app.pygame,glitchInstance=glitch)
     drying_time = time.time()
 
     last_tick = time.time() - 1
+
+    start_time = time.time()
+
+    playing_song = ""
 
 
     while 1:
@@ -318,6 +343,17 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         tick_delta = tick_time/(1/60)
 
         timedelta.timedelta = tick_delta
+
+        if player_actor.hp > 0:
+
+            #hp_time_dilation = 0.1 + (player_actor.hp/100)**0.4 * 0.9
+
+            if player_actor.hp < 25:
+
+                timedelta.timedelta *= 0.55
+
+            #pygame.display.set_gamma(1,random.randint(1,3),1.1)
+
 
 
         clock.tick(144)
@@ -379,10 +415,32 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             continue
 
+        if map.name == "Overworld":
+            overworld = True
+        else:
+            overworld = False
+
+        if dialogue != []:
+            pygame.mouse.set_visible(True)
+            block_movement = True
+
+        else:
+            pygame.mouse.set_visible(False)
+            block_movement = False
+
 
         if app.pygame.mixer.music.get_busy() == False:
-            app.pygame.mixer.music.load(func.pick_random_from_list(songs))
-            app.pygame.mixer.music.play()
+
+            if overworld:
+                app.pygame.mixer.music.load("sound/songs/overworld_loop.wav")
+                app.pygame.mixer.music.play(-1)
+            else:
+                up_next = playing_song
+                while up_next == playing_song:
+                    up_next = func.pick_random_from_list(songs)
+                app.pygame.mixer.music.load(up_next)
+                playing_song = func.pick_random_from_list(songs)
+                app.pygame.mixer.music.play()
 
 
 
@@ -519,9 +577,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         camera_pos = func.camera_aling(camera_pos,player_pos)
 
-        if False: # Camera snaps to map corners
+        if overworld:
 
-            camera_map_edge_tolerance = 100
+            camera_map_edge_tolerance = 0
 
             if camera_pos[0] < - camera_map_edge_tolerance:
                 camera_pos[0] = - camera_map_edge_tolerance
@@ -593,7 +651,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         t = time.time()
 
 
-        pvp = False
+        pvp = overworld
 
         if not pvp:
 
@@ -643,7 +701,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
                 zombo = enemies.Zombie(map.get_random_point(walls_filtered, p_pos = player_pos),interactables, player_actor, NAV_MESH, walls_filtered, hp_diff = zombie_hp, dam_diff = zombie_damage, type = type, wall_points = wall_points, player_ref = player_actor, identificator = random.randint(0,4096))
-                print(f"Zombie spawned with id {zombo.identificator}")
+                #zombo = enem_obs.Enemy(map.get_random_point(walls_filtered, p_pos = player_pos), give_weapon("gun", func.pick_random_from_dict(armory.guns, key = True)), interactables)
+                #print(f"Zombie spawned with id {zombo.identificator}")
                 enemy_list.append(zombo)
                 if multiplayer:
                     if "zombies" not in packet_dict:
@@ -664,6 +723,12 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         for x in turret_list:
             x.tick(screen, camera_pos,enemy_list,0, walls_filtered, player_pos)
+
+
+        for x in npcs:
+            x.tick(screen, player_actor, camera_pos, map)
+
+
         time_stamps["turrets"] = time.time() - t
         t = time.time()
         delete_list = []
@@ -759,12 +824,17 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             x_diff = (mouse_pos[0]+camera_pos[0])-player_pos[0]
             y_diff = (mouse_pos[1]+ camera_pos[1])-player_pos[1]
 
-            try:
-                angle = math.atan(x_diff/y_diff) * 180/math.pi +90
-                if (x_diff < 0 and y_diff > 0) or (x_diff > 0 and y_diff > 0):
-                    angle += 180
-            except:
-                angle = 0
+            if not block_movement:
+
+                try:
+                    angle = math.atan(x_diff/y_diff) * 180/math.pi +90
+                    if (x_diff < 0 and y_diff > 0) or (x_diff > 0 and y_diff > 0):
+                        angle += 180
+                except:
+                    angle = 0
+
+            else:
+                angle = player_actor.angle
 
             player_actor.set_aim_at(angle)
 
@@ -786,7 +856,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             func.render_player(screen, mouse_pos, pl,player_pos, camera_pos, player_actor)
 
-            player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
+            if not block_movement:
+                player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
+
             if collision_check_player:
                 #angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
                 collision_types, angle_coll = map.checkcollision(player_pos,[x_vel, y_vel], 10, map_boundaries, ignore_barricades = True)
@@ -819,9 +891,12 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             else:
 
 
-                if player_inventory.get_inv() == False:
+                if player_inventory.get_inv() == False and not overworld:
                     firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
                     player_melee.tick(screen, r_click_tick)
+                else:
+                    c_weapon.spread_recoverial()
+                    c_weapon.weapon_tick()
 
             player_alive = True
 
@@ -1019,8 +1094,12 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         if player_actor.get_hp() > 0:
-            func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, round(wave_text_tick), wave_number)
-            player_actor.set_sanity(0.005*sanity_drain)
+
+            if not block_movement:
+                func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, round(wave_text_tick), wave_number)
+
+            if not overworld:
+                player_actor.set_sanity(0.005*sanity_drain)
 
 
             if phase == 3:
@@ -1081,6 +1160,39 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                 text = terminal3.render("CALC TIME: " + str(round(calc_time_2*1000,2)) + "ms", False, [255,255,255])
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
+            if dialogue != []:
+
+
+
+
+
+                text_str = dialogue[0].main(screen, mouse_pos, click_single_tick, glitch, app, player_inventory, items)
+
+                if text_str != "":
+
+                    pygame.draw.rect(screen, [255,255,255], [size[0]/4, 3*size[1]/4-20, size[0]/2, size[1]/4],4)
+
+                    pygame.draw.line(screen, [255,255,255], [size[0]/4, 3*size[1]/4 + 10], [3 * size[0]/4 - 5, 3*size[1]/4 + 10], 4)
+
+                    y_pos = - 10 * len(text_str[1].split("\n"))
+
+                    for text_line in text_str[1].split("\n"):
+
+                        text = terminal.render(text_line, False, [255,255,255])
+                        pos = [size[0] / 2, 7 * size[1] / 8]
+                        screen.blit(text, [pos[0] - text.get_rect().center[0], pos[1] - text.get_rect().center[1] +5 + y_pos])
+
+                        y_pos += 20
+
+                    if text_str[0] == "You":
+                        text = terminal.render(text_str[0], False, [255,255,255])
+                        pos = [3 * size[0]/4-8 - text.get_rect().size[0], 3*size[1]/4-15]
+                    else:
+                        text = terminal.render(text_str[0], False, [255,255,255])
+                        pos = [size[0]/4+5, 3*size[1]/4-15]
+
+                    screen.blit(text, [pos[0], pos[1]])
+
 
         else:
             text = terminal.render("RESPAWN IN", False, [255,255,255])
@@ -1125,6 +1237,20 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 pass
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
+
+            time_elapsed = round(time.time() - start_time)
+
+            minutes = round((time_elapsed-29.9)/60)
+
+            seconds = time_elapsed - minutes * 60
+
+            if len(str(seconds)) == 1:
+                seconds = "0" + str(seconds)
+
+            func.print_s(screen, f"{minutes}:{seconds}",3)
+
+
+
 
         else:
             obje = enumerate(time_stamps, 1)

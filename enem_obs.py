@@ -1,5 +1,23 @@
+import os, sys
+import pygame
+import math
+import random
+import time
+pygame.init()
+import func
+from values import *
+import classtest
+import los
+import pyperclip
+width, height = size
+import classes
+from classes import items, drop_index, drop_table
+import get_preferences
+import armory
+from classes import Inventory
+
 class Enemy:
-    def __init__(self,pos, weapons, interctables):
+    def __init__(self,pos, weapon, interctables):
         self.pos = pos
         self.target_pos = pos
         self.moving_speed = random.uniform(1.5,2.75)
@@ -15,11 +33,12 @@ class Enemy:
 
         self.hp = 100
 
-        self.weapon = func.pick_random_from_dict(weapons).copy()
+        self.weapon = weapon
 
         self.inventory = Inventory(interctables)
         for i in range(random.randint(2,3)):
-            self.inventory.append_to_inv(items[self.weapon.__dict__["ammo"]], items[self.weapon.__dict__["ammo"]].__dict__["max_stack"])
+            if self.weapon.ammo != "INF":
+                self.inventory.append_to_inv(items[self.weapon.__dict__["ammo"]], items[self.weapon.__dict__["ammo"]].__dict__["max_stack"])
         self.weapon.set_hostile()
 
         self.angle = 0
@@ -51,7 +70,7 @@ class Enemy:
     def get_pos(self):
         return self.pos
 
-    def knockback(self,amount,angle):
+    def knockback(self,amount,angle, daemon_bullet = False):
 
         self.knockback_tick = amount
         self.knockback_angle = angle
@@ -85,7 +104,7 @@ class Enemy:
 
 
 
-    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls):
+    def tick(self, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH,map_render, phase = 0, wall_points = None):
         self.temp_pos = func.minus_list(self.pos,camera_pos)
         player_pos = player_actor.get_pos()
         pl_temp_pos = func.minus_list(player_pos,camera_pos)

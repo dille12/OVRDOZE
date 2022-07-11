@@ -661,13 +661,12 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
     hp = min([round(player_actor.__dict__["hp"]),100])
 
     heartbeat_tick.tick()
-    heartbeat_value = 1 - heartbeat_tick.value/30 * (100 - hp)/100
+    heartbeat_value = (1 - heartbeat_tick.value/30 * (100 - hp)/100) ** 2
 
 
 
 
     hud_color = [20 + round(200*heartbeat_value) + round(35 * player_actor.hp/100), round(255 * player_actor.hp/100), round(255* player_actor.hp/100)]
-    print(hud_color)
     x_d, y_d =cam_delta
     x_d = -x_d
     y_d = -y_d
@@ -686,7 +685,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
     except Exception as e:
         print(e)
 
-    hp_d = 4 - player_actor.hp/25
+    hp_d = 10 - player_actor.hp/10
 
     x_d += random.uniform(- hp_d, hp_d)
     y_d += random.uniform(- hp_d, hp_d)
@@ -910,16 +909,13 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
 
     for w_1 in player_weapons:
         if w_1 == weapon:
-            screen.blit(w_1.icon_active, [20,y_pos])
-            pygame.draw.rect(screen, [0,255,0], [20, y_pos, 30, 10], 1)
+            screen.blit(w_1.icon_active, [20 + x_d,y_pos + y_d])
+            pygame.draw.rect(screen, [0,255,0], [20 + x_d, y_pos + y_d, 30, 10], 1)
         elif player_inventory.get_amount_of_type(w_1.ammo) != 0 or w_1.ammo == "INF" or w_1.get_Ammo() != 0:
-            screen.blit(w_1.icon, [20,y_pos])
-            if w_1.name in not_used_weapons:
-                not_used_weapons.remove(w_1.name)
-        elif w_1.name not in not_used_weapons:
-            screen.blit(w_1.icon_no_ammo, [20,y_pos])
+            screen.blit(w_1.icon, [20 + x_d,y_pos + y_d])
+
         else:
-            y_pos -= 15
+            screen.blit(w_1.icon_no_ammo, [20 + x_d,y_pos + y_d])
         y_pos += 15
 
 
