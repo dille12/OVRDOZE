@@ -1,5 +1,7 @@
 # 2d-shooter project
 
+![alt text](https://github.com/dille12/2dshooter/blob/main/texture/image.png "Overdoze")
+
 A single/multiplayer co-op survival small space zombie shooter.
 
 If you'd like to contribute, feel free to join the [discord](https://discord.gg/vG5vrAgxx5)!
