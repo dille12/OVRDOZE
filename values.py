@@ -64,6 +64,9 @@ burn_list = []
 melee_list = []
 zombie_events = []
 npcs = []
+interactables = []
+loading_cue = []
+turret_bro = []
 
 last_hp = 0
 free_tick = 0
@@ -258,6 +261,7 @@ q_r_success =  pygame.mixer.Sound("sound/sfx/quick_reload_success.wav")
 q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
+barricade_list = []
 
 heartbeat_tick = GameTick(max_value = 20)
 

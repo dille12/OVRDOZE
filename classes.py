@@ -157,7 +157,7 @@ class Inventory:
 
         self.contents = {}
 
-    def toggle_inv(self, b = None, player_pos = [0,0]):
+    def toggle_inv(self, app, b = None, player_pos = [0,0]):
 
 
 
@@ -475,13 +475,13 @@ class Inventory:
 
 
 class Interactable:
-    def __init__(self, pos, player_inventory, list = [], name = "Box", type = "crate", item = None, amount = 1, collide = False, map = None, image = None):
+    def __init__(self, pos, player_inventory, list = [], name = "Box", type = "crate", item = None, amount = 1, collide = False, map = None, image = None, door_dest = None, active = True):
         self.pos = pos
         self.button_prompt = ""
 
         self.alive = True
 
-
+        self.active = active
 
         self.type = type
         if self.type == "crate":
@@ -510,8 +510,17 @@ class Interactable:
             self.image = pygame.transform.scale(pygame.image.load("texture/" + image),[round(119/multiplier),round(119/multiplier)]).convert_alpha()
             self.npc_active = False
 
+        elif self.type == "door":
+            self.name = name
 
-        self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
+            self.door_tick = GameTick(20)
+            self.door_dest = door_dest
+
+
+        if self.type != "door":
+            self.center_pos = [self.pos[0] + self.image.get_rect().center[0], self.pos[1] + self.image.get_rect().center[1]]
+        else:
+            self.center_pos = self.pos.copy()
 
         self.inv_save = player_inventory
         self.contents = {}
@@ -562,17 +571,31 @@ class Interactable:
             if self.lifetime == 0:
                 self.alive = False
 
+        if self.type == "door":
 
-        screen.blit(self.image, func.minus_list(self.pos,camera_pos))
+            if self.active:
 
+                self.door_tick.tick()
 
-        if los.get_dist_points(player_pos, self.center_pos) < 100:
-            if self.type == "NPC" and dialogue != []:
-                return
-            self.button_prompt = button_prompt(self, self.inv_save)
+                rect = pygame.Rect(self.pos[0] - camera_pos[0], self.pos[1] - camera_pos[1], 0, 0)
+
+                rect.inflate_ip(100 * self.door_tick.value/self.door_tick.max_value, 10 * self.door_tick.value/self.door_tick.max_value)
+
+                pygame.draw.rect(screen, [255,255,255], rect, 3)
+
 
         else:
-            self.inv_save.try_deleting_self(self, player_pos)
+            screen.blit(self.image, func.minus_list(self.pos,camera_pos))
+
+        if self.active:
+
+            if los.get_dist_points(player_pos, self.center_pos) < 100:
+                if self.type == "NPC" and dialogue != []:
+                    return
+                self.button_prompt = button_prompt(self, self.inv_save)
+
+            else:
+                self.inv_save.try_deleting_self(self, player_pos)
 
 
 
@@ -594,6 +617,11 @@ class Interactable:
             print("INTERACTED")
 
             print(dialogue)
+
+
+        elif self.type == "door":
+            loading_cue.append(self.door_dest)
+
 
 
 
@@ -635,6 +663,11 @@ class button_prompt:
         elif self.object.type == "NPC":
             self.text_render2 = prompt.render(self.object.__dict__["name"], False, [255,255,255])
             self.text_render = prompt.render("F to talk", False, [255,255,255])
+
+        elif self.object.type == "door":
+            self.text_render2 = prompt.render(self.object.__dict__["name"], False, [255,255,255])
+            self.text_render = prompt.render("F to enter", False, [255,255,255])
+
 
 
         self.rect = self.text_render.get_rect().center

@@ -6,6 +6,7 @@ class Weapon:
     def __init__(
             self,
             name="weapon",
+            price = 100,
             damage=10,
             image = "",
             hostile = False,
@@ -14,6 +15,7 @@ class Weapon:
             kind = "unknown"
         ):
         self.name = name
+        self.price = price
         self._damage = damage
         self._double_damage_time = 0
         self._weapon_fire_Tick = 0

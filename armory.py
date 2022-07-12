@@ -7,6 +7,7 @@ from weapons.area import Explosion
 guns = {
     "M1911": W.Gun(
         name="M1911",
+        price = 135,
         clip_s = 8,
         fire_r = 2000,
         spread = 7,
@@ -23,6 +24,7 @@ guns = {
         handling = 0.7),
     "AR-15": W.Gun(
         name="AR-15",
+        price = 2900,
         clip_s = 35,
         fire_r = 500,
         spread = 1,
@@ -44,6 +46,7 @@ guns = {
         burst_fire_rate = 2),
     "AK": W.Gun(
         name="AK47",
+        price = 2700,
         clip_s = 30,
         fire_r = 520,
         spread = 3,
@@ -62,6 +65,7 @@ guns = {
         handling = 0.35),
     "SCAR18": W.Gun(
         name="SCAR18",
+        price = 1700,
         clip_s = 20,
         fire_r = 240,
         spread = 1,
@@ -80,6 +84,7 @@ guns = {
         handling = 0.45),
     "M134 MINIGUN": W.Gun(
         name="M134 MINIGUN",
+        price = 6500,
         clip_s = 999,
         fire_r = 2300,
         spread = 2,
@@ -98,6 +103,7 @@ guns = {
         handling = 0.1),
     "SPAS": W.Gun(
         name="SPAS-12",
+        price = 1300,
         clip_s = 6,
         fire_r = 120,
         spread = 5,
@@ -117,6 +123,7 @@ guns = {
         handling = 0.2),
     "P90": W.Gun(
         name="P90",
+        price = 900,
         clip_s = 50,
         fire_r = 950,
         spread = 7,
@@ -133,6 +140,7 @@ guns = {
         handling = 0.5),
     "GLOCK": W.Gun(
         name="GLOCK",
+        price = 350,
         clip_s = 20,
         fire_r = 350,
         spread = 3,
@@ -152,6 +160,7 @@ guns = {
         burst_fire_rate = 3),
     "AWP": W.Gun(
         name="AWP",
+        price = 1500,
         clip_s = 10,
         fire_r = 50,
         spread = 1,

@@ -54,10 +54,15 @@ def open_shop(screen, click, mouse_pos, player_inventory, items):
 
     shop_quit_button.tick(screen, mouse_pos, click, None)
 
-    for x in ruperts_shop_selections:
-        x.tick(screen, 0, mouse_pos, click)
+    pygame.draw.rect(screen, [255,255,255], [5, 100, 10, 267], 1)
+    scroll_bar = pygame.Rect(7,  102 + 263 * dialogue[0].y_pos/len(ruperts_shop_selections), 6, 263 * (3/len(ruperts_shop_selections)))
 
-        if x.active:
+    pygame.draw.rect(screen, [255,255,255], scroll_bar)
+
+    for x in ruperts_shop_selections:
+        x.tick(screen, dialogue[0].y_pos, mouse_pos, click)
+
+        if x.active and not x.owned:
             shop_buy_button.tick(screen, mouse_pos, click, None, arg = [player_inventory, items])
 
 
@@ -115,13 +120,19 @@ class Dialogue:
         self.dialogue = func.pick_random_from_list(dialogues[name])
         self.linenumber = 0
         self.letternumber = 0
+        self.y_pos_abs = 0
+        self.y_pos = 0
 
 
 
 
-    def main(self, screen, mouse_pos, click, glitch, pygame_instance, player_inventory, items):
+    def main(self, screen, mouse_pos, click, scroll, glitch, pygame_instance, player_inventory, items):
         return_str = ""
         line = self.dialogue[self.linenumber]
+
+
+
+
         if isinstance(line, list):
             if line[0] == "n":
                 talker = self.name
@@ -140,6 +151,13 @@ class Dialogue:
 
 
         else:
+
+            if scroll[0] and self.y_pos_abs > 0:
+                self.y_pos_abs -= 1
+
+
+            elif scroll[1] and self.y_pos_abs < len(ruperts_shop_selections) - 3:
+                self.y_pos_abs += 1
             line(screen, click, mouse_pos, player_inventory, items)
 
 
@@ -148,6 +166,17 @@ class Dialogue:
 
 
         if self.linenumber >= len(self.dialogue):
+            pygame_instance.pygame.mouse.set_visible(False)
             dialogue.clear()
+
+        delta = (self.y_pos_abs - self.y_pos) * 0.2
+
+        if abs(delta) < 0.02:
+            self.y_pos = self.y_pos_abs
+        else:
+
+            self.y_pos += delta
+
+
 
         return return_str

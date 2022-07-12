@@ -13,6 +13,7 @@ class Gun(Weapon):
     def __init__(
             self,
             name="weapon",
+            price = 10,
             clip_s=10,
             fire_r=10,
             spread=10,
@@ -36,7 +37,7 @@ class Gun(Weapon):
             sounds = {"fire":weapon_fire_Sounds,"reload":reload},
             view = 0.03
         ):
-        super().__init__(name,damage,image,hostile,sounds,view,kind="guns")
+        super().__init__(name, price,damage,image,hostile,sounds,view,kind="guns")
         self._clip_size = clip_s
         self._bullets_in_clip = 0
         self._bullet_per_min = fire_r
@@ -71,6 +72,7 @@ class Gun(Weapon):
         x=self.name;
         return Gun(
             name=self.name,
+            price = self.price,
             clip_s = self._clip_size,
             fire_r = self._bullet_per_min,
             spread = self._spread,

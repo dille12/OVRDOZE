@@ -14,7 +14,7 @@ class App:
         self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.last_ip = get_preferences.pref()
         pygame.init()
         pygame.font.init()
-              
+
 
 
     def lobby_host(self,thread, ip):
@@ -23,6 +23,7 @@ class App:
 
     def getMaps(self):
         maps_dict = {}
+        self.maps = maps
         for index, map_1 in enumerate(maps):
             map_surf = map_1.__dict__["background"]
             x,y = map_surf.get_rect().size

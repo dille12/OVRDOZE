@@ -88,12 +88,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[difficulty]
 
-    if not skip_intervals:
-        wave_interval = 12
-        wave_change_timer = time.time()
-    else:
-        wave_interval = 2
-        wave_change_timer = time.time() - 15
+
 
     if multiplayer:
         enemy_count = 1
@@ -125,8 +120,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     data_collector = None
     collision_check_player = True
 
-    wave = False
-    wave_number = 0
+
 
     last_ping = 0
 
@@ -134,7 +128,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     wave_text_tick = -20
 
-    wave_length = 30
+
 
     wave_anim_ticks = [0,0]
 
@@ -146,7 +140,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     app.pygame.font.init()
     app.pygame.mixer.init()
 
-    app.pygame.mixer.music.fadeout(2000)
+
 
     if full_screen_mode:
         full_screen = app.pygame.display.set_mode(fs_size, flags = pygame.FULLSCREEN, vsync=1) #
@@ -203,59 +197,30 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
     fps = []
-    block_movement_polygons = map.get_polygons()
 
-    map.compile_navmesh(mouse_conversion)
-
-
-    map_render = map.render(mouse_conversion).convert()
-
-
-
-    # NAV_MESH = map2.compile_navmesh(mouse_conversion)
-    # map_render2 = map2.render(mouse_conversion).convert()
-
-    walls_filtered = []
-    global map_boundaries
-    map_boundaries = [0,0]
-
-    map_conversion = 1920/854
-
-    for map_1 in active_maps:
-        walls_filtered += map.generate_wall_structure()
-        for i in range(2):
-            end_point = (map_1.__dict__["pos"][i]*map_conversion + map_1.__dict__["size"][i])/map_conversion
-            if map_boundaries[i] < end_point:
-                map_boundaries[i] = end_point
-    print(map_boundaries)
-
-    wall_points = []
-    for x in walls_filtered:
-        wall_points.append(x.get_points())
-
-    player_pos = map.get_random_point(walls_filtered)
-    camera_pos = [0,0]
-
-    NAV_MESH = map.read_navmesh(walls_filtered)
-
-    if map.name == "Overworld":
-        burn_list.append(classes.Burn([2362/mouse_conversion,982/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
-        burn_list.append(classes.Burn([2315/mouse_conversion,967/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
-        burn_list.append(classes.Burn([2335/mouse_conversion,1000/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
-    interactables = []
-
-    #[100,100],0, player_inventory, , "placeholder_npc.png", "placeholder_npc_potrait.png")
+    ### load
 
     player_inventory = classes.Inventory(interactables, player = True)
-    #player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }, 2 : {"item" : items["5.56x45MM NATO"], "amount" : 999}})
+
+    turret_bro.append(objects.MovingTurret.MovingTurret([100,300],4,5,500,20,-1, NAV_MESH = None, walls = None, map = None))
+
+    map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(map, mouse_conversion, player_inventory, app)
+
+    wave = False
+    wave_number = 0
+
+    if not skip_intervals:
+        wave_interval = 17
+        wave_change_timer = time.time()
+    else:
+        wave_interval = 2
+        wave_change_timer = time.time() - 15
+
+    wave_length = 30
 
 
-    #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
-    #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
 
-    for x in map.__dict__["objects"]:
-        x.__dict__["inv_save"] = player_inventory
-        interactables.append(x)
+
 
     player_actor = classes.Player(self_name, turret_bullets)
 
@@ -273,8 +238,10 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     phase = 0
 
 
-    turret_list.append(objects.MovingTurret.MovingTurret([100,300],4,5,500,20,-1, NAV_MESH = NAV_MESH, walls = walls_filtered, map = map))
-    barricade_list = []#[classes.Barricade([100,300], [200,400], map)]
+
+
+
+    #[classes.Barricade([100,300], [200,400], map)]
     player_weapons.clear()
     player_weapons.append(give_weapon("gun","M1911"))
         #give_weapon("gun", "SCAR18"),
@@ -287,13 +254,20 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         # give_weapon("gun","P90")
         # ]
 
-    gun_name_list = ["M1911", "SCAR18", "M134 MINIGUN", "AR-15", "GLOCK", "AWP", "AK", "SPAS", "P90"]
-    in_ruperts_shop = gun_name_list.copy()
+    gun_name_list = ["M1911", "GLOCK", "AR-15", "AWP", "AK", "SPAS", "P90", "SCAR18", "M134 MINIGUN"]
     ruperts_shop_selections.clear()
-    for x in range(3):
-        pick = func.pick_random_from_list(in_ruperts_shop)
-        ruperts_shop_selections.append(weapon_button(give_weapon("gun", pick),x))
-        in_ruperts_shop.remove(pick)
+    for i, x in enumerate(gun_name_list):
+        ruperts_shop_selections.append(weapon_button(give_weapon("gun", x),i))
+
+    a = sorted(ruperts_shop_selections, key=lambda x: x.weapon.price)
+
+    ruperts_shop_selections.clear()
+
+    for i, x in enumerate(a):
+        x.slot = i
+        ruperts_shop_selections.append(x)
+
+
 
 
     # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AR-15"),1))
@@ -421,11 +395,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             overworld = False
 
         if dialogue != []:
-            pygame.mouse.set_visible(True)
+            app.pygame.mouse.set_visible(True)
             block_movement = True
 
         else:
-            pygame.mouse.set_visible(False)
+            # app.pygame.mouse.set_visible(False)
             block_movement = False
 
 
@@ -504,7 +478,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-
+        scroll = [False, False]
 
 
         for event in app.pygame.event.get():
@@ -514,6 +488,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             if event.type == app.pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:
                     print("Scroll down")
+                    if block_movement:
+                        scroll[0] = True
+                        continue
                     searching = True
                     while searching:
                         weapon_scroll -= 1
@@ -527,6 +504,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                 elif event.button == 5:
                     print("Scroll up")
+                    if block_movement:
+                        scroll[1] = True
+                        continue
                     searching = True
                     while searching:
                         weapon_scroll += 1
@@ -606,7 +586,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             tab_pressed = True
 
-            player_inventory.toggle_inv(player_pos = player_pos)
+            player_inventory.toggle_inv(app, player_pos = player_pos)
 
         elif pressed[app.pygame.K_TAB] == False:
             tab_pressed = False
@@ -657,6 +637,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             if wave:
                 if time.time() - wave_change_timer > wave_length:
+
+                    if wave_number >= 5:
+                        for x in interactables:
+                            if x.type == "door":
+                                x.active = True
+
+
                     wave = False
                     pygame.display.set_gamma(1,1.1,1.1)
                     wave_change_timer = time.time()
@@ -666,6 +653,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
             else:
+
+                #
 
 
                 if True: #Kill enemies if no wave.
@@ -686,6 +675,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     wave_text_tick = -20
 
                     wave_anim_ticks = [0, 120]
+
+                    if wave_number >= 5:
+                        for x in interactables:
+                            if x.type == "door":
+                                x.active = False
 
 
 
@@ -738,12 +732,33 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 delete_list.append(x)
             else:
                 x.tick(screen, player_pos, camera_pos)
+                if loading_cue != []:
+                    door_dest = loading_cue[0]
+                    loading_cue.clear()
+                    for x in app.maps:
+                        if x.name == door_dest:
+                            map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(x, mouse_conversion, player_inventory, app)
+
+                            wave = False
+                            wave_number = 0
+
+                            if not skip_intervals:
+                                wave_interval = 17
+                                wave_change_timer = time.time()
+                            else:
+                                wave_interval = 2
+                                wave_change_timer = time.time() - 15
+
+                            wave_length = 30
 
         time_stamps["interactables"] = time.time() - t
         t = time.time()
 
         for x in delete_list:
             interactables.remove(x)
+
+        for x in turret_bro:
+            x.tick(screen, camera_pos,enemy_list,0, walls_filtered, player_pos)
 
         for x in particle_list:
             x.tick(screen, camera_pos, map)
@@ -1075,6 +1090,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             perc1 = round(100*draw_time/(draw_time+draw_time2))
             perc2 = round(100*draw_time2/(draw_time+draw_time2))
 
+        if wave_number >= 5:
+            if not wave:
+                text = terminal.render("EXIT DOOR IS OPEN!", False, [255,255,255])
+                screen.blit(text, [size[0]/2 - text.get_rect().center[0], size[1] - 30 - text.get_rect().center[1]])
+
+
+
         if phase != 0:
             if phase == 1:
                 t = "LINE OF SIGHT, POINTS"
@@ -1161,12 +1183,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 text = terminal3.render("CALC TIME: " + str(round(calc_time_2*1000,2)) + "ms", False, [255,255,255])
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
             if dialogue != []:
-
-
-
-
-
-                text_str = dialogue[0].main(screen, mouse_pos, click_single_tick, glitch, app, player_inventory, items)
+                text_str = dialogue[0].main(screen, mouse_pos, click_single_tick, scroll, glitch, app, player_inventory, items)
 
                 if text_str != "":
 

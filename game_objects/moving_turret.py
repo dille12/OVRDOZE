@@ -26,9 +26,9 @@ class MovingTurret(Game_Object):
 
         self.target_move_pos = pos
 
-        self.navmesh_ref = NAV_MESH.copy()
-        self.wall_ref = walls
-        self.map_ref = map
+        # self.navmesh_ref = NAV_MESH.copy()
+        # self.wall_ref = walls
+        # self.map_ref = map
 
         self.route = []
 

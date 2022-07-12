@@ -14,7 +14,7 @@ mouse_conversion = fs_size[0] / size[0]
 
 
 maps = [Map("Requiem", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversion, [2000,1500],
-[ #x,y,width,height
+POLYGONS = [ #x,y,width,height
 [2,470,125,186],
 [377,470,125,186],
 [502,376,125,561],
@@ -30,7 +30,7 @@ maps = [Map("Requiem", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversio
 
 ],
 
-[
+OBJECTS = [
 classes.Interactable([5,5], None, name = "Box"),
 
 classes.Interactable([170,295], None, name = "Box"),
@@ -43,14 +43,17 @@ classes.Interactable([845,585], None, name = "Box"),
 
 classes.Interactable([281,295], None, name = "Box"),
 
-classes.Interactable([2,622], None, name = "Box")
+classes.Interactable([2,622], None, name = "Box"),
 
-]
+classes.Interactable([390,0], None, name = "Exit", type = "door", door_dest = "Overworld", active = False)
+
+],
+SPAWNPOINT = [390,40]
 ),
 
 
 Map("Overworld", "overworld.png", "nav_mesh_overworld.txt", [0,0], mouse_conversion, [2500,2500],
-[ #x,y,width,height
+POLYGONS = [ #x,y,width,height
 [2, 1503, 1500, 997],
 [1501, 2259, 506, 239],
 [2008, 1503, 492, 996],
@@ -59,13 +62,15 @@ Map("Overworld", "overworld.png", "nav_mesh_overworld.txt", [0,0], mouse_convers
 
 ],
 
-[
-classes.Interactable([100,100], None, name = "Rupert", type = "NPC", image = "placeholder_npc.png")
-]
+OBJECTS = [
+classes.Interactable([100,100], None, name = "Rupert", type = "NPC", image = "placeholder_npc.png"),
+classes.Interactable([782,1005], None, name = "Basement", type = "door", door_dest = "Requiem")
+],
+SPAWNPOINT = [100,500]
 ),
 
 Map("Manufactory", "map2.png", "nav_mesh_manufactory.txt", [0,0], mouse_conversion, [2500,2500],
-[ #x,y,width,height
+POLYGONS = [ #x,y,width,height
 [467,2,156,74],
 [2,312,621,155],
 [476,233,147,78],
@@ -86,7 +91,7 @@ Map("Manufactory", "map2.png", "nav_mesh_manufactory.txt", [0,0], mouse_conversi
 [2190, 781, 311, 156]
 ],
 
-[
+OBJECTS = [
 classes.Interactable([5,5], None, name = "Box"),
 
 classes.Interactable([560,210], None, name = "Box"),
@@ -100,6 +105,7 @@ classes.Interactable([770,530], None, name = "Box"),
 classes.Interactable([970,5], None, name = "Box"),
 
 classes.Interactable([5,980], None, name = "Box")
-]
+],
+SPAWNPOINT = [100,100]
 )
 ]

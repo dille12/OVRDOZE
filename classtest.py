@@ -12,6 +12,7 @@ import func
 import los
 from itertools import accumulate
 import ast
+import classes
 
 
 from values import *
@@ -69,19 +70,6 @@ def get_intersect(point,scalar,slope, y=False):
 def get_dist(point_1,point_2):
     return math.sqrt((point_2[0] - point_1[0])**2 + (point_2[1] - point_1[1])**2)
 
-class anus:
-    def priority(self):
-        return "1"
-
-    def tick(self):
-        print("anus")
-
-class pissa:
-    def priority(self):
-        return "2"
-
-    def tick(self):
-        print("pissa")
 
 def PolyArea(x,y):
     return 0.5*numpy.abs(numpy.dot(x,numpy.roll(y,1))-numpy.dot(y,numpy.roll(x,1)))
@@ -94,11 +82,84 @@ def getcollisionspoint(tiles, point):
     return (tile for tile in tiles if tile.collidepoint(point))
 
 
+def load_level(map, mouse_conversion, player_inventory, app):
+
+    app.pygame.mixer.music.fadeout(2000)
+
+    burn_list.clear()
+    turret_list.clear()
+    enemy_list.clear()
+    barricade_list.clear()
+
+
+    block_movement_polygons = map.get_polygons()
+
+    map.compile_navmesh(mouse_conversion)
+
+    map_render = map.render(mouse_conversion).convert()
+
+
+
+    # NAV_MESH = map2.compile_navmesh(mouse_conversion)
+    # map_render2 = map2.render(mouse_conversion).convert()
+
+    walls_filtered = []
+
+    map_boundaries = [0,0]
+
+    map_conversion = 1920/854
+
+    walls_filtered += map.generate_wall_structure()
+    for i in range(2):
+        end_point = (map.__dict__["pos"][i]*map_conversion + map.__dict__["size"][i])/map_conversion
+        if map_boundaries[i] < end_point:
+            map_boundaries[i] = end_point
+    print(map_boundaries)
+
+    wall_points = []
+    for x in walls_filtered:
+        wall_points.append(x.get_points())
+
+    player_pos = map.spawn_point.copy()
+    camera_pos = [0,0]
+
+    NAV_MESH = map.read_navmesh(walls_filtered)
+
+    if map.name == "Overworld":
+        burn_list.append(classes.Burn([2362/mouse_conversion,982/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
+        burn_list.append(classes.Burn([2315/mouse_conversion,967/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
+        burn_list.append(classes.Burn([2335/mouse_conversion,1000/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
+    interactables.clear()
+
+    #[100,100],0, player_inventory, , "placeholder_npc.png", "placeholder_npc_potrait.png")
+
+
+    #player_inventory.set_inventory({1 : {"item" : items["Molotov"], "amount" : 3 }, 2 : {"item" : items["5.56x45MM NATO"], "amount" : 999}})
+
+
+    #player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
+    #player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
+
+    for x in map.__dict__["objects"]:
+        x.__dict__["inv_save"] = player_inventory
+        interactables.append(x)
+
+
+    turret_bro[0].map_ref = map
+    turret_bro[0]._pos = player_pos.copy()
+    turret_bro[0].navmesh_ref = NAV_MESH.copy()
+    turret_bro[0].wall_ref = walls_filtered
+
+    return map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered
+
+
 class Map:
-    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size,polygons,objects):
+    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size, POLYGONS = [] ,OBJECTS = [], SPAWNPOINT = [100,100]):
         self.name = name
         self.size = size
         self.polygons = []
+
+        self.spawn_point = SPAWNPOINT
 
 
 
@@ -122,7 +183,7 @@ class Map:
         # polygons.append([0,size[1],size[0],100])
 
 
-        for polygon in polygons:
+        for polygon in POLYGONS:
             x,y,width,height = polygon
 
             x += pos[0]
@@ -130,7 +191,7 @@ class Map:
 
 
             self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
-        self.objects = objects
+        self.objects = OBJECTS
 
         self.background = pygame.transform.scale(pygame.image.load("texture/maps/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
 

@@ -130,6 +130,9 @@ def get_angle(pos1,pos2):
     mydegrees = math.degrees(myradians)
     return mydegrees
 
+def return_price(x):
+    return x.weapon.price
+
 def mult(list1, am):
     try:
         list_1 = list1.copy()

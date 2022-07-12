@@ -11,9 +11,9 @@ class weapon_button:
         self.active = False
 
     def tick(self, screen, y_pos, mouse_pos, click):
-
-        if self.slot < y_pos or self.slot > y_pos+2:
-            return
+        visible = True
+        if self.slot < y_pos - 0.5 or self.slot > y_pos + 2.5:
+            visible = False
 
         def_pos = [20, 100 + (self.slot - y_pos) * 100]
         owned = False
@@ -23,34 +23,36 @@ class weapon_button:
                 owned = True
                 break
 
-        if 20 < mouse_pos[0] < 320 and def_pos[1] < mouse_pos[1] < def_pos[1] + 67 and not owned:
+        if visible:
 
-            screen.blit(self.weapon.image_non_alpha, def_pos)
+            if 20 < mouse_pos[0] < 320 and def_pos[1] < mouse_pos[1] < def_pos[1] + 67:
 
-
-
-            if click and not owned:
-                menu_click.play()
-                if self.active:
-                    self.active = False
-                else:
-                    self.active = True
-
-                    for x in ruperts_shop_selections:
-                        if x.weapon != self.weapon:
-                            x.active = False
+                screen.blit(self.weapon.image_non_alpha, def_pos)
 
 
-        elif self.active:
-            screen.blit(self.weapon.image_non_alpha, def_pos)
-        else:
-            screen.blit(self.weapon.image, def_pos)
+
+                if click:
+                    menu_click.play()
+                    if self.active:
+                        self.active = False
+                    else:
+                        self.active = True
+
+                        for x in ruperts_shop_selections:
+                            if x.weapon != self.weapon:
+                                x.active = False
+
+
+            elif self.active:
+                screen.blit(self.weapon.image_non_alpha, def_pos)
+            else:
+                screen.blit(self.weapon.image, def_pos)
+
+            if self.active:
+                pygame.draw.rect(screen, [255,155,155], [def_pos[0]-3, def_pos[1]-3, 206, 73],3)
+                color = [255,0,0]
 
         if self.active:
-            pygame.draw.rect(screen, [255,155,155], [def_pos[0]-3, def_pos[1]-3, 206, 73],3)
-            color = [255,0,0]
-
-
             text = terminal2.render(self.weapon.name, False, [255,255,255])
             screen.blit(text, [size[0]/3, 60])
 
@@ -171,6 +173,9 @@ class weapon_button:
                 text = terminal.render(f"Visibility : Bad", False, [255,0,0])
                 screen.blit(text, [size[0]/3, 320])
 
+            text = terminal2.render(f"PRICE : {self.weapon.price}$", False, [255,255,255])
+            screen.blit(text, [size[0]/3, 350])
+
 
 
 
@@ -187,10 +192,14 @@ class weapon_button:
         else:
             color = [255,255,255]
 
-        text = terminal.render(self.weapon.name, False, color)
-        screen.blit(text, def_pos)
+        if visible:
 
-        if owned:
+            text = terminal.render(self.weapon.name, False, color)
+            screen.blit(text, def_pos)
+
+        self.owned = owned
+
+        if owned and visible:
 
             text = terminal2.render("OWNED", False, [255,0,0])
             screen.blit(text, func.minus_list(func.minus(def_pos, [100,34]), text.get_rect().center))
