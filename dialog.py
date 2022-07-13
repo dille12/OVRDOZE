@@ -21,10 +21,13 @@ terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 
 
 def purchase_weapon(arg):
-    player_inventory, items = arg
+    player_inventory, items, player_actor = arg
     for x in ruperts_shop_selections:
         if x.active:
             player_weapons.append(x.weapon.copy())
+
+            player_actor.money -= x.weapon.price
+
             x.active = False
             if x.weapon.ammo != "INF":
 
@@ -43,7 +46,7 @@ def advance(arg):
 shop_quit_button = Button([7*size[0]/8,7*size[1]/8], "Exit", advance, None, gameInstance=pygame, glitchInstance=None)
 shop_buy_button = Button([3*size[0]/8,7*size[1]/8], "BUY", purchase_weapon, None, gameInstance=pygame, glitchInstance=None)
 
-def open_shop(screen, click, mouse_pos, player_inventory, items):
+def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor):
     screen.blit(surf_back, [0,0])
 
     text = terminal2.render("RUPERTS WEAPON SHOP", False, [255,255,255])
@@ -51,6 +54,10 @@ def open_shop(screen, click, mouse_pos, player_inventory, items):
 
     text = terminal.render("In stock:", False, [255,255,255])
     screen.blit(text, [20,70])
+
+    text = terminal2.render(f"Money : {player_actor.money}$", False, [255,255,255])
+    screen.blit(text, [20,400])
+
 
     shop_quit_button.tick(screen, mouse_pos, click, None)
 
@@ -62,8 +69,8 @@ def open_shop(screen, click, mouse_pos, player_inventory, items):
     for x in ruperts_shop_selections:
         x.tick(screen, dialogue[0].y_pos, mouse_pos, click)
 
-        if x.active and not x.owned:
-            shop_buy_button.tick(screen, mouse_pos, click, None, arg = [player_inventory, items])
+        if x.active and not x.owned and x.weapon.price <= player_actor.money:
+            shop_buy_button.tick(screen, mouse_pos, click, None, arg = [player_inventory, items, player_actor])
 
 
 
@@ -97,15 +104,15 @@ open_shop,
 [
 ["n", "You again."],
 ["y", "..."],
-["n", "Here."],
+["n", "Let's get this over with."],
 open_shop,
 ["n", "Where the hell are you getting\nthis money? How many cars have\nyou stolen?"],
 ["y", "None of your business."]],
 
 
 
-[["n", f"Back again {player_name}?\nDon't you have heroin to inject?"],
-["y", "None of your business."],
+[["n", f"Back again {player_name}?\nThought you'd be dead by now."],
+["y", "...."],
 open_shop,
 ["n", "Get out freak."],
 ["n", "And take that monstrosity of a\nrobot with you."]]
@@ -126,7 +133,7 @@ class Dialogue:
 
 
 
-    def main(self, screen, mouse_pos, click, scroll, glitch, pygame_instance, player_inventory, items):
+    def main(self, screen, mouse_pos, click, scroll, glitch, pygame_instance, player_inventory, items, player_actor):
         return_str = ""
         line = self.dialogue[self.linenumber]
 
@@ -158,7 +165,7 @@ class Dialogue:
 
             elif scroll[1] and self.y_pos_abs < len(ruperts_shop_selections) - 3:
                 self.y_pos_abs += 1
-            line(screen, click, mouse_pos, player_inventory, items)
+            line(screen, click, mouse_pos, player_inventory, items, player_actor)
 
 
 

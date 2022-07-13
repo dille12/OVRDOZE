@@ -37,6 +37,8 @@ terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
 terminal3 = pygame.font.Font('texture/terminal.ttf', 10)
 
+terminal_map_desc = pygame.font.Font('texture/terminal.ttf', 50)
+terminal_map_desc2 = pygame.font.Font('texture/terminal.ttf', 25)
 
 
 def give_weapon(kind,name):
@@ -202,6 +204,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     player_inventory = classes.Inventory(interactables, player = True)
 
+    turret_bro.clear()
+
     turret_bro.append(objects.MovingTurret.MovingTurret([100,300],4,5,500,20,-1, NAV_MESH = None, walls = None, map = None))
 
     map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(map, mouse_conversion, player_inventory, app)
@@ -254,7 +258,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         # give_weapon("gun","P90")
         # ]
 
-    gun_name_list = ["M1911", "GLOCK", "AR-15", "AWP", "AK", "SPAS", "P90", "SCAR18", "M134 MINIGUN"]
+    gun_name_list = ["M1911", "GLOCK", "AR-15", "MP5", "AWP", "AK", "SPAS", "P90", "SCAR18", "M134 MINIGUN"]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
         ruperts_shop_selections.append(weapon_button(give_weapon("gun", x),i))
@@ -307,6 +311,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     playing_song = ""
 
+    fade_tick.value = 15
+
 
     while 1:
 
@@ -316,7 +322,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         tick_delta = tick_time/(1/60)
 
-        timedelta.timedelta = tick_delta
+        timedelta.timedelta = min([tick_delta, 3])
 
         if player_actor.hp > 0:
 
@@ -662,7 +668,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     if len(enemy_list) != 0:
                         rand_enemy = func.pick_random_from_list(enemy_list)
                         if random.uniform(0,1) < 1 and not los.check_los(player_actor.pos, rand_enemy.pos, walls_filtered):
-                            rand_enemy.kill(camera_pos, enemy_list, map_render, silent = True)
+                            rand_enemy.kill(camera_pos, enemy_list, map_render, player_actor, silent = True)
 
 
                 if time.time() - wave_change_timer > wave_interval:
@@ -741,6 +747,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
                             wave = False
                             wave_number = 0
+                            wave_anim_ticks = [0,0]
 
                             if not skip_intervals:
                                 wave_interval = 17
@@ -1183,7 +1190,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 text = terminal3.render("CALC TIME: " + str(round(calc_time_2*1000,2)) + "ms", False, [255,255,255])
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
             if dialogue != []:
-                text_str = dialogue[0].main(screen, mouse_pos, click_single_tick, scroll, glitch, app, player_inventory, items)
+                text_str = dialogue[0].main(screen, mouse_pos, click_single_tick, scroll, glitch, app, player_inventory, items, player_actor)
 
                 if text_str != "":
 
@@ -1315,6 +1322,38 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         except Exception as e:
             print(e)
+
+
+        if not fade_tick.tick():
+            tick = fade_tick.rounded()
+            if 0 <= tick <= 9:
+                screen.blit(fade_to_black_screen[tick], [0,0])
+
+            elif 51 <= tick <= 60:
+                screen.blit(fade_to_black_screen[60 - tick], [0,0])
+
+            else:
+                screen.fill([0,0,0])
+
+        if not map_desc_tick.tick() and map_desc_tick.value > 20:
+            tick = map_desc_tick.value - 20
+            alpha = 255
+            if tick < 40:
+                alpha = 255 * tick/40
+
+            elif 160 > tick > 100:
+                alpha = 255 * (160 - tick)/60
+
+            text = terminal_map_desc.render(map.name, False, [255,255,255])
+            text.set_alpha(alpha)
+            screen.blit(text, [size[0]/2 - text.get_rect().center[0], size[1]/2 - text.get_rect().center[1]])
+
+
+
+
+
+
+
 
         if pause:
             background_surf.blit(screen, (0,0))

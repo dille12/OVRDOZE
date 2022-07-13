@@ -699,6 +699,23 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
     pl_angl2 = player_actor.get_angle()
 
 
+    if not money_tick.tick() and not player_inventory.inventory_open:
+
+        if money_tick.value <= money_tick.max_value/6:
+            x = 15 - 1/((money_tick.value+1)**1.5)*40
+        elif money_tick.max_value/6 < money_tick.value <= 4*money_tick.max_value/6:
+            x = 15
+        else:
+            x = 15 - 1/((money_tick.max_value + 3 - money_tick.value)**1.2)*40
+        text = terminal.render(f"+{player_actor.money - player_actor.money_last_tick}$", False, [0,255,0])
+        screen.blit(text, (x+x_d, 130+y_d)) #
+
+
+    else:
+        player_actor.money_last_tick = player_actor.money
+
+
+
 
 
 

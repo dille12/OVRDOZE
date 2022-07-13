@@ -108,7 +108,7 @@ class Bullet(Game_Object):
 
         dead = 0
         for x in enemy_list:
-            if x.hit_detection(camera_pos, self._pos, self._last_pos,self._damage, enemy_list, draw_blood_parts) == True:
+            if x.hit_detection(camera_pos, self._pos, self._last_pos,self._damage, enemy_list, draw_blood_parts, player) == True:
 
                 x.knockback(self._damage, math.radians(self._angle), daemon_bullet = self.mp)
 

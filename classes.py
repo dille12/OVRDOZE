@@ -356,7 +356,14 @@ class Inventory:
 
 
 
+
+
+
         if self.inventory_open:
+
+            text = terminal.render(f"Money : {player_actor.money}$", False, [255,255,255])
+            screen.blit(text, (15+x_d, 130+y_d)) #
+
             screen.blit(inv_image,[15+x_d,150+y_d])
             text = terminal2.render("INVENTORY", False, [255,255,255])
             screen.blit(text, (32+x_d, 161+y_d)) #
@@ -622,6 +629,8 @@ class Interactable:
         elif self.type == "door":
             loading_cue.append(self.door_dest)
 
+            door_sound.play()
+
 
 
 
@@ -881,6 +890,8 @@ class Player:
         self.turret_bullets = turret_bullets
         self.knockback_tick = 0
         self.knockback_angle = 0
+        self.money = 0
+        self.money_last_tick = 0
 
     def set_pos(self,pos):
         self.pos = pos

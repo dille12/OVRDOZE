@@ -214,21 +214,29 @@ class TimeDelta():
 timedelta = TimeDelta()
 
 class GameTick:
-    def __init__(self, max_value = 30):
+    def __init__(self, max_value = 30, oneshot = False):
         self.value = 0
         self.max_value = max_value
+        self.oneshot = oneshot
 
     def tick(self):
-        self.value += timedelta.mod(1)
+        if self.value < self.max_value:
+            self.value += timedelta.mod(1)
         if self.value < self.max_value:
             return False
         else:
-            self.value = 0
+            if not self.oneshot:
+                self.value = 0
             return True
+
+    def rounded(self):
+        return round(self.value)
 
 
 dialogue = []
 dialogue_tick = GameTick(40)
+
+money_tick = GameTick(35, oneshot = True)
 
 
 last_hp = 0
@@ -263,7 +271,23 @@ q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
 barricade_list = []
 
-heartbeat_tick = GameTick(max_value = 20)
+heartbeat_tick = GameTick(max_value = 10)
+map_desc_tick = GameTick(180, oneshot = True)
+
+
+fade_to_black_screen = []
+
+for i in range(10):
+    rect = pygame.Surface(size)
+    rect.fill([0,0,0])
+    rect.set_alpha(255 * (i+1)/10)
+    fade_to_black_screen.append(rect)
+
+
+fade_tick = GameTick(60, oneshot = True)
+fade_tick.value = 30
+
+door_sound = pygame.mixer.Sound("sound/door_sound.wav")
 
 kill_sounds = get_sound_Variants("sound","kill")
 # kill_sound = pygame.mixer.Sound("sound/kill5.wav")

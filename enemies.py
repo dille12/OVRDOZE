@@ -132,13 +132,17 @@ class Zombie:
     def issue_event(self, event):
         zombie_events.append(f"ZEVENT:{self.identificator}_{event}")
 
-    def kill(self, camera_pos, list, draw_blood_parts, silent = False, zevent = False):
+    def kill(self, camera_pos, list, draw_blood_parts, player_actor, silent = False, zevent = False):
         list.remove(self)
         if not zevent:
             self.issue_event("terminate_1")
 
 
         if not silent:
+
+            player_actor.money += random.randint(2,5)
+            money_tick.value = 0
+
             func.list_play(death_sounds)
             func.list_play(kill_sounds)
 
@@ -192,7 +196,7 @@ class Zombie:
             self.route_tick = 60
 
 
-    def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render):
+    def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render, player_actor):
         points_1 = [[self.pos[0], self.pos[1] - self.size*2.5], [self.pos[0], self.pos[1] + self.size*2.5]]
         points_2 = [[self.pos[0]-self.size*2.5, self.pos[1]], [self.pos[0]+self.size*2.5, self.pos[1]]]
 
@@ -200,7 +204,7 @@ class Zombie:
 
             self.hp -= damage
             if self.hp < 0:
-                self.kill(camera_pos, enemy_list, map_render)
+                self.kill(camera_pos, enemy_list, map_render, player_actor)
 
 
             else:
@@ -327,7 +331,7 @@ class Zombie:
                     for i in range(3):
                         particle_list.append(classes.Particle(func.minus(self.target.pos, camera_pos), type = "blood_particle", magnitude = 0.5, screen = map_render))
                 elif 0 < self.attack_tick < self.attack_speed/2 and self.type == "bomber":
-                    self.kill(camera_pos, enemy_list, map_render)
+                    self.kill(camera_pos, enemy_list, map_render, player_actor)
 
         if phase == 6:
             t_6 = time.time()
@@ -390,7 +394,7 @@ class Zombie:
             self.stationary = 0
 
         if self.check_if_alive() and self.hp <= 0:
-            self.kill(camera_pos, enemy_list, map_render)
+            self.kill(camera_pos, enemy_list, map_render, player_actor)
 
 
         if phase == 6:
@@ -463,10 +467,11 @@ class Player_Multi:
             return True
 
 
-    def kill(self, camera_pos, dict, draw_blood_parts):
+    def kill(self, camera_pos, dict, draw_blood_parts, player_actor):
 
         if self.killed:
             return
+
 
 
         func.list_play(death_sounds)
@@ -490,7 +495,7 @@ class Player_Multi:
         if los.intersect(pos, lastpos, points_1[0], points_1[1]) or los.intersect(pos, lastpos, points_2[0], points_2[1]):
 
             if self.hp - damage < 0:
-                self.kill(camera_pos, actor_list, map_render)
+                self.kill(camera_pos, actor_list, map_render, player_actor)
 
 
             else:

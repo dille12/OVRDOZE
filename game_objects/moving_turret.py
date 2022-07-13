@@ -261,7 +261,11 @@ class MovingTurret(Game_Object):
 
     def tick(self, screen ,camera_pos,enemy_list,tick, walls, player_pos):
         shoot,aim_at = self.handle_scanning(enemy_list, walls, los)
-        self.move(player_pos)
+        try:
+            self.move(player_pos)
+        except Exception as e:
+            print(e)
+
         shoot,angle2,turret2,turret_rect = self.draw_bead_on(aim_at, shoot)
         self.shoot(shoot,angle2)
         self.draw(screen,camera_pos,turret2,turret_rect)

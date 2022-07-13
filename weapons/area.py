@@ -115,7 +115,7 @@ class Explosion:
         self.particles = particles
         self.c_o = color_override
 
-    def damage_actor(self, actor, camera_pos, blood_surf=None, enemy = False, enemy_list = [], multi_kill = 0, multi_kill_ticks = 0, walls = []):
+    def damage_actor(self, player_actor, actor, camera_pos, blood_surf=None, enemy = False, enemy_list = [], multi_kill = 0, multi_kill_ticks = 0, walls = []):
         dist = func.get_dist_points(actor.get_pos(), self.pos)
         if dist < self.range:
             if los.check_los(self.pos, actor.get_pos(), walls) == False:
@@ -133,7 +133,7 @@ class Explosion:
                 if self.player:
                     multi_kill += 1
                     multi_kill_ticks = 120
-                actor.kill(camera_pos, enemy_list, blood_surf)
+                actor.kill(camera_pos, enemy_list, blood_surf, player_actor)
 
         if self.player:
             return multi_kill, multi_kill_ticks
@@ -153,9 +153,9 @@ class Explosion:
                 func.list_play(explosion_sound)
 
             st_i, st_rect = func.rot_center(func.pick_random_from_list(stains), random.randint(0,360), self.pos[0], self.pos[1])
-            self.damage_actor(player_actor, camera_pos, walls = walls)
+            self.damage_actor(player_actor, player_actor, camera_pos, walls = walls)
             for x in enemy_list:
-                multi_kill, multi_kill_ticks = self.damage_actor(x, camera_pos, map_render, enemy = True, enemy_list = enemy_list, multi_kill = multi_kill, multi_kill_ticks = multi_kill_ticks, walls = walls)
+                multi_kill, multi_kill_ticks = self.damage_actor(player_actor, x, camera_pos, map_render, enemy = True, enemy_list = enemy_list, multi_kill = multi_kill, multi_kill_ticks = multi_kill_ticks, walls = walls)
 
 
 

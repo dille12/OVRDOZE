@@ -48,7 +48,8 @@ classes.Interactable([2,622], None, name = "Box"),
 classes.Interactable([390,0], None, name = "Exit", type = "door", door_dest = "Overworld", active = False)
 
 ],
-SPAWNPOINT = [390,40]
+SPAWNPOINT = [390,40],
+
 ),
 
 
@@ -66,7 +67,8 @@ OBJECTS = [
 classes.Interactable([100,100], None, name = "Rupert", type = "NPC", image = "placeholder_npc.png"),
 classes.Interactable([782,1005], None, name = "Basement", type = "door", door_dest = "Requiem")
 ],
-SPAWNPOINT = [100,500]
+SPAWNPOINT = [781,930],
+GAMMA = [0.5,0.9,1.2]
 ),
 
 Map("Manufactory", "map2.png", "nav_mesh_manufactory.txt", [0,0], mouse_conversion, [2500,2500],

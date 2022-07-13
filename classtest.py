@@ -84,7 +84,12 @@ def getcollisionspoint(tiles, point):
 
 def load_level(map, mouse_conversion, player_inventory, app):
 
-    app.pygame.mixer.music.fadeout(2000)
+    app.pygame.mixer.music.fadeout(750)
+
+    fade_tick.value = 15
+    map_desc_tick.value = 0
+
+
 
     burn_list.clear()
     turret_list.clear()
@@ -150,14 +155,19 @@ def load_level(map, mouse_conversion, player_inventory, app):
     turret_bro[0].navmesh_ref = NAV_MESH.copy()
     turret_bro[0].wall_ref = walls_filtered
 
+    app.pygame.display.set_gamma(map.GAMMA[0],map.GAMMA[1],map.GAMMA[2])
+
     return map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered
 
 
 class Map:
-    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size, POLYGONS = [] ,OBJECTS = [], SPAWNPOINT = [100,100]):
+    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size, POLYGONS = [] ,OBJECTS = [], SPAWNPOINT = [100,100], GAMMA = [1,1,1], DESC = ""):
         self.name = name
         self.size = size
         self.polygons = []
+        self.DESC = DESC
+
+        self.GAMMA = GAMMA
 
         self.spawn_point = SPAWNPOINT
 
