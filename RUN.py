@@ -284,6 +284,8 @@ def main():
 
         )
 
+    app.pygame.display.set_gamma(1,1,1)
+
 
 
     while 1:

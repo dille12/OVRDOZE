@@ -13,7 +13,7 @@ mouse_conversion = fs_size[0] / size[0]
 # 854x480
 
 
-maps = [Map("Requiem", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversion, [2000,1500],
+maps = [Map("Basement Lvl. 1", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversion, [2000,1500],
 POLYGONS = [ #x,y,width,height
 [2,470,125,186],
 [377,470,125,186],
@@ -55,20 +55,31 @@ SPAWNPOINT = [390,40],
 
 Map("Overworld", "overworld.png", "nav_mesh_overworld.txt", [0,0], mouse_conversion, [2500,2500],
 POLYGONS = [ #x,y,width,height
-[2, 1503, 1500, 997],
+[2, 1503, 773, 553],
 [1501, 2259, 506, 239],
+[952, 1503, 550, 996],
 [2008, 1503, 492, 996],
-[828,2, 1670, 744]
+[828,2, 1670, 744],
+[498, 685, 330, 57],
+[2, 685, 242, 57]
 
 
 ],
 
 OBJECTS = [
-classes.Interactable([100,100], None, name = "Rupert", type = "NPC", image = "placeholder_npc.png"),
-classes.Interactable([782,1005], None, name = "Basement", type = "door", door_dest = "Requiem")
+classes.Interactable([164,30], None, name = "Rupert", type = "NPC", image = "placeholder_npc.png"),
+classes.Interactable([782,1005], None, name = "Basement", type = "door", door_dest = "Basement Lvl. 1")
 ],
 SPAWNPOINT = [781,930],
-GAMMA = [0.5,0.9,1.2]
+GAMMA = [0.8,0.9,1.2],
+TOP_LAYER = "overworld_top.png",
+NO_LOS_POLYGONS = [
+[52,190,657, 78],
+[503, 559, 320, 124],
+[722, 389, 106, 170]
+
+
+]
 ),
 
 Map("Manufactory", "map2.png", "nav_mesh_manufactory.txt", [0,0], mouse_conversion, [2500,2500],

@@ -821,7 +821,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
 
     wave_surf = pygame.Surface((size[0], 30), pygame.SRCALPHA, 32).convert_alpha()
     wave_surf.set_colorkey([255,255,255])
-    if wave or wave_anim_ticks[0] >= 0:
+    if wave or wave_anim_ticks[0] > 0:
         wave_end_tick, wave_start_tick = wave_anim_ticks
 
         if round(abs(wave_text_tick)/30)%2 == 0:
@@ -832,11 +832,11 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
             color2 = [255,255,255]
             color1 = [255,0,0]
 
-        if wave_start_tick != 0:
+        if wave_start_tick > 0:
 
             pygame.draw.rect(wave_surf, color2, [0,0,(1-wave_start_tick/120)**3 * size[0],30])
 
-        elif wave_end_tick != 0:
+        elif wave_end_tick > 0:
 
             pygame.draw.rect(wave_surf, color2, [(1-wave_end_tick/120)**3 * size[0],0,size[0],30])
 

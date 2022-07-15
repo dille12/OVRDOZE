@@ -1045,6 +1045,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         time_stamps["misc"] = time.time() - t
         t = time.time()
 
+        if map.top_layer != None:
+            screen.blit(map.top_layer, [-camera_pos[0], -camera_pos[1]])
+
 
         if draw_los:
             los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
@@ -1346,7 +1349,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             text = terminal_map_desc.render(map.name, False, [255,255,255])
             text.set_alpha(alpha)
-            screen.blit(text, [size[0]/2 - text.get_rect().center[0], size[1]/2 - text.get_rect().center[1]])
+            screen.blit(text, [size[0]/2 - text.get_rect().center[0], size[1]/3 - text.get_rect().center[1]])
 
 
 

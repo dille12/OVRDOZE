@@ -134,6 +134,11 @@ def load_level(map, mouse_conversion, player_inventory, app):
         burn_list.append(classes.Burn([2362/mouse_conversion,982/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
         burn_list.append(classes.Burn([2315/mouse_conversion,967/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
         burn_list.append(classes.Burn([2335/mouse_conversion,1000/mouse_conversion], 2, 500, infinite = True, magnitude2 = 0.7))
+
+
+        burn_list.append(classes.Burn([157,1004], 2, 500, infinite = True, magnitude2 = 0.7))
+
+
     interactables.clear()
 
     #[100,100],0, player_inventory, , "placeholder_npc.png", "placeholder_npc_potrait.png")
@@ -161,7 +166,7 @@ def load_level(map, mouse_conversion, player_inventory, app):
 
 
 class Map:
-    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size, POLYGONS = [] ,OBJECTS = [], SPAWNPOINT = [100,100], GAMMA = [1,1,1], DESC = ""):
+    def __init__(self,name, dir,  nav_mesh_name, pos, conv ,size, POLYGONS = [] ,OBJECTS = [], SPAWNPOINT = [100,100], GAMMA = [1,1,1], DESC = "", TOP_LAYER = None, NO_LOS_POLYGONS = []):
         self.name = name
         self.size = size
         self.polygons = []
@@ -170,6 +175,10 @@ class Map:
         self.GAMMA = GAMMA
 
         self.spawn_point = SPAWNPOINT
+
+
+
+
 
 
 
@@ -202,8 +211,19 @@ class Map:
 
             self.polygons.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
         self.objects = OBJECTS
+        self.polygons_no_los_block = []
+        for polygon in NO_LOS_POLYGONS:
+            x,y,width,height = polygon
+            x += pos[0]
+            y += pos[1]
+            self.polygons_no_los_block.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
 
         self.background = pygame.transform.scale(pygame.image.load("texture/maps/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
+
+        if TOP_LAYER == None:
+            self.top_layer = None
+        else:
+            self.top_layer = pygame.transform.scale(pygame.image.load("texture/maps/" + TOP_LAYER), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert_alpha()
 
     def get_polygons(self):
         return self.polygons
@@ -391,6 +411,16 @@ class Map:
             self.rectangles.append(poly)
 
             polygons_temp.append([poly,[a,b,c,d]])
+
+        for polygon in self.polygons_no_los_block:
+            a,b,c,d = polygon
+            x = [a[0],b[0],c[0],d[0]]
+            y = [a[1],b[1],c[1],d[1]]
+            poly = pygame.Rect(min(x),min(y), max(x)-min(x), max(y) - min(y))
+
+            self.rectangles.append(poly)
+
+            #polygons_temp.append([poly,[a,b,c,d]])
 
         self.connected_polygons = {}
         for polygon in self.polygons:

@@ -39,7 +39,7 @@ class Gun(Weapon):
         ):
         super().__init__(name, price,damage,image,hostile,sounds,view,kind="guns")
         self._clip_size = clip_s
-        self._bullets_in_clip = 0
+        self._bullets_in_clip = clip_s + 1
         self._bullet_per_min = fire_r
         self._firerate = tick_count/(fire_r/60)
 

@@ -109,14 +109,14 @@ class weapon_button:
 
 
             if self.weapon.spread_per_bullet < 2:
-                text = terminal.render(f"Recoil : Normal", False, [0,255,0])
+                text = terminal.render(f"Recoil : Low", False, [0,255,0])
                 screen.blit(text, [size[0]/3, 260])
 
-            elif self.weapon.spread_per_bullet < 4:
+            elif self.weapon.spread_per_bullet < 3:
                 text = terminal.render(f"Recoil : High", False, [255,255,0])
                 screen.blit(text, [size[0]/3, 260])
 
-            elif self.weapon.spread_per_bullet < 6:
+            elif self.weapon.spread_per_bullet < 4:
                 text = terminal.render(f"Recoil : Very high", False, [255,153,0])
                 screen.blit(text, [size[0]/3, 260])
 
@@ -124,15 +124,15 @@ class weapon_button:
                 text = terminal.render(f"Recoil : Extremely High", False, [255,0,0])
                 screen.blit(text, [size[0]/3, 260])
 
-            if self.weapon._spread_recovery > 0.96:
+            if self.weapon._spread_recovery < 0.93:
                 text = terminal.render(f"Recoil recovery : Great", False, [0,255,0])
                 screen.blit(text, [size[0]/3, 280])
 
-            elif self.weapon._spread_recovery > 0.94:
+            elif self.weapon._spread_recovery < 0.945:
                 text = terminal.render(f"Recoil recovery : Good", False, [255,255,0])
                 screen.blit(text, [size[0]/3, 280])
 
-            elif self.weapon._spread_recovery > 0.92:
+            elif self.weapon._spread_recovery < 0.96:
                 text = terminal.render(f"Recoil recovery : Normal", False, [255,153,0])
                 screen.blit(text, [size[0]/3, 280])
 

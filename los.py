@@ -8,6 +8,8 @@ import traceback
 import sys
 import time
 import pygame.gfxdraw
+import func
+from values import *
 
 walls = []
 
@@ -138,7 +140,7 @@ def walls_generate(walls_filtered, camera_pos):
     for wall in walls_filtered:
         a,b = wall.get_points()
 
-        if if_within_screen(a) and if_within_screen(b):
+        if if_within_screen(a, camera_pos) and if_within_screen(b, camera_pos):
             pass
         else:
             continue
@@ -244,8 +246,8 @@ def add_list(list1,list2):
 def ratio(pos, ratio):
     return [pos[0]/ratio, pos[1]/ratio]
 
-def if_within_screen(point):
-    check = 0 < point[0] < 1920 and 0 < point[1] < 1080
+def if_within_screen(point, camera_pos):
+    check = 0 < point[0] - camera_pos[0] < fs_size[0] or 0 < point[1] - camera_pos[1] < fs_size[1]
     return check
 
 def check_los(p1,p2,los_walls):
@@ -325,6 +327,7 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
         if 0 < point1[0] < size[0] and 0 < point1[1] < size[1] or 0 < point2[0] < size[0] and 0 < point2[1] < size[1]:
             pass
         else:
+
             continue
 
         for point in wall_1.get_points():
@@ -695,7 +698,7 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
             pygame.draw.circle(los, [255,0,0], point2, 5)
         pygame.draw.line(los,[255,0,0],start_pos,point_dict[res_key])
         try:
-            for wall_1 in angle_possible_intersections[res_key]:
+            for wall_1 in walls:
                 wall_1.highlight(los)
 
         except Exception as e:
