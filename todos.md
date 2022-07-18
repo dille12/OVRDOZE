@@ -19,11 +19,19 @@ or for new people who want to help: here are things that still need to get done.
 4. ~~Correct resolution detection of monitor.~~
 5. In-game settings menu (volume / quit to menu / resolution)
 
+### "Story Mode"
+1. Enemies to drop upgrades for you and the moving robot (i.e Invincibilty while dashing, faster firerates)
+2. NPCs to install upgrades for both you and your robot
+3. More gunshops
+4. Shops to buy grenades and narcotics
+5. More to explore in the overworld
+
+
 ### creative / artwork
 1. ~~Fire animations, molotovs~~ and flamers
 2. More and better OST
 3. Animate the player sprite
-4. Laser/Explosive weapons
+4. ~~Laser~~/Explosive weapons
 5. More/Bigger maps
 6. More items (body shields, decoys, radars) (also mechanics)
 7. Ingame map editor
