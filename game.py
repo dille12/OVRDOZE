@@ -248,6 +248,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     #[classes.Barricade([100,300], [200,400], map)]
     player_weapons.clear()
     player_weapons.append(give_weapon("gun","M1911"))
+    #player_weapons.append(give_weapon("gun","NRG-LMG Mark1"))
         #give_weapon("gun", "SCAR18"),
         # give_weapon("gun","M134 MINIGUN"),
         # give_weapon("gun","AR-15"),
@@ -258,7 +259,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         # give_weapon("gun","P90")
         # ]
 
-    gun_name_list = ["M1911", "GLOCK", "AR-15", "MP5", "AWP", "AK", "SPAS", "P90", "SCAR18", "M134 MINIGUN"]
+    gun_name_list = ["M1911", "GLOCK", "AR-15", "MP5", "AWP", "AK", "SPAS", "P90", "SCAR18", "M134 MINIGUN", "NRG-LMG Mark1"]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
         ruperts_shop_selections.append(weapon_button(give_weapon("gun", x),i))
@@ -328,9 +329,9 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             #hp_time_dilation = 0.1 + (player_actor.hp/100)**0.4 * 0.9
 
-            if player_actor.hp < 25:
+            if player_actor.hp < 30:
 
-                timedelta.timedelta *= 0.55
+                timedelta.timedelta *= 0.5
 
             #pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
@@ -961,6 +962,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
         closest = 1000
         closest_prompt = None
+        closest_available_prompt = None
         for x in interactables:
 
             dist = x.prompt_dist(player_pos)
@@ -969,12 +971,21 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     closest_prompt = x
                     closest = dist
 
-        if closest_prompt != None:
-            closest_prompt.tick_prompt(screen, player_pos, camera_pos, f_press = f_press)
+                    if closest_prompt.type == "item":
+
+                        if player_inventory.append_to_inv(closest_prompt.item, closest_prompt.amount, scan_only = True) != closest_prompt.amount:
+                            closest_available_prompt = closest_prompt
+
+        if closest_available_prompt != None:
+
+            closest_available_prompt.tick_prompt(screen, player_pos, camera_pos, f_press = f_press)
+        else:
+            if closest_prompt != None:
+                closest_prompt.tick_prompt(screen, player_pos, camera_pos, f_press = f_press)
 
         last_hp = player_actor.get_hp()
-        if multi_kill_ticks != 0:
-            multi_kill_ticks -= 1
+        if multi_kill_ticks > 0:
+            multi_kill_ticks -= timedelta.mod(1)
         else:
             multi_kill = 0
 
@@ -1196,6 +1207,8 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 text_str = dialogue[0].main(screen, mouse_pos, click_single_tick, scroll, glitch, app, player_inventory, items, player_actor)
 
                 if text_str != "":
+
+
 
                     pygame.draw.rect(screen, [255,255,255], [size[0]/4, 3*size[1]/4-20, size[0]/2, size[1]/4],4)
 

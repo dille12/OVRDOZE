@@ -112,7 +112,8 @@ items = {"HE Grenade": Item("HE Grenade", "Fragmentation grenade.", "grenade.png
         "Sentry Turret": Item("Sentry Turret", "Automatic turret that fires upon enemies", "turret.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 3, drop_stack = 2),
         "Barricade" : Item("Barricade", "Blocks passage.", "barricade.png", max_stack = 3, pick_up_sound = turret_pickup, consumable = True, drop_weight = 2, drop_stack = 1),
         "Molotov" : Item("Molotov", "Makeshift firebomb.", "molotov.png", max_stack = 5, pick_up_sound = molotov_pickup, drop_weight = 3, drop_stack = 1),
-        "5.56x45MM NATO" : Item("5.56x45MM NATO", "Powerful LMG ammo.", "556.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 0.1, drop_stack = 999)
+        "5.56x45MM NATO" : Item("5.56x45MM NATO", "Powerful LMG ammo.", "556.png", max_stack = 999, pick_up_sound = bullet_pickup, drop_weight = 0.1, drop_stack = 999),
+        "Energy Cell" : Item("Energy Cell", "Illegal energy weapon ammo.", "energy_cell.png", max_stack = 999, pick_up_sound = energy_cell_sound, drop_weight = 1, drop_stack = 99)
         }
 
 
@@ -793,6 +794,7 @@ class Particle:
         else:
             self.__lifetime = round(random.randint(3,10) * magnitude)
             self.__magnitude = round(magnitude*3)
+            self.start_lt = self.__lifetime
             self.max_life = 10 * magnitude
 
         self.__color2 = [random.randint(0,50),random.randint(155,255),random.randint(235,255)]
@@ -820,6 +822,13 @@ class Particle:
             if self.__type == "normal":
                 self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), self.__lifetime/2,self.__lifetime/2]
                 self.__color = [255,255 - 255/self.__lifetime ,0]
+
+            elif self.__type == "energy":
+                self.__dim = [self.__pos[0]-round(self.__lifetime/2), self.__pos[1]-round(self.__lifetime/2), self.__lifetime/2,self.__lifetime/2]
+
+                delta = (self.__lifetime/self.start_lt)**3
+
+                self.__color = [255, 255*delta, 255*delta]
 
 
             elif self.__type == "death_particle":

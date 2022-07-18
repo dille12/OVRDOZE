@@ -473,6 +473,11 @@ def keypress_manager(key_r_click,c_weapon, player_inventory):
 
 def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, ai = False):
     firing_tick = False
+
+
+
+
+
     if ai:
         if c_weapon.get_semi_auto():
 
@@ -482,6 +487,16 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, 
             click = True
     else:
         click = pygame.mouse.get_pressed()[0]
+
+
+    if c_weapon.charge_up:
+
+        if c_weapon.check_for_Fire(click) and c_weapon.reload_tick() == 0:
+            if not c_weapon.charge_tick.tick():
+                print(c_weapon.charge_tick.value)
+                return
+        else:
+            c_weapon.charge_tick.value = 0
 
     if c_weapon.get_semi_auto():
         if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0:
@@ -707,8 +722,8 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
             x = 15
         else:
             x = 15 - 1/((money_tick.max_value + 3 - money_tick.value)**1.2)*40
-        text = terminal.render(f"+{player_actor.money - player_actor.money_last_tick}$", False, [0,255,0])
-        screen.blit(text, (x+x_d, 130+y_d)) #
+        text = terminal.render(f"+{player_actor.money - player_actor.money_last_tick}$", False, [0,random.randint(155,255),0])
+        screen.blit(text, (x+x_d, 380+y_d)) #
 
 
     else:

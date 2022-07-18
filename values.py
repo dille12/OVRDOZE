@@ -167,6 +167,11 @@ for x in range(100):
     x += 5
     bullet_length.append(pygame.transform.scale(pygame.image.load("texture/bullet.png"), (x,4)).convert_alpha())
 
+energy_bullet_length = []
+for x in range(100):
+    x += 5
+    energy_bullet_length.append(pygame.transform.scale(pygame.image.load("texture/lazer.png"), (x,8)).convert_alpha())
+
 long_bullet = pygame.transform.scale(pygame.image.load("texture/bullet.png"), (45,4)).convert_alpha()
 grenade_throw = False
 grenade = pygame.transform.scale(pygame.image.load("texture/items/grenade.png"), [14,14]).convert_alpha()
@@ -267,6 +272,7 @@ menu_click =  pygame.mixer.Sound("sound/menu_click.wav")
 menu_click2 =  pygame.mixer.Sound("sound/menu_click2.wav")
 q_r_success =  pygame.mixer.Sound("sound/sfx/quick_reload_success.wav")
 q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
+energy_cell_sound = pygame.mixer.Sound("sound/item_sounds/energy_ammo.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
 barricade_list = []
@@ -305,6 +311,8 @@ typing = get_sound_Variants("sound", "type")
 ruperts_shop_selections = []
 
 assault_rifle_sounds2 = {"fire": get_sound_Variants("sound","ar2_fire"),"reload":pygame.mixer.Sound("sound/reload_assault.wav")}
+
+nrg_sounds = {"fire": get_sound_Variants("sound","nrg_fire"),"reload":pygame.mixer.Sound("sound/nrg_reload.wav")}
 
 turret_fire1 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire2 = pygame.mixer.Sound("sound/turret_fire1.wav")

@@ -35,9 +35,12 @@ class Gun(Weapon):
             image = "",
             hostile = False,
             sounds = {"fire":weapon_fire_Sounds,"reload":reload},
-            view = 0.03
+            view = 0.03,
+            energy_weapon = False,
+            charge_up = False,
+            charge_time = 10
         ):
-        super().__init__(name, price,damage,image,hostile,sounds,view,kind="guns")
+        super().__init__(name, price,damage,image,hostile,sounds,view,kind="guns", energy_weapon = energy_weapon)
         self._clip_size = clip_s
         self._bullets_in_clip = clip_s + 1
         self._bullet_per_min = fire_r
@@ -64,6 +67,12 @@ class Gun(Weapon):
         self.burst_fire_rate = burst_fire_rate
         self.burst_tick = 0
         self.current_burst_bullet = 0
+
+        self.charge_up = charge_up
+        self.charge_time = charge_time
+
+        if charge_up:
+            self.charge_tick = GameTick(self.charge_time, oneshot = True)
 
     def add_to_spread(self, amount):
         self._c_bullet_spread += amount
@@ -94,7 +103,10 @@ class Gun(Weapon):
             handling = self.handling,
             burst = self.burst,
             burst_bullets = self.burst_bullets,
-            burst_fire_rate = self.burst_fire_rate
+            burst_fire_rate = self.burst_fire_rate,
+            energy_weapon = self.energy_weapon,
+            charge_up = self.charge_up,
+            charge_time = self.charge_time
         )
     def get_semi_auto(self):
         return self.semi_auto
@@ -120,10 +132,18 @@ class Gun(Weapon):
                     self._damage * multiplier,
                     hostile = self.hostile,
                     speed = self.bullet_speed,
-                    piercing = self.piercing_bullets)
+                    piercing = self.piercing_bullets,
+                    energy = self.energy_weapon)
                 )   #BULLET
-                for x in range(random.randint(8,16)):
-                    particle_list.append(classes.Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self._damage**0.1- 0.5, screen = screen))
+
+
+                if self.energy_weapon:
+                    for x in range(random.randint(14,23)):
+                        particle_list.append(classes.Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self._damage**0.2- 0.5, screen = screen, type = "energy"))
+
+                else:
+                    for x in range(random.randint(8,16)):
+                        particle_list.append(classes.Particle(bul_pos, pre_defined_angle = True, angle = angle+90,magnitude = self._damage**0.1- 0.5, screen = screen))
 
                 if self._shotgun == False:
                     self._bullets_in_clip -= 1

@@ -14,7 +14,8 @@ mouse_conversion = fs_size[0] / size[0]
 
 
 maps = [Map("Basement Lvl. 1", "map.png", "nav_mesh_requiem.txt", [0,0], mouse_conversion, [2000,1500],
-POLYGONS = [ #x,y,width,height
+POLYGONS = 
+[ #x,y,width,height
 [2,470,125,186],
 [377,470,125,186],
 [502,376,125,561],
@@ -29,6 +30,8 @@ POLYGONS = [ #x,y,width,height
 [1624,1218,376,93]
 
 ],
+
+
 
 OBJECTS = [
 classes.Interactable([5,5], None, name = "Box"),

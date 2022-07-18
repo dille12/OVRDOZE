@@ -203,6 +203,31 @@ guns = {
         view = 0.045,
         handling = 0.15,
         semi_auto = True),
+
+    "NRG-LMG Mark1" : W.Gun(
+        name="NRG-LMG Mark1",
+        price = 6700,
+        clip_s = 67,
+        fire_r = 600,
+        spread = 1,
+        spread_r = 0.935,
+        spread_per_bullet = 2.2,
+        reload_r = 80,
+        damage = 75,
+        bullets_at_once = 1,
+        sounds = nrg_sounds,
+        bullet_speed = 45,
+        shotgun = False,
+        ammo_cap_lvlup = 1,
+        image = "awp.png",
+        ammo = "Energy Cell",
+        piercing = True,
+        view = 0.035,
+        handling = 0.25,
+        semi_auto = False,
+        energy_weapon = True,
+        charge_up = True,
+        charge_time = 30),
 }
 melees={
 

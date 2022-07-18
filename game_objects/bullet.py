@@ -10,7 +10,8 @@ class Bullet(Game_Object):
             hostile = True,
             speed = 20,
             piercing = False,
-            mp = False
+            mp = False,
+            energy = False
         ):
         super().__init__(
             name="bullet",
@@ -23,8 +24,12 @@ class Bullet(Game_Object):
             texture=bullet_texture)
         self.mp = mp
         self.speed = speed * random.uniform(0.9,1.1)
+        self.energy = energy
         if type != "shrapnel":
-            self.im = bullet_length[round(self.speed)]
+            if self.energy:
+                self.im = energy_bullet_length[round(self.speed)]
+            else:
+                self.im = bullet_length[round(self.speed)]
             self.type = "bullet"
         else:
             self.type = "shrapnel"

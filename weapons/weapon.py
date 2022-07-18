@@ -12,10 +12,12 @@ class Weapon:
             hostile = False,
             sounds = {"fire": weapon_fire_Sounds, "reload":reload },
             view = 0.03,
-            kind = "unknown"
+            kind = "unknown",
+            energy_weapon = False
         ):
         self.name = name
         self.price = price
+        self.energy_weapon = energy_weapon
         self._damage = damage
         self._double_damage_time = 0
         self._weapon_fire_Tick = 0
