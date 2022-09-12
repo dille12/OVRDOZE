@@ -71,6 +71,8 @@ class Gun(Weapon):
         self.charge_up = charge_up
         self.charge_time = charge_time
 
+        self.jammed = False
+
         if charge_up:
             self.charge_tick = GameTick(self.charge_time, oneshot = True)
 
@@ -113,10 +115,21 @@ class Gun(Weapon):
 
 
     def fire(self,bullet_pos,angle, screen):
-        super().use()
+
+
+
+        if self.jammed:
+            return
+
+        if random.uniform(0,1) < 0:
+            self.jammed = True
+            return
+
         radian_angle = math.radians(angle) - 0.16184 + math.pi/2
 
         c = 198.59507*0.36919315403/1.875
+
+        super().use()
 
         x_offset = math.sin(radian_angle)*c
         y_offset = math.cos(radian_angle)*c

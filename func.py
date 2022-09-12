@@ -474,9 +474,8 @@ def keypress_manager(key_r_click,c_weapon, player_inventory):
 def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, ai = False):
     firing_tick = False
 
-
-
-
+    if c_weapon.jammed:
+        return
 
     if ai:
         if c_weapon.get_semi_auto():
@@ -491,9 +490,8 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, 
 
     if c_weapon.charge_up:
 
-        if c_weapon.check_for_Fire(click) and c_weapon.reload_tick() == 0:
+        if click and c_weapon.reload_tick() == 0:
             if not c_weapon.charge_tick.tick():
-                print(c_weapon.charge_tick.value)
                 return
         else:
             c_weapon.charge_tick.value = 0
@@ -544,7 +542,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen = screen, 
 
     else:
         if c_weapon.check_for_Fire(click) == True and  c_weapon.weapon_fire_Tick() <= 0 and c_weapon.reload_tick() == 0:##FIRE
-            while c_weapon.weapon_fire_Tick() <= 0 and c_weapon.check_for_Fire(click) == True:
+            while c_weapon.weapon_fire_Tick() <= 0 and c_weapon.check_for_Fire(click) == True and not c_weapon.jammed:
                 reload.stop()
                 c_weapon.fire(player_pos,angle,screen)
                 firing_tick = True
@@ -673,13 +671,15 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
 
 
 
-def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick, wave, wave_anim_ticks, wave_text_tick, wave_number):
+def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick, wave, wave_anim_ticks, wave_text_tick, wave_number, wave_text_color, beat_red):
     global last_hp, damage_ticks
 
     hp = min([round(player_actor.__dict__["hp"]),100])
 
     heartbeat_tick.tick()
     heartbeat_value = (1 - heartbeat_tick.value/30 * (100 - hp)/100) ** 2
+    if wave:
+        pygame.draw.rect(screen, [255,0,0], [-1,-1, size[0]+2, size[1]+2],round((beat_red-0.8)*3))
 
 
 
@@ -839,7 +839,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
     if wave or wave_anim_ticks[0] > 0:
         wave_end_tick, wave_start_tick = wave_anim_ticks
 
-        if round(abs(wave_text_tick)/30)%2 == 0:
+        if wave_text_color:
 
             color1 = [255,255,255]
             color2 = [255,0,0]
@@ -876,69 +876,84 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
     try:
         im = weapon.__dict__["image"]
         screen.blit(im,[5+x_d, 5+y_d])
+
+        if weapon.charge_up and weapon.charge_tick.value != 0:
+            size1 = weapon.image_red.get_rect().size
+            screen.blit(weapon.image_red,[5+x_d, 5+y_d], area = [0,0, size1[0]*weapon.charge_tick.value/weapon.charge_tick.max_value, size1[1]])
+
+
+
     except Exception as e:
-        pass
-    if weapon.__dict__["_reload_tick"] == 0:
-        if clip == clip_size + 1:
-            text = terminal.render(str(clip-1) + "+1/" + str(clip_size), False, hud_color)
-            screen.blit(text, (15+x_d, 45+y_d)) #
-        else:
-            if clip == 0:
+        print(e)
+
+    if not weapon.jammed:
+
+        if weapon.__dict__["_reload_tick"] == 0:
+            if clip == clip_size + 1:
+                text = terminal.render(str(clip-1) + "+1/" + str(clip_size), False, hud_color)
+                screen.blit(text, (15+x_d, 45+y_d)) #
+            else:
+                if clip == 0:
+                    color = [255,0,0]
+                else:
+                    color = hud_color
+
+
+                text = terminal.render(str(clip) + "/" + str(clip_size), False, color)
+                screen.blit(text, (15+x_d, 45+y_d)) #
+
+            if player_inventory.get_amount_of_type(weapon.__dict__["ammo"]) < clip_size and weapon.__dict__["ammo"] != "INF":
                 color = [255,0,0]
             else:
                 color = hud_color
 
+            if weapon.__dict__["ammo"] == "INF":
+                text = terminal.render("+INF", False, color)
+                screen.blit(text, (110+x_d, 45+y_d)) #
+            else:
 
-            text = terminal.render(str(clip) + "/" + str(clip_size), False, color)
+                text = terminal.render("+" + str(player_inventory.get_amount_of_type(weapon.__dict__["ammo"])) + " res.", False, color)
+                screen.blit(text, (110+x_d, 45+y_d)) #
+
+        else:
+            text = terminal.render("reloading...", False, hud_color)
             screen.blit(text, (15+x_d, 45+y_d)) #
 
-        if player_inventory.get_amount_of_type(weapon.__dict__["ammo"]) < clip_size and weapon.__dict__["ammo"] != "INF":
-            color = [255,0,0]
-        else:
-            color = hud_color
+        if weapon.get_semi_auto():
+            text = terminal3.render("Semi-Automatic", False, hud_color)
+            screen.blit(text, (15+x_d, 65+y_d)) #
 
-        if weapon.__dict__["ammo"] == "INF":
-            text = terminal.render("+INF", False, color)
-            screen.blit(text, (110+x_d, 45+y_d)) #
-        else:
+            text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
+            screen.blit(text, (110+x_d, 65+y_d)) #
 
-            text = terminal.render("+" + str(player_inventory.get_amount_of_type(weapon.__dict__["ammo"])) + " res.", False, color)
-            screen.blit(text, (110+x_d, 45+y_d)) #
+        elif weapon.__dict__["burst"]:
+
+            text = terminal3.render("Burst-fire", False, hud_color)
+            screen.blit(text, (15+x_d, 65+y_d)) #
+
+            text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
+            screen.blit(text, (80+x_d, 65+y_d)) #
+
+            text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
+            screen.blit(text, (150+x_d, 65+y_d)) #
+
+        else:
+            text = terminal3.render("Automatic", False, hud_color)
+            screen.blit(text, (15+x_d, 65+y_d)) #
+
+            text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
+            screen.blit(text, (80+x_d, 65+y_d)) #
+
+            ammo_text_len = 80 + text.get_rect().size[0] + 20
+            #print(ammo_text_len)
+
+            text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
+            screen.blit(text, (max([150+x_d, ammo_text_len+x_d]), 65+y_d)) #
 
     else:
-        text = terminal.render("reloading...", False, hud_color)
-        screen.blit(text, (15+x_d, 45+y_d)) #
+        text = terminal4.render("JAMMED!", False, [255,0,0])
+        screen.blit(text, [5+x_d,40+y_d]) #
 
-    if weapon.get_semi_auto():
-        text = terminal3.render("Semi-Automatic", False, hud_color)
-        screen.blit(text, (15+x_d, 65+y_d)) #
-
-        text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
-        screen.blit(text, (110+x_d, 65+y_d)) #
-
-    elif weapon.__dict__["burst"]:
-
-        text = terminal3.render("Burst-fire", False, hud_color)
-        screen.blit(text, (15+x_d, 65+y_d)) #
-
-        text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
-        screen.blit(text, (80+x_d, 65+y_d)) #
-
-        text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
-        screen.blit(text, (150+x_d, 65+y_d)) #
-
-    else:
-        text = terminal3.render("Automatic", False, hud_color)
-        screen.blit(text, (15+x_d, 65+y_d)) #
-
-        text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
-        screen.blit(text, (80+x_d, 65+y_d)) #
-
-        ammo_text_len = 80 + text.get_rect().size[0] + 20
-        #print(ammo_text_len)
-
-        text = terminal3.render(str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color)
-        screen.blit(text, (max([150+x_d, ammo_text_len+x_d]), 65+y_d)) #
 
     y_pos = 80
 

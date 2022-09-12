@@ -238,6 +238,9 @@ class GameTick:
         return round(self.value)
 
 
+
+
+
 dialogue = []
 dialogue_tick = GameTick(40)
 
@@ -273,6 +276,9 @@ menu_click2 =  pygame.mixer.Sound("sound/menu_click2.wav")
 q_r_success =  pygame.mixer.Sound("sound/sfx/quick_reload_success.wav")
 q_r_fail =  pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
 energy_cell_sound = pygame.mixer.Sound("sound/item_sounds/energy_ammo.wav")
+
+gun_jam = pygame.mixer.Sound("sound/sfx/gun_jam.wav")
+gun_jam_clear = pygame.mixer.Sound("sound/sfx/gun_jam_clear.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
 barricade_list = []

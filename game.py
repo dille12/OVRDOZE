@@ -107,7 +107,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     los_image = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
     los_image.set_colorkey((255,255,255))
         #
-    los_image.set_alpha(150)
+    #los_image.set_alpha(150)
 
     x_vel = 0
     y_vel = 0
@@ -248,7 +248,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     #[classes.Barricade([100,300], [200,400], map)]
     player_weapons.clear()
     player_weapons.append(give_weapon("gun","M1911"))
-    #player_weapons.append(give_weapon("gun","NRG-LMG Mark1"))
+    player_weapons.append(give_weapon("gun","NRG-LMG Mark1"))
         #give_weapon("gun", "SCAR18"),
         # give_weapon("gun","M134 MINIGUN"),
         # give_weapon("gun","AR-15"),
@@ -313,6 +313,10 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     playing_song = ""
 
     fade_tick.value = 15
+
+    beat_red = 0
+
+    wave_text_color = True
 
 
     while 1:
@@ -396,6 +400,16 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
             continue
 
+        if c_weapon.jammed and click_single_tick:
+            if random.uniform(0,1) < 0.3:
+                c_weapon.jammed = False
+                gun_jam_clear.play()
+            else:
+                gun_jam.play()
+
+
+
+
         if map.name == "Overworld":
             overworld = True
         else:
@@ -422,6 +436,31 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 app.pygame.mixer.music.load(up_next)
                 playing_song = func.pick_random_from_list(songs)
                 app.pygame.mixer.music.play()
+
+                with open(f"{up_next}_timestamps.txt") as file: # Use file to refer to the file object
+                    beat_map = ast.literal_eval(file.read())
+
+                song_start_t = time.time()
+                beat_index = 0
+
+        beat_red = (beat_red-1)*0.85+1
+        try:
+            if time.time() - song_start_t > beat_map[beat_index] > 0:
+                beat_red = 3
+                beat_index += 1
+
+                if wave_text_color:
+                    wave_text_color = False
+                else:
+                    wave_text_color = True
+
+
+
+
+        except:
+            pass
+        if wave:
+            camera_pos = [camera_pos[0] + random.uniform(-beat_red+1, beat_red-1), camera_pos[1] + random.uniform(-beat_red+1, beat_red-1)]
 
 
 
@@ -656,7 +695,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     wave_change_timer = time.time()
 
                     wave_anim_ticks = [120, 0]
-                wave_text_tick += timedelta.mod(1)
+                wave_text_tick += timedelta.mod(beat_red)
 
 
             else:
@@ -915,8 +954,15 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
                 if player_inventory.get_inv() == False and not overworld:
+
+
+
                     firing_tick = func.weapon_fire(c_weapon, player_inventory, player_actor.get_angle(), player_pos, screen)
                     player_melee.tick(screen, r_click_tick)
+
+                    if c_weapon._bullets_in_clip == 0 and click_single_tick:
+                        gun_jam.play()
+
                 else:
                     c_weapon.spread_recoverial()
                     c_weapon.weapon_tick()
@@ -1139,7 +1185,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
         if player_actor.get_hp() > 0:
 
             if not block_movement:
-                func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, round(wave_text_tick), wave_number)
+                func.draw_HUD(screen, player_inventory, cam_delta, camera_pos, c_weapon, player_weapons, player_actor, mouse_pos, clicked, r_click_tick,wave, wave_anim_ticks, round(wave_text_tick), wave_number, wave_text_color, beat_red)
 
             if not overworld:
                 player_actor.set_sanity(0.005*sanity_drain)

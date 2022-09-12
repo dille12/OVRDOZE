@@ -267,6 +267,12 @@ def check_los_points(p1,p2,los_walls):
 
 def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None, quick_render = False):
 
+    """
+    Renders the black and white image from a set of walls.
+    """
+
+
+
     time_stamps = {}
 
     t = time.time()
@@ -494,8 +500,12 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
 
 
             if closest_point != None:
-                if get_dist_points(angle_point, closest_point) > 10:
+                if get_dist_points(angle_point, closest_point) > 5:
                     intersects_visible[angle] = [closest_point, point_1, point_2]
+
+
+
+
                     p1, p2 = closest_wall.get_points()
 
                     if math.atan2(p1[1] - player_pos[1],p1[0] - player_pos[0]) > math.atan2(p2[1] - player_pos[1],p2[0] - player_pos[0]):

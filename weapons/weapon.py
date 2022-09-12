@@ -47,6 +47,10 @@ class Weapon:
                 pygame.image.load(f"texture/{self.kind}/{image}"),
                 pygame.Color(255, 155, 155))
 
+            self.image_red = func.colorize(
+                pygame.image.load(f"texture/{self.kind}/{image}"),
+                pygame.Color(255, 0, 0))
+
             self.image.set_alpha(200)
 
             print("Image loaded")
