@@ -104,7 +104,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     fps_counter = time.time()
 
 
-    los_image = pygame.Surface(size, pygame.SRCALPHA, 32).convert_alpha()
+    los_image = pygame.Surface(size).convert()
     los_image.set_colorkey((255,255,255))
         #
     #los_image.set_alpha(150)
