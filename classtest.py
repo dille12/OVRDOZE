@@ -14,6 +14,7 @@ from itertools import accumulate
 import ast
 import classes
 
+from tools.image_transform import *
 
 from values import *
 
@@ -89,6 +90,15 @@ def load_level(map, mouse_conversion, player_inventory, app):
     fade_tick.value = 15
     map_desc_tick.value = 0
 
+    los_bg = pygame.Surface(map.get_size())
+    los_bg.fill((0,0,0))
+
+    los_bg2 = greyscale(map.background)
+    los_bg2.set_alpha(85)
+    los_bg.blit(los_bg2, (0,0))
+
+
+
 
 
     burn_list.clear()
@@ -162,7 +172,7 @@ def load_level(map, mouse_conversion, player_inventory, app):
 
     app.pygame.display.set_gamma(map.GAMMA[0],map.GAMMA[1],map.GAMMA[2])
 
-    return map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered
+    return map, map_render, los_bg, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered
 
 
 class Map:
@@ -175,12 +185,6 @@ class Map:
         self.GAMMA = GAMMA
 
         self.spawn_point = SPAWNPOINT
-
-
-
-
-
-
 
         self.nav_mesh_available_spots = []
 
@@ -219,6 +223,10 @@ class Map:
             self.polygons_no_los_block.append([[(x)/ self.conv, (y+height) / self.conv],[(x) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y) / self.conv],[(x+width) / self.conv,(y+height) / self.conv]])
 
         self.background = pygame.transform.scale(pygame.image.load("texture/maps/" + dir), [round(size[0] / self.conv), round(size[1] / self.conv)]).convert()
+
+
+
+
 
         if TOP_LAYER == None:
             self.top_layer = None

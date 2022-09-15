@@ -208,7 +208,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
     turret_bro.append(objects.MovingTurret.MovingTurret([100,300],4,5,500,20,-1, NAV_MESH = None, walls = None, map = None))
 
-    map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(map, mouse_conversion, player_inventory, app)
+    map, map_render, los_bg, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(map, mouse_conversion, player_inventory, app)
 
     wave = False
     wave_number = 0
@@ -783,7 +783,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                     loading_cue.clear()
                     for x in app.maps:
                         if x.name == door_dest:
-                            map, map_render, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(x, mouse_conversion, player_inventory, app)
+                            map, map_render, los_bg, map_boundaries, NAV_MESH, player_pos, camera_pos, wall_points, walls_filtered = load_level(x, mouse_conversion, player_inventory, app)
 
                             wave = False
                             wave_number = 0
@@ -1107,7 +1107,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         if draw_los:
-            los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle())
+            los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle(), los_background = los_bg)
 
             ###
             ### OPTIMZE point_inits, finishing
@@ -1153,9 +1153,11 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
                 color = [255,255,255]
             else:
                 color = [255,0,0]
-
-            perc1 = round(100*draw_time/(draw_time+draw_time2))
-            perc2 = round(100*draw_time2/(draw_time+draw_time2))
+            try:
+                perc1 = round(100*draw_time/(draw_time+draw_time2))
+                perc2 = round(100*draw_time2/(draw_time+draw_time2))
+            except:
+                pass
 
         if wave_number >= 5:
             if not wave:

@@ -265,7 +265,7 @@ def check_los_points(p1,p2,los_walls):
     return True
 
 
-def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None, quick_render = False):
+def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = None, angle_tolerance = 0, debug_angle = None, quick_render = False, los_background = None):
 
     """
     Renders the black and white image from a set of walls.
@@ -289,6 +289,9 @@ def render_los_image(los, phase, camera_pos, player_pos,map, walls, los_angle = 
     #los.set_colorkey((255,255,255))
     if not quick_render:
         los.fill(pygame.Color([0,0,0]))
+
+    if los_background:
+        los.blit(los_background, [-camera_pos[0], -camera_pos[1]])
 
     point_dict = {}
     point_dict_dist = {}
