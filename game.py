@@ -372,7 +372,7 @@ def main(
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
-        clock.tick(fps_cap)
+        clock.tick(app.clocktick)
 
         t = time.time()
         time_stamps = {}

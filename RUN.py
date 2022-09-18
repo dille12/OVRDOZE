@@ -68,6 +68,7 @@ def main():
     menu_i = 0
 
     def start_mp_game(arg):
+
         reply = net.send("start_game")
         start_multiplayer_client()
 
@@ -95,6 +96,9 @@ def main():
             return "upnp_test"
 
     def start_multiplayer_client():
+        get_preferences.write_prefs(
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+        )
         game.main(
             app,
             multiplayer=True,
@@ -131,14 +135,14 @@ def main():
 
     def main_menu(arg):
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
         )
         return "start"
 
     def quit(args):
 
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
         )
 
         sys.exit()
@@ -147,7 +151,7 @@ def main():
         print("SPa")
 
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
         )
         args = (
             app,
@@ -381,6 +385,45 @@ def main():
         font_color=[255, 255, 255],
         text_offset=[40, 5],
     )
+
+    check_box_fps1 = hud_elements.Checkbox(
+        screen,
+        400,
+        260,
+        caption="60",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+        cant_uncheck=True,
+    )
+
+    check_box_fps2 = hud_elements.Checkbox(
+        screen,
+        400,
+        300,
+        caption="144",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+        cant_uncheck=True,
+    )
+
+    check_box_fps3 = hud_elements.Checkbox(
+        screen,
+        400,
+        340,
+        caption="Unlimited",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+        cant_uncheck=True,
+    )
+
+    check_box_fps = [check_box_fps1, check_box_fps2, check_box_fps3]
+
+    for x in check_box_fps:
+        if x.caption == app.fps:
+            x.checked = True
+            break
+
+
     if app.fs:
         check_box_fs.__dict__["checked"] = True
     if app.ultraviolence:
@@ -419,6 +462,9 @@ def main():
         check_box_fov,
         check_box_ultra,
         check_box_fs,
+        check_box_fps1,
+        check_box_fps2,
+        check_box_fps3
     ]
     game_state = {
         "selected_map": selected_map,
@@ -454,6 +500,8 @@ def main():
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -
 
+        app.update_fps()
+
         if background_tick != 0:
             background_tick -= 1
             background_vel += 0.2
@@ -464,15 +512,16 @@ def main():
 
         clock.tick(60)
 
-        app.name = textbox_name.__dict__["text"]
-        app.ip = textbox_ip.__dict__["text"]
+        app.name = textbox_name.text
+        app.ip = textbox_ip.text
         events = app.pygame.event.get()
 
-        full_screen_mode = check_box_fs.__dict__["checked"]
+        full_screen_mode = check_box_fs.checked
 
-        app.dev = check_box_dev_commands.__dict__["checked"]
-        app.ultraviolence = check_box_ultra.__dict__["checked"]
-        app.draw_los = check_box_fov.__dict__["checked"]
+        app.dev = check_box_dev_commands.checked
+        app.ultraviolence = check_box_ultra.checked
+        app.draw_los = check_box_fov.checked
+        app.fs = check_box_fs.checked
 
         mouse_pos = app.pygame.mouse.get_pos()
 
@@ -484,6 +533,12 @@ def main():
                 check_box_dev_commands.update_checkbox(event, mouse_pos)
                 check_box_ultra.update_checkbox(event, mouse_pos)
                 check_box_fs.update_checkbox(event, mouse_pos)
+
+
+
+                check_box_fps1.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
+                check_box_fps2.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
+                check_box_fps3.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
 
             if menu_status == "single_player_lobby":
 
@@ -505,21 +560,12 @@ def main():
 
         # screen.fill((round(30 - 15 * math.sin(2*math.pi*background_tick/52)),0,0))
         screen.fill((0, 0, 0))
-        try:
-            screen.blit(
-                menu_animations[menu_i][
-                    round(
-                        (len(menu_animations[menu_i]) - 1)
-                        * ((time.time() - last_beat) / beat_time) ** 1
-                    )
-                ],
-                [0, 0],
-            )
-        except Exception as e:
-            print(e)
+
 
         if rgb_i > 2:
             rgb_i -= 1
+
+
 
         if time.time() - t > beat_time:
             t = time.time() - (time.time() - t - beat_time)
@@ -535,6 +581,19 @@ def main():
 
             if menu_i == len(menu_animations):
                 menu_i = 0
+
+        try:
+            screen.blit(
+                menu_animations[menu_i][
+                    round(
+                        (len(menu_animations[menu_i]) - 1)
+                        * (((time.time() - last_beat) * 0.9) / beat_time) ** 1
+                    )
+                ],
+                [0, 0],
+            )
+        except Exception as e:
+            print(e)
 
             # for y in range(10):
             #     pos = [random.randint(0,size[0]), random.randint(0,size[1])]
@@ -586,6 +645,9 @@ def main():
             text = terminal.render("Name:", False, [255, 255, 255])
             screen.blit(text, [20, 207])
 
+            text = terminal.render("FPS Lock", False, [255, 255, 255])
+            screen.blit(text, [400, 207])
+
             textbox_name.tick(screen, mouse_single_tick, mouse_pos, events)
 
             check_box_fov.render_checkbox()
@@ -595,6 +657,12 @@ def main():
             check_box_ultra.render_checkbox()
 
             check_box_fs.render_checkbox()
+
+            for x in check_box_fps:
+                x.render_checkbox()
+
+                if x.checked:
+                    app.fps = x.caption
 
             if s8_2 != None:
                 menu_status = s8_2

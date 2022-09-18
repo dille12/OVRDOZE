@@ -16,7 +16,7 @@ import objects
 import get_preferences
 from dialog import *
 
-a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)

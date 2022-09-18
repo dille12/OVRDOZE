@@ -13,6 +13,20 @@ class App:
         self.pygame = pygame
         self.server = server
         self.ip = None
+        self.preferences()
+        pygame.init()
+        pygame.font.init()
+
+    def update_fps(self):
+        if self.fps == "60":
+            self.clocktick = 60
+        elif self.fps == "144":
+            self.clocktick = 144
+        elif self.fps == "Unlimited":
+            self.clocktick = 500
+
+
+    def preferences(self):
         (
             self.name,
             self.draw_los,
@@ -20,9 +34,11 @@ class App:
             self.fs,
             self.ultraviolence,
             self.last_ip,
+            self.fps,
         ) = get_preferences.pref()
-        pygame.init()
-        pygame.font.init()
+
+
+
 
     def lobby_host(self, thread, ip):
         print("SERVER STARTING")

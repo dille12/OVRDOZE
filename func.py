@@ -45,7 +45,6 @@ def load_animation(directory, start_frame, frame_count, alpha=255):
     for x in range(frame_count):
         x = x + start_frame
         im_dir = directory + "/" + (4 - len(str(x))) * "0" + str(x) + ".png"
-        print(im_dir)
 
         im = pygame.image.load(im_dir).convert_alpha()
 

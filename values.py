@@ -5,15 +5,7 @@ import random
 import time
 import mixer
 from screeninfo import get_monitors
-import win32api
 
-
-device = win32api.EnumDisplayDevices()
-print((device.DeviceName, device.DeviceString))
-settings = win32api.EnumDisplaySettings(device.DeviceName, -1)
-
-fps_cap = settings.DisplayFrequency
-print(fps_cap)
 
 print("VALUE INIT")
 pygame.init()

@@ -3,7 +3,7 @@ from values import *
 import get_preferences
 from button import Button
 
-player_name, draw_los, a, a, ultraviolence, a = get_preferences.pref()
+player_name, draw_los, a, a, ultraviolence, a, a = get_preferences.pref()
 
 surf_back = pygame.Surface(size)
 surf_back.fill([0, 0, 0])

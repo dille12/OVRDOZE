@@ -20,15 +20,21 @@ def pref():
             fs = ast.literal_eval(value.strip("\n"))
         if attr == "LASTIP":
             last_ip = value.strip("\n")
+        if attr == "FPS":
+            fps = value.strip("\n")
 
-    return username, draw_los, dev, fs, ultraviolence, last_ip
+    return username, draw_los, dev, fs, ultraviolence, last_ip, fps
 
 
-def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip):
+def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps):
     file = open("settings.txt", "w", encoding="UTF8")
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
     file.write("DEV=" + str(dev) + "\n")
+    print("FS=" + str(fs))
     file.write("FS=" + str(fs) + "\n")
     file.write("ULTRA=" + str(ultraviolence) + "\n")
     file.write("LASTIP=" + str(last_ip) + "\n")
+    file.write("FPS=" + str(fps) + "\n")
+    file.close()
+    print("Settings saved")
