@@ -11,7 +11,8 @@ from path_finding import get_complete_routes
 C accelerated route calculator, couldn't get this to work properly
 """
 
-def calc_route(start_pos, end_pos, NAV_MESH, walls, stat = "1"):
+
+def calc_route(start_pos, end_pos, NAV_MESH, walls, stat="1"):
     """
     Calculates the shortest route to a point using the navmesh points
     """
@@ -32,7 +33,6 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, stat = "1"):
     except:
         return [end_pos]
 
-
     routes = []
     for conne in start_nav_point["connected"]:
         routes.append([start_nav_point["point"], conne])
@@ -42,10 +42,9 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, stat = "1"):
     else:
         complete_routes = get_complete_routes(routes, end_nav_point, NAV_MESH)
 
-
-    shortest_route = {"dist" : 10000, "route" : []}
+    shortest_route = {"dist": 10000, "route": []}
     for route in complete_routes:
-        route_ref = {"dist" : 0, "route" : route}
+        route_ref = {"dist": 0, "route": route}
         last_pos = start_pos
         for point in route:
             route_ref["dist"] += get_dist_points(last_pos, point)
@@ -53,8 +52,8 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, stat = "1"):
         if route_ref["dist"] < shortest_route["dist"]:
             shortest_route = route_ref
 
-
     return shortest_route["route"]
+
 
 def py_routes(routes, end_nav_point, NAV_MESH):
     complete_routes = []
@@ -62,13 +61,11 @@ def py_routes(routes, end_nav_point, NAV_MESH):
         route = routes[0]
         routes.remove(route)
         point = route[-1]
-        #point_2 = get_point_from_list(point, NAV_MESH)
+        # point_2 = get_point_from_list(point, NAV_MESH)
 
         for point_2 in NAV_MESH:
             if point == point_2["point"]:
                 break
-
-
 
         if end_nav_point["point"] in point_2["connected"]:
             route.append(end_nav_point["point"])
@@ -84,12 +81,14 @@ def py_routes(routes, end_nav_point, NAV_MESH):
 
     return complete_routes
 
-def get_point_from_list(point,dict):
+
+def get_point_from_list(point, dict):
     for point_2 in dict:
         if point == point_2["point"]:
             return point_2
 
-def check_los_points(p1,p2,los_walls):
+
+def check_los_points(p1, p2, los_walls):
     for wall_1 in los_walls:
         point_1 = wall_1[0]
         point_2 = wall_1[1]
@@ -98,14 +97,17 @@ def check_los_points(p1,p2,los_walls):
             return False
     return True
 
-def get_dist_points(point_1,point_2):
-    return math.sqrt((point_2[0] - point_1[0])**2 + (point_2[1] - point_1[1])**2)
 
-def intersect(A,B,C,D):
-    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+def get_dist_points(point_1, point_2):
+    return math.sqrt((point_2[0] - point_1[0]) ** 2 + (point_2[1] - point_1[1]) ** 2)
 
-def ccw(A,B,C):
-    return (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0])
+
+def intersect(A, B, C, D):
+    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+
+
+def ccw(A, B, C):
+    return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
 
 
 if __name__ == "__main__":
@@ -124,6 +126,6 @@ if __name__ == "__main__":
     for x in ["1", "2"]:
         for y in range(10):
             start = time.time()
-            route = calc_route([50,50], [1800, 1400], NAV_MESH, wall_points, stat = x)
+            route = calc_route([50, 50], [1800, 1400], NAV_MESH, wall_points, stat=x)
             print(f"GOT ROUTE {route} {x }")
             print(f"completed {time.time() - start}")

@@ -2,19 +2,21 @@ import sys
 import os.path
 import func
 from values import *
+
+
 class Weapon:
     def __init__(
-            self,
-            name="weapon",
-            price = 100,
-            damage=10,
-            image = "",
-            hostile = False,
-            sounds = {"fire": weapon_fire_Sounds, "reload":reload },
-            view = 0.03,
-            kind = "unknown",
-            energy_weapon = False
-        ):
+        self,
+        name="weapon",
+        price=100,
+        damage=10,
+        image="",
+        hostile=False,
+        sounds={"fire": weapon_fire_Sounds, "reload": reload},
+        view=0.03,
+        kind="unknown",
+        energy_weapon=False,
+    ):
         self.name = name
         self.price = price
         self.energy_weapon = energy_weapon
@@ -22,9 +24,9 @@ class Weapon:
         self._double_damage_time = 0
         self._weapon_fire_Tick = 0
         self.enemy_weapon = hostile
-        self.hostile=hostile;
+        self.hostile = hostile
         self.team = "hostile" if hostile else "friendly"
-        self.kind = kind;
+        self.kind = kind
 
         self.kind = "guns"
 
@@ -39,60 +41,70 @@ class Weapon:
         if image != "":
             self.image = func.colorize(
                 pygame.image.load(f"texture/{self.kind}/{image}"),
-                pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
+                pygame.Color(hud_color[0], hud_color[1], hud_color[2]),
+            )
 
             self.image.set_alpha(100)
 
             self.image_non_alpha = func.colorize(
                 pygame.image.load(f"texture/{self.kind}/{image}"),
-                pygame.Color(255, 155, 155))
+                pygame.Color(255, 155, 155),
+            )
 
             self.image_red = func.colorize(
                 pygame.image.load(f"texture/{self.kind}/{image}"),
-                pygame.Color(255, 0, 0))
+                pygame.Color(255, 0, 0),
+            )
 
             self.image.set_alpha(200)
 
             print("Image loaded")
 
-
-
-
-            temp = pygame.transform.scale(pygame.image.load(f"texture/{self.kind}/{image}"), [30,10]).convert_alpha()
-            self.icon = func.colorize(temp, pygame.Color(hud_color[0], hud_color[1], hud_color[2]))
-            #self.icon.set_alpha(100)
+            temp = pygame.transform.scale(
+                pygame.image.load(f"texture/{self.kind}/{image}"), [30, 10]
+            ).convert_alpha()
+            self.icon = func.colorize(
+                temp, pygame.Color(hud_color[0], hud_color[1], hud_color[2])
+            )
+            # self.icon.set_alpha(100)
             self.icon_active = func.colorize(temp, pygame.Color(0, 255, 0))
-            #self.icon_active.set_alpha(100)
+            # self.icon_active.set_alpha(100)
             self.icon_no_ammo = func.colorize(temp, pygame.Color(255, 0, 0))
             self.icon_no_ammo.set_alpha(100)
 
     def set_hostile(self):
         self.team = "hostile"
-    def get_string(self,kind):
-        x=str(round(self.pos[0]))
-        y=str(round(self.pos[1]))
-        tx=str(round(self.target_pos[0]))
-        ty=str(round(self.target_pos[1]))
+
+    def get_string(self, kind):
+        x = str(round(self.pos[0]))
+        y = str(round(self.pos[1]))
+        tx = str(round(self.target_pos[0]))
+        ty = str(round(self.target_pos[1]))
         string = f"{kind}: {x}_{y}_{tx}_{ty}"
 
         return string
+
     def get_image(self):
         return self.image
 
     def get_reload_tick(self):
         return self._reload_tick
-    def set_reload_tick(self,val):
-        self._reload_tick=val
+
+    def set_reload_tick(self, val):
+        self._reload_tick = val
+
     def upgrade_damage(self):
         self._damage += 0.5
 
-
     def get_double_damage_time(self):
-        return self._double_damage_time;
+        return self._double_damage_time
+
     def double_damage(self, state):
         self._doubledamage_time = state
+
     def get_reload_rate(self):
         return self._reload_rate
+
     def weapon_tick(self):
         if self._reload_tick > 0:
             self._reload_tick -= timedelta.mod(1)
@@ -100,10 +112,12 @@ class Weapon:
                 self._reload_tick = 0
         if self._weapon_fire_Tick > 0:
             self._weapon_fire_Tick -= 1
-    def add_weapon_fire_tick(self,v):
+
+    def add_weapon_fire_tick(self, v):
         self._weapon_fire_Tick += timedelta.tick(v)
 
     def weapon_fire_Tick(self):
         return self._weapon_fire_Tick
+
     def use(self):
         func.list_play(self.sounds)

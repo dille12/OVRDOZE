@@ -20,7 +20,8 @@ from values import *
 import classes
 from classes import items
 import func
-#import path_finding
+
+# import path_finding
 
 import armory
 import objects
@@ -34,7 +35,7 @@ def main(app):
     full_screen_mode = True
     full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
 
-    map_size = [2000,1500]
+    map_size = [2000, 1500]
 
     while 1:
         clock.tick(60)
@@ -42,21 +43,14 @@ def main(app):
         mouse_pos = app.pygame.mouse.get_pos()
         mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
         for event in events:
-            if event.type == app.pygame.QUIT: sys.exit()
+            if event.type == app.pygame.QUIT:
+                sys.exit()
 
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE]:
             sys.exit()
 
         screen.fill(BLACK)
-
-        
-
-
-
-
-
-
 
         app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
 

@@ -27,6 +27,7 @@ def colorize_alpha(image, newColor, alpha):
     image.blit(image2, [0, 0])
     return image
 
+
 def greyscale(surface: pygame.Surface):
     arr = pygame.surfarray.array3d(surface)
     # calulates the avg of the "rgb" values, this reduces the dim by 1

@@ -1,15 +1,15 @@
 import unittest
+
 # what the what? from run import *
 class TestRun(unittest.TestCase):
-    
     def test_lobby_host(self):
         pass
+
     def test_start_mp_game(self):
-            pass
+        pass
 
-
-    def test_host_game(self) :
-            pass
+    def test_host_game(self):
+        pass
 
     def test_start_multiplayer_client(self):
         pass
@@ -36,6 +36,4 @@ class TestRun(unittest.TestCase):
         pass
 
     def test_sp_lob(self):
-            pass
-
-    
+        pass

@@ -3,10 +3,12 @@ from enemies import *
 from objects import *
 from values import *
 import ast
+
 # PACKET
 # PLAYER:Runkkari_373_122_-340
 # BULLET:421_103_-337_15_18
 # #END
+
 
 def parse_packet(packet):
     packet_data = packet.split("#END")
@@ -57,8 +59,17 @@ def parse_packet(packet):
                 pass
     return players, bullets, grenades, zombies, z_events, turrets, barricades
 
+
 def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
-    players_info, bullets, grenades, zombies, z_events, turrets, barricades = parse_packet(packet)
+    (
+        players_info,
+        bullets,
+        grenades,
+        zombies,
+        z_events,
+        turrets,
+        barricades,
+    ) = parse_packet(packet)
 
     interctables, camera_pos, map_render, NAV_MESH, walls, hp_diff, dam_diff = zomb_info
     zombie_events2 = []
@@ -74,11 +85,17 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
 
     for x, y, angle, damage, speed in bullets:
         print("GENERATING A BULLET")
-        bullet_list.append(Bullet.Bullet([int(x), int(y)], int(angle), int(damage), speed = int(speed), mp = True))
+        bullet_list.append(
+            Bullet.Bullet(
+                [int(x), int(y)], int(angle), int(damage), speed=int(speed), mp=True
+            )
+        )
 
-    for type, x, y ,t_x, t_y in grenades:
+    for type, x, y, t_x, t_y in grenades:
         print("GENERATING A GRENADE")
-        grenade_list.append(Grenade([int(x),int(y)], [int(t_x), int(t_y)], type, mp = True))
+        grenade_list.append(
+            Grenade([int(x), int(y)], [int(t_x), int(t_y)], type, mp=True)
+        )
 
     for x, y, id, target_name, power, type in zombies:
         print(f"GENERATING A ZOMBIE {id}")
@@ -86,18 +103,33 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
             targ = player_actor
         else:
             targ = multiplayer_actors[target_name]
-        enemy_list.append(Zombie([int(x),int(y)], interctables, targ, NAV_MESH, walls, hp_diff = float(hp_diff), dam_diff = float(dam_diff), type = type, wall_points = None, identificator = int(id), player_ref = player_actor, power = float(power)))
+        enemy_list.append(
+            Zombie(
+                [int(x), int(y)],
+                interctables,
+                targ,
+                NAV_MESH,
+                walls,
+                hp_diff=float(hp_diff),
+                dam_diff=float(dam_diff),
+                type=type,
+                wall_points=None,
+                identificator=int(id),
+                player_ref=player_actor,
+                power=float(power),
+            )
+        )
 
-    for id, z_event, outcome  in z_events:
+    for id, z_event, outcome in z_events:
 
         gen = list(get_zombie_by_id(int(id)))
         if len(gen) == 0:
             print(f"NO ZOMBIE FOUND FOR ZEVENT!!! {id}")
             zombie_events2.append(f"ZEVENT:{id}_getinfo_1")
         for target in gen:
-            #print(id, z_event, outcome)
+            # print(id, z_event, outcome)
             if z_event == "terminate":
-                target.kill(camera_pos, enemy_list, map_render, zevent = True)
+                target.kill(camera_pos, enemy_list, map_render, zevent=True)
             elif z_event == "setpos":
                 target.pos = ast.literal_eval(outcome)
             elif z_event == "setroute":
@@ -115,7 +147,17 @@ def gen_from_packet(packet, player_actor, multiplayer_actors, zomb_info):
     for x, y, ang_spe, fire_r, range, damage, lifetime in turrets:
         try:
             print(f"GENERATING A TURRET")
-            turret_list.append(Turret([int(x),int(y)],int(ang_spe),int(fire_r),int(range), damage = 0, lifetime = round(float(lifetime)), mp = True))
+            turret_list.append(
+                Turret(
+                    [int(x), int(y)],
+                    int(ang_spe),
+                    int(fire_r),
+                    int(range),
+                    damage=0,
+                    lifetime=round(float(lifetime)),
+                    mp=True,
+                )
+            )
         except Exception as e:
             print(f"TURRET EXCEPTION: {e}")
 

@@ -1,7 +1,8 @@
 import ast
 
+
 def pref():
-    file = open("settings.txt", encoding='UTF8')
+    file = open("settings.txt", encoding="UTF8")
     lines = file.readlines()
     file.close()
     for line in lines:
@@ -20,11 +21,11 @@ def pref():
         if attr == "LASTIP":
             last_ip = value.strip("\n")
 
-    return username,draw_los, dev, fs, ultraviolence, last_ip
+    return username, draw_los, dev, fs, ultraviolence, last_ip
 
 
 def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip):
-    file = open("settings.txt", "w", encoding='UTF8')
+    file = open("settings.txt", "w", encoding="UTF8")
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
     file.write("DEV=" + str(dev) + "\n")

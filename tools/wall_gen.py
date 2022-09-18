@@ -2,8 +2,10 @@ import los
 import func
 import pygame
 
-def getcollisions(tiles,boxcollider):
+
+def getcollisions(tiles, boxcollider):
     return (tile for tile in tiles if tile.colliderect(boxcollider))
+
 
 def calc_how_many(point, list1):
     j = 0
@@ -25,7 +27,7 @@ def remove_inside_walls(walls):
 
             p1, p2 = wall1.get_points()
             p3, p4 = wall2.get_points()
-            if los.intersect(p1,p2,p3,p4):
+            if los.intersect(p1, p2, p3, p4):
                 remove_list.append(wall1)
                 break
 
