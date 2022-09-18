@@ -1,6 +1,6 @@
-username=dille12
+username=client
 FOV=True
 DEV=True
 FS=True
 ULTRA=False
-LASTIP=192.168.1.3
+LASTIP=
