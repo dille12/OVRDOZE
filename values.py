@@ -5,6 +5,16 @@ import random
 import time
 import mixer
 from screeninfo import get_monitors
+import win32api
+
+
+device = win32api.EnumDisplayDevices()
+print((device.DeviceName, device.DeviceString))
+settings = win32api.EnumDisplaySettings(device.DeviceName, -1)
+
+fps_cap = settings.DisplayFrequency
+print(fps_cap)
+
 print("VALUE INIT")
 pygame.init()
 pygame.mixer.init()
@@ -20,6 +30,8 @@ try:
         if n.is_primary==True:
             m=n;
             break;
+
+    print(m)
 
     fs_size = (m.width,m.height)
 except:
@@ -152,6 +164,8 @@ for x in range(10,101):
     kill_counter_texts[x] = image_list
 
 kill_rgb = rgb_image_load("texture/kill.png")
+menu_rgb = rgb_image_load("texture/menu_image.png")
+
 packet_dict = {}
 player = pygame.transform.scale(pygame.image.load("texture/player.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
 player_pistol = pygame.transform.scale(pygame.image.load("texture/player_pistol.png"),[round(180/multiplier),round(119/multiplier)]).convert_alpha()
@@ -245,6 +259,9 @@ dialogue = []
 dialogue_tick = GameTick(40)
 
 money_tick = GameTick(35, oneshot = True)
+
+
+
 
 
 last_hp = 0

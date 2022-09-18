@@ -974,7 +974,8 @@ class Wall:
         self.__end = end
         self.__center = [(start[0] + end[0])/2,(start[1] + end[1])/2]
 
-
+    def __str__(self):
+        return "WALL: " + str(self.__start) + " " + str(self.__end)
 
     def get_center(self):
         return self.__center

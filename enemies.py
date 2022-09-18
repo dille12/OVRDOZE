@@ -16,6 +16,8 @@ import get_preferences
 import armory
 a, draw_los, a, a, ultraviolence, a = get_preferences.pref()
 
+from _thread import *
+
 
 terminal = pygame.font.Font('texture/terminal.ttf', 20)
 terminal2 = pygame.font.Font('texture/terminal.ttf', 30)
@@ -52,6 +54,7 @@ class Zombie:
         self.navmesh_ref = NAV_MESH.copy()
         self.wall_ref = walls
         self.player_ref = player_ref
+        self.calculating = False
 
         if type == "normal":
             self.size = 10
@@ -185,15 +188,22 @@ class Zombie:
         if not daemon_bullet:
             self.issue_event(f"setpos_{str(self.pos)}")
 
+    def search_route(self):
+        self.calculating = True
+        self.route = func.calc_route(self.pos, self.target.pos, self.navmesh_ref, self.wall_ref)
+        self.issue_event(f"setroute_{str(self.route)}")
+        self.issue_event(f"setpos_{str(self.pos)}")
+        self.route_tick = 60
+        self.calculating = False
+
+
 
 
     def get_route_to_target(self):
 
-        if self.route_tick == 0 and self.target == self.player_ref:
-            self.route = func.calc_route(self.pos, self.target.pos, self.navmesh_ref, self.wall_ref)
-            self.issue_event(f"setroute_{str(self.route)}")
-            self.issue_event(f"setpos_{str(self.pos)}")
-            self.route_tick = 60
+        if self.route_tick == 0 and self.target == self.player_ref and not self.calculating:
+            start_new_thread(self.search_route, ())
+
 
 
     def hit_detection(self,camera_pos, pos, lastpos, damage, enemy_list, map_render, player_actor):

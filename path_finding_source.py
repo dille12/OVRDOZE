@@ -16,6 +16,8 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, stat = "1"):
     Calculates the shortest route to a point using the navmesh points
     """
 
+    print("CALCULATING ROUTE")
+
     if check_los_points(start_pos, end_pos, walls):
         return [end_pos]
     dist_start = {}

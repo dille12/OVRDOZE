@@ -59,6 +59,14 @@ def main():
     port = 5555
 
 
+    intro1 = func.load_animation("anim/intro1",0,30, alpha = 70)
+    intro2 = func.load_animation("anim/intro2",30,30, alpha = 70)
+    intro3 = func.load_animation("anim/intro3",60,31, alpha = 70)
+
+    menu_animations = [intro1, intro2, intro3]
+    menu_i = 0
+
+
 
     def start_mp_game(arg):
         reply = net.send("start_game")
@@ -165,11 +173,11 @@ def main():
 
     difficulty = "NORMAL"
 
-    button_sp_menu = Button([x_s,100], "Singleplayer", sp_lob, None,gameInstance=app.pygame,glitchInstance=glitch)
-    button_mp_menu = Button([x_s,160], "Multiplayer", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
-    button_settings = Button([x_s,220], "Settings", settings, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_sp_menu = Button([x_s,200], "Singleplayer", sp_lob, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_mp_menu = Button([x_s,260], "Multiplayer", start_mp, None,gameInstance=app.pygame,glitchInstance=glitch)
+    button_settings = Button([x_s,320], "Settings", settings, None,gameInstance=app.pygame,glitchInstance=glitch)
 
-    button_quit_game = Button([x_s,280], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
+    button_quit_game = Button([x_s,380], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch)
 
 
 
@@ -286,7 +294,9 @@ def main():
 
     app.pygame.display.set_gamma(1,1,1)
 
+    rgb_i = 2
 
+    last_beat = time.time()
 
     while 1:
         #game_menu.update(game_state)
@@ -340,14 +350,34 @@ def main():
         elif app.pygame.mouse.get_pressed()[0] == False:
             clicked = False
 
-        screen.fill((round(30 - 15 * math.sin(2*math.pi*background_tick/52)),0,0))
+        #screen.fill((round(30 - 15 * math.sin(2*math.pi*background_tick/52)),0,0))
+        screen.fill((0,0,0))
+        try:
+            screen.blit(menu_animations[menu_i][round((len(menu_animations[menu_i])-1) * ((time.time() - last_beat)/0.85714285714) ** 0.75)], [0,0])
+        except Exception as e:
+            print(e)
 
+
+        if rgb_i > 2:
+            rgb_i -= 1
 
         if time.time() - t > 0.85714285714:
             t = time.time() - (time.time() - t - 0.85714285714)
 
             background_tick = 52
             background_vel = 0
+
+            rgb_i = 10
+
+            menu_i += 1
+
+            last_beat = time.time()
+
+
+
+            if menu_i == len(menu_animations):
+                menu_i = 0
+
             for y in range(10):
                 pos = [random.randint(0,size[0]), random.randint(0,size[1])]
                 for i in range(5):
@@ -365,7 +395,9 @@ def main():
             x.tick(screen, [0,0])
 
         if menu_status == "start":
-            screen.blit(info, [20,150])
+            #screen.blit(info, [20,150])
+
+            func.rgb_render(menu_rgb, rgb_i, [size[0]/2 - menu_rgb[0].get_rect().center[0] - 20, 10], [0,0], screen)
 
             s1 = button_sp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s2= button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)

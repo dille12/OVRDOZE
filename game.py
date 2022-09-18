@@ -9,6 +9,7 @@ from _thread import *
 import threading
 import copy
 import los
+import render_los_image
 from network import Network
 import ast
 import network_parser
@@ -86,7 +87,7 @@ def cont_game(arg):
 def main(app, multiplayer = False, net = None, host = False, players = None, self_name = None, difficulty = "NORMAL", draw_los = True, dev_tools = True, skip_intervals = False, map = None, full_screen_mode = True):
     print("GAME STARTED WITH",difficulty)
 
-    diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,6], "HARD" : [1.25, 1.25, 1.1, 0.85, 10], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 14]} #
+    diff_rates = {"NO ENEMIES" : [0,1,1,1, -1], "EASY" : [0.9,0.9,0.75,1, 3], "NORMAL" : [1,1,1,1,20], "HARD" : [1.25, 1.25, 1.1, 0.85, 30], "ONSLAUGHT" : [1.5, 1.35, 1.2, 0.7, 40]} #
 
     sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[difficulty]
 
@@ -248,16 +249,27 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
     #[classes.Barricade([100,300], [200,400], map)]
     player_weapons.clear()
     player_weapons.append(give_weapon("gun","M1911"))
-    player_weapons.append(give_weapon("gun","NRG-LMG Mark1"))
-        #give_weapon("gun", "SCAR18"),
-        # give_weapon("gun","M134 MINIGUN"),
-        # give_weapon("gun","AR-15"),
-        # give_weapon("gun","GLOCK"),
-        # give_weapon("gun","AWP"),
-        # give_weapon("gun","AK"),
-        # give_weapon("gun","SPAS"),
-        # give_weapon("gun","P90")
-        # ]
+
+    if map.name != "Overworld":
+
+        for x in [
+        give_weapon("gun","GLOCK"),
+        give_weapon("gun","P90"),
+        give_weapon("gun","SPAS"),
+
+        give_weapon("gun", "SCAR18"),
+
+        give_weapon("gun","AR-15"),
+        give_weapon("gun","AK"),
+
+        give_weapon("gun","AWP"),
+
+
+
+        give_weapon("gun","M134 MINIGUN"),
+        give_weapon("gun","NRG-LMG Mark1"),
+        ]:
+            player_weapons.append(x)
 
     gun_name_list = ["M1911", "GLOCK", "AR-15", "MP5", "AWP", "AK", "SPAS", "P90", "SCAR18", "M134 MINIGUN", "NRG-LMG Mark1"]
     ruperts_shop_selections.clear()
@@ -341,7 +353,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
 
-        clock.tick(144)
+        clock.tick(fps_cap)
 
         t = time.time()
         time_stamps = {}
@@ -919,7 +931,13 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
             func.render_player(screen, mouse_pos, pl,player_pos, camera_pos, player_actor)
 
             if not block_movement:
+
+                player_pos2 = player_pos.copy()
                 player_pos, x_vel, y_vel = func.player_movement2(pressed,player_pos,x_vel,y_vel)
+
+                if len(list(getcollisionspoint(map.rectangles, player_pos))) != 0 or not (0 < player_pos[0] < map.size[0]/ map.conv and 0 < player_pos[1] < map.size[1]/ map.conv):
+                    player_pos = player_pos2
+
 
             if collision_check_player:
                 #angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
@@ -1107,7 +1125,7 @@ def main(app, multiplayer = False, net = None, host = False, players = None, sel
 
 
         if draw_los:
-            los_image, draw_time = los.render_los_image(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle(), los_background = los_bg)
+            los_image, draw_time = render_los_image.draw(los_image, phase, camera_pos, player_pos,map, los_walls, debug_angle = player_actor.get_angle(), los_background = los_bg)
 
             ###
             ### OPTIMZE point_inits, finishing

@@ -16,6 +16,8 @@ import classes
 
 from tools.image_transform import *
 
+from tools.wall_gen import *
+
 from values import *
 
 
@@ -124,7 +126,7 @@ def load_level(map, mouse_conversion, player_inventory, app):
 
     map_conversion = 1920/854
 
-    walls_filtered += map.generate_wall_structure()
+    walls_filtered += map.generate_wall_structure2()
     for i in range(2):
         end_point = (map.__dict__["pos"][i]*map_conversion + map.__dict__["size"][i])/map_conversion
         if map_boundaries[i] < end_point:
@@ -399,9 +401,226 @@ class Map:
 
             pos = list(collider.center)
 
+
+        if check_only_collision:
+
+            if collisiontypes != {"left": False,"right": False,"top": False,"bottom": False}:
+                return True
+            else:
+                return False
+
+
         return collisiontypes, pos
 
 
+    def generate_wall_structure2(self):
+        print("CHECKING POINTS INSIDE WALLS")
+        polygons_temp = []
+        polygons_temp.append([pygame.Rect(0,0, self.size[0], 10), []])
+        polygons_temp.append([pygame.Rect(0,0, 10, self.size[1]), []])
+        polygons_temp.append([pygame.Rect((self.size[0]-10)/ self.conv ,0, 15, self.size[1]/ self.conv ), []])
+        polygons_temp.append([pygame.Rect(0,(self.size[1]-10)/ self.conv , self.size[0]/ self.conv , 14), []])
+        self.rectangles = []
+        for polygon in self.polygons:
+            a,b,c,d = polygon
+            x = [a[0],b[0],c[0],d[0]]
+            y = [a[1],b[1],c[1],d[1]]
+            poly = pygame.Rect(min(x),min(y), max(x)-min(x), max(y) - min(y))
+
+            self.rectangles.append(poly)
+
+            polygons_temp.append([poly,[a,b,c,d]])
+
+        for polygon in self.polygons_no_los_block:
+            a,b,c,d = polygon
+            x = [a[0],b[0],c[0],d[0]]
+            y = [a[1],b[1],c[1],d[1]]
+            poly = pygame.Rect(min(x),min(y), max(x)-min(x), max(y) - min(y))
+
+            self.rectangles.append(poly)
+
+            #polygons_temp.append([poly,[a,b,c,d]])
+
+        self.connected_polygons = {}
+        for polygon in self.polygons:
+            for point in polygon:
+                for poly, points in polygons_temp:
+
+                    if point in points:
+                        continue
+
+                    if poly.collidepoint(point):
+                        self.points_inside_polygons.append(point)
+
+                        break
+
+
+        print("POINTS INSIDE:", len(self.points_inside_polygons))
+        print("POINTS TOTAL:", points)
+
+
+
+
+
+
+        print("GENERATING WALL STRUCTURE")
+        walls = []
+        for polygon in self.polygons:
+            a,b,c,d = polygon
+            # a = ratio(a,size_ratio)
+            # b = ratio(b,size_ratio)
+            # c = ratio(c,size_ratio)
+            # d = ratio(d,size_ratio)
+            walls.append(los.Wall(a,b, pol = polygon))
+            walls.append(los.Wall(b,c, pol = polygon))
+            walls.append(los.Wall(c,d, pol = polygon))
+            walls.append(los.Wall(d,a, pol = polygon))
+
+
+        del_walls = []
+
+
+        for wall1 in walls:
+            p1, p2 = wall1.get_points()
+            for wall2 in walls:
+                p3, p4 = wall2.get_points()
+                if func.get_dist_points(p1, p3) < 3:
+                    wall2.set_new_points(p1,p4)
+                if func.get_dist_points(p2, p3) < 3:
+                    wall2.set_new_points(p2,p4)
+
+
+        wp = []
+        for w in walls:
+            p1, p2 = w.get_points()
+            wp.append(p1)
+            wp.append(p2)
+
+
+
+
+        intersecting_walls = []
+
+        for wall_1 in walls:
+            wall_points = wall_1.get_points()
+            wp1, wp2 = wall_points
+
+            mode = "vert" if wp1[0] == wp2[0] else "hor"
+            for wall_2 in walls:
+                wall_points = wall_1.get_points()
+                p1, p2 = wall_2.get_points()
+
+                if mode == "vert":
+                    if p1[0] != p2[0]:
+                        continue
+                else:
+                    if p1[1] != p2[1]:
+                        continue
+                if p1 in wall_points or p2 in wall_points:
+                    continue
+                if los.intersect(wall_points[0], wall_points[1], func.minus(p1,[-3,-3]), func.minus(p2,[3,3])):
+                    intersecting_walls.append([wall_1, wall_2])
+        # for wall_1, wall_2 in intersecting_walls:
+                    a,b = wall_1.get_points()
+                    c,d = wall_2.get_points()
+
+                    res_key = min([a,b], key=lambda x: sum(x))
+                    res_key2 = min([c,d], key=lambda x: sum(x))
+                    res_key_max = max([a,b], key=lambda x: sum(x))
+                    res_key_max2 = max([c,d], key=lambda x: sum(x))
+                    wall_1.set_new_points(res_key,res_key2)
+                    wall_2.set_new_points(res_key_max,res_key_max2)
+
+        for wall1 in walls:
+            p1, p2 = wall1.get_points()
+            for wall2 in walls:
+                p3, p4 = wall2.get_points()
+                if func.get_dist_points(p1, p3) < 3:
+                    wall2.set_new_points(p1,p4)
+                if func.get_dist_points(p2, p3) < 3:
+                    wall2.set_new_points(p2,p4)
+
+        for i in range(1):
+
+            for wall1 in walls:
+                p1, p2 = wall1.get_points()
+
+                if func.get_dist_points(p1, p2) < 3:
+                    del_walls.append(wall1)
+                    continue
+
+                for wall2 in walls:
+                    p3, p4 = wall2.get_points()
+
+
+                    if los.intersect(func.minus(p1,[2,2]), func.minus(p2,[-2,-2]), func.minus(p3,[2,2]), func.minus(p4,[-2,-2])) and wall1.vertical == wall2.vertical:
+
+                        i1, i2, i3, i4 = self.min_max([p1, p2, p3, p4])
+
+                        wall1.set_new_points(i1,i2)
+
+                        wall2.set_new_points(i3,i4)
+
+                        print("SET POINTS")
+                        print(wall1.vertical)
+
+
+
+
+
+
+
+        for x in del_walls:
+            try:
+                walls.remove(x)
+            except:
+                pass
+
+
+        remove_list = []
+
+        for wall_1 in walls:
+            for wall_2 in walls:
+                if wall_2 in remove_list:
+                    continue
+                wall_1_points = wall_1.get_points()
+                interlink1 = None
+                interlink2 = None
+
+                for point in wall_1_points:
+                    for point2 in wall_2.get_points():
+                        if los.get_dist_points(point,point2) < 5:
+                            interlink1 = point
+                            interlink2 = point2
+
+
+
+                if interlink1 != None and interlink2 != None:
+                    wall_points = list(wall_1.get_points())
+                    wall_points_2 = list(wall_2.get_points())
+
+                    wall_points.remove(interlink1)
+                    wall_points_2.remove(interlink2)
+
+                    if los.intersect(wall_points[0], wall_points_2[0], func.minus(interlink1,[-3,-3]), func.minus(interlink1,[3,3])):
+                        remove_list.append(wall_2)
+                        wall_1.set_new_points(wall_points[0], wall_points_2[0])
+
+
+        for wall_1 in remove_list:
+            walls.remove(wall_1)
+
+
+        print("WALLS:", len(walls))
+
+
+
+        return walls
+
+
+    def min_max(self, list):
+        sorted_list = sorted(list, key = sum)
+        return sorted_list
     def generate_wall_structure(self):
         print("CHECKING POINTS INSIDE WALLS")
         polygons_temp = []
@@ -484,7 +703,7 @@ class Map:
                         continue
                 if p1 in wall_points or p2 in wall_points:
                     continue
-                if los.intersect(wall_points[0], wall_points[1], func.minus(p1,[-2,-2]), func.minus(p2,[2,2])):
+                if los.intersect(wall_points[0], wall_points[1], func.minus(p1,[-3,-3]), func.minus(p2,[3,3])):
                     intersecting_walls.append([wall_1, wall_2])
         # for wall_1, wall_2 in intersecting_walls:
                     a,b = wall_1.get_points()
@@ -526,7 +745,7 @@ class Map:
                     wall_points.remove(interlink1)
                     wall_points_2.remove(interlink2)
 
-                    if los.intersect(wall_points[0], wall_points_2[0], func.minus(interlink1,[-2,-2]), func.minus(interlink1,[2,2])):
+                    if los.intersect(wall_points[0], wall_points_2[0], func.minus(interlink1,[-3,-3]), func.minus(interlink1,[3,3])):
                         remove_list.append(wall_2)
                         wall_1.set_new_points(wall_points[0], wall_points_2[0])
 

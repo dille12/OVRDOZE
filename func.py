@@ -36,7 +36,7 @@ def print_s(screen,text_str,slot, color = hud_color):
     text = terminal.render(str(text_str), False, color)
     screen.blit(text, (size[0] - 10 - text.get_rect().size[0], slot*30)) #
 
-def load_animation(directory, start_frame, frame_count):
+def load_animation(directory, start_frame, frame_count, alpha = 255):
     list = []
     for x in range(frame_count):
         x = x+start_frame
@@ -44,7 +44,15 @@ def load_animation(directory, start_frame, frame_count):
         print(im_dir)
 
         im = pygame.image.load(im_dir).convert_alpha()
-        list.append(im)
+
+        if alpha != 255:
+            im2 = pygame.Surface(im.get_size())
+            im2.fill((0,0,0))
+            im.set_alpha(alpha)
+            im2.blit(im, (0,0))
+            list.append(im2)
+        else:
+            list.append(im)
 
     return list
 
@@ -574,6 +582,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
     Calculates the shortest route to a point using the navmesh points
     """
 
+
     if los.check_los(start_pos, end_pos, walls):
         return [end_pos]
     dist_start = {}
@@ -610,6 +619,8 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
         if end_nav_point["point"] in point_2["connected"]:
             route.append(end_nav_point["point"])
             complete_routes.append(route)
+            if quick:
+                break
 
         else:
             for point_3 in point_2["connected"]:
@@ -659,7 +670,6 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick = True):
                 shortest_route["route"].remove(obs_points)
             except:
                 print("COULDNT DELETE POINT")
-
 
 
 
@@ -938,7 +948,7 @@ def draw_HUD(screen, player_inventory, cam_delta, camera_pos, weapon, player_wea
             screen.blit(text, (150+x_d, 65+y_d)) #
 
         else:
-            text = terminal3.render("Automatic", False, hud_color)
+            text = terminal3.render("Automatic" if not weapon.charge_up else "Charge-Up", False, hud_color)
             screen.blit(text, (15+x_d, 65+y_d)) #
 
             text = terminal3.render(str(weapon.__dict__["ammo"]), False, hud_color)
