@@ -6,6 +6,7 @@ from maps import maps
 import get_preferences
 import server
 import game
+from values import *
 
 
 class App:
@@ -16,6 +17,7 @@ class App:
         self.preferences()
         pygame.init()
         pygame.font.init()
+        self.path_cache = {}
 
     def update_fps(self):
         if self.fps == "60":
@@ -36,6 +38,28 @@ class App:
             self.last_ip,
             self.fps,
         ) = get_preferences.pref()
+
+
+
+
+
+    def update_screen(self):
+        print(size, fs_size)
+
+
+        if self.fs:
+            screen = self.pygame.display.set_mode(size, pygame.FULLSCREEN | pygame.SCALED , vsync=1)
+            mouse_conversion = 1
+        else:
+            print("Setting to windowed")
+            screen = self.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=1)
+            mouse_conversion = 1
+
+
+
+        print("Screen updated")
+        print(screen)
+        return screen, mouse_conversion
 
 
 

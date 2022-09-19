@@ -650,7 +650,7 @@ def get_point_from_list(point, dict):
             return point_2
 
 
-def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True):
+def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     """
     Calculates the shortest route to a point using the navmesh points
     """
@@ -670,6 +670,9 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True):
         end_nav_point = dist_end[min(dist_end.keys())]
     except:
         return [end_pos]
+    if cache:
+        if str([start_nav_point,end_nav_point]) in cache.path_cache:
+            return cache.path_cache[str([start_nav_point,end_nav_point])]
 
     complete_routes = []
     routes = []
@@ -740,6 +743,11 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True):
                 shortest_route["route"].remove(obs_points)
             except:
                 print("COULDNT DELETE POINT")
+
+    if cache:
+        cache.path_cache[str([start_nav_point,end_nav_point])] = shortest_route["route"]
+        if len(cache.path_cache) > 1000:
+            del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
 
     return shortest_route["route"]
 

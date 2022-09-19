@@ -211,7 +211,7 @@ for x in range(100):
             pygame.image.load("texture/lazer.png"), (x, 8)
         ).convert_alpha()
     )
-
+icon = pygame.image.load("texture/icon.png")
 long_bullet = pygame.transform.scale(
     pygame.image.load("texture/bullet.png"), (45, 4)
 ).convert_alpha()

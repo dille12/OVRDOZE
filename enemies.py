@@ -36,6 +36,7 @@ def get_zombie_by_id(id):
 class Zombie:
     def __init__(
         self,
+        app,
         pos,
         interctables,
         target_actor,
@@ -49,7 +50,7 @@ class Zombie:
         identificator=random.randint(0, 4096),
         power=random.uniform(1.5, 2.75),
     ):
-
+        self.app = app
         self.identificator = identificator
         self.power = power
         self.pos = pos
@@ -215,7 +216,7 @@ class Zombie:
     def search_route(self):
         self.calculating = True
         self.route = func.calc_route(
-            self.pos, self.target.pos, self.navmesh_ref, self.wall_ref
+            self.pos, self.target.pos, self.navmesh_ref, self.wall_ref, cache = self.app
         )
         self.issue_event(f"setroute_{str(self.route)}")
         self.issue_event(f"setpos_{str(self.pos)}")

@@ -762,6 +762,7 @@ def main(
                     type = "bomber"
 
                 zombo = enemies.Zombie(
+                    app,
                     map.get_random_point(walls_filtered, p_pos=player_pos),
                     interactables,
                     player_actor,

@@ -41,6 +41,11 @@ def main():
     clock = app.pygame.time.Clock()
     print("run init")
 
+    screen, mouse_conversion = app.update_screen()
+
+    pygame.display.set_caption("OVRDOZE")
+    pygame.display.set_icon(icon)
+
     menu_status = "start"
 
     app.pygame.mouse.set_visible(True)
@@ -137,6 +142,14 @@ def main():
         get_preferences.write_prefs(
             app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
         )
+        return "start"
+
+
+    def main_menu_save(arg):
+        get_preferences.write_prefs(
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+        )
+        app.update_screen()
         return "start"
 
     def quit(args):
@@ -243,6 +256,14 @@ def main():
         [x_s, 220],
         "Back",
         main_menu,
+        None,
+        gameInstance=app.pygame,
+        glitchInstance=glitch,
+    )
+    button_savesettings = Button(
+        [180, 130],
+        "Save Settings",
+        main_menu_save,
         None,
         gameInstance=app.pygame,
         glitchInstance=glitch,
@@ -640,7 +661,7 @@ def main():
 
         if menu_status == "settings":
 
-            s8_2 = button_client_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s8_2 = button_savesettings.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             text = terminal.render("Name:", False, [255, 255, 255])
             screen.blit(text, [20, 207])
@@ -1003,8 +1024,13 @@ def main():
 
         # print(thread.active_count())
         glitch.tick()
-        app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
-
+        # try:
+        #     if app.fs:
+        #         print("Scaling", app.full_screen.get_rect().size, screen.get_size())
+        #         app.pygame.transform.scale(screen, app.full_screen.get_rect().size, app.full_screen)
+        # except Exception as e:
+        #     print(e)
+        #     app.update_screen()
         app.pygame.display.update()
 
 
