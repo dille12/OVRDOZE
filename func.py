@@ -672,7 +672,10 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
         return [end_pos]
     if cache:
         if str([start_nav_point,end_nav_point]) in cache.path_cache:
-            return cache.path_cache[str([start_nav_point,end_nav_point])]
+            route = cache.path_cache[str([start_nav_point,end_nav_point])]
+            if random.randint(1,10) == 1:
+                del cache.path_cache[str([start_nav_point,end_nav_point])]
+            return route
 
     complete_routes = []
     routes = []

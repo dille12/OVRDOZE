@@ -372,7 +372,7 @@ def main(
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
-        clock.tick(app.clocktick)
+        clock.tick(app.clocktick if not pause else 60)
 
         t = time.time()
         time_stamps = {}

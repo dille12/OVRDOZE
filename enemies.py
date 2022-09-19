@@ -328,7 +328,7 @@ class Zombie:
         if phase == 6:
             t_2 = time.time()
 
-        if draw_los and self.process_tick == 0:
+        if self.app.draw_los and self.process_tick == 0:
 
             self.visible = los.check_los(player_actor.get_pos(), self.pos, walls)
 
@@ -347,7 +347,7 @@ class Zombie:
             )
         )
 
-        if self.visible or not draw_los:  ## Render
+        if self.visible or not self.app.draw_los:  ## Render
             rot, rect = func.rot_center(
                 self.image, self.angle, self.temp_pos[0], self.temp_pos[1]
             )
@@ -500,55 +500,54 @@ class Zombie:
 
         if phase == 6:
 
-            if self.stationary != 0:
-                text = terminal.render(
-                    "stationary:" + str(self.stationary), False, [255, 255, 255]
-                )
-                screen.blit(text, func.minus(self.pos, camera_pos, op="-"))
-
-            tick_time = (t_2 - t_1) * 1000
-
-            self.tick_time = round(self.tick_time * 9 / 10 + 1 / 10 * tick_time, 2)
-            last = t_1
-            x_p = 30
-            delta = 0
-            for i, x in enumerate([t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9]):
-
-                t = round((x - last) * 1000, 2)
-
-                if i in self.times:
-                    self.times[i] = round(self.times[i] * 29 / 30 + 1 / 30 * t, 2)
-                else:
-                    self.times[i] = t
-
-                text = terminal.render(
-                    str(self.times[i]) + "ms", False, [255, 255, 255]
-                )
-                screen.blit(
-                    text, func.minus(func.minus(self.pos, [0, x_p]), camera_pos, op="-")
-                )
-                x_p += 30
-                last = x
-
-                delta += self.times[i]
-            self.times["total"] = round(
-                self.times["total"] * 29 / 30 + 1 / 30 * delta, 2
+            text = terminal.render(
+                str(self.target_pos) + " - " + str(self.route), False, [255, 255, 255]
             )
-            text = terminal.render(str(delta) + "ms", False, [255, 255, 255])
-            screen.blit(
-                text, func.minus(func.minus(self.pos, [0, 0]), camera_pos, op="-")
-            )
+            screen.blit(text, func.minus(self.pos, camera_pos, op="-"))
 
-            if self.pos != self.target_pos:
-                last_pos = self.pos
-                for tar in self.route:
-                    pygame.draw.line(
-                        screen,
-                        [255, 255, 255],
-                        func.minus(last_pos, camera_pos, op="-"),
-                        func.minus(tar, camera_pos, op="-"),
-                    )
-                    last_pos = tar
+            # tick_time = (t_2 - t_1) * 1000
+            #
+            # self.tick_time = round(self.tick_time * 9 / 10 + 1 / 10 * tick_time, 2)
+            # last = t_1
+            # x_p = 30
+            # delta = 0
+            # for i, x in enumerate([t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9]):
+            #
+            #     t = round((x - last) * 1000, 2)
+            #
+            #     if i in self.times:
+            #         self.times[i] = round(self.times[i] * 29 / 30 + 1 / 30 * t, 2)
+            #     else:
+            #         self.times[i] = t
+            #
+            #     text = terminal.render(
+            #         str(self.times[i]) + "ms", False, [255, 255, 255]
+            #     )
+            #     screen.blit(
+            #         text, func.minus(func.minus(self.pos, [0, x_p]), camera_pos, op="-")
+            #     )
+            #     x_p += 30
+            #     last = x
+            #
+            #     delta += self.times[i]
+            # self.times["total"] = round(
+            #     self.times["total"] * 29 / 30 + 1 / 30 * delta, 2
+            # )
+            # text = terminal.render(str(delta) + "ms", False, [255, 255, 255])
+            # screen.blit(
+            #     text, func.minus(func.minus(self.pos, [0, 0]), camera_pos, op="-")
+            # )
+            #
+            # if self.pos != self.target_pos:
+            #     last_pos = self.pos
+            #     for tar in self.route:
+            #         pygame.draw.line(
+            #             screen,
+            #             [255, 255, 255],
+            #             func.minus(last_pos, camera_pos, op="-"),
+            #             func.minus(tar, camera_pos, op="-"),
+            #         )
+            #         last_pos = tar
 
 
 class Player_Multi:
