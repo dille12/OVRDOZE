@@ -1,8 +1,8 @@
-username=Runkku
+username=Client
 FOV=True
-DEV=True
+DEV=False
 FS=True
 ULTRA=False
-LASTIP=192.168.1.3
+LASTIP=
 FPS=60
 VSYNC=True
