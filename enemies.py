@@ -17,7 +17,7 @@ from classes import items, drop_index, drop_table
 import get_preferences
 import armory
 
-a, draw_los, a, a, ultraviolence, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a = get_preferences.pref()
 
 from _thread import *
 
@@ -116,6 +116,7 @@ class Zombie:
         self.visible = False
 
         self.inventory = classes.Inventory(interctables)
+        self.cached_route = False
 
         for i in range(random.randint(1, 9)):
             if random.uniform(0, 1) < 0.02:
@@ -215,7 +216,7 @@ class Zombie:
 
     def search_route(self):
         self.calculating = True
-        self.route = func.calc_route(
+        self.route, self.cached_route = func.calc_route(
             self.pos, self.target.pos, self.navmesh_ref, self.wall_ref, cache = self.app
         )
         self.issue_event(f"setroute_{str(self.route)}")
@@ -385,6 +386,7 @@ class Zombie:
             if dist > 50:
 
                 self.target_pos = player_pos
+                self.route = []
 
             else:
                 self.target_pos = self.pos
@@ -482,7 +484,7 @@ class Zombie:
         if last_pos == self.pos and self.detected == False:
 
             self.stationary += 1
-            if self.stationary > 30:
+            if self.stationary > 10:
                 self.get_route_to_target()
                 try:
                     self.target_pos = self.route[0]
@@ -500,10 +502,10 @@ class Zombie:
 
         if phase == 6:
 
-            text = terminal.render(
-                str(self.target_pos) + " - " + str(self.route), False, [255, 255, 255]
-            )
-            screen.blit(text, func.minus(self.pos, camera_pos, op="-"))
+            # text = terminal.render(
+            #     str(self.target_pos) + " - " + str(self.route), False, [255, 255, 255]
+            # )
+            # screen.blit(text, func.minus(self.pos, camera_pos, op="-"))
 
             # tick_time = (t_2 - t_1) * 1000
             #
@@ -538,16 +540,29 @@ class Zombie:
             #     text, func.minus(func.minus(self.pos, [0, 0]), camera_pos, op="-")
             # )
             #
-            # if self.pos != self.target_pos:
-            #     last_pos = self.pos
-            #     for tar in self.route:
-            #         pygame.draw.line(
-            #             screen,
-            #             [255, 255, 255],
-            #             func.minus(last_pos, camera_pos, op="-"),
-            #             func.minus(tar, camera_pos, op="-"),
-            #         )
-            #         last_pos = tar
+            if self.pos != self.target_pos:
+                last_pos = self.target_pos
+
+                if self.cached_route:
+                    color = [255,0,0]
+                else:
+                    color = [255,255,255]
+
+                pygame.draw.line(
+                    screen,
+                    color,
+                    func.minus(self.pos, camera_pos, op="-"),
+                    func.minus(self.target_pos, camera_pos, op="-"),
+                )
+
+                for tar in self.route:
+                    pygame.draw.line(
+                        screen,
+                        color,
+                        func.minus(last_pos, camera_pos, op="-"),
+                        func.minus(tar, camera_pos, op="-"),
+                    )
+                    last_pos = tar
 
 
 class Player_Multi:

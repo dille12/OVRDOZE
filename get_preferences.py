@@ -22,11 +22,13 @@ def pref():
             last_ip = value.strip("\n")
         if attr == "FPS":
             fps = value.strip("\n")
+        if attr == "VSYNC":
+            vsync = value.strip("\n")
 
-    return username, draw_los, dev, fs, ultraviolence, last_ip, fps
+    return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync
 
 
-def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps):
+def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync):
     file = open("settings.dat", "w", encoding="UTF8")
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
@@ -36,5 +38,6 @@ def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps):
     file.write("ULTRA=" + str(ultraviolence) + "\n")
     file.write("LASTIP=" + str(last_ip) + "\n")
     file.write("FPS=" + str(fps) + "\n")
+    file.write("VSYNC=" + str(vsync) + "\n")
     file.close()
     print("Settings saved")

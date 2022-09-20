@@ -217,7 +217,7 @@ class MovingTurret(Game_Object):
     def get_route_to_target(self, target):
         if self.route_tick == 0:
             self.route_tick = 60
-            self.route = func.calc_route(
+            self.route, a = func.calc_route(
                 self._pos, target, self.navmesh_ref, self.wall_ref, quick=False
             )
 

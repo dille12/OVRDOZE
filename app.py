@@ -37,6 +37,7 @@ class App:
             self.ultraviolence,
             self.last_ip,
             self.fps,
+            self.vsync,
         ) = get_preferences.pref()
 
 
@@ -46,13 +47,17 @@ class App:
     def update_screen(self):
         print(size, fs_size)
 
+        if self.vsync:
+            vs = 1
+        else:
+            vs = 0
 
         if self.fs:
-            screen = self.pygame.display.set_mode(size, pygame.FULLSCREEN | pygame.SCALED , vsync=1)
+            screen = self.pygame.display.set_mode(size, pygame.FULLSCREEN | pygame.SCALED , vsync=vs)
             mouse_conversion = 1
         else:
             print("Setting to windowed")
-            screen = self.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=1)
+            screen = self.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=vs)
             mouse_conversion = 1
 
 

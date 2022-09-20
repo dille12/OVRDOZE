@@ -16,7 +16,7 @@ import objects
 import get_preferences
 from dialog import *
 
-a, draw_los, a, a, ultraviolence, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
@@ -1213,14 +1213,13 @@ class Particle:
                         self.__color3[1] / ((2 + self.__lifetime) ** 0.4),
                         self.__color3[2] / self.__lifetime,
                     ]
-                if map != None:
-                    if (
-                        list(classtest.getcollisionspoint(map.rectangles, self.__pos))
-                        != []
-                    ):
-                        print("PARTICLE IN WALL, KILLING")
-                        particle_list.remove(self)
-                        return
+                # if map != None:
+                #     if (
+                #         list(classtest.getcollisionspoint(map.rectangles, self.__pos))
+                #         != []
+                #     ):
+                #         particle_list.remove(self)
+                #         return
 
             elif self.__type == "item_particle":
                 self.__dim = [

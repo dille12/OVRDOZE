@@ -509,7 +509,7 @@ def main(
                 app.pygame.mouse.set_visible(True)
             else:
                 app.pygame.mouse.set_visible(False)
-            if phase == 7:
+            if phase == 8:
                 phase = 0
 
         elif m_click == False:
@@ -690,7 +690,7 @@ def main(
                 ],
             )
 
-        los_walls = los.walls_generate(walls_filtered, camera_pos)
+        #los_walls = los.walls_generate(walls_filtered, camera_pos)
 
         time_stamps["walls"] = time.time() - t
         t = time.time()
@@ -1273,7 +1273,7 @@ def main(
                 camera_pos,
                 player_pos,
                 map,
-                los_walls,
+                walls_filtered,
                 debug_angle=player_actor.get_angle(),
                 los_background=los_bg,
             )
@@ -1348,6 +1348,11 @@ def main(
                 t = "RENDER TIMES"
             elif phase == 6:
                 t = "ENEMY DEBUG"
+            elif phase == 7:
+                t = "ROUTE CACHE"
+
+                text = terminal3.render("Cached routes: " + str(len(app.path_cache)), False, [255, 255, 0])
+                screen.blit(text, [200, 50])
 
             text = terminal3.render("DEVSCREEN: " + t, False, [255, 255, 255])
             screen.blit(text, [200, 20])
@@ -1465,7 +1470,7 @@ def main(
                         )
 
                 calc_time_1 = time.time()
-                route = func.calc_route(
+                route, a = func.calc_route(
                     player_pos, mo_pos_real, NAV_MESH, walls_filtered
                 )
                 calc_time_2 = time.time() - calc_time_1
@@ -1493,6 +1498,26 @@ def main(
                     [255, 255, 255],
                 )
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
+
+
+            elif phase == 7:
+                try:
+                    for x in app.path_cache:
+                        route = app.path_cache[x]
+                        if len(route) == 0:
+                            continue
+                        last_pos = route[0]
+                        for tar in route:
+                            pygame.draw.line(
+                                screen,
+                                [255,255,255],
+                                func.minus(last_pos, camera_pos, op="-"),
+                                func.minus(tar, camera_pos, op="-"),
+                            )
+                            last_pos = tar
+                except Exception as e:
+                    print(e)
+
             if dialogue != []:
                 text_str = dialogue[0].main(
                     screen,

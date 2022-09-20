@@ -649,6 +649,16 @@ def get_point_from_list(point, dict):
         if point == point_2["point"]:
             return point_2
 
+def check_route(point,endpoint,route, walls):
+    last = point
+    rou = route.copy()
+    rou.append(endpoint)
+    for x in rou:
+        if not los.check_los(last, x, walls):
+            return [last, x]
+        last = x
+    return False
+
 
 def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     """
@@ -656,7 +666,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     """
 
     if los.check_los(start_pos, end_pos, walls):
-        return [end_pos]
+        return [end_pos], False
     dist_start = {}
     dist_end = {}
     for nav_point in NAV_MESH:
@@ -669,13 +679,26 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
         start_nav_point = dist_start[min(dist_start.keys())]
         end_nav_point = dist_end[min(dist_end.keys())]
     except:
-        return [end_pos]
+        return [end_pos], False
+
     if cache:
-        if str([start_nav_point,end_nav_point]) in cache.path_cache:
-            route = cache.path_cache[str([start_nav_point,end_nav_point])]
+
+        cache_key = str([start_nav_point["point"],end_nav_point["point"]])
+
+        if cache_key in cache.path_cache:
+            route = cache.path_cache[cache_key]
+            check = check_route(start_pos, end_pos, route, walls)
+            if check:
+                del cache.path_cache[cache_key]
+                return [start_pos], False
+
+
             if random.randint(1,10) == 1:
-                del cache.path_cache[str([start_nav_point,end_nav_point])]
-            return route
+                del cache.path_cache[cache_key]
+
+            return route, True
+
+
 
     complete_routes = []
     routes = []
@@ -696,8 +719,8 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
         if end_nav_point["point"] in point_2["connected"]:
             route.append(end_nav_point["point"])
             complete_routes.append(route)
-            if quick:
-                break
+            # if quick:
+            #     break
 
         else:
             for point_3 in point_2["connected"]:
@@ -706,6 +729,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
                 if route.copy() + [point_3] in routes:
                     continue
                 routes.append(route.copy() + [point_3])
+
     shortest_route = {"dist": 10000, "route": []}
 
     for route in complete_routes:
@@ -748,11 +772,12 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
                 print("COULDNT DELETE POINT")
 
     if cache:
-        cache.path_cache[str([start_nav_point,end_nav_point])] = shortest_route["route"]
-        if len(cache.path_cache) > 1000:
-            del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
+        if cache_key not in cache.path_cache:
+            cache.path_cache[cache_key] = shortest_route["route"]
+            if len(cache.path_cache) > 1000:
+                del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
 
-    return shortest_route["route"]
+    return shortest_route["route"], False
 
 
 def draw_HUD(

@@ -103,7 +103,7 @@ def main():
 
     def start_multiplayer_client():
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
         )
         game.main(
             app,
@@ -141,14 +141,14 @@ def main():
 
     def main_menu(arg):
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
         )
         return "start"
 
 
     def main_menu_save(arg):
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
         )
         app.update_screen()
         return "start"
@@ -156,7 +156,7 @@ def main():
     def quit(args):
 
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
         )
 
         sys.exit()
@@ -165,7 +165,7 @@ def main():
         print("SPa")
 
         get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps
+            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
         )
         args = (
             app,
@@ -438,6 +438,15 @@ def main():
         cant_uncheck=True,
     )
 
+    check_box_vsync = hud_elements.Checkbox(
+        screen,
+        400,
+        400,
+        caption="VSYNC",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+    )
+
     check_box_fps = [check_box_fps1, check_box_fps2, check_box_fps3]
 
     for x in check_box_fps:
@@ -450,6 +459,8 @@ def main():
         check_box_fs.__dict__["checked"] = True
     if app.ultraviolence:
         check_box_ultra.__dict__["checked"] = True
+    if app.vsync:
+        check_box_vsync.checked = True
 
     diff_captions = {
         "NO ENEMIES": "For testing.",
@@ -544,6 +555,7 @@ def main():
         app.ultraviolence = check_box_ultra.checked
         app.draw_los = check_box_fov.checked
         app.fs = check_box_fs.checked
+        app.vsync = check_box_vsync.checked
 
         mouse_pos = app.pygame.mouse.get_pos()
 
@@ -555,7 +567,7 @@ def main():
                 check_box_dev_commands.update_checkbox(event, mouse_pos)
                 check_box_ultra.update_checkbox(event, mouse_pos)
                 check_box_fs.update_checkbox(event, mouse_pos)
-
+                check_box_vsync.update_checkbox(event, mouse_pos)
 
 
                 check_box_fps1.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
@@ -679,6 +691,8 @@ def main():
             check_box_ultra.render_checkbox()
 
             check_box_fs.render_checkbox()
+
+            check_box_vsync.render_checkbox()
 
             for x in check_box_fps:
                 x.render_checkbox()
@@ -1032,7 +1046,7 @@ def main():
         # except Exception as e:
         #     print(e)
         #     app.update_screen()
-        app.pygame.display.update()
+        app.pygame.display.flip()
 
 
 if __name__ == "__main__":

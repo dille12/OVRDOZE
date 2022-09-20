@@ -37,10 +37,10 @@ def draw(
 
     for i in walls:
         p1, p2 = i.get_points()
-        if check_point(p1) or check_point(p2):
+        if check_point(func.minus(p1, camera_pos, op = "-")) or check_point(func.minus(p2, camera_pos, op = "-")):
             walls2.append(i)
 
-    walls = walls2
+    walls = walls_generate(walls2, camera_pos)
 
     time_stamps = {}
 
