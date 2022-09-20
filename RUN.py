@@ -68,8 +68,9 @@ def main():
     intro1 = func.load_animation("anim/intro1", 0, 30, alpha=70)
     intro2 = func.load_animation("anim/intro2", 0, 30, alpha=70)
     intro3 = func.load_animation("anim/intro3", 60, 31, alpha=70)
+    intro4 = func.load_animation("anim/intro4", 1, 30, alpha=70)
 
-    menu_animations = [intro1, intro2, intro3]
+    menu_animations = [intro2, intro1, intro4, intro3]
     menu_i = 0
 
     def start_mp_game(arg):
@@ -608,7 +609,7 @@ def main():
                 menu_animations[menu_i][
                     round(
                         (len(menu_animations[menu_i]) - 1)
-                        * (((time.time() - last_beat) * 0.9) / beat_time) ** 1
+                        * (((time.time() - last_beat)) / beat_time) ** 1
                     )
                 ],
                 [0, 0],
@@ -637,7 +638,7 @@ def main():
 
             func.rgb_render(
                 menu_rgb,
-                rgb_i * 1.5,
+                rgb_i ** 1.5,
                 [size[0] / 2 - menu_rgb[0].get_rect().center[0] - 20, 10],
                 [0, 0],
                 screen,

@@ -1,5 +1,1 @@
-./settings.txt
-__pycache__
-/settings.txt
-settings.txt
-.coverage
+*.pyc

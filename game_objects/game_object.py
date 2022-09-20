@@ -37,7 +37,6 @@ class Game_Object:
     def update_life(self, kind_list):
         self._lifetime -= 1
         if self._lifetime == 0:
-            print("Bullet deleted")
             kind_list.remove(self)
             return
 

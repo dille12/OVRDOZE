@@ -14,7 +14,7 @@ from values import *
 
 walls = []
 
-draw_distance = 700
+draw_distance = 1200
 
 vecEdges = []
 
@@ -288,7 +288,7 @@ def if_within_screen(point, camera_pos):
 
 
 def check_point(point):
-    check = 0 < point[0] < size[0] or 0 < point[1] < size[1]
+    check = 0 < point[0] < size[0] and 0 < point[1] < size[1]
     return check
 
 

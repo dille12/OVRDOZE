@@ -33,6 +33,7 @@ def draw(
     """
 
     walls2 = []
+    walls3 = []
 
     for i in walls:
         p1, p2 = i.get_points()
@@ -457,8 +458,19 @@ def draw(
         pygame.draw.line(los, [255, 0, 0], start_pos, point_dict[res_key])
         try:
             for wall_1 in walls:
-                if point_dict[res_key] in wall_1.get_points():
-                    wall_1.highlight(los)
+                #if point_dict[res_key] in wall_1.get_points():
+                wall_1.highlight(los)
+
+            text = debug_text.render(
+                "WALLS LOADED: " + str(len(walls)),
+                False,
+                [255,255,0],
+            )
+
+            los.blit(text, (200,50))
+
+
+
 
         except Exception as e:
             print("exception")

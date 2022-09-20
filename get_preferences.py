@@ -2,7 +2,7 @@ import ast
 
 
 def pref():
-    file = open("settings.txt", encoding="UTF8")
+    file = open("settings.dat", encoding="UTF8")
     lines = file.readlines()
     file.close()
     for line in lines:
@@ -27,7 +27,7 @@ def pref():
 
 
 def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps):
-    file = open("settings.txt", "w", encoding="UTF8")
+    file = open("settings.dat", "w", encoding="UTF8")
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
     file.write("DEV=" + str(dev) + "\n")
