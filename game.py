@@ -178,7 +178,7 @@ def main(
     print(mouse_conversion)
 
     expl1 = func.load_animation("anim/expl1", 0, 31)
-
+    route = None
     clock = app.pygame.time.Clock()
     multiplayer_actors = {}
     if multiplayer:
@@ -1354,6 +1354,16 @@ def main(
                 text = terminal3.render("Cached routes: " + str(len(app.path_cache)), False, [255, 255, 0])
                 screen.blit(text, [200, 50])
 
+                try:
+                    # text = terminal3.render("Cache route avrg time: " + str(app.path_times["cache"][1]/app.path_times["cache"][0]), False, [255, 255, 0])
+                    # screen.blit(text, [200, 80])
+                    text = terminal3.render("Calculated route avrg time: " + str(app.path_times["calc"][1]/app.path_times["calc"][0]), False, [255, 255, 0])
+                    screen.blit(text, [200, 110])
+                except Exception as e:
+                    print(e)
+                    print(app.path_times)
+
+
             text = terminal3.render("DEVSCREEN: " + t, False, [255, 255, 255])
             screen.blit(text, [200, 20])
 
@@ -1469,35 +1479,41 @@ def main(
                             1,
                         )
 
-                calc_time_1 = time.time()
-                route, a = func.calc_route(
-                    player_pos, mo_pos_real, NAV_MESH, walls_filtered
-                )
-                calc_time_2 = time.time() - calc_time_1
-                point_2 = player_pos
-                for point in route:
+
+
+                if click_single_tick:
+                    calc_time_1 = time.time()
+                    route, a = func.calc_route(
+                        player_pos, mo_pos_real, NAV_MESH, walls_filtered
+                    )
+                    calc_time_2 = time.time() - calc_time_1
+
+                if route:
+
+                    point_2 = player_pos
+                    for point in route:
+                        app.pygame.draw.line(
+                            screen,
+                            [255, 0, 0],
+                            [point[0] - camera_pos[0], point[1] - camera_pos[1]],
+                            [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],
+                            4,
+                        )
+                        point_2 = point
                     app.pygame.draw.line(
                         screen,
                         [255, 0, 0],
-                        [point[0] - camera_pos[0], point[1] - camera_pos[1]],
+                        [mo_pos_real[0] - camera_pos[0], mo_pos_real[1] - camera_pos[1]],
                         [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],
                         4,
                     )
-                    point_2 = point
-                app.pygame.draw.line(
-                    screen,
-                    [255, 0, 0],
-                    [mo_pos_real[0] - camera_pos[0], mo_pos_real[1] - camera_pos[1]],
-                    [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],
-                    4,
-                )
 
-                text = terminal3.render(
-                    "CALC TIME: " + str(round(calc_time_2 * 1000, 2)) + "ms",
-                    False,
-                    [255, 255, 255],
-                )
-                screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
+                    text = terminal3.render(
+                        "CALC TIME: " + str(round(calc_time_2 * 1000, 2)) + "ms",
+                        False,
+                        [255, 255, 255],
+                    )
+                    screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
 
 
             elif phase == 7:

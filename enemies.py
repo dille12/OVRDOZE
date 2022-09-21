@@ -130,9 +130,7 @@ class Zombie:
                 for key in keys:
                     if drop - key >= 0:
                         key_prox[drop - key] = [drop_table[key], key]
-                print(key_prox)
                 item, key = key_prox[min(key_prox.keys())]
-                print("KEY", key, "DROP", drop)
                 self.inventory.append_to_inv(
                     items[item], random.randint(1, items[item].__dict__["drop_stack"])
                 )

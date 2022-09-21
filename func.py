@@ -665,29 +665,48 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     Calculates the shortest route to a point using the navmesh points
     """
 
+
+
     if los.check_los(start_pos, end_pos, walls):
         return [end_pos], False
     dist_start = {}
     dist_end = {}
     for nav_point in NAV_MESH:
         point = nav_point["point"]
-        if los.check_los(start_pos, point, walls):
-            dist_start[los.get_dist_points(start_pos, point)] = nav_point
-        if los.check_los(end_pos, point, walls):
-            dist_end[los.get_dist_points(end_pos, point)] = nav_point
+        #if los.check_los(start_pos, point, walls):
+        dist_start[los.get_dist_points(start_pos, point)] = nav_point
+        #if los.check_los(end_pos, point, walls):
+        dist_end[los.get_dist_points(end_pos, point)] = nav_point
+
+    start_nav_point = False
+    end_nav_point = False
+
     try:
-        start_nav_point = dist_start[min(dist_start.keys())]
-        end_nav_point = dist_end[min(dist_end.keys())]
-    except:
+        for x in sorted(dist_start):
+            if los.check_los(start_pos, dist_start[x]["point"], walls):
+                start_nav_point = dist_start[x]
+                break
+        for x in sorted(dist_end):
+            if los.check_los(end_pos, dist_end[x]["point"], walls):
+                end_nav_point = dist_end[x]
+                break
+    except Exception as e:
+        print(e)
         return [end_pos], False
 
-    if cache:
+    if not start_nav_point or not end_nav_point:
+        return [end_pos], False
+
+    t = time.time()
+
+    if False:
 
         cache_key = str([start_nav_point["point"],end_nav_point["point"]])
 
         if cache_key in cache.path_cache:
             route = cache.path_cache[cache_key]
             check = check_route(start_pos, end_pos, route, walls)
+            #check = False
             if check:
                 del cache.path_cache[cache_key]
                 return [start_pos], False
@@ -695,6 +714,11 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
 
             if random.randint(1,10) == 1:
                 del cache.path_cache[cache_key]
+
+            cache.path_times["cache"][0] += 1
+            cache.path_times["cache"][1] += time.time() - t
+
+            print("CACHE TIME:", time.time() - t)
 
             return route, True
 
@@ -772,10 +796,13 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
                 print("COULDNT DELETE POINT")
 
     if cache:
-        if cache_key not in cache.path_cache:
-            cache.path_cache[cache_key] = shortest_route["route"]
-            if len(cache.path_cache) > 1000:
-                del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
+        # if cache_key not in cache.path_cache:
+        #     cache.path_cache[cache_key] = shortest_route["route"]
+        #     if len(cache.path_cache) > 1000:
+        #         del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
+
+        cache.path_times["calc"][0] += 1
+        cache.path_times["calc"][1] += time.time() - t
 
     return shortest_route["route"], False
 

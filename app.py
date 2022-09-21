@@ -18,6 +18,7 @@ class App:
         pygame.init()
         pygame.font.init()
         self.path_cache = {}
+        self.path_times = {"calc" : [0, 0], "cache" : [0, 0]}
 
     def update_fps(self):
         if self.fps == "60":

@@ -219,10 +219,10 @@ items = {
         "Barricade",
         "Blocks passage.",
         "barricade.png",
-        max_stack=3,
+        max_stack=10,
         pick_up_sound=turret_pickup,
         consumable=True,
-        drop_weight=2,
+        drop_weight=0.5,
         drop_stack=1,
     ),
     "Molotov": Item(
@@ -286,7 +286,6 @@ class Inventory:
 
     def drop_inventory(self, pos):
         for slot in self.contents:
-            print("Dropping:", self.contents[slot])
             self.interctables_reference.append(
                 Interactable(
                     pos,
@@ -395,19 +394,11 @@ class Inventory:
 
         for slot in self.contents:
             if self.contents[slot]["item"].get_name() == name:
-                print(
-                    "STILL TO BE REMOVED:",
-                    amount,
-                    "STACK AMOUNT:",
-                    self.contents[slot]["amount"],
-                )
                 if self.contents[slot]["amount"] > amount:
                     self.contents[slot]["amount"] -= amount
-                    print(amount)
                     break
                 else:
                     amount -= self.contents[slot]["amount"]
-                    print(amount)
                     delete_slots.append(slot)
                     if amount <= 0:
                         break
