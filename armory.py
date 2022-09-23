@@ -23,6 +23,28 @@ guns = {
         view=0.0,
         handling=0.7,
     ),
+
+    "FN57-S": W.Gun(
+        name="FN57-S",
+        price=1000,
+        clip_s=12,
+        fire_r=2000,
+        spread=0.5,
+        spread_r=0.9,
+        reload_r=30,
+        damage=45,
+        bullet_speed=35,
+        semi_auto=True,
+        bullets_at_once=1,
+        sounds=pistol_sounds_silenced,
+        shotgun=False,
+        ammo_cap_lvlup=1,
+        image="fn.png",
+        ammo="9MM",
+        view=0.02,
+        handling=0.9,
+    ),
+
     "AR-15": W.Gun(
         name="AR-15",
         price=2900,

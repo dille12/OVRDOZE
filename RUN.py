@@ -8,7 +8,6 @@ from _thread import *
 from network import Network
 import socket
 import classes
-
 import time
 import server
 import game
@@ -34,10 +33,6 @@ def main():
     maps_dict = app.getMaps()
     selected_map = 0
 
-    full_screen = pygame.display.set_mode(fs_size, pygame.FULLSCREEN)
-
-    screen = app.pygame.Surface(size).convert()
-    mouse_conversion = fs_size[0] / size[0]  # = 2.25
     clock = app.pygame.time.Clock()
     print("run init")
 
@@ -61,16 +56,18 @@ def main():
     textbox_name = hud_elements.text_box((100, 200), app.name)
     textbox_ip = hud_elements.text_box((640, 415), ip)
 
-    textbox_ip.__dict__["text"] = app.last_ip
+    textbox_ip.text = app.last_ip
     players = []
     port = 5555
+    menu_alpha = 125
+    intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
+    intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
+    intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
+    intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
+    intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
+    intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
 
-    intro1 = func.load_animation("anim/intro1", 0, 30, alpha=70)
-    intro2 = func.load_animation("anim/intro2", 0, 30, alpha=70)
-    intro3 = func.load_animation("anim/intro3", 60, 31, alpha=70)
-    intro4 = func.load_animation("anim/intro4", 1, 30, alpha=70)
-
-    menu_animations = [intro2, intro1, intro4, intro3]
+    menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6]
     menu_i = 0
 
     def start_mp_game(arg):
@@ -112,7 +109,6 @@ def main():
             players=players,
             self_name=app.name,
             map=maps_dict[selected_map]["map"],
-            full_screen_mode=full_screen_mode,
         )
 
     def join_game(arg, host=False):
@@ -175,7 +171,6 @@ def main():
             app.dev,
             check_box_inter.__dict__["checked"],
             maps_dict[selected_map]["map"],
-            full_screen_mode,
         )
 
         app.start_sp(args)
@@ -201,7 +196,7 @@ def main():
     bpm = 120
     beat_time = 1 / (bpm / 60)
 
-    t = time.time() - beat_time
+    t = time.time()
     glitch = Glitch(screen)
 
     x_s = size[0] / 2
@@ -526,6 +521,8 @@ def main():
     app.pygame.display.set_gamma(1, 1, 1)
 
     rgb_i = 2
+    change_i = 0
+    map_tick = 0
 
     last_beat = time.time()
 
@@ -611,23 +608,35 @@ def main():
 
             menu_i += 1
 
+
             last_beat = time.time()
 
             if menu_i == len(menu_animations):
                 menu_i = 0
 
         try:
+
+            im = menu_animations[menu_i][
+                round(
+                    (len(menu_animations[menu_i]) - 1)
+                    * (((time.time() - last_beat)) / beat_time) ** 1
+                )
+            ]
+
+            x1, y1 = im.get_rect().center
+
+            y2 = (1 - ((time.time() - last_beat) / beat_time) ** 0.2) * 100
+
             screen.blit(
-                menu_animations[menu_i][
-                    round(
-                        (len(menu_animations[menu_i]) - 1)
-                        * (((time.time() - last_beat)) / beat_time) ** 1
-                    )
-                ],
-                [0, 0],
+                im,
+                [size[0]/2-x1, size[1]/2-y1+y2],
             )
+
+
         except Exception as e:
             print(e)
+            print(change_i)
+            print(change)
 
             # for y in range(10):
             #     pos = [random.randint(0,size[0]), random.randint(0,size[1])]
@@ -724,7 +733,6 @@ def main():
                 sButtonUpnp = buttonUpnp.tick(
                     screen, mouse_pos, mouse_single_tick, glitch
                 )
-                print(f"sButtonUpnp:{sButtonUpnp}")
             else:
                 sButtonUpnp = None
 
@@ -751,7 +759,6 @@ def main():
                 mouse_single_tick = False
 
         if menu_status == "upnp_menu":
-            print("tst2")
             text = terminal.render(
                 "This is a STUB menu - more to come.", False, [255, 255, 255]
             )
@@ -781,9 +788,11 @@ def main():
 
             # text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
             # screen.blit(text, [400,20])
-
             text = terminal.render("MAP", False, [255, 255, 255])
             screen.blit(text, [430 - text.get_rect().size[0] / 2, 20])
+
+
+
 
             rect_map = maps_dict[selected_map]["image"].get_rect()
 
@@ -794,6 +803,8 @@ def main():
 
                     menu_click2.play()
 
+                    map_tick = 5
+
                     if selected_map == len(maps_dict):
                         selected_map = 0
 
@@ -801,9 +812,15 @@ def main():
 
                 rect_map.inflate_ip(4, 4)
 
-                app.pygame.draw.rect(screen, [255, 255, 255], rect_map.move([330, 80]))
+                app.pygame.draw.rect(screen, [255, 255, 255], rect_map.move([330, 80]), 5)
 
-            screen.blit(maps_dict[selected_map]["image"], [330, 80])
+            if map_tick > 0:
+                map_tick -= 1
+                func.blit_glitch(screen, maps_dict[selected_map]["image"], [330, 80], glitch = 5)
+            else:
+                screen.blit(maps_dict[selected_map]["image"], [330, 80])
+
+
 
             rect_map2 = maps_dict[selected_map]["image"].get_rect()
 
@@ -1046,7 +1063,7 @@ def main():
         # except Exception as e:
         #     print(e)
         #     app.update_screen()
-        app.pygame.display.flip()
+        app.pygame.display.update()
 
 
 if __name__ == "__main__":

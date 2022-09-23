@@ -1,5 +1,5 @@
 from values import *
-
+import func
 
 class Button:
     def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None):
@@ -14,7 +14,9 @@ class Button:
             .size
         )
 
-        self.size = text_s
+        self.size = list(text_s)
+
+        self.size[1] += 8
 
         self.pos[0] -= text_s[0] / 2
         self.pos[1] -= text_s[1] / 2
@@ -23,12 +25,13 @@ class Button:
         self.args = args
         self.targeted = False
         self.anim_tick = 0
+        self.target_tick = 0
 
     def tick(self, screen, mouse_pos, click, glitch, arg=None):
         text = self.terminal_button.render(self.text, False, [255, 255, 255])
 
         if self.targeted:
-            color = [255, 100, 100]
+            color = [255*random.uniform(0.5,1), 100, 100]
             color2 = [255, 255, 255]
         else:
             color = [100, 100, 100]
@@ -40,7 +43,15 @@ class Button:
                 [self.pos[0], self.pos[1] - 4, text.get_rect().size[0] + 8, 52],
             )
 
-        screen.blit(text, [self.pos[0] + 2, self.pos[1] + 2])
+        if self.targeted:
+            func.render_text_glitch(screen, self.text, [self.pos[0] + 2, self.pos[1] + 2], glitch = self.target_tick)
+            if self.target_tick > 1:
+                self.target_tick -= 0.5
+
+            if random.randint(1,30) == 1:
+                self.target_tick += 5
+        else:
+            screen.blit(text, [self.pos[0] + 2, self.pos[1] + 2])
 
         if self.anim_tick != 0:
             self.pygame.draw.rect(
@@ -81,12 +92,12 @@ class Button:
             if self.targeted == False:
                 self.targeted = True
                 menu_click.play()
+                self.target_tick = 10
 
             if click:
                 menu_click2.play()
                 if glitch != None:
                     glitch.glitch_tick = 5
-                print("ACTION")
                 return self.action(arg) if arg != None else self.action(self.args)
         else:
             self.targeted = False

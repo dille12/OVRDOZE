@@ -3,6 +3,7 @@ from game_objects.game_object import Game_Object
 import classtest
 from values import *
 
+tolerance = 10
 
 class Barricade(Game_Object):
     def __init__(self, origin, pygame):
@@ -12,19 +13,22 @@ class Barricade(Game_Object):
         self.pos = origin
         self.ref = pygame
         self.hp = 1000
+        self.blink_tick = 1
 
         self.stage = "building_1"
 
     def tick(self, screen, camera_pos, mouse_pos=[0, 0], clicked=False, map=None):
-
+        self.blink_tick += timedelta.mod(0.25)
+        if self.blink_tick > 4:
+            self.blink_tick = 1
         if self.hp <= 0:
             map.__dict__["rectangles"].remove(self.rect)
             map.__dict__["barricade_rects"].remove([self.rect, self])
             return "KILL"
 
         if self.stage == "building_1":
-            x = mouse_pos[0] + camera_pos[0]
-            y = mouse_pos[1] + camera_pos[1]
+            x = round((mouse_pos[0] + camera_pos[0])/tolerance)*tolerance
+            y = round((mouse_pos[1] + camera_pos[1])/tolerance)*tolerance
             self.ref.draw.circle(
                 screen, [0, 204, 0], [x - camera_pos[0], y - camera_pos[1]], 5
             )
@@ -35,8 +39,8 @@ class Barricade(Game_Object):
 
         elif self.stage == "building_2":
 
-            w = (mouse_pos[0] + camera_pos[0]) - self.pos[0]
-            h = mouse_pos[1] + camera_pos[1] - self.pos[1]
+            w = round((mouse_pos[0] + camera_pos[0])/tolerance)*tolerance - self.pos[0]
+            h = round((mouse_pos[1] + camera_pos[1])/tolerance)*tolerance - self.pos[1]
 
             x = self.pos[0] - camera_pos[0]
             y = self.pos[1] - camera_pos[1]
@@ -118,7 +122,7 @@ class Barricade(Game_Object):
                     self.width,
                     self.height,
                 ),
-                2,
+                round(self.blink_tick),
             )
             pygame.draw.rect(
                 screen,

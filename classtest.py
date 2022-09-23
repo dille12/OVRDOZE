@@ -96,6 +96,12 @@ def getcollisions(tiles, boxcollider):
 def getcollisionspoint(tiles, point):
     return (tile for tile in tiles if tile.collidepoint(point))
 
+def getcollisionspoint_condition(tiles, point, condition):
+    cond = []
+    for x in condition:
+        cond.append(x[0])
+    return (tile for tile in tiles if tile.collidepoint(point) and tile not in cond)
+
 
 def load_level(map, mouse_conversion, player_inventory, app):
 
@@ -1095,11 +1101,11 @@ class Map:
 
     def compile_navmesh(self, conv):
         for x1 in range(round(self.size[0] / 100) + 1):
-            if x1 >= size[0]:
+            if x1 >= size[0]-30:
                 continue
 
             for y1 in range(round(self.size[1] / 100) + 1):
-                if y1 >= size[1]:
+                if y1 >= size[1]-30:
                     continue
                 point = [x1 * 100 / conv, y1 * 100 / conv]
                 point[0] += 15

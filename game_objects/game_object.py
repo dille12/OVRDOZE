@@ -35,8 +35,8 @@ class Game_Object:
         self._pos = [new_rect[0], new_rect[1]]
 
     def update_life(self, kind_list):
-        self._lifetime -= 1
-        if self._lifetime == 0:
+        self._lifetime -= timedelta.mod(1)
+        if self._lifetime < 0:
             kind_list.remove(self)
             return
 

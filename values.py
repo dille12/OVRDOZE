@@ -319,6 +319,7 @@ stains = [
 explosion_sound = mixer.get_sound_Variants("sound", "explosion")
 explosion_blood_sound = pygame.mixer.Sound("sound/explosion_blood.wav")
 weapon_fire_Sounds = mixer.get_sound_Variants("sound", "weapon_fire")
+
 reload = pygame.mixer.Sound("sound/reload.wav")
 no_ammo_sound = pygame.mixer.Sound("sound/no_ammo.wav")
 inv_image = pygame.image.load("texture/inv.png").convert_alpha()
@@ -376,6 +377,10 @@ sniper_rifle_sounds = {
 smg_sounds = {
     "fire": get_sound_Variants("sound", "smg"),
     "reload": pygame.mixer.Sound("sound/reload_assault.wav"),
+}
+pistol_sounds_silenced = {
+    "fire": get_sound_Variants("sound", "silenced"),
+    "reload": pygame.mixer.Sound("sound/pistol_reload.wav"),
 }
 
 typing = get_sound_Variants("sound", "type")

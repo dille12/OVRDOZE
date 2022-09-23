@@ -39,25 +39,80 @@ def print_s(screen, text_str, slot, color=hud_color):
     text = terminal.render(str(text_str), False, color)
     screen.blit(text, (size[0] - 10 - text.get_rect().size[0], slot * 30))  #
 
+def blit_glitch(screen, image, pos, glitch = 2, diagonal = False):
+    upper_pos = 0
+    lower_pos = random.randint(2, 5)
+    image_size = image.get_size()
+    while 1:
+        if random.randint(1, 5) == 1:
+            screen.blit(
+                image,
+                [pos[0] + random.randint(-glitch, glitch), pos[1] + upper_pos + (0 if not diagonal else random.randint(-glitch, glitch))],
+                area=[0, upper_pos, image_size[0], lower_pos],
+            )
+        if lower_pos == image_size[1]:
+            break
+        upper_pos = lower_pos
+        lower_pos += random.randint(2, 5)
+        if lower_pos >= image_size[1]:
+            lower_pos = image_size[1]
 
-def load_animation(directory, start_frame, frame_count, alpha=255):
-    list = []
+def render_text_glitch(
+    screen, string, pos, color=[255, 255, 255], centerx=False, glitch=10
+):
+    # color = pick_random_from_list([[255,0,0], [0,255,0], [0,0,255]])
+    text = terminal4.render(str(string), False, color)
+
+    upper_pos = 0
+    lower_pos = random.randint(2, 5)
+    text_size = text.get_size()
+    if centerx:
+        pos[0] -= text_size[0] / 2
+    while 1:
+        if random.randint(1, 5) == 1:
+            screen.blit(
+                text,
+                [pos[0] + random.uniform(-glitch, glitch), pos[1] + upper_pos],
+                area=[0, upper_pos, text_size[0], lower_pos],
+            )
+        if lower_pos == text_size[1]:
+            break
+        upper_pos = lower_pos
+        lower_pos += random.randint(2, 5)
+        if lower_pos >= text_size[1]:
+            lower_pos = text_size[1]
+
+
+def load_animation(directory, start_frame, frame_count, alpha=255, intro = False):
+    list_anim = []
+
+
     for x in range(frame_count):
         x = x + start_frame
         im_dir = directory + "/" + (4 - len(str(x))) * "0" + str(x) + ".png"
 
         im = pygame.image.load(im_dir).convert_alpha()
 
+        if intro:
+            if x - start_frame > frame_count-10:
+                i = (x - start_frame) - (frame_count-10)
+                i = (i/10) ** 3 + 1
+                size = list(im.get_size())
+                size[0] *= i
+                size[1] *= i
+
+                im = pygame.transform.scale(im, size)
+
         if alpha != 255:
             im2 = pygame.Surface(im.get_size())
             im2.fill((0, 0, 0))
             im.set_alpha(alpha)
             im2.blit(im, (0, 0))
-            list.append(im2)
+            list_anim.append(im2)
         else:
-            list.append(im)
+            list_anim.append(im)
 
-    return list
+    return list_anim
 
 
 def colorize(image, newColor):
@@ -665,7 +720,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     Calculates the shortest route to a point using the navmesh points
     """
 
-
+    t = time.time()
 
     if los.check_los(start_pos, end_pos, walls):
         return [end_pos], False
@@ -697,7 +752,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     if not start_nav_point or not end_nav_point:
         return [end_pos], False
 
-    t = time.time()
+
 
     if False:
 

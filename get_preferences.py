@@ -23,7 +23,7 @@ def pref():
         if attr == "FPS":
             fps = value.strip("\n")
         if attr == "VSYNC":
-            vsync = value.strip("\n")
+            vsync = ast.literal_eval(value.strip("\n"))
 
     return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync
 

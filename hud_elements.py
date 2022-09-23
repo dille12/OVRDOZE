@@ -136,7 +136,6 @@ class Checkbox:
             self.active = False
 
     def _mouse_up(self):
-        print("BUTTON CLICKED")
         if self.active and not self.checked and self.single_click:
             self.checked = True
             menu_click2.play()

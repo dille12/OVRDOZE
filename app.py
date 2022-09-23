@@ -46,7 +46,6 @@ class App:
 
 
     def update_screen(self):
-        print(size, fs_size)
 
         if self.vsync:
             vs = 1
@@ -61,10 +60,6 @@ class App:
             screen = self.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=vs)
             mouse_conversion = 1
 
-
-
-        print("Screen updated")
-        print(screen)
         return screen, mouse_conversion
 
 
@@ -90,7 +85,7 @@ class App:
     def start_sp(self, arg):
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
-        app, name, arg, draw_los, dev, skip_intervals, map, full_screen_mode = arg
+        app, name, arg, draw_los, dev, skip_intervals, map = arg
 
         game.main(
             app,
@@ -100,5 +95,4 @@ class App:
             dev_tools=dev,
             skip_intervals=skip_intervals,
             map=map,
-            full_screen_mode=full_screen_mode,
         )

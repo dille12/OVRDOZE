@@ -1062,6 +1062,7 @@ class Particle:
         dont_copy=False,
         color_override="red",
         fire_velocity_mod=1,
+        app = None,
     ):
         self.__pos = pos
         self.__type = type
@@ -1274,7 +1275,7 @@ class Player:
         self.turret_bullets = turret_bullets
         self.knockback_tick = 0
         self.knockback_angle = 0
-        self.money = 10000
+        self.money = 0
         self.money_last_tick = 0
 
     def set_pos(self, pos):

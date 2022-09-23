@@ -21,6 +21,7 @@ from values import *
 import classes
 from classes import items
 import func
+from dialog import *
 
 # import path_finding
 
@@ -103,7 +104,6 @@ def main(
     dev_tools=True,
     skip_intervals=False,
     map=None,
-    full_screen_mode=True,
 ):
     print("GAME STARTED WITH", difficulty)
 
@@ -163,19 +163,9 @@ def main(
     app.pygame.font.init()
     app.pygame.mixer.init()
 
-    if full_screen_mode:
-        full_screen = app.pygame.display.set_mode(
-            fs_size, flags=pygame.FULLSCREEN, vsync=1
-        )  #
-        print(pygame.display.get_driver())
-        print(app.pygame.display.Info())
-        screen = app.pygame.Surface(size).convert()
-        mouse_conversion = fs_size[0] / size[0]
-    else:
-        screen = app.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=1)
-        mouse_conversion = 1
+    level_order = ["Requiem", "Manufactory", "Liberation"]
 
-    print(mouse_conversion)
+    screen, mouse_conversion = app.update_screen()
 
     expl1 = func.load_animation("anim/expl1", 0, 31)
     route = None
@@ -205,7 +195,7 @@ def main(
     ### load
 
     player_inventory = classes.Inventory(interactables, player=True)
-
+    player_inventory.append_to_inv(items["Barricade"], 1)
     turret_bro.clear()
 
     turret_bro.append(
@@ -258,7 +248,9 @@ def main(
 
         for x in [
             give_weapon("gun", "GLOCK"),
+            give_weapon("gun", "FN57-S"),
             give_weapon("gun", "P90"),
+            give_weapon("gun", "MP5"),
             give_weapon("gun", "SPAS"),
             give_weapon("gun", "SCAR18"),
             give_weapon("gun", "AR-15"),
@@ -269,8 +261,13 @@ def main(
         ]:
             player_weapons.append(x)
 
+    else:
+        dialogue.append(Dialogue("Intro"))
+        player_pos = [25,950]
+
     gun_name_list = [
         "M1911",
+        "FN57-S",
         "GLOCK",
         "AR-15",
         "MP5",
@@ -415,11 +412,6 @@ def main(
                     sys.exit()
 
             glitch.tick()
-            if full_screen_mode:
-                app.pygame.transform.scale(
-                    screen, full_screen.get_rect().size, full_screen
-                )
-
             app.pygame.display.update()
 
             continue
@@ -433,6 +425,7 @@ def main(
 
         if map.name == "Overworld":
             overworld = True
+
         else:
             overworld = False
 
@@ -998,7 +991,7 @@ def main(
 
             player_actor.set_angle(player_angle)
 
-            if c_weapon.__dict__["name"] in ["GLOCK", "M1911"]:
+            if c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "Desert Eagle"]:
                 pl = player_pistol
             else:
                 pl = player
@@ -1015,7 +1008,7 @@ def main(
                 )
 
                 if len(
-                    list(getcollisionspoint(map.rectangles, player_pos))
+                    list(getcollisionspoint_condition(map.rectangles, player_pos, map.barricade_rects))
                 ) != 0 or not (
                     0 < player_pos[0] < map.size[0] / map.conv
                     and 0 < player_pos[1] < map.size[1] / map.conv
@@ -1358,7 +1351,13 @@ def main(
                     # text = terminal3.render("Cache route avrg time: " + str(app.path_times["cache"][1]/app.path_times["cache"][0]), False, [255, 255, 0])
                     # screen.blit(text, [200, 80])
                     text = terminal3.render("Calculated route avrg time: " + str(app.path_times["calc"][1]/app.path_times["calc"][0]), False, [255, 255, 0])
+                    screen.blit(text, [200, 80])
+
+                    text = terminal3.render("Calcs per sec: " + str(app.path_times["calc"][0]/round(time.time() - start_time)), False, [255, 255, 0])
                     screen.blit(text, [200, 110])
+
+                    time.time() - start_time
+
                 except Exception as e:
                     print(e)
                     print(app.path_times)
@@ -1754,8 +1753,6 @@ def main(
         if pause:
             background_surf.blit(screen, (0, 0))
         glitch.tick()
-        if full_screen_mode:
-            app.pygame.transform.scale(screen, full_screen.get_rect().size, full_screen)
         melee_list.clear()
         app.pygame.display.update()
 

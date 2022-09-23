@@ -93,6 +93,20 @@ def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor):
 
 
 dialogues = {
+
+    "Intro" : [
+        [
+            ["y" , "..."],
+            ["" , "You wake up in an alley with your\nrobot friend."],
+            ["y" , "Shit my head... What happened?"],
+            ["" , "You find a pistol in your pocket.\nStrange, you are not allowed\nto carry a weapon."],
+            ["", "At least you can now protect\nyourself from thugs and zombies."],
+            ["", "You feel your other pockets too\nin search for money,\nbut no luck."],
+            ["y", "Aight, time to go to work."]
+        ]
+    ],
+
+
     "Rupert": [
         [
             ["n", "Gotdamn what an eyesore!\nWhich sever did ya crawl out of?"],
@@ -135,6 +149,7 @@ class Dialogue:
     def __init__(self, name):
         self.name = name
         self.dialogue = func.pick_random_from_list(dialogues[name])
+        print(self.dialogue)
         self.linenumber = 0
         self.letternumber = 0
         self.y_pos_abs = 0
@@ -158,6 +173,8 @@ class Dialogue:
         if isinstance(line, list):
             if line[0] == "n":
                 talker = self.name
+            elif line[0] == "":
+                talker = ""
             else:
                 talker = "You"
             return_str = [talker, line[1][: self.letternumber]]
