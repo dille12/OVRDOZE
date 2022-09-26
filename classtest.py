@@ -229,7 +229,7 @@ class Map:
         nav_mesh_name,
         pos,
         conv,
-        size,
+        map_size,
         POLYGONS=[],
         OBJECTS=[],
         SPAWNPOINT=[100, 100],
@@ -239,17 +239,17 @@ class Map:
         NO_LOS_POLYGONS=[],
     ):
         self.name = name
-        self.size = size
+        self.size = [map_size[0] * multiplier2, map_size[1] * multiplier2]
         self.polygons = []
         self.DESC = DESC
 
         self.GAMMA = GAMMA
 
-        self.spawn_point = SPAWNPOINT
+        self.spawn_point = [SPAWNPOINT[0] * multiplier2, SPAWNPOINT[1] * multiplier2]
 
         self.nav_mesh_available_spots = []
 
-        self.conv = 1920 / 854
+        self.conv = fs_size[0] / size[0]
 
         self.size_converted = func.mult(self.size, 1 / self.conv)
 
@@ -297,7 +297,7 @@ class Map:
 
         self.background = pygame.transform.scale(
             pygame.image.load("texture/maps/" + dir),
-            [round(size[0] / self.conv), round(size[1] / self.conv)],
+            [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
         ).convert()
 
         if TOP_LAYER == None:
@@ -305,7 +305,7 @@ class Map:
         else:
             self.top_layer = pygame.transform.scale(
                 pygame.image.load("texture/maps/" + TOP_LAYER),
-                [round(size[0] / self.conv), round(size[1] / self.conv)],
+                [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
             ).convert_alpha()
 
     def get_polygons(self):
@@ -333,6 +333,8 @@ class Map:
             file.close()
             for line in lines:
                 ref_point = {"point": ast.literal_eval(line), "connected": []}
+                ref_point["point"][0] *= multiplier2
+                ref_point["point"][1] *= multiplier2
                 NAV_MESH.append(ref_point)
             for ref_point in NAV_MESH:
                 for point_dict in NAV_MESH:
@@ -1100,6 +1102,7 @@ class Map:
         return player_pos_der
 
     def compile_navmesh(self, conv):
+        print("Navmesh conv:", conv)
         for x1 in range(round(self.size[0] / 100) + 1):
             if x1 >= size[0]-30:
                 continue
@@ -1149,8 +1152,9 @@ class Map:
     def render(self, conv):
 
         self.map_rendered = pygame.Surface(
-            [self.size[0] / self.conv, self.size[1] / self.conv]
+            self.background.get_size()
         )
+        print("RENDER MAP SIZE", self.map_rendered.get_size())
         self.map_rendered.fill([255, 255, 255])
 
         self.textures = {

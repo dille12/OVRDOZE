@@ -148,6 +148,7 @@ class Gun(Weapon):
         x_offset = math.sin(radian_angle) * c
         y_offset = math.cos(radian_angle) * c
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
+
         multiplier = 2 if self.get_double_damage_time() > 0 else 1
         spread_cumulative = 0
         for x in range(self._bullets_at_once):

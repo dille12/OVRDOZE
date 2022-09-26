@@ -15,6 +15,7 @@ class App:
         self.server = server
         self.ip = None
         self.preferences()
+        print(self.res)
         pygame.init()
         pygame.font.init()
         self.path_cache = {}
@@ -39,7 +40,13 @@ class App:
             self.last_ip,
             self.fps,
             self.vsync,
+            self.res,
         ) = get_preferences.pref()
+
+    def write_prefs(self):
+        get_preferences.write_prefs(
+            self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.ip, self.fps, self.vsync, self.res
+        )
 
 
 

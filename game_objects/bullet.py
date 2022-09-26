@@ -24,7 +24,7 @@ class Bullet(Game_Object):
             damage=damage,
             friendly_fire=False,
             lifetime=30,
-            texture=bullet_texture,
+            texture=energy_bullet_length[round(speed)] if energy else bullet_length[round(speed)],
         )
         self.mp = mp
         self.speed = speed * random.uniform(0.9, 1.1)
@@ -40,13 +40,14 @@ class Bullet(Game_Object):
 
         self.piercing = piercing
 
+
     def get_string(self):
         return super().get_string("BULLET")
 
     def move(self):
         self._last_pos = self._pos.copy()
-        self._pos[0] += math.sin(self._angle_radians) * self.speed * timedelta.timedelta
-        self._pos[1] += math.cos(self._angle_radians) * self.speed * timedelta.timedelta
+        self._pos[0] += math.sin(self._angle_radians) * self.speed * timedelta.timedelta * multiplier2
+        self._pos[1] += math.cos(self._angle_radians) * self.speed * timedelta.timedelta * multiplier2
         pass
 
     def draw(self):
@@ -201,8 +202,13 @@ class Bullet(Game_Object):
                     pass
 
         if self.type == "bullet":
-            bullet_draw_pos = [rot_bullet_rect[0], rot_bullet_rect[1]]
-            screen.blit(rot_bullet, func.draw_pos(self._pos, camera_pos))
+
+            x,y = rot_bullet.get_rect().center
+
+            draw_pos = func.draw_pos([self._pos[0] - x, self._pos[1] - y], camera_pos)
+
+            screen.blit(rot_bullet, draw_pos)
+
         else:
-            pygame.draw.circle(screen, [255, 153, 0], self._pos, 3)
+            pygame.draw.circle(screen, [255, 153, 0], draw_pos, 3)
         return dead

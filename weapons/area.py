@@ -135,7 +135,7 @@ class Explosion:
     ):
         print("EXPLOSION ADDED")
         self.pos = pos
-        self.rect_cent = [100, 100]
+        self.rect_cent = expl1[0].get_rect().center
         self.ticks = 0
         self.range = range
         self.images = expl1

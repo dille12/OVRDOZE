@@ -5,6 +5,9 @@ import random
 import time
 import mixer
 from screeninfo import get_monitors
+import get_preferences
+
+a, a, a, a, a, a, a, a, size = get_preferences.pref()
 
 
 print("VALUE INIT")
@@ -30,12 +33,18 @@ try:
 except:
     fs_size = (1920, 1080)
 
-size = 854, 480
+#size = 1366, 768
+#size = 854, 480
+#size = 1920, 1080
 multi_kill_ticks = 0
 multiplier = 1920 / size[0]
 multiplier2 = size[0] / 854
 pygame.init()
 screen = pygame.display.set_mode(size)
+icon = pygame.image.load("texture/icon.png")
+pygame.display.set_caption("OVRDOZE")
+pygame.display.set_icon(icon)
+pygame.display.update()
 tick_count = 60
 player_pos = [50, 50]
 camera_pos = [0, 0]
@@ -147,6 +156,37 @@ def get_sound_Variants(folder, name2):
             return list
 
 
+
+def load(image, size = None, alpha = True, double = False):
+    temp = pygame.image.load(image)
+    if size:
+        x,y = size
+    else:
+        x,y = temp.get_size()
+
+
+    im = pygame.transform.scale(
+        temp,
+        [round(x * multiplier2), round(y * multiplier2)] if not size else [round(x / multiplier), round(y / multiplier)],
+    )
+
+    im = im.convert_alpha() if alpha else im.convert()
+
+    return im
+
+def load_alpha(image):
+
+    temp = pygame.image.load(image)
+
+    x,y = temp.get_size()
+
+    im = pygame.transform.scale(
+        temp,
+        [round(x / multiplier), round(y / multiplier)],
+    ).convert_alpha()
+    return im
+
+
 multikill_fonts = []
 for i in range(5):
     font_s = 50 + i * 15
@@ -165,63 +205,48 @@ kill_rgb = rgb_image_load("texture/kill.png")
 menu_rgb = rgb_image_load("texture/menu_image.png")
 
 packet_dict = {}
-player = pygame.transform.scale(
-    pygame.image.load("texture/player.png"),
-    [round(180 / multiplier), round(119 / multiplier)],
-).convert_alpha()
-player_pistol = pygame.transform.scale(
-    pygame.image.load("texture/player_pistol.png"),
-    [round(180 / multiplier), round(119 / multiplier)],
-).convert_alpha()
-zombie = pygame.transform.scale(
-    pygame.image.load("texture/zombie.png"),
-    [round(119 / multiplier), round(119 / multiplier)],
-).convert_alpha()
-bomber = pygame.transform.scale(
-    pygame.image.load("texture/bomber.png"),
-    [round(150 / multiplier), round(150 / multiplier)],
-).convert_alpha()
-zombie_big = pygame.transform.scale(
-    pygame.image.load("texture/zombie.png"),
-    [round(200 / multiplier), round(200 / multiplier)],
-).convert_alpha()
+player = load("texture/player.png", size = [180,119])
 
+player_pistol = load("texture/player_pistol.png", size = [180,119])
 
-player_firing = pygame.transform.scale(
-    pygame.image.load("texture/player_firing.png"),
-    [round(225 / multiplier), round(100 / multiplier)],
-).convert_alpha()
-bullet_texture = pygame.transform.scale(
-    pygame.image.load("texture/bullet.png"), (15, 4)
-).convert_alpha()
+zombie = load("texture/zombie.png", size = [119,119])
+
+bomber = load("texture/bomber.png", size = [150,150])
+
+zombie_big = load("texture/zombie.png", size = [200,200])
+
+bullet_texture = load("texture/bullet.png", size = [15,4])
+
+y_size = bullet_texture.get_size()[1]
+
 bullet_length = []
 for x in range(100):
     x += 5
     bullet_length.append(
         pygame.transform.scale(
-            pygame.image.load("texture/bullet.png"), (x, 4)
+            pygame.image.load("texture/bullet.png"), (round(x * multiplier2), round(4*multiplier2))
         ).convert_alpha()
     )
+
+lazer_texture = load("texture/lazer.png", size = [15,8])
+y_size = lazer_texture.get_size()[1]
+
 
 energy_bullet_length = []
 for x in range(100):
     x += 5
     energy_bullet_length.append(
         pygame.transform.scale(
-            pygame.image.load("texture/lazer.png"), (x, 8)
+            pygame.image.load("texture/lazer.png"), (round(x * multiplier2), round(8*multiplier2))
         ).convert_alpha()
     )
-icon = pygame.image.load("texture/icon.png")
-long_bullet = pygame.transform.scale(
-    pygame.image.load("texture/bullet.png"), (45, 4)
-).convert_alpha()
+
+
+
 grenade_throw = False
-grenade = pygame.transform.scale(
-    pygame.image.load("texture/items/grenade.png"), [14, 14]
-).convert_alpha()
-molotov = pygame.transform.scale(
-    pygame.image.load("texture/items/molotov.png"), [20, 20]
-).convert_alpha()
+grenade = load("texture/items/grenade.png", size = [30,30])
+molotov = load("texture/items/molotov.png", size = [40,40])
+
 molotov_explode_sound = pygame.mixer.Sound("sound/molotov.wav")
 molotov_pickup = pygame.mixer.Sound("sound/molotov_pickup.wav")
 drug_use = pygame.mixer.Sound("sound/drug_use.wav")
@@ -298,23 +323,16 @@ inv_click = pygame.mixer.Sound("sound/inv_click.wav")
 inv_open = pygame.mixer.Sound("sound/inv_open.wav")
 inv_close = pygame.mixer.Sound("sound/inv_close.wav")
 
-mov_turret_base = pygame.transform.scale(
-    pygame.image.load("texture/movingturret_base.png"), [35, 35]
-).convert_alpha()
-mov_turret_gun = pygame.transform.scale(
-    pygame.image.load("texture/movingturret_gun.png"), [35, 35]
-).convert_alpha()
+mov_turret_base = load("texture/movingturret_base.png", size = [70,70])
+mov_turret_gun = load("texture/movingturret_gun.png", size = [70,70])
+
 mov_fire = pygame.mixer.Sound("sound/mov_turret_fire.wav")
 
-turret_leg = pygame.transform.scale(
-    pygame.image.load("texture/turret_leg.png"), [35, 35]
-).convert_alpha()
-turret = pygame.transform.scale(
-    pygame.image.load("texture/turret.png"), [35, 35]
-).convert_alpha()
+turret_leg = load("texture/turret_leg.png", size = [70,70])
+turret = load("texture/turret.png", size = [70,70])
 stains = [
-    pygame.image.load("texture/stain1.png").convert_alpha(),
-    pygame.image.load("texture/stain2.png").convert_alpha(),
+    load("texture/stain1.png"),
+    load("texture/stain2.png")
 ]
 explosion_sound = mixer.get_sound_Variants("sound", "explosion")
 explosion_blood_sound = pygame.mixer.Sound("sound/explosion_blood.wav")

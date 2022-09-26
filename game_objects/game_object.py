@@ -28,11 +28,14 @@ class Game_Object:
         self.actors_hit = []
         self._lifetime = lifetime
 
-        rotated_image = pygame.transform.rotate(texture, self._angle)
-        new_rect = rotated_image.get_rect(
-            center=texture.get_rect(center=self._pos).center
-        )
-        self._pos = [new_rect[0], new_rect[1]]
+        if name != "bullet":
+
+            rotated_image = pygame.transform.rotate(texture, self._angle)
+            new_rect = rotated_image.get_rect(
+                center=texture.get_rect().center
+            )
+            self._pos = [pos[0] - new_rect[0], pos[1] - new_rect[1]]
+
 
     def update_life(self, kind_list):
         self._lifetime -= timedelta.mod(1)

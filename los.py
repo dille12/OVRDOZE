@@ -153,7 +153,7 @@ class Wall:
 
 
 def walls_generate(walls_filtered, camera_pos):
-    size_ratio = size2[0] / size[0]
+    size_ratio = 1
     walls = []
 
     for wall in walls_filtered:
@@ -186,11 +186,7 @@ alpha_col = (255, 255, 255)
 
 start_pos = [400, 400]
 
-size = 854, 480  # 256, 144
-size2 = 854, 480
-size_ratio = size2[0] / size[0]
-
-print(size_ratio)
+size_ratio = 1
 
 conv = 1920 / 854
 

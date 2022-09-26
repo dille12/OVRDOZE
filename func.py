@@ -91,7 +91,7 @@ def load_animation(directory, start_frame, frame_count, alpha=255, intro = False
         x = x + start_frame
         im_dir = directory + "/" + (4 - len(str(x))) * "0" + str(x) + ".png"
 
-        im = pygame.image.load(im_dir).convert_alpha()
+        im = load(im_dir, double=True)
 
         if intro:
             if x - start_frame > frame_count-10:
@@ -375,8 +375,8 @@ def player_movement2(pressed, player_pos, x_vel, y_vel):
     else:
         evading = False
 
-    player_pos[0] += x_vel
-    player_pos[1] += y_vel
+    player_pos[0] += x_vel * multiplier2
+    player_pos[1] += y_vel * multiplier2
 
     return player_pos, x_vel, y_vel
 
@@ -578,6 +578,8 @@ def keypress_manager(key_r_click, c_weapon, player_inventory):
 
 def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai=False):
     firing_tick = False
+
+
 
     if c_weapon.jammed:
         return
@@ -1319,18 +1321,18 @@ def draw_HUD(
             )
 
     text = terminal2.render("SANITY", False, hud_color)
-    screen.blit(text, (844 + x_d - text.get_rect().size[0], 412 + y_d))  #
+    screen.blit(text, (size[0] - 10 + x_d - text.get_rect().size[0], size[1] - 68 + y_d))  #
 
-    pygame.draw.rect(screen, hud_color, [631 + x_d, 440 + y_d, 210, 30], 3)
+    pygame.draw.rect(screen, hud_color, [size[0] - 223 + x_d, size[1] - 40 + y_d, 210, 30], 3)
     for i in range(bars_s):
-        pygame.draw.rect(screen, hud_color, [818 - i * 20 + x_d, 446 + y_d, 16, 18])
+        pygame.draw.rect(screen, hud_color, [size[0] - 36 - i * 20 + x_d, size[1] - 34 + y_d, 16, 18])
 
     text = terminal2.render("HP", False, hud_color)
-    screen.blit(text, (12 + x_d, 412 + y_d))  #
+    screen.blit(text, (12 + x_d, size[1] - 68 + y_d))  #
 
-    pygame.draw.rect(screen, hud_color, [15 + x_d, 440 + y_d, 210, 30], 3)
+    pygame.draw.rect(screen, hud_color, [15 + x_d, size[1] - 40 + y_d, 210, 30], 3)
     for i in range(bars):
-        pygame.draw.rect(screen, hud_color, [22 + i * 20 + x_d, 446 + y_d, 16, 18])
+        pygame.draw.rect(screen, hud_color, [22 + i * 20 + x_d, size[1] - 34 + y_d, 16, 18])
 
     text = terminal2.render(str(weapon.__dict__["name"]), False, hud_color)
     screen.blit(text, (15 + x_d, 15 + y_d))  #

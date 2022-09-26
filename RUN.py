@@ -38,8 +38,15 @@ def main():
 
     screen, mouse_conversion = app.update_screen()
 
-    pygame.display.set_caption("OVRDOZE")
-    pygame.display.set_icon(icon)
+    
+
+    screen.fill((0,0,0))
+
+    text = terminal.render("Loading", False, [255, 255, 255])
+    x,y = text.get_rect().center
+    screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
+
+    pygame.display.update()
 
     menu_status = "start"
 
@@ -60,14 +67,18 @@ def main():
     players = []
     port = 5555
     menu_alpha = 125
-    intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
-    intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
-    intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
-    intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
-    intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
-    intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
 
-    menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6]
+    if 'intro1' not in globals():
+        print("Loading animations...")
+        intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
+        intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
+        intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
+        intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
+        intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
+        intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
+        print("Done")
+
+        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6]
     menu_i = 0
 
     def start_mp_game(arg):
@@ -99,9 +110,7 @@ def main():
             return "upnp_test"
 
     def start_multiplayer_client():
-        get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
-        )
+        app.write_prefs()
         game.main(
             app,
             multiplayer=True,
@@ -136,33 +145,38 @@ def main():
             return "start", None, None
 
     def main_menu(arg):
-        get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
-        )
+        app.write_prefs()
         return "start"
+
+    def restart(arg):
+        app.write_prefs()
+        os.execv(sys.executable, ['python'] + sys.argv)
 
 
     def main_menu_save(arg):
-        get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
-        )
+        res = app.res
+        app.write_prefs()
+        for x in check_box_res:
+            if x.checked:
+                resx, resy= x.caption.split("x")
+                app.res = [int(resx), int(resy)]
+
         app.update_screen()
+        if app.res != res:
+            return "res_change"
+
         return "start"
 
     def quit(args):
 
-        get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
-        )
+        app.write_prefs()
 
         sys.exit()
 
     def start_sp(arg):
         print("SPa")
 
-        get_preferences.write_prefs(
-            app.name, app.draw_los, app.dev, app.fs, app.ultraviolence, app.ip, app.fps, app.vsync
-        )
+        app.write_prefs()
         args = (
             app,
             app.name,
@@ -231,6 +245,11 @@ def main():
     button_quit_game = Button(
         [x_s, 380], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch
     )
+
+    button_restart_game = Button(
+        [x_s, 380], "Restart", restart, None, gameInstance=app.pygame, glitchInstance=glitch
+    )
+
 
     button_host_game = Button(
         [x_s, 100],
@@ -433,6 +452,36 @@ def main():
         cant_uncheck=True,
     )
 
+    check_box_res1 = hud_elements.Checkbox(
+        screen,
+        600,
+        260,
+        caption="854x480",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+        cant_uncheck=True,
+    )
+
+    check_box_res2 = hud_elements.Checkbox(
+        screen,
+        600,
+        300,
+        caption="1366x768",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+        cant_uncheck=True,
+    )
+
+    check_box_res3 = hud_elements.Checkbox(
+        screen,
+        600,
+        340,
+        caption="1920x1080",
+        font_color=[255, 255, 255],
+        text_offset=[40, 5],
+        cant_uncheck=True,
+    )
+
     check_box_vsync = hud_elements.Checkbox(
         screen,
         400,
@@ -444,8 +493,15 @@ def main():
 
     check_box_fps = [check_box_fps1, check_box_fps2, check_box_fps3]
 
+    check_box_res = [check_box_res1, check_box_res2, check_box_res3]
+
     for x in check_box_fps:
         if x.caption == app.fps:
+            x.checked = True
+            break
+
+    for x in check_box_res:
+        if x.caption == f"{app.res[0]}x{app.res[1]}":
             x.checked = True
             break
 
@@ -571,6 +627,10 @@ def main():
                 check_box_fps2.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
                 check_box_fps3.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
 
+                check_box_res1.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
+                check_box_res2.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
+                check_box_res3.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
+
             if menu_status == "single_player_lobby":
 
                 check_box_inter.update_checkbox(event, mouse_pos)
@@ -654,6 +714,13 @@ def main():
         for x in particle_list:
             x.tick(screen, [0, 0])
 
+        if menu_status == "res_change":
+            text = terminal.render("Rendering resolution change requires restarting the game.", False, [255, 255, 255])
+            x,y = text.get_rect().center
+            screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
+            button_restart_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
+
+
         if menu_status == "start":
             # screen.blit(info, [20,150])
 
@@ -691,6 +758,9 @@ def main():
             text = terminal.render("FPS Lock", False, [255, 255, 255])
             screen.blit(text, [400, 207])
 
+            text = terminal.render("Render resolution", False, [255, 255, 255])
+            screen.blit(text, [600, 207])
+
             textbox_name.tick(screen, mouse_single_tick, mouse_pos, events)
 
             check_box_fov.render_checkbox()
@@ -708,6 +778,11 @@ def main():
 
                 if x.checked:
                     app.fps = x.caption
+
+            for x in check_box_res:
+                x.render_checkbox()
+
+
 
             if s8_2 != None:
                 menu_status = s8_2

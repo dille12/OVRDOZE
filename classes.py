@@ -16,7 +16,7 @@ import objects
 import get_preferences
 from dialog import *
 
-a, draw_los, a, a, ultraviolence, a, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
@@ -340,7 +340,7 @@ class Inventory:
     def try_deleting_self(self, obj, player_pos):
         if self.search_obj == obj:
             self.search_obj = None
-            self.toggle_inv(False, player_pos=player_pos)
+            self.toggle_inv(None, False, player_pos=player_pos)
 
     def get_amount_of_type(self, name):
         return sum(
@@ -564,18 +564,18 @@ class Inventory:
             )
 
             if self.search_obj != None:
-                screen.blit(inv_image, [600 + x_d, 150 + y_d])
+                screen.blit(inv_image, [size[0] - 254 + x_d, 150 + y_d])
                 text = terminal2.render(
                     self.search_obj.get_name(), False, [255, 255, 255]
                 )
-                screen.blit(text, (617 + x_d, 161 + y_d))  #
+                screen.blit(text, (size[0] - 237 + x_d, 161 + y_d))  #
 
                 self.draw_contents(
                     screen,
                     x_d,
                     y_d,
                     self.search_obj.__dict__["contents"],
-                    [634 - 62, 160],
+                    [size[0] - 284, 160],
                     mouse_pos,
                     clicked,
                     r_click_tick,
@@ -735,7 +735,10 @@ class Interactable:
         door_dest=None,
         active=True,
     ):
-        self.pos = pos
+        if type != "item":
+            self.pos = func.mult(pos,multiplier2)
+        else:
+            self.pos = pos
         self.button_prompt = ""
 
         self.alive = True
@@ -745,9 +748,7 @@ class Interactable:
         self.type = type
         if self.type == "crate":
             self.name = name
-            self.image = pygame.transform.scale(
-                pygame.image.load("texture/box.png"), [40, 40]
-            ).convert()
+            self.image = load("texture/box.png", size = [80,80], alpha = False)
         elif self.type == "item":
             self.lifetime = 3000
             self.pos = [
@@ -757,9 +758,8 @@ class Interactable:
             self.name = item.__dict__["name"]
             self.item = item
             self.amount = amount
-            self.image = pygame.transform.scale(
-                pygame.image.load("texture/items/" + self.item.__dict__["im"]), [20, 20]
-            ).convert_alpha()
+
+            self.image = load("texture/items/" + self.item.__dict__["im"], size = [40,40])
             self.rect = self.image.get_rect()
             self.rect.inflate_ip(4, 4)
             if items[self.name].drop_weight < 0.6:
@@ -838,16 +838,16 @@ class Interactable:
 
         if self.type == "item":
             self.rect.topleft = func.minus_list(self.pos, camera_pos)
-            if self.lifetime % 18 < 9:
+            if round(self.lifetime) % 18 < 9:
                 pygame.draw.rect(
                     screen,
                     self.prompt_color,
                     self.rect,
                     1 + round(self.lifetime % 18 / 5),
                 )
-            self.lifetime -= 1
+            self.lifetime -= timedelta.mod(1)
 
-            if self.lifetime == 0:
+            if self.lifetime < 0:
                 self.alive = False
 
         if self.type == "door":
@@ -872,7 +872,7 @@ class Interactable:
 
         if self.active:
 
-            if los.get_dist_points(player_pos, self.center_pos) < 100:
+            if los.get_dist_points(player_pos, self.center_pos) < 100 * multiplier2:
                 if self.type == "NPC" and dialogue != []:
                     return
                 self.button_prompt = button_prompt(self, self.inv_save)
@@ -883,7 +883,7 @@ class Interactable:
     def interact(self):
         if self.type == "crate":
             self.inv_save.set_search(self)
-            self.inv_save.toggle_inv(True)
+            self.inv_save.toggle_inv(None, True)
         elif self.type == "item":
             cond = self.inv_save.append_to_inv(self.item, self.amount)
             if cond == 0:
@@ -987,13 +987,13 @@ class button_prompt:
             self.object.interact()
             self.object.kill_bp()
 
-        if los.get_dist_points(self.pos, player_pos) > 100:
+        if los.get_dist_points(self.pos, player_pos) > 100 * multiplier2:
             self.object.kill_bp()
 
 
 class kill_count_render:
     def __init__(self, kills, rgb_list):
-        mid = 854 / 2
+        mid = size[0] / 2
         start_x = mid - kills * 50 / 2
         self.x_poses = []
         self.images = rgb_list
@@ -1008,16 +1008,16 @@ class kill_count_render:
 
         if len(self.x_poses) >= 10:
             if self.lifetime <= self.max_lifetime / 6:
-                y = 400 + 1 / ((self.lifetime + 1) ** 1.5) * 200
+                y = size[1] - 80 + 1 / ((self.lifetime + 1) ** 1.5) * 200
             elif self.max_lifetime / 6 < self.lifetime <= 4 * self.max_lifetime / 6:
-                y = 400
+                y = size[1] - 80
             else:
-                y = 400 + 1 / ((self.max_lifetime + 3 - self.lifetime) ** 1.2) * (200)
+                y = size[1] - 80 + 1 / ((self.max_lifetime + 3 - self.lifetime) ** 1.2) * (200)
 
             func.rgb_render(
                 self.images,
                 min([len(self.x_poses), 30]),
-                [854 / 2 - 50, y],
+                [size[0] / 2 - 50, y],
                 cam_delta,
                 screen,
             )
@@ -1025,7 +1025,7 @@ class kill_count_render:
             func.rgb_render(
                 kill_counter_texts[len(self.x_poses)],
                 min([len(self.x_poses), 30]),
-                [854 / 2, y],
+                [size[0]  / 2, y],
                 cam_delta,
                 screen,
             )
@@ -1034,11 +1034,11 @@ class kill_count_render:
 
             for x in self.x_poses:
                 if self.lifetime <= self.max_lifetime / 6:
-                    y = 400 + 1 / ((self.lifetime + 1) ** 1.5) * 200
+                    y = size[1] - 80 + 1 / ((self.lifetime + 1) ** 1.5) * 200
                 elif self.max_lifetime / 6 < self.lifetime <= 4 * self.max_lifetime / 6:
-                    y = 400
+                    y = size[1] - 80
                 else:
-                    y = 400 + 1 / ((self.max_lifetime + 3 - self.lifetime) ** 1.2) * (
+                    y = size[1] - 80 + 1 / ((self.max_lifetime + 3 - self.lifetime) ** 1.2) * (
                         200
                     )
 

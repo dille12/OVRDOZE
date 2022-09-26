@@ -5,4 +5,5 @@ FS=True
 ULTRA=False
 LASTIP=
 FPS=60
-VSYNC=True
+VSYNC=False
+RES=[854, 480]

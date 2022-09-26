@@ -17,7 +17,7 @@ from classes import items, drop_index, drop_table
 import get_preferences
 import armory
 
-a, draw_los, a, a, ultraviolence, a, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a, a = get_preferences.pref()
 
 from _thread import *
 
@@ -437,9 +437,9 @@ class Zombie:
             self.angle_rad = math.radians(self.angle)
             self.pos = [
                 self.pos[0]
-                + timedelta.mod(math.cos(self.angle_rad) * self.moving_speed),
+                + timedelta.mod(math.cos(self.angle_rad) * self.moving_speed * multiplier2),
                 self.pos[1]
-                - timedelta.mod(math.sin(self.angle_rad) * self.moving_speed),
+                - timedelta.mod(math.sin(self.angle_rad) * self.moving_speed * multiplier2),
             ]
 
             if self.attack_tick <= 0:

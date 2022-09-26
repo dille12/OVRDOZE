@@ -32,7 +32,7 @@ class MovingTurret(Game_Object):
         self._tick = 0
         self._aiming_at = 0
         self.base_angle = 0
-        self.moving_speed = 4
+        self.moving_speed = 4 * multiplier2
         self.turning_speed = 3
         self.route_tick = 0
         self.stationary = 0

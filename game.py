@@ -359,6 +359,7 @@ def main(
 
         timedelta.timedelta = min([tick_delta, 3])
 
+
         if player_actor.hp > 0:
 
             # hp_time_dilation = 0.1 + (player_actor.hp/100)**0.4 * 0.9
@@ -1328,6 +1329,8 @@ def main(
                     ],
                 )
 
+
+
         if phase != 0:
             if phase == 1:
                 t = "LINE OF SIGHT, POINTS"
@@ -1389,7 +1392,7 @@ def main(
                 )
 
             if not overworld:
-                player_actor.set_sanity(0.005 * sanity_drain)
+                player_actor.set_sanity(timedelta.mod(0.005 * sanity_drain))
 
             if phase == 3:
                 map_points = map.__dict__["points_inside_polygons"]
