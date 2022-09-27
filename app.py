@@ -7,6 +7,7 @@ import get_preferences
 import server
 import game
 from values import *
+import func
 
 
 class App:
@@ -82,7 +83,7 @@ class App:
         for index, map_1 in enumerate(maps):
             map_surf = map_1.__dict__["background"]
             x, y = map_surf.get_rect().size
-            scale_factor = 200 / x
+            scale_factor = (200*(size[0]/854)) / x
             img = self.pygame.transform.scale(
                 map_surf, (x * scale_factor, y * scale_factor)
             )
@@ -93,7 +94,7 @@ class App:
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
         app, name, arg, draw_los, dev, skip_intervals, map = arg
-
+        func.load_screen(screen, "Loading")
         game.main(
             app,
             self_name=name,

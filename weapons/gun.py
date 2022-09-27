@@ -11,6 +11,8 @@ from objects import *
 import classes
 
 from weapons.weapon import Weapon
+from unit_status import UnitStatus
+
 
 
 class Gun(Weapon):
@@ -130,13 +132,13 @@ class Gun(Weapon):
     def get_semi_auto(self):
         return self.semi_auto
 
-    def fire(self, bullet_pos, angle, screen):
-
+    def fire(self, bullet_pos, angle, screen, player_actor):
+        index = (0.9 + 0.1*player_actor.sanity/100)**0.1
         if self.jammed:
             return
-
-        if random.uniform(0, 1) < 0:
+        if random.uniform(0, 1) > index:
             self.jammed = True
+            UnitStatus(screen, player_actor, "GUN JAMMED!", [255,0,0])
             return
 
         radian_angle = math.radians(angle) - 0.16184 + math.pi / 2

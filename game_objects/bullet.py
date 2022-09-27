@@ -69,22 +69,51 @@ class Bullet(Game_Object):
     ):
         super().update_life(bullet_list)
         self.move()
+
+        if self.energy:
+            for i in range(random.randint(1,3)):
+                particle_list.append(
+                    classes.Particle(
+                        self._pos,
+                        pre_defined_angle=True,
+                        angle=self._angle + 270,
+                        magnitude=self._damage**0.2 - 0.5,
+                        screen=screen,
+                        type="energy",
+                    )
+                )
+
         self.detect_collision()
         self.draw()
         try:
-            angle_coll = map.check_collision(
-                self._pos, map_boundaries, return_only_collision=True, collision_box=0
-            )
-            if angle_coll != False:
+            # angle_coll = map.check_collision(
+            #     self._pos, map_boundaries, return_only_collision=True, collision_box=0
+            # )
+
+            coll_types, pos = map.checkcollision(self._pos, [0,0], round(self.speed/4)*multiplier2, map_boundaries, ignore_barricades=True)
+
+            if coll_types != {
+                "left": False,
+                "right": False,
+                "top": False,
+                "bottom": False,
+            }:
                 func.list_play(rico_sounds)
                 bullet_list.remove(self)
-                for i in range(8):
+
+                if coll_types["left"] or coll_types["right"]:
+                    ang = 270 - self._angle
+                else:
+                    ang = 90 - self._angle
+
+
+                for i in range(round(self._damage**0.5)):
                     particle_list.append(
                         classes.Particle(
-                            angle_coll,
+                            pos,
                             magnitude=1,
                             pre_defined_angle=True,
-                            angle=90 - self._angle,
+                            angle=ang,
                             screen=screen,
                         )
                     )

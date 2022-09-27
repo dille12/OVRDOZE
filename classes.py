@@ -16,6 +16,8 @@ import objects
 import get_preferences
 from dialog import *
 
+from unit_status import UnitStatus
+
 a, draw_los, a, a, ultraviolence, a, a, a, a = get_preferences.pref()
 
 
@@ -1277,6 +1279,7 @@ class Player:
         self.knockback_angle = 0
         self.money = 0
         self.money_last_tick = 0
+        self.unitstatuses = []
 
     def set_pos(self, pos):
         self.pos = pos

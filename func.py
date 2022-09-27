@@ -531,6 +531,10 @@ def render_player(
 
     screen.blit(player_rotated, [player_pos[0] + offset[0], player_pos[1] + offset[1]])
 
+    for x in player_actor.unitstatuses:
+        x.tick(camera_pos)
+
+
 
 def rot_center(image, angle, x, y):
 
@@ -538,6 +542,24 @@ def rot_center(image, angle, x, y):
     new_rect = rotated_image.get_rect(center=image.get_rect(center=(x, y)).center)
 
     return rotated_image, new_rect
+
+def load_screen(screen, text):
+    screen.fill((0,0,0))
+
+    text = terminal2.render(text, False, [255, 255, 255])
+    x,y = text.get_rect().center
+    screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
+
+    if time.time() - hint.t > 3:
+        hint.hint = pick_random_from_list(hints)
+        hint.t = time.time()
+
+
+    text = terminal3.render(hint.hint, False, [255, 255, 255])
+    x,y = text.get_rect().center
+    screen.blit(text, [size[0]/2 - x, size[1]/4 - y + 100])
+
+    pygame.display.update()
 
 
 def camera_aling(camera_pos, target_pos):
@@ -576,10 +598,10 @@ def keypress_manager(key_r_click, c_weapon, player_inventory):
                 c_weapon.__dict__["_reload_tick"] = c_weapon.__dict__["_reload_rate"]
 
 
-def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai=False):
+def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, ai=False):
     firing_tick = False
 
-
+    c_weapon.spread_recoverial()
 
     if c_weapon.jammed:
         return
@@ -621,7 +643,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai
     if c_weapon.get_semi_auto():
         if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0:
             reload.stop()
-            c_weapon.fire(player_pos, angle, screen)
+            c_weapon.fire(player_pos, angle, screen, player_actor)
             firing_tick = True
         elif c_weapon.get_Ammo() == 0 and (
             player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"])
@@ -649,7 +671,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai
             )
 
             reload.stop()
-            c_weapon.fire(player_pos, angle, screen)
+            c_weapon.fire(player_pos, angle, screen, player_actor)
             firing_tick = True
 
         else:
@@ -659,7 +681,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai
                 and c_weapon.__dict__["current_burst_bullet"] != 0
             ):
 
-                c_weapon.fire(player_pos, angle, screen)
+                c_weapon.fire(player_pos, angle, screen, player_actor)
                 firing_tick = True
 
             elif c_weapon.get_Ammo() == 0 and (
@@ -683,7 +705,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai
                 and not c_weapon.jammed
             ):
                 reload.stop()
-                c_weapon.fire(player_pos, angle, screen)
+                c_weapon.fire(player_pos, angle, screen, player_actor)
                 firing_tick = True
 
         elif c_weapon.get_Ammo() == 0 and (
@@ -695,7 +717,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, screen=screen, ai
             for x in weapon_fire_Sounds:
                 x.stop()
 
-    c_weapon.spread_recoverial()
+
     c_weapon.weapon_tick()
 
     return firing_tick
@@ -951,7 +973,7 @@ def draw_HUD(
     # if pl_dist < 100:
     #     pl_dist = 100
 
-    pl_dist_mult = pl_dist / 25
+    pl_dist_mult = (pl_dist / 25)  * multiplier2
 
     spread = weapon.__dict__["_c_bullet_spread"] + weapon.__dict__["_spread"]
 
@@ -1005,10 +1027,10 @@ def draw_HUD(
                 pl_pos[1] - math.sin(math.radians(pl_angl)) * (pl_dist + pl_dist_mult),
             ]
 
-            pygame.draw.line(screen, [255, 0, 0], pos7, pos8, 2)
-            pygame.draw.line(screen, hud_color, pos1, pos2, 2)
-            pygame.draw.line(screen, hud_color, pos4, pos3, 2)
-            pygame.draw.line(screen, hud_color, pos5, pos6, 3)
+            pygame.draw.line(screen, [255, 0, 0], pos7, pos8, round(2 * multiplier2))
+            pygame.draw.line(screen, hud_color, pos1, pos2, round(2 * multiplier2))
+            pygame.draw.line(screen, hud_color, pos4, pos3, round(2 * multiplier2))
+            pygame.draw.line(screen, hud_color, pos5, pos6, round(3 * multiplier2))
 
         else:
 

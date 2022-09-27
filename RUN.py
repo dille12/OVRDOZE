@@ -38,15 +38,9 @@ def main():
 
     screen, mouse_conversion = app.update_screen()
 
-    
 
-    screen.fill((0,0,0))
 
-    text = terminal.render("Loading", False, [255, 255, 255])
-    x,y = text.get_rect().center
-    screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
-
-    pygame.display.update()
+    func.load_screen(screen, "Loading")
 
     menu_status = "start"
 
@@ -68,14 +62,20 @@ def main():
     port = 5555
     menu_alpha = 125
 
-    if 'intro1' not in globals():
+    if 'menu_animations' not in globals():
         print("Loading animations...")
         intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading.")
         intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading..")
         intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading...")
         intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading....")
         intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading.....")
         intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading Done")
         print("Done")
 
         menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6]
@@ -111,6 +111,7 @@ def main():
 
     def start_multiplayer_client():
         app.write_prefs()
+        func.load_screen(screen, "Loading")
         game.main(
             app,
             multiplayer=True,
@@ -863,15 +864,19 @@ def main():
 
             # text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
             # screen.blit(text, [400,20])
-            text = terminal.render("MAP", False, [255, 255, 255])
-            screen.blit(text, [430 - text.get_rect().size[0] / 2, 20])
+
 
 
 
 
             rect_map = maps_dict[selected_map]["image"].get_rect()
 
-            if rect_map.collidepoint(func.minus(mouse_pos, [330, 80], "-")):
+            map_pos = [size[0]/2 - rect_map.center[0], 80 * (size[0]/854)]
+
+            text = terminal.render("MAP", False, [255, 255, 255])
+            screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-80])
+
+            if rect_map.collidepoint(func.minus(mouse_pos, map_pos, "-")):
 
                 if mouse_single_tick:
                     selected_map += 1
@@ -887,13 +892,13 @@ def main():
 
                 rect_map.inflate_ip(4, 4)
 
-                app.pygame.draw.rect(screen, [255, 255, 255], rect_map.move([330, 80]), 5)
+                app.pygame.draw.rect(screen, [255, 255, 255], rect_map.move(map_pos), 5)
 
             if map_tick > 0:
                 map_tick -= 1
-                func.blit_glitch(screen, maps_dict[selected_map]["image"], [330, 80], glitch = 5)
+                func.blit_glitch(screen, maps_dict[selected_map]["image"], map_pos, glitch = 5)
             else:
-                screen.blit(maps_dict[selected_map]["image"], [330, 80])
+                screen.blit(maps_dict[selected_map]["image"], map_pos)
 
 
 
@@ -902,53 +907,54 @@ def main():
             text = terminal.render(
                 maps_dict[selected_map]["map"].__dict__["name"], False, [255, 255, 255]
             )
-            screen.blit(text, [430 - text.get_rect().size[0] / 2, 50])
+            screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-40])
 
             app.pygame.draw.line(
-                screen, [255, 255, 255], [550, 80], [550, 80 + rect_map2.h]
+                screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 50, map_pos[1]], [map_pos[0] + rect_map2.w + 50, map_pos[1] + rect_map2.h]
             )
-            app.pygame.draw.line(screen, [255, 255, 255], [550, 80], [545, 80])
+            app.pygame.draw.line(screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 50, map_pos[1]], [map_pos[0] + rect_map2.w + 45, map_pos[1]])
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [550, 80 + rect_map2.h],
-                [545, 80 + rect_map2.h],
+                [map_pos[0] + rect_map2.w + 50, map_pos[1] + rect_map2.h],
+                [map_pos[0] + rect_map2.w + 45, map_pos[1] + rect_map2.h],
             )
 
             text = terminal.render(
-                str(round(maps_dict[selected_map]["map"].__dict__["size"][1] / 100))
+                str(round(maps_dict[selected_map]["map"].__dict__["size"][1] /  (100*multiplier2)))
                 + "m",
                 False,
                 [255, 255, 255],
             )
-            screen.blit(text, [552, 80 + rect_map2.h / 2 - text.get_rect().size[1] / 2])
+            screen.blit(text, [map_pos[0] + rect_map2.w + 52, map_pos[1] + rect_map2.h / 2 - text.get_rect().size[1] / 2])
 
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [330, 100 + rect_map2.h],
-                [530, 100 + rect_map2.h],
+                [map_pos[0], map_pos[1] + 50 + rect_map2.h],
+                [map_pos[0] + rect_map2.w, map_pos[1] + 50 + rect_map2.h],
             )
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [330, 100 + rect_map2.h],
-                [330, 95 + rect_map2.h],
+                [map_pos[0], map_pos[1] + 50 + rect_map2.h],
+                [map_pos[0], map_pos[1] + 45 + rect_map2.h],
             )
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [530, 100 + rect_map2.h],
-                [530, 95 + rect_map2.h],
+                [map_pos[0] + rect_map2.w, map_pos[1] + 50 + rect_map2.h],
+                [map_pos[0] + rect_map2.w, map_pos[1] + 45 + rect_map2.h],
             )
 
             text = terminal.render(
-                str(round(maps_dict[selected_map]["map"].__dict__["size"][0] / 100))
+                str(round(maps_dict[selected_map]["map"].__dict__["size"][0] / (100*multiplier2)))
                 + "m",
                 False,
                 [255, 255, 255],
+
             )
-            screen.blit(text, [430 - text.get_rect().size[0] / 2, 105 + rect_map2.h])
+            screen.blit(text, [map_pos[0] + rect_map2.w / 2  - text.get_rect().size[0] / 2, map_pos[1]+ 52 + rect_map2.h])
 
             check_box_inter.render_checkbox()
 

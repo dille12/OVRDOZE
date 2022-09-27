@@ -419,3 +419,19 @@ turret_fire1 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire2 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire3 = pygame.mixer.Sound("sound/turret_fire1.wav")
 turret_fire = [turret_fire1, turret_fire2, turret_fire3]
+
+class Hint:
+    def __init__(self):
+        self.t = 0
+        self.hint = ""
+
+hint = Hint()
+
+hints = [
+"Lower sanity means exponentially more zombies.",
+"Your gun jams more often as your sanity goes down.",
+"Right click to melee.",
+"By moving you disorient your enemies.",
+"Armor-Piercing rounds and energy rounds pierce zombies.",
+"Clear a gun jam by spamming the firing button."
+]

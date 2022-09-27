@@ -103,8 +103,8 @@ def getcollisionspoint_condition(tiles, point, condition):
     return (tile for tile in tiles if tile.collidepoint(point) and tile not in cond)
 
 
-def load_level(map, mouse_conversion, player_inventory, app):
-
+def load_level(map, mouse_conversion, player_inventory, app, screen):
+    func.load_screen(screen, "Loading Level")
     app.pygame.mixer.music.fadeout(750)
 
     fade_tick.value = 15
@@ -154,11 +154,11 @@ def load_level(map, mouse_conversion, player_inventory, app):
     camera_pos = [0, 0]
 
     NAV_MESH = map.read_navmesh(walls_filtered)
-
+    print(mouse_conversion)
     if map.name == "Overworld":
         burn_list.append(
             classes.Burn(
-                [2362 / mouse_conversion, 982 / mouse_conversion],
+                [2362 * multiplier, 982 * multiplier],
                 2,
                 500,
                 infinite=True,
@@ -167,7 +167,7 @@ def load_level(map, mouse_conversion, player_inventory, app):
         )
         burn_list.append(
             classes.Burn(
-                [2315 / mouse_conversion, 967 / mouse_conversion],
+                [2315 * multiplier, 967 * multiplier],
                 2,
                 500,
                 infinite=True,
@@ -176,7 +176,7 @@ def load_level(map, mouse_conversion, player_inventory, app):
         )
         burn_list.append(
             classes.Burn(
-                [2335 / mouse_conversion, 1000 / mouse_conversion],
+                [2335 * multiplier, 1000 * multiplier],
                 2,
                 500,
                 infinite=True,
@@ -185,7 +185,7 @@ def load_level(map, mouse_conversion, player_inventory, app):
         )
 
         burn_list.append(
-            classes.Burn([157, 1004], 2, 500, infinite=True, magnitude2=0.7)
+            classes.Burn([352 * multiplier, 2257 * multiplier], 2, 500, infinite=True, magnitude2=0.7)
         )
 
     interactables.clear()

@@ -22,6 +22,7 @@ import classes
 from classes import items
 import func
 from dialog import *
+from unit_status import UnitStatus
 
 # import path_finding
 
@@ -214,7 +215,7 @@ def main(
         camera_pos,
         wall_points,
         walls_filtered,
-    ) = load_level(map, mouse_conversion, player_inventory, app)
+    ) = load_level(map, mouse_conversion, player_inventory, app, screen)
 
     wave = False
     wave_number = 0
@@ -263,7 +264,7 @@ def main(
 
     else:
         dialogue.append(Dialogue("Intro"))
-        player_pos = [25,950]
+        player_pos = [25 * multiplier2,950 * multiplier2]
 
     gun_name_list = [
         "M1911",
@@ -421,6 +422,7 @@ def main(
             if random.uniform(0, 1) < 0.3:
                 c_weapon.jammed = False
                 gun_jam_clear.play()
+                UnitStatus(screen, player_actor, "CLEARED!", [0,255,0])
             else:
                 gun_jam.play()
 
@@ -819,7 +821,7 @@ def main(
                                 camera_pos,
                                 wall_points,
                                 walls_filtered,
-                            ) = load_level(x, mouse_conversion, player_inventory, app)
+                            ) = load_level(x, mouse_conversion, player_inventory, app, screen)
 
                             wave = False
                             wave_number = 0
@@ -1021,7 +1023,7 @@ def main(
                 collision_types, angle_coll = map.checkcollision(
                     player_pos,
                     [x_vel, y_vel],
-                    10,
+                    10*multiplier2,
                     map_boundaries,
                     ignore_barricades=True,
                 )
@@ -1073,6 +1075,7 @@ def main(
                         player_inventory,
                         player_actor.get_angle(),
                         player_pos,
+                        player_actor,
                         screen,
                     )
                     player_melee.tick(screen, r_click_tick)
@@ -1454,8 +1457,8 @@ def main(
                     [mouse_pos[0] + 20, mouse_pos[1] + 20],
                 )
                 pos = [
-                    (mouse_pos[0] + camera_pos[0]) * mouse_conversion,
-                    (mouse_pos[1] + camera_pos[1]) * mouse_conversion,
+                    (mouse_pos[0] + camera_pos[0]) * multiplier,
+                    (mouse_pos[1] + camera_pos[1]) * multiplier,
                 ]
                 text = terminal3.render(
                     "REAL POS: " + str(round(pos[0])) + " " + str(round(pos[1])),

@@ -55,7 +55,7 @@ class Barricade(Game_Object):
 
             area = w * h
 
-            if area > 5000 or w < 20 or h < 20:
+            if area > 5000 * (multiplier2 ** 2) or w < 20 * multiplier2 or h < 20 * multiplier2:
                 clear = False
                 color = [204, 0, 0]
             else:

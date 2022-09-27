@@ -14,7 +14,7 @@ from values import *
 
 walls = []
 
-draw_distance = 1200
+draw_distance = 1200 * multiplier2
 
 vecEdges = []
 

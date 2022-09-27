@@ -32,7 +32,7 @@ def draw(
     Renders the black and white image from a set of walls.
     """
 
-    
+
 
     walls2 = []
     walls3 = []

@@ -3,7 +3,7 @@ import pygame
 import math
 import random
 import time
-
+from unit_status import UnitStatus
 pygame.init()
 import func
 from values import *
@@ -73,12 +73,12 @@ class Zombie:
         self.calculating = False
 
         if type == "normal":
-            self.size = 10
+            self.size = 10 * multiplier2
             self.image = zombie
             self.type = "normal"
             self.anglular_acceleration = 0.1
         elif type == "bomber":
-            self.size = 13
+            self.size = 13 * multiplier2
             self.image = bomber
             self.moving_speed *= 0.75
             self.hp *= 0.75
@@ -87,7 +87,7 @@ class Zombie:
             self.attack_speed = 60
             self.anglular_acceleration = 0.025
         else:
-            self.size = 20
+            self.size = 20 * multiplier2
             self.image = zombie_big
             self.moving_speed *= 0.35
             self.damage *= 2
@@ -381,7 +381,7 @@ class Zombie:
 
         if self.detected:
             # self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
-            if dist > 50:
+            if dist > 50 * multiplier2:
 
                 self.target_pos = player_pos
                 self.route = []

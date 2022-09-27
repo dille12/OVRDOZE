@@ -1,9 +1,9 @@
 username=Client
 FOV=True
-DEV=False
+DEV=True
 FS=True
 ULTRA=False
 LASTIP=
 FPS=60
-VSYNC=False
-RES=[854, 480]
+VSYNC=True
+RES=[1920, 1080]
