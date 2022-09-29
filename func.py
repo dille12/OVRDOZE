@@ -16,6 +16,8 @@ terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
 terminal4 = pygame.font.Font("texture/terminal.ttf", 40)
 
+terminal_hint = pygame.font.Font("texture/terminal.ttf", round(16*multiplier2))
+
 evade_skip_tick = 0
 acceleration = 200 / 1.875
 velocity_cap = 9 / 1.875
@@ -555,7 +557,7 @@ def load_screen(screen, text):
         hint.t = time.time()
 
 
-    text = terminal3.render(hint.hint, False, [255, 255, 255])
+    text = terminal_hint.render(hint.hint, False, [255, 255, 255])
     x,y = text.get_rect().center
     screen.blit(text, [size[0]/2 - x, size[1]/4 - y + 100])
 
@@ -575,13 +577,13 @@ def camera_aling(camera_pos, target_pos):
     return camera_pos
 
 
-def keypress_manager(key_r_click, c_weapon, player_inventory):
+def keypress_manager(key_r_click, c_weapon, player_inventory, player_actor):
     if key_r_click:
         if (
             c_weapon.reload_tick() == 0
             and c_weapon.get_Ammo() != c_weapon.get_clip_size() + 1
         ):
-            c_weapon.reload(player_inventory)
+            c_weapon.reload(player_inventory, player_actor, screen)
         elif c_weapon.reload_tick() != 0:
             if (
                 abs(c_weapon.reload_tick() - c_weapon.__dict__["random_reload_tick"])
@@ -650,7 +652,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
             or c_weapon.__dict__["ammo"] == "INF"
         ):
 
-            reload_tick = c_weapon.reload(player_inventory)
+            reload_tick = c_weapon.reload(player_inventory, player_actor, screen)
 
             for x in weapon_fire_Sounds:
                 x.stop()
@@ -688,7 +690,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
                 player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) > 0
                 or c_weapon.__dict__["ammo"] == "INF"
             ):
-                reload_tick = c_weapon.reload(player_inventory)
+                reload_tick = c_weapon.reload(player_inventory, player_actor, screen)
 
                 for x in weapon_fire_Sounds:
                     x.stop()
@@ -712,7 +714,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
             player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) > 0
             or c_weapon.__dict__["ammo"] == "INF"
         ):
-            reload_tick = c_weapon.reload(player_inventory)
+            reload_tick = c_weapon.reload(player_inventory, player_actor, screen)
 
             for x in weapon_fire_Sounds:
                 x.stop()

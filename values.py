@@ -361,7 +361,7 @@ barricade_list = []
 
 heartbeat_tick = GameTick(max_value=10)
 map_desc_tick = GameTick(180, oneshot=True)
-
+unitstatuses = []
 
 fade_to_black_screen = []
 

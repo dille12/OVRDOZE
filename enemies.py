@@ -33,7 +33,7 @@ def get_zombie_by_id(id):
     return (zomb for zomb in enemy_list if zomb.identificator == id)
 
 
-class Zombie:
+class Zombie(pygame.sprite.Sprite):
     def __init__(
         self,
         app,
@@ -50,6 +50,7 @@ class Zombie:
         identificator=random.randint(0, 4096),
         power=random.uniform(1.5, 2.75),
     ):
+        super().__init__()
         self.app = app
         self.identificator = identificator
         self.power = power
@@ -72,14 +73,16 @@ class Zombie:
         self.player_ref = player_ref
         self.calculating = False
 
+
+
         if type == "normal":
             self.size = 10 * multiplier2
-            self.image = zombie
+            self.image_template = zombie
             self.type = "normal"
             self.anglular_acceleration = 0.1
         elif type == "bomber":
             self.size = 13 * multiplier2
-            self.image = bomber
+            self.image_template = bomber
             self.moving_speed *= 0.75
             self.hp *= 0.75
             self.explosion = expl_blood
@@ -88,7 +91,7 @@ class Zombie:
             self.anglular_acceleration = 0.025
         else:
             self.size = 20 * multiplier2
-            self.image = zombie_big
+            self.image_template = zombie_big
             self.moving_speed *= 0.35
             self.damage *= 2
             self.hp *= 5
@@ -100,6 +103,8 @@ class Zombie:
         self.attack_tick = 0
         self.route_tick = 0
         self.get_route_to_target()
+
+        self.rect = self.image_template.get_rect()
 
         self.route = []
         self.stationary = 0
@@ -117,6 +122,8 @@ class Zombie:
 
         self.inventory = classes.Inventory(interctables)
         self.cached_route = False
+
+        #app.zombiegroup.add(self)
 
         for i in range(random.randint(1, 9)):
             if random.uniform(0, 1) < 0.02:
@@ -140,7 +147,7 @@ class Zombie:
     def issue_event(self, event):
         zombie_events.append(f"ZEVENT:{self.identificator}_{event}")
 
-    def kill(
+    def kill_actor(
         self,
         camera_pos,
         list,
@@ -149,13 +156,16 @@ class Zombie:
         silent=False,
         zevent=False,
     ):
+
+        self.kill()
         list.remove(self)
+
         if not zevent:
             self.issue_event("terminate_1")
 
         if not silent:
 
-            player_actor.money += random.randint(2, 5)
+            player_actor.money += random.randint(5, 10)
             money_tick.value = 0
 
             func.list_play(death_sounds)
@@ -249,7 +259,7 @@ class Zombie:
 
             self.hp -= damage
             if self.hp < 0:
-                self.kill(camera_pos, enemy_list, map_render, player_actor)
+                self.kill_actor(camera_pos, enemy_list, map_render, player_actor)
 
             else:
                 func.list_play(hit_sounds)
@@ -345,16 +355,31 @@ class Zombie:
                 self.pos[1] - self.target_pos[1], self.pos[0] - self.target_pos[0]
             )
         )
-
+        vis = False
         if self.visible or not self.app.draw_los:  ## Render
             rot, rect = func.rot_center(
-                self.image, self.angle, self.temp_pos[0], self.temp_pos[1]
+                self.image_template, self.angle, self.temp_pos[0], self.temp_pos[1]
             )
             rect = rot.get_rect().center
-            screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
+
+            vis = True
+
+            #screen.blit(rot, [self.temp_pos[0] - rect[0], self.temp_pos[1] - rect[1]])
 
         # text = terminal.render(str(self.identificator), False, WHITE_COLOR)
         # screen.blit(text, self.temp_pos)
+        if vis:
+            if not self.app.zombiegroup.has(self):
+                self.app.zombiegroup.add(self)
+        else:
+            if self.app.zombiegroup.has(self):
+                self.app.zombiegroup.remove(self)
+                
+        if self.app.zombiegroup.has(self):
+            self.image = rot
+            self.rect.x = self.temp_pos[0] - rect[0]
+            self.rect.y = self.temp_pos[1] - rect[1]
+
 
         if phase == 6:
             t_4 = time.time()
@@ -413,7 +438,7 @@ class Zombie:
                     0 < self.attack_tick < self.attack_speed / 2
                     and self.type == "bomber"
                 ):
-                    self.kill(camera_pos, enemy_list, map_render, player_actor)
+                    self.kill_actor(camera_pos, enemy_list, map_render, player_actor)
 
         if phase == 6:
             t_6 = time.time()
@@ -493,7 +518,11 @@ class Zombie:
             self.stationary = 0
 
         if self.check_if_alive() and self.hp <= 0:
-            self.kill(camera_pos, enemy_list, map_render, player_actor)
+            self.kill_actor(camera_pos, enemy_list, map_render, player_actor)
+
+
+
+
 
         if phase == 6:
             t_9 = time.time()
@@ -588,6 +617,8 @@ class Player_Multi:
 
     def kill(self, camera_pos, dict, draw_blood_parts, player_actor):
 
+
+
         if self.killed:
             return
 
@@ -623,7 +654,7 @@ class Player_Multi:
         ):
 
             if self.hp - damage < 0:
-                self.kill(camera_pos, actor_list, map_render, player_actor)
+                self.kill_actor(camera_pos, actor_list, map_render, player_actor)
 
             else:
                 func.list_play(hit_sounds)

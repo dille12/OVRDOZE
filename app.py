@@ -22,6 +22,9 @@ class App:
         self.path_cache = {}
         self.path_times = {"calc" : [0, 0], "cache" : [0, 0]}
 
+        self.zombiegroup = pygame.sprite.Group()
+        self.unitstatuses = []
+
     def update_fps(self):
         if self.fps == "60":
             self.clocktick = 60

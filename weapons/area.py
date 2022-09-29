@@ -174,7 +174,7 @@ class Explosion:
                 if self.player:
                     multi_kill += 1
                     multi_kill_ticks = 120
-                actor.kill(camera_pos, enemy_list, blood_surf, player_actor)
+                actor.kill_actor(camera_pos, enemy_list, blood_surf, player_actor)
 
         if self.player:
             return multi_kill, multi_kill_ticks

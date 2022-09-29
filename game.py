@@ -604,7 +604,7 @@ def main(
         except Exception as e:
             print("EXCEPTION", e)
         fps_counter = time.time()
-        func.keypress_manager(key_r_click, c_weapon, player_inventory)
+        func.keypress_manager(key_r_click, c_weapon, player_inventory, player_actor)
 
         last_camera_pos = camera_pos.copy()
 
@@ -721,7 +721,7 @@ def main(
                         if random.uniform(0, 1) < 1 and not los.check_los(
                             player_actor.pos, rand_enemy.pos, walls_filtered
                         ):
-                            rand_enemy.kill(
+                            rand_enemy.kill_actor(
                                 camera_pos,
                                 enemy_list,
                                 map_render,
@@ -788,8 +788,6 @@ def main(
             if x.tick(screen, camera_pos, map=map) == "KILL":
                 barricade_list.remove(x)
 
-        time_stamps["barricade"] = time.time() - t
-        t = time.time()
 
         for x in turret_list:
             x.tick(screen, camera_pos, enemy_list, 0, walls_filtered, player_pos)
@@ -1082,6 +1080,7 @@ def main(
 
                     if c_weapon._bullets_in_clip == 0 and click_single_tick:
                         gun_jam.play()
+                        UnitStatus(screen, player_actor, "NO AMMO!", [255,0,0])
 
                 else:
                     c_weapon.spread_recoverial()
@@ -1187,6 +1186,13 @@ def main(
 
         time_stamps["enemies"] = time.time() - t
         t = time.time()
+
+        app.zombiegroup.draw(screen)
+
+        time_stamps["zombie_Draw"] = time.time() - t
+        t = time.time()
+
+
 
         i2 = []
         for x in bullet_list:
@@ -1755,6 +1761,11 @@ def main(
                     size[1] / 3 - text.get_rect().center[1],
                 ],
             )
+
+        for x in unitstatuses:
+            x.tick(camera_pos)
+
+
 
         if pause:
             background_surf.blit(screen, (0, 0))

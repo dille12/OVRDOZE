@@ -240,7 +240,7 @@ class Gun(Weapon):
     def get_Ammo(self):
         return self._bullets_in_clip
 
-    def reload(self, player_inventory):
+    def reload(self, player_inventory, player_actor, screen):
         self.random_reload_tick = random.randint(
             round(self._reload_rate / 4), round(3 * self._reload_rate / 4)
         )
@@ -262,6 +262,9 @@ class Gun(Weapon):
         to_reload = ammo_to_reload if ammo_to_reload < availabe_ammo else availabe_ammo
         self.reload_sound.play()
         self.set_reload_tick(self.get_reload_rate())
+
+        if to_reload == availabe_ammo and to_reload != 0:
+            UnitStatus(screen, player_actor, "LAST MAG!", [255,255,0])
 
         self._bullets_in_clip += to_reload
         if self.ammo != "INF":

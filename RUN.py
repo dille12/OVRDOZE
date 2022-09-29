@@ -910,14 +910,14 @@ def main():
             screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-40])
 
             app.pygame.draw.line(
-                screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 50, map_pos[1]], [map_pos[0] + rect_map2.w + 50, map_pos[1] + rect_map2.h]
+                screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 10, map_pos[1]], [map_pos[0] + rect_map2.w + 10, map_pos[1] + rect_map2.h]
             )
-            app.pygame.draw.line(screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 50, map_pos[1]], [map_pos[0] + rect_map2.w + 45, map_pos[1]])
+            app.pygame.draw.line(screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 10, map_pos[1]], [map_pos[0] + rect_map2.w + 5, map_pos[1]])
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [map_pos[0] + rect_map2.w + 50, map_pos[1] + rect_map2.h],
-                [map_pos[0] + rect_map2.w + 45, map_pos[1] + rect_map2.h],
+                [map_pos[0] + rect_map2.w + 10, map_pos[1] + rect_map2.h],
+                [map_pos[0] + rect_map2.w + 5, map_pos[1] + rect_map2.h],
             )
 
             text = terminal.render(
@@ -926,25 +926,25 @@ def main():
                 False,
                 [255, 255, 255],
             )
-            screen.blit(text, [map_pos[0] + rect_map2.w + 52, map_pos[1] + rect_map2.h / 2 - text.get_rect().size[1] / 2])
+            screen.blit(text, [map_pos[0] + rect_map2.w + 12, map_pos[1] + rect_map2.h / 2 - text.get_rect().size[1] / 2])
 
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [map_pos[0], map_pos[1] + 50 + rect_map2.h],
-                [map_pos[0] + rect_map2.w, map_pos[1] + 50 + rect_map2.h],
+                [map_pos[0], map_pos[1] + 10 + rect_map2.h],
+                [map_pos[0] + rect_map2.w, map_pos[1] + 10 + rect_map2.h],
             )
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [map_pos[0], map_pos[1] + 50 + rect_map2.h],
-                [map_pos[0], map_pos[1] + 45 + rect_map2.h],
+                [map_pos[0], map_pos[1] + 10 + rect_map2.h],
+                [map_pos[0], map_pos[1] + 5 + rect_map2.h],
             )
             app.pygame.draw.line(
                 screen,
                 [255, 255, 255],
-                [map_pos[0] + rect_map2.w, map_pos[1] + 50 + rect_map2.h],
-                [map_pos[0] + rect_map2.w, map_pos[1] + 45 + rect_map2.h],
+                [map_pos[0] + rect_map2.w, map_pos[1] + 10 + rect_map2.h],
+                [map_pos[0] + rect_map2.w, map_pos[1] + 5 + rect_map2.h],
             )
 
             text = terminal.render(
@@ -954,7 +954,7 @@ def main():
                 [255, 255, 255],
 
             )
-            screen.blit(text, [map_pos[0] + rect_map2.w / 2  - text.get_rect().size[0] / 2, map_pos[1]+ 52 + rect_map2.h])
+            screen.blit(text, [map_pos[0] + rect_map2.w / 2  - text.get_rect().size[0] / 2, map_pos[1]+ 12 + rect_map2.h])
 
             check_box_inter.render_checkbox()
 
