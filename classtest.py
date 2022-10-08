@@ -156,9 +156,11 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
     NAV_MESH = map.read_navmesh(walls_filtered)
     print(mouse_conversion)
     if map.name == "Overworld":
+        print("Loading overworld. Appending trashfires.")
+        print([2362 * multiplier, 982 / multiplier])
         burn_list.append(
             classes.Burn(
-                [2362 * multiplier, 982 * multiplier],
+                [2362 / multiplier, 982 / multiplier],
                 2,
                 500,
                 infinite=True,
@@ -167,7 +169,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
         )
         burn_list.append(
             classes.Burn(
-                [2315 * multiplier, 967 * multiplier],
+                [2315 / multiplier, 967 / multiplier],
                 2,
                 500,
                 infinite=True,
@@ -176,7 +178,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
         )
         burn_list.append(
             classes.Burn(
-                [2335 * multiplier, 1000 * multiplier],
+                [2335 / multiplier, 1000 / multiplier],
                 2,
                 500,
                 infinite=True,
@@ -185,7 +187,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
         )
 
         burn_list.append(
-            classes.Burn([352 * multiplier, 2257 * multiplier], 2, 500, infinite=True, magnitude2=0.7)
+            classes.Burn([352 / multiplier, 2257 / multiplier], 2, 500, infinite=True, magnitude2=0.7)
         )
 
     interactables.clear()
@@ -199,7 +201,13 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
 
     for x in map.__dict__["objects"]:
         x.__dict__["inv_save"] = player_inventory
+        x.re_init()
         interactables.append(x)
+
+        if map.name == "Overworld" and x.name == "Basement":
+            x.door_dest = app.levels[0]
+            app.levels.remove(app.levels[0])
+            print("Set door destination to:", x.door_dest)
 
     turret_bro[0].map_ref = map
     turret_bro[0]._pos = player_pos.copy()

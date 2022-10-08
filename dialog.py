@@ -54,8 +54,23 @@ shop_buy_button = Button(
     glitchInstance=None,
 )
 
+def give_player_money(screen, click, mouse_pos, player_inventory, items, player_actor, map):
+    player_actor.money += 1000
+    money_tick.value = 0
+    advance(None)
 
-def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor):
+def open_basement(screen, click, mouse_pos, player_inventory, items, player_actor, map):
+    phone_ring.stop()
+    for x in interactables:
+        if x.name == "Basement":
+            x.active = True
+        elif x.name == "Payphone":
+            x.active = False
+
+    advance(None)
+
+
+def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor, map):
     screen.blit(surf_back, [0, 0])
 
     text = terminal2.render("RUPERTS WEAPON SHOP", False, [255, 255, 255])
@@ -103,6 +118,27 @@ dialogues = {
             ["", "At least you can now protect\nyourself from thugs and zombies."],
             ["", "You feel your other pockets too\nin search for money,\nbut no luck."],
             ["y", "Aight, time to go to work."]
+        ]
+    ],
+
+    "Payphone" : [
+        [
+            open_basement,
+            ["" , "You answer the phone and say\nnothing. After few moments you can\nhear an unnaturally deep voice."],
+            ["Mysterious voice" , f"{player_name}?."],
+            ["" , "You glance over your shoulder."],
+            ["y", "Who is this?"],
+            ["Mysterious voice" , f"Your employer of course.\nI'm afraid that we need you to\ncontribute to our cause again."],
+            ["y", "I have no idea what you're talking\nabout, who the hell are you?"],
+            ["Mysterious voice" , f"It matters not. There's a bundle\nof 1000 dollars behind the phone.\nTake it."],
+            ["" , "You feel behind the cover of the\npayphone and find a stack of cash."],
+            give_player_money,
+            ["Mysterious voice" , f"That's the prepayment for our\ntransaction. Use it how you will."],
+            ["Mysterious voice" , f"That's but a tiny fraction what\nyou will earn, if you venture to\nthat basement behind you."],
+            ["Mysterious voice" , f"Massacre everything that moves.\nDo NOT die.\nYou will be compensated handsomely."],
+            ["y" , f"Why me?"],
+            ["" , "The voice chuckles lightly,\nand promptly hangs up."],
+
         ]
     ],
 
@@ -166,6 +202,7 @@ class Dialogue:
         player_inventory,
         items,
         player_actor,
+        map,
     ):
         return_str = ""
         line = self.dialogue[self.linenumber]
@@ -175,8 +212,10 @@ class Dialogue:
                 talker = self.name
             elif line[0] == "":
                 talker = ""
-            else:
+            elif line[0] == "y":
                 talker = "You"
+            else:
+                talker = line[0]
             return_str = [talker, line[1][: self.letternumber]]
 
             if self.letternumber < len(line[1]):
@@ -195,7 +234,7 @@ class Dialogue:
 
             elif scroll[1] and self.y_pos_abs < len(ruperts_shop_selections) - 3:
                 self.y_pos_abs += 1
-            line(screen, click, mouse_pos, player_inventory, items, player_actor)
+            line(screen, click, mouse_pos, player_inventory, items, player_actor, map)
 
         if self.linenumber >= len(self.dialogue):
             pygame_instance.pygame.mouse.set_visible(False)

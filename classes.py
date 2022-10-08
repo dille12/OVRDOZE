@@ -737,6 +737,22 @@ class Interactable:
         door_dest=None,
         active=True,
     ):
+
+        self.init_values = [
+            pos,
+            player_inventory,
+            list,
+            name,
+            type,
+            item,
+            amount,
+            collide,
+            map,
+            image,
+            door_dest,
+            active,
+        ]
+
         if type != "item":
             self.pos = func.mult(pos,multiplier2)
         else:
@@ -798,6 +814,8 @@ class Interactable:
         self.inv_save = player_inventory
         self.contents = {}
 
+
+
         if self.type == "crate":
             while True:
 
@@ -827,6 +845,37 @@ class Interactable:
         if self.button_prompt:
             self.button_prompt.tick(screen, player_pos, camera_pos, f_press)
 
+
+    def re_init(self):
+        (pos,
+        player_inventory,
+        list,
+        name,
+        type,
+        item,
+        amount,
+        collide,
+        map,
+        image,
+        door_dest,
+        active) = self.init_values
+
+        self.__init__(
+            pos,
+            player_inventory,
+            list = list,
+            name = name,
+            type = type,
+            item = item,
+            amount = amount,
+            collide = collide,
+            map = map,
+            image = image,
+            door_dest = door_dest,
+            active = active,
+        )
+
+
     def prompt_dist(self, player_pos):
         if self.button_prompt:
             return los.get_dist_points(player_pos, self.center_pos)
@@ -836,7 +885,16 @@ class Interactable:
     def get_name(self):
         return self.name
 
+    def ring_phone(self, player_pos):
+        dist = max([1 - (los.get_dist_points(self.pos, player_pos) / 500 * multiplier2), 0])
+        phone_ring.set_volume(dist)
+        if phone_ring.get_num_channels() == 0:
+            phone_ring.play()
+
     def tick(self, screen, player_pos, camera_pos):
+
+        if self.name == "Payphone" and self.active:
+            self.ring_phone(player_pos)
 
         if self.type == "item":
             self.rect.topleft = func.minus_list(self.pos, camera_pos)
@@ -896,7 +954,7 @@ class Interactable:
         elif self.type == "NPC":
             self.npc_active = True
             dialogue.clear()
-            dialogue.append(Dialogue("Rupert"))
+            dialogue.append(Dialogue(self.name))
             print("INTERACTED")
 
             print(dialogue)

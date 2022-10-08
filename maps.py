@@ -34,8 +34,13 @@ maps = [
             classes.Interactable(
                 [164, 30], None, name="Rupert", type="NPC", image="placeholder_npc.png"
             ),
+
             classes.Interactable(
-                [782, 1005], None, name="Basement", type="door", door_dest="Liberation"
+                [560, 330], None, name="Payphone", type="NPC", image="payphone.png"
+            ),
+
+            classes.Interactable(
+                [782, 1005], None, name="Basement", type="door", door_dest="Liberation", active = False,
             ),
         ],
         SPAWNPOINT=[781, 930],

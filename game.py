@@ -23,6 +23,7 @@ from classes import items
 import func
 from dialog import *
 from unit_status import UnitStatus
+from npcs.zombie import Zombie
 
 # import path_finding
 
@@ -121,7 +122,7 @@ def main(
     ]
 
     if multiplayer:
-        enemy_count = 1
+        enemy_count = -1
 
         packet_dict.clear()
 
@@ -196,7 +197,7 @@ def main(
     ### load
 
     player_inventory = classes.Inventory(interactables, player=True)
-    player_inventory.append_to_inv(items["Barricade"], 1)
+    #player_inventory.append_to_inv(items["Barricade"], 1)
     turret_bro.clear()
 
     turret_bro.append(
@@ -757,7 +758,7 @@ def main(
                 elif type_drop < 0.05:
                     type = "bomber"
 
-                zombo = enemies.Zombie(
+                zombo = Zombie(
                     app,
                     map.get_random_point(walls_filtered, p_pos=player_pos),
                     interactables,
@@ -1556,6 +1557,7 @@ def main(
                     player_inventory,
                     items,
                     player_actor,
+                    map,
                 )
 
                 if text_str != "":
@@ -1579,7 +1581,9 @@ def main(
 
                     for text_line in text_str[1].split("\n"):
 
-                        text = terminal.render(text_line, False, [255, 255, 255])
+                        glitchy = text_str[0] == "Mysterious voice"
+
+                        text = terminal.render(text_line, False, [255, 255, 255] if not glitchy else [255,100,100])
                         pos = [size[0] / 2, 7 * size[1] / 8]
                         screen.blit(
                             text,
@@ -1587,7 +1591,10 @@ def main(
                                 pos[0] - text.get_rect().center[0],
                                 pos[1] - text.get_rect().center[1] + 5 + y_pos,
                             ],
+                        ) if not glitchy else func.blit_glitch(
+                            screen, text, [pos[0] - text.get_rect().center[0], pos[1] - text.get_rect().center[1] + 5 + y_pos], 2, black_bar_chance = 3
                         )
+
 
                         y_pos += 20
 
@@ -1771,6 +1778,13 @@ def main(
             background_surf.blit(screen, (0, 0))
         glitch.tick()
         melee_list.clear()
+
+        if app.screen_glitch > 0:
+            image_copy = screen.copy()
+            screen.fill((0,0,0))
+            func.blit_glitch(screen, image_copy, [0,0], round(2*app.screen_glitch))
+            app.screen_glitch -= timedelta.mod(1)
+
         app.pygame.display.update()
 
 

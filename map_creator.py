@@ -7,7 +7,6 @@ import mixer
 from classtest import *
 from _thread import *
 import threading
-import server
 import copy
 import los
 from network import Network

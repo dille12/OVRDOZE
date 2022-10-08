@@ -41,12 +41,12 @@ def print_s(screen, text_str, slot, color=hud_color):
     text = terminal.render(str(text_str), False, color)
     screen.blit(text, (size[0] - 10 - text.get_rect().size[0], slot * 30))  #
 
-def blit_glitch(screen, image, pos, glitch = 2, diagonal = False):
+def blit_glitch(screen, image, pos, glitch = 2, diagonal = False, black_bar_chance = 5):
     upper_pos = 0
     lower_pos = random.randint(2, 5)
     image_size = image.get_size()
     while 1:
-        if random.randint(1, 5) == 1:
+        if random.randint(1, black_bar_chance) == 1:
             screen.blit(
                 image,
                 [pos[0] + random.randint(-glitch, glitch), pos[1] + upper_pos + (0 if not diagonal else random.randint(-glitch, glitch))],
@@ -60,10 +60,12 @@ def blit_glitch(screen, image, pos, glitch = 2, diagonal = False):
             lower_pos = image_size[1]
 
 def render_text_glitch(
-    screen, string, pos, color=[255, 255, 255], centerx=False, glitch=10
+    screen, string, pos, color=[255, 255, 255], centerx=False, glitch=10, font = None
 ):
     # color = pick_random_from_list([[255,0,0], [0,255,0], [0,0,255]])
-    text = terminal4.render(str(string), False, color)
+    if not font:
+        font = terminal4
+    text = font.render(str(string), False, color)
 
     upper_pos = 0
     lower_pos = random.randint(2, 5)

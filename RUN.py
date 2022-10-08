@@ -9,7 +9,6 @@ from network import Network
 import socket
 import classes
 import time
-import server
 import game
 import hud_elements
 import get_preferences
@@ -25,13 +24,13 @@ from menu import Menu
 
 def main():
 
-    app = App(pygame, server)
+    app = App(pygame)
 
     terminal = pygame.font.Font("texture/terminal.ttf", 20)
     terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
     prompt = pygame.font.Font("texture/terminal.ttf", 14)
     maps_dict = app.getMaps()
-    selected_map = 0
+    app.selected_map = 0
 
     clock = app.pygame.time.Clock()
     print("run init")
@@ -81,10 +80,7 @@ def main():
         menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6]
     menu_i = 0
 
-    def start_mp_game(arg):
 
-        reply = net.send("start_game")
-        start_multiplayer_client()
 
     def start_map_creator(arg):
         map_creator.main(app)
@@ -109,34 +105,24 @@ def main():
             print("upnp_test")
             return "upnp_test"
 
-    def start_multiplayer_client():
-        app.write_prefs()
-        func.load_screen(screen, "Loading")
-        game.main(
-            app,
-            multiplayer=True,
-            net=net,
-            players=players,
-            self_name=app.name,
-            map=maps_dict[selected_map]["map"],
-        )
+
 
     def join_game(arg, host=False):
 
         print("JOINING TO:", arg)
 
         try:
-            net = Network(arg)
+            app.net = Network(arg)
 
             print("CLIENT: STARTING SEARCH")
 
-            reply = net.send(app.name)
+            reply = app.net.send(app.name)
             if reply != [""]:
 
                 print("CLIENT:", reply)
                 print("CLIENT: CONNECTED")
 
-                return "lobby", net, host
+                return "lobby", app.net, host
             else:
                 print("CLIENT: No connection found")
                 return "start", None, None
@@ -185,7 +171,7 @@ def main():
             app.draw_los,
             app.dev,
             check_box_inter.__dict__["checked"],
-            maps_dict[selected_map]["map"],
+            maps_dict[app.selected_map]["map"],
         )
 
         app.start_sp(args)
@@ -197,7 +183,7 @@ def main():
         return "settings"
 
     def kill_server(arg):
-        reply = net.send("kill")
+        reply = app.net.send("kill")
         return "start"
 
     def sp_lob(arg):
@@ -296,7 +282,7 @@ def main():
     button_start_sp = Button(
         [140, 70],
         "START GAME",
-        start_mp_game,
+        app.start_multiplayer_client,
         None,
         gameInstance=app.pygame,
         glitchInstance=glitch,
@@ -521,7 +507,7 @@ def main():
         "ONSLAUGHT": "Sanity drains 50% faster, zombies have 35% more health and 20% more damage. Turrets have 30% less bullets.",
     }
 
-    net = None
+    app.net = None
     background_vel = 0
     buttons = [
         button_sp_menu,
@@ -552,7 +538,7 @@ def main():
         check_box_fps3
     ]
     game_state = {
-        "selected_map": selected_map,
+        "app.selected_map": app.selected_map,
         "players": players,
         "hostname": hostname,
         "ip": ip_address,
@@ -588,6 +574,8 @@ def main():
         # menu should cover a lot of the while loop -
 
         app.update_fps()
+
+        app.collect_data()
 
         if background_tick != 0:
             background_tick -= 1
@@ -812,11 +800,11 @@ def main():
             else:
                 sButtonUpnp = None
 
-            if net == None and net1 != None:
-                net = net1
+            if app.net == None and net1 != None:
+                app.net = net1
                 print("NETWORK SAVED")
-            if net == None and net2 != None:
-                net = net2
+            if app.net == None and net2 != None:
+                app.net = net2
                 print("NETWORK SAVED")
             if s4 != None:
                 menu_status = s4
@@ -869,7 +857,7 @@ def main():
 
 
 
-            rect_map = maps_dict[selected_map]["image"].get_rect()
+            rect_map = maps_dict[app.selected_map]["image"].get_rect()
 
             map_pos = [size[0]/2 - rect_map.center[0], 80 * (size[0]/854)]
 
@@ -879,16 +867,16 @@ def main():
             if rect_map.collidepoint(func.minus(mouse_pos, map_pos, "-")):
 
                 if mouse_single_tick:
-                    selected_map += 1
+                    app.selected_map += 1
 
                     menu_click2.play()
 
                     map_tick = 5
 
-                    if selected_map == len(maps_dict):
-                        selected_map = 0
+                    if app.selected_map == len(maps_dict):
+                        app.selected_map = 0
 
-                rect_map = maps_dict[selected_map]["image"].get_rect()
+                rect_map = maps_dict[app.selected_map]["image"].get_rect()
 
                 rect_map.inflate_ip(4, 4)
 
@@ -896,18 +884,57 @@ def main():
 
             if map_tick > 0:
                 map_tick -= 1
-                func.blit_glitch(screen, maps_dict[selected_map]["image"], map_pos, glitch = 5)
+                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = 5)
+
+                func.render_text_glitch(screen,  maps_dict[app.selected_map]["map"].name, [size[0]/2, map_pos[1]-40], glitch = 5, centerx = True, font = terminal)
+
             else:
-                screen.blit(maps_dict[selected_map]["image"], map_pos)
+                screen.blit(maps_dict[app.selected_map]["image"], map_pos)
+
+                text = terminal.render(
+                    maps_dict[app.selected_map]["map"].__dict__["name"], False, [255, 255, 255]
+                )
+                screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-40])
 
 
 
-            rect_map2 = maps_dict[selected_map]["image"].get_rect()
-
+            rect_map2 = maps_dict[app.selected_map]["image"].get_rect()
+            y_1 = 0
+            pos = [size[0]*3/4, map_pos[1] - 40]
             text = terminal.render(
-                maps_dict[selected_map]["map"].__dict__["name"], False, [255, 255, 255]
+                "ALL LOADED MAPS:", False, [255, 255, 255]
             )
-            screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-40])
+            screen.blit(text, pos)
+
+            for x in maps_dict:
+
+                pos = [size[0]*3/4, map_pos[1] + y_1]
+                text = terminal.render(maps_dict[x]["map"].name, False, [255,255,255])
+                rect = text.get_rect()
+                rect.x = pos[0]
+                rect.y = pos[1]
+
+                if rect.collidepoint(mouse_pos):
+                    color = [255,0,0]
+                    if mouse_single_tick:
+                        app.selected_map = x
+                        menu_click2.play()
+                        map_tick = 5
+                        break
+
+                elif  maps_dict[x]["map"].name == maps_dict[app.selected_map]["map"].name:
+                    color = [255,255,255]
+                else:
+                    color = [100,100,100]
+
+                text = terminal.render(maps_dict[x]["map"].name, False, color)
+                screen.blit(text, pos)
+                y_1 += 25
+
+
+
+
+
 
             app.pygame.draw.line(
                 screen, [255, 255, 255], [map_pos[0] + rect_map2.w + 10, map_pos[1]], [map_pos[0] + rect_map2.w + 10, map_pos[1] + rect_map2.h]
@@ -921,7 +948,7 @@ def main():
             )
 
             text = terminal.render(
-                str(round(maps_dict[selected_map]["map"].__dict__["size"][1] /  (100*multiplier2)))
+                str(round(maps_dict[app.selected_map]["map"].__dict__["size"][1] /  (100*multiplier2)))
                 + "m",
                 False,
                 [255, 255, 255],
@@ -948,7 +975,7 @@ def main():
             )
 
             text = terminal.render(
-                str(round(maps_dict[selected_map]["map"].__dict__["size"][0] / (100*multiplier2)))
+                str(round(maps_dict[app.selected_map]["map"].__dict__["size"][0] / (100*multiplier2)))
                 + "m",
                 False,
                 [255, 255, 255],
@@ -985,7 +1012,7 @@ def main():
             text = terminal.render("MAP", False, [255, 255, 255])
             screen.blit(text, [430 - text.get_rect().size[0] / 2, 20])
 
-            rect_map = maps_dict[selected_map]["image"].get_rect()
+            rect_map = maps_dict[app.selected_map]["image"].get_rect()
 
             if host:
                 text = terminal.render("LOBBY (HOSTING)", False, [255, 255, 255])
@@ -998,14 +1025,14 @@ def main():
                 if rect_map.collidepoint(func.minus(mouse_pos, [330, 80], "-")):
 
                     if mouse_single_tick:
-                        selected_map += 1
+                        app.selected_map += 1
 
                         menu_click2.play()
 
-                        if selected_map == len(maps_dict):
-                            selected_map = 0
+                        if app.selected_map == len(maps_dict):
+                            app.selected_map = 0
 
-                    rect_map = maps_dict[selected_map]["image"].get_rect()
+                    rect_map = maps_dict[app.selected_map]["image"].get_rect()
 
                     rect_map.inflate_ip(4, 4)
 
@@ -1019,19 +1046,15 @@ def main():
                 screen.blit(text, [500, 420])
             # screen.blit(text, [400,20])
 
-            screen.blit(maps_dict[selected_map]["image"], [330, 80])
+            screen.blit(maps_dict[app.selected_map]["image"], [330, 80])
 
             text = terminal.render(
-                maps_dict[selected_map]["map"].__dict__["name"], False, [255, 255, 255]
+                maps_dict[app.selected_map]["map"].__dict__["name"], False, [255, 255, 255]
             )
             screen.blit(text, [430 - text.get_rect().size[0] / 2, 50])
 
-            rect_map2 = maps_dict[selected_map]["image"].get_rect()
+            rect_map2 = maps_dict[app.selected_map]["image"].get_rect()
 
-            text = terminal.render(
-                maps_dict[selected_map]["map"].__dict__["name"], False, [255, 255, 255]
-            )
-            screen.blit(text, [430 - text.get_rect().size[0] / 2, 50])
 
             app.pygame.draw.line(
                 screen, [255, 255, 255], [550, 80], [550, 80 + rect_map2.h]
@@ -1045,7 +1068,7 @@ def main():
             )
 
             text = terminal.render(
-                str(round(maps_dict[selected_map]["map"].__dict__["size"][1] / 100))
+                str(round(maps_dict[app.selected_map]["map"].__dict__["size"][1] / 100))
                 + "m",
                 False,
                 [255, 255, 255],
@@ -1072,7 +1095,7 @@ def main():
             )
 
             text = terminal.render(
-                str(round(maps_dict[selected_map]["map"].__dict__["size"][0] / 100))
+                str(round(maps_dict[app.selected_map]["map"].__dict__["size"][0] / 100))
                 + "m",
                 False,
                 [255, 255, 255],
@@ -1084,9 +1107,9 @@ def main():
             screen.blit(text, [20, 200])
 
             if host:
-                reply = net.send("index:" + str(selected_map))
+                reply = app.net.send("index:" + str(app.selected_map))
             else:
-                reply = net.send("un")
+                reply = app.net.send("un")
 
             if reply == "KILL":
                 menu_status = "start"
@@ -1104,7 +1127,7 @@ def main():
                         if type == "players":
                             players = info1.split("/")
                         elif type == "index" and not host:
-                            selected_map = int(info1)
+                            app.selected_map = int(info1)
 
                 except Exception as e:
                     pass

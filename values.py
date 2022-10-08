@@ -84,6 +84,32 @@ interactables = []
 loading_cue = []
 turret_bro = []
 
+class Player:
+    def __init__(self, color, name, str_team):
+        self.color = color
+        self.name = name
+        self.alloy = 0
+        self.g = 0
+        self.c = 0
+        self.str_team = str_team
+
+    def __str__(self):
+        return f"{self.color} {self.name} {self.str_team}"
+
+BLACK = [0, 0, 0]
+WHITE = [255, 255, 255]
+BLUE = [51, 102, 255]
+RED = [255, 0, 102]
+GREEN = [153, 255, 51]
+YELLOW = [255, 204, 102]
+CYAN = [51, 204, 204]
+blue_t = Player(BLUE, "", "blue_t")
+red_t = Player(RED, "", "red_t")
+green_t = Player(GREEN, "", "green_t")
+yellow_t = Player(YELLOW, "", "yellow_t")
+nature = Player(BLACK, "Nature", "nature")
+placeholder = Player(WHITE, "", "placeholder")
+
 last_hp = 0
 free_tick = 0
 last_text_i = 0
@@ -376,6 +402,7 @@ fade_tick = GameTick(60, oneshot=True)
 fade_tick.value = 30
 
 door_sound = pygame.mixer.Sound("sound/door_sound.wav")
+phone_ring = pygame.mixer.Sound("sound/phone_ring.wav")
 
 kill_sounds = get_sound_Variants("sound", "kill")
 # kill_sound = pygame.mixer.Sound("sound/kill5.wav")
