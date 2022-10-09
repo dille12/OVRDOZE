@@ -74,6 +74,13 @@ class Zombie(pygame.sprite.Sprite):
             self.type = "bomber"
             self.attack_speed = 60
             self.anglular_acceleration = 0.025
+        elif type == "runner":
+            self.size = 10 * multiplier2
+            self.image_template = zombie
+            self.type = "runner"
+            self.anglular_acceleration = 0.2
+            self.moving_speed *= 1.75
+            self.damage *= 0.75
         else:
             self.size = 20 * multiplier2
             self.image_template = zombie_big
@@ -84,6 +91,8 @@ class Zombie(pygame.sprite.Sprite):
             self.anglular_acceleration = 0.05
 
             self.type = "big"
+
+
 
         self.attack_tick = 0
         self.route_tick = 0
@@ -252,7 +261,7 @@ class Zombie(pygame.sprite.Sprite):
         return False
 
     def check_if_alive(self):
-        if self.killed:
+        if self.killed or self not in enemy_list:
             return False
         else:
             return True

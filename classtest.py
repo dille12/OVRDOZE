@@ -103,7 +103,7 @@ def getcollisionspoint_condition(tiles, point, condition):
     return (tile for tile in tiles if tile.collidepoint(point) and tile not in cond)
 
 
-def load_level(map, mouse_conversion, player_inventory, app, screen):
+def load_level(map, mouse_conversion, player_inventory, app, screen, death = False):
     func.load_screen(screen, "Loading Level")
     app.pygame.mixer.music.fadeout(750)
 
@@ -121,6 +121,9 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
     turret_list.clear()
     enemy_list.clear()
     barricade_list.clear()
+    app.zombiegroup.empty()
+
+    app.update_fps()
 
     block_movement_polygons = map.get_polygons()
 
@@ -154,9 +157,14 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
     camera_pos = [0, 0]
 
     NAV_MESH = map.read_navmesh(walls_filtered)
+
+
+
     print(mouse_conversion)
     if map.name == "Overworld":
         print("Loading overworld. Appending trashfires.")
+        if not death:
+            app.day += 1
         print([2362 * multiplier, 982 / multiplier])
         burn_list.append(
             classes.Burn(
@@ -201,10 +209,11 @@ def load_level(map, mouse_conversion, player_inventory, app, screen):
 
     for x in map.__dict__["objects"]:
         x.__dict__["inv_save"] = player_inventory
-        x.re_init()
+        if map.name != "Overworld":
+            x.re_init()
         interactables.append(x)
 
-        if map.name == "Overworld" and x.name == "Basement":
+        if map.name == "Overworld" and x.name == "Basement" and not death:
             x.door_dest = app.levels[0]
             app.levels.remove(app.levels[0])
             print("Set door destination to:", x.door_dest)

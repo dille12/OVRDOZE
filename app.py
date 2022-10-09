@@ -29,11 +29,13 @@ class App:
 
         self.player_team = placeholder
 
+
         self.zombiegroup = pygame.sprite.Group()
         self.unitstatuses = []
         self.screen_glitch = 1
 
         self.levels = ["Requiem", "Manufactory", "Liberation"]
+        self.day = 0
 
     def collect_data(self):
         #self.chat.tick()
@@ -126,6 +128,7 @@ class App:
 
     def getMaps(self):
         maps_dict = {}
+        self.maps_dict = maps_dict
         self.maps = maps
         for index, map_1 in enumerate(maps):
             map_surf = map_1.__dict__["background"]

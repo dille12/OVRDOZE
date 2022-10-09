@@ -35,6 +35,7 @@ def purchase_weapon(arg):
 def advance(arg):
     dialogue[0].linenumber += 1
     dialogue[0].letternumber = 0
+    money_tick.value = 0
 
 
 shop_quit_button = Button(

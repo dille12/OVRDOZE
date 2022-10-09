@@ -460,5 +460,8 @@ hints = [
 "Right click to melee.",
 "By moving you disorient your enemies.",
 "Armor-Piercing rounds and energy rounds pierce zombies.",
-"Clear a gun jam by spamming the firing button."
+"Clear a gun jam by spamming the firing button.",
+"You can exit the basement after 5 waves, but you may stay as long as you wish.",
+"Wave time increases after every wave, but resets on death.",
+"Time slows down while your health is below 30%.",
 ]

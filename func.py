@@ -953,6 +953,8 @@ def draw_HUD(
     pl_angl = player_actor.__dict__["aim_angle"]
     pl_angl2 = player_actor.get_angle()
 
+    positive = player_actor.money - player_actor.money_last_tick >= 0
+
     if not money_tick.tick() and not player_inventory.inventory_open:
 
         if money_tick.value <= money_tick.max_value / 6:
@@ -963,10 +965,11 @@ def draw_HUD(
             x = 15
         else:
             x = 15 - 1 / ((money_tick.max_value + 3 - money_tick.value) ** 1.2) * 40
+        pre_tense = "+" if positive else ""
         text = terminal.render(
-            f"+{player_actor.money - player_actor.money_last_tick}$",
+            f"{pre_tense}{player_actor.money - player_actor.money_last_tick}$",
             False,
-            [0, random.randint(155, 255), 0],
+            [0, random.randint(155, 255), 0] if positive else [random.randint(155, 255), 0, 0],
         )
         screen.blit(text, (x + x_d, 380 + y_d))  #
 

@@ -24,6 +24,7 @@ import func
 from dialog import *
 from unit_status import UnitStatus
 from npcs.zombie import Zombie
+from npcs.soldier import Soldier
 
 # import path_finding
 
@@ -149,6 +150,8 @@ def main(
     data_collector = None
     collision_check_player = True
 
+
+
     last_ping = 0
 
     pause = False
@@ -164,6 +167,8 @@ def main(
     app.pygame.init()
     app.pygame.font.init()
     app.pygame.mixer.init()
+
+
 
     level_order = ["Requiem", "Manufactory", "Liberation"]
 
@@ -352,6 +357,16 @@ def main(
 
     wave_text_color = True
 
+    soldier = Soldier(app,
+        [100,100],
+        interactables,
+        player_actor,
+        NAV_MESH,
+        walls_filtered,
+    )
+
+    app.camera_pos = camera_pos
+
     while 1:
 
         tick_time = time.time() - last_tick
@@ -360,6 +375,7 @@ def main(
         tick_delta = tick_time / (1 / 60)
 
         timedelta.timedelta = min([tick_delta, 3])
+
 
 
         if player_actor.hp > 0:
@@ -757,6 +773,8 @@ def main(
                     type = "big"
                 elif type_drop < 0.05:
                     type = "bomber"
+                elif type_drop < 0.1:
+                    type = "runner"
 
                 zombo = Zombie(
                     app,
@@ -833,7 +851,7 @@ def main(
                                 wave_interval = 2
                                 wave_change_timer = time.time() - 15
 
-                            wave_length = 30
+                            #wave_length = 30
 
         time_stamps["interactables"] = time.time() - t
         t = time.time()
@@ -1094,7 +1112,7 @@ def main(
             if player_alive:
                 func.list_play(death_sounds)
                 player_alive = False
-                respawn_ticks = 120
+                respawn_ticks = 300
                 for i in range(5):
                     particle_list.append(
                         classes.Particle(
@@ -1105,11 +1123,47 @@ def main(
                         )
                     )
 
-            if respawn_ticks != 0:
-                respawn_ticks -= 1
+            if respawn_ticks > 0:
+                respawn_ticks -= timedelta.mod(1)
             else:
                 player_actor.set_hp(100)
-                player_pos = map.get_random_point(walls_filtered, enemies=enemy_list)
+                player_actor.money = 0
+                money_tick.value = 0
+                player_actor.sanity = 100
+                enemy_count = round(enemy_count*0.75)
+
+
+
+                #player_pos = map.get_random_point(walls_filtered, enemies=enemy_list)
+
+                for x in app.maps:
+                    if x.name == "Overworld":
+                        (
+                            map,
+                            map_render,
+                            los_bg,
+                            map_boundaries,
+                            NAV_MESH,
+                            player_pos,
+                            camera_pos,
+                            wall_points,
+                            walls_filtered,
+                        ) = load_level(x, mouse_conversion, player_inventory, app, screen, death = True)
+
+                        wave = False
+                        wave_number = 0
+                        wave_anim_ticks = [0, 0]
+
+                        if not skip_intervals:
+                            wave_interval = 17
+                            wave_change_timer = time.time()
+                        else:
+                            wave_interval = 2
+                            wave_change_timer = time.time() - 15
+
+                        wave_length = 30
+
+
                 # c_weapon = give_weapon(player_we[weapon_scroll])
 
         c_weapon.add_to_spread(math.sqrt(x_vel**2 + y_vel**2) / 10)
@@ -1579,11 +1633,13 @@ def main(
 
                     y_pos = -10 * len(text_str[1].split("\n"))
 
+                    color = [255,255,255] if text_str[0] != "" else [144,144,144]
+
                     for text_line in text_str[1].split("\n"):
 
                         glitchy = text_str[0] == "Mysterious voice"
 
-                        text = terminal.render(text_line, False, [255, 255, 255] if not glitchy else [255,100,100])
+                        text = terminal.render(text_line, False, color if not glitchy else [255,100,100])
                         pos = [size[0] / 2, 7 * size[1] / 8]
                         screen.blit(
                             text,
@@ -1598,20 +1654,22 @@ def main(
 
                         y_pos += 20
 
+
+
                     if text_str[0] == "You":
-                        text = terminal.render(text_str[0], False, [255, 255, 255])
+                        text = terminal.render(text_str[0], False, color)
                         pos = [
                             3 * size[0] / 4 - 8 - text.get_rect().size[0],
                             3 * size[1] / 4 - 15,
                         ]
                     else:
-                        text = terminal.render(text_str[0], False, [255, 255, 255])
+                        text = terminal.render(text_str[0], False, color)
                         pos = [size[0] / 4 + 5, 3 * size[1] / 4 - 15]
 
                     screen.blit(text, [pos[0], pos[1]])
 
         else:
-            text = terminal.render("RESPAWN IN", False, [255, 255, 255])
+            text = terminal.render("Money lost. Going back to Overworld...", False, [255, 255, 255])
             pos = [size[0] / 2, size[1] / 2 - 40]
             screen.blit(
                 text,
@@ -1621,15 +1679,8 @@ def main(
                 ],
             )
 
-            if respawn_ticks <= 40:
-                t = "1"
-            elif respawn_ticks <= 80:
-                t = "2"
-            else:
-                t = "3"
-
-            text = terminal2.render(t, False, [255, 255, 255])
-            pos = [size[0] / 2, size[1] / 2]
+            text = terminal_map_desc.render("YOU DIED!", False, [255, 255, 255])
+            pos = [size[0] / 2, size[1] / 4 - 40]
             screen.blit(
                 text,
                 [
@@ -1637,6 +1688,11 @@ def main(
                     pos[1] - text.get_rect().center[1],
                 ],
             )
+
+
+            if 40 <= respawn_ticks <= 50 and fade_tick.value >= fade_tick.max_value:
+                fade_tick.value = 0
+
 
         try:
             kill_counter.tick(screen, cam_delta, kill_counter)
