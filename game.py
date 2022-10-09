@@ -211,6 +211,8 @@ def main(
         )
     )
 
+    app.day = -1
+
     (
         map,
         map_render,
@@ -256,6 +258,7 @@ def main(
         for x in [
             give_weapon("gun", "GLOCK"),
             give_weapon("gun", "FN57-S"),
+            give_weapon("gun", "DESERT EAGLE"),
             give_weapon("gun", "P90"),
             give_weapon("gun", "MP5"),
             give_weapon("gun", "SPAS"),
@@ -277,6 +280,7 @@ def main(
         "FN57-S",
         "GLOCK",
         "AR-15",
+        "DESERT EAGLE",
         "MP5",
         "AWP",
         "AK",
@@ -1011,7 +1015,7 @@ def main(
 
             player_actor.set_angle(player_angle)
 
-            if c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "Desert Eagle"]:
+            if c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "DESERT EAGLE"]:
                 pl = player_pistol
             else:
                 pl = player

@@ -74,10 +74,12 @@ def main():
         intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading.....")
         intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
+        func.load_screen(screen, "Loading......")
+        intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading Done")
         print("Done")
 
-        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6]
+        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7]
     menu_i = 0
 
 
@@ -884,7 +886,7 @@ def main():
 
             if map_tick > 0:
                 map_tick -= 1
-                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = 5)
+                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = map_tick*2)
 
                 func.render_text_glitch(screen,  maps_dict[app.selected_map]["map"].name, [size[0]/2, map_pos[1]-40], glitch = 5, centerx = True, font = terminal)
 

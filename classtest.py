@@ -206,10 +206,14 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     # player_inventory.set_inventory({8 : {"item" : items["Heroin"], "amount" : 1},9 : {"item" : items["Heroin"], "amount" : 1}, 1: {"item": items["45 ACP"], "amount": 999}, 2: {"item": items["50 CAL"], "amount": 999}, 3: {"item": items["7.62x39MM"], "amount": 999}, 4: {"item": items["12 GAUGE"], "amount": 999}, 5: {"item": items["9MM"], "amount": 999} ,6 : {"item": items["HE Grenade"], "amount": 999}, 7 : {"item": items["Sentry Turret"], "amount": 3}})
     # player_inventory.set_inventory({1: {"item": items["45 ACP"], "amount": 10}, 2 : {"item": items["Sentry Turret"], "amount": 1}, 3 : {"item": items["Barricade"], "amount": 3}})
-
     for x in map.__dict__["objects"]:
         x.__dict__["inv_save"] = player_inventory
-        if map.name != "Overworld":
+        if map.name == "Overworld" and not death:
+            x.re_init()
+            if x.name == "Payphone":
+                x.dialogue_bias = app.day
+                print("set payphone dialogue to ", app.day)
+        elif map.name != "Overworld":
             x.re_init()
         interactables.append(x)
 

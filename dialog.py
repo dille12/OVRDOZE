@@ -126,11 +126,11 @@ dialogues = {
         [
             open_basement,
             ["" , "You answer the phone and say\nnothing. After few moments you can\nhear an unnaturally deep voice."],
-            ["Mysterious voice" , f"{player_name}?."],
+            ["Mysterious voice" , f"{player_name} I presume."],
             ["" , "You glance over your shoulder."],
             ["y", "Who is this?"],
             ["Mysterious voice" , f"Your employer of course.\nI'm afraid that we need you to\ncontribute to our cause again."],
-            ["y", "I have no idea what you're talking\nabout, who the hell are you?"],
+            ["y", "Again? Who the fuck are you?"],
             ["Mysterious voice" , f"It matters not. There's a bundle\nof 1000 dollars behind the phone.\nTake it."],
             ["" , "You feel behind the cover of the\npayphone and find a stack of cash."],
             give_player_money,
@@ -140,7 +140,34 @@ dialogues = {
             ["y" , f"Why me?"],
             ["" , "The voice chuckles lightly,\nand promptly hangs up."],
 
-        ]
+        ],
+        [
+            open_basement,
+            ["Mysterious voice", f"My superiors wanted to commend you\nfor clearing the first level\nof the basement."],
+            ["y" , f"You sent me to die down there!"],
+            ["Mysterious voice", f"And?"],
+            ["Mysterious voice", f"Your life is a constant dice\nroll of fate as it is."],
+            ["Mysterious voice", f"Yet you survived. There's a small\nprize for you behind the\npayphone again."],
+            give_player_money,
+            ["" , "You find some money behind\nthe payphone cover again."],
+            ["y" , f"Do I need to do this again?"],
+            ["Mysterious voice", f"As soon as you are ready,\nhead to the next level of the\nbasement."],
+            ["Mysterious voice", f"Be swift, my superiors are\nspectating your exploits."],
+            ["" , "The phone clicks as the\ncaller hangs up."],
+
+        ],
+        [
+            open_basement,
+            ["Mysterious voice", f"You keep on suprising us."],
+            ["y" , f"I need to know who\nyou guys are if you want me to\nkeep doing this shit."],
+            ["Mysterious voice", f"Do you think you are in\na place to make demands?"],
+            ["Mysterious voice", f"You are replaceble. You need the\nmoney but we don't need you."],
+            ["y", f"You said that we have worked\ntogether before. What was\nthat about?"],
+            ["Mysterious voice", f"Never demand anything from us\nagain."],
+            ["Mysterious voice", f"There will be no reward\ntoday. You will hear from us."],
+            ["" , "The phone slams."],
+        ],
+
     ],
 
 
@@ -183,9 +210,13 @@ dialogues = {
 
 
 class Dialogue:
-    def __init__(self, name):
+    def __init__(self, name, bias = None):
         self.name = name
-        self.dialogue = func.pick_random_from_list(dialogues[name])
+        if bias == None:
+            self.dialogue = func.pick_random_from_list(dialogues[name])
+        else:
+            self.dialogue = dialogues[name][bias]
+        print("BIAS:", bias)
         print(self.dialogue)
         self.linenumber = 0
         self.letternumber = 0

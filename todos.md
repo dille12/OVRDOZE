@@ -2,68 +2,29 @@
 
 here is a way to organize future features, and coordinate work on the game.
 or for new people who want to help: here are things that still need to get done.
-* [Important](#important)
-* [Easy](#easy-to-dos)
-* [If there's time](#if-theres-time)
-* [Megahard changes](#megahard-changes)
 
 # Important
 1. Begin unit testing.
 2. Begin automatic testing pipeline in github.
 
-# Easy To-Dos
+# Road to 1.0
 
-## general
-1. ~~Impliment a way back to the menu screen from the game. (esc currently just closes the whole program)~~
-3. Resolution: ability to change window size in game.
-4. ~~Correct resolution detection of monitor.~~
-5. In-game settings menu (volume / quit to menu / resolution)
+## Content
+1. 3-5 more levels.
+2. Finish soldier class, a harder gun wielding enemy present in some levels.
+3. A boss in last level.
+4. Explosive weapons and couple more energy weapons.
+5. More stuff to do in overworld. Stock market, upgrades for you and the robot, bigger inventory purchases.
+6. More dialogue (more NPCs).
+7. More equipment (a temporary radar consumable, which reveals a Halo-like radar in HUD).
+8. Separate "career" mode from endless mode, start a career mode by starting game in Overworld.
+9. Ability to save progress in career mode.
+10. Add a thank you page for collaborators.
+11. A zombie that chucks explosive fleshbombs.
 
-### "Story Mode"
-1. Enemies to drop upgrades for you and the moving robot (i.e Invincibilty while dashing, faster firerates)
-2. NPCs to install upgrades for both you and your robot
-3. More gunshops
-4. Shops to buy grenades and narcotics
-5. More to explore in the overworld
-
-
-### creative / artwork
-1. ~~Fire animations, molotovs~~ and flamers
-2. More and better OST
-3. Animate the player sprite
-4. ~~Laser~~/Explosive weapons
-5. More/Bigger maps
-6. More items (body shields, decoys, radars) (also mechanics)
-7. Ingame map editor
-
-### mechanics / gameplay
-1. More zombie types (~~bombers~~, runners, rangers)
-2. Last stand and reviving
-3. More items (body shields, decoys, radars) (also art)
-4. Sanity rework (currently only increases amount of zombies)
-5. Melee combat system
-6. ~~Right clicking on ammo from a box should automatically add it to inventory~~ Shift clicking quicktransfers items from boxes
-7. Gun jamming
-8. ~~Quick reloading (tapping R at correct time during reload)~~
-9. Increase inventory space
-
-### systems / networking / multiplayer
-1. Correct IP scanning
-2. PvE Multiplayer, ping counteracting
-3. Figure out port-forwarding to access multiplayer.
-
-### Efficencies and Optimizations
-1. func.get_route() overhaul
-2. los.render_los_image() line of sight fixes and optimization
-
-
-# If there's time:
-1. Small campaign
-- Trigger system for maps
-- Dialogue
-
-# Megahard changes:
-
-1. ~~Changing the rendering resolution (it's capped to 854x480)~~
-2. ~~Ability to change fps cap (Everything is tied to 60fps)~~
-3. Procedural map generation
+## Known bugs
+1. Quitting to main menu and starting overworld again doesn't reset the map.
+2. HUD displacement in higher resolutions.
+3. Knockback is not affected by fps timedelta.
+4. On higher resolutions zombies grind the game to a halt. Figure out what causes this (not the rendering!)
+5. Investigate why zombies get stuck in Requiem in lower right corner.

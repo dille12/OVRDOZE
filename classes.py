@@ -125,7 +125,7 @@ items = {
         "HE Grenade",
         "Fragmentation grenade.",
         "grenade.png",
-        max_stack=5,
+        max_stack=10,
         pick_up_sound=grenade_pickup,
         drop_weight=4,
         drop_stack=2,
@@ -138,7 +138,7 @@ items = {
         pick_up_sound=needle_pickup,
         consumable=True,
         sanity_buff=40,
-        drop_weight=0.55,
+        drop_weight=0.2,
     ),
     "Cocaine": Item(
         "Cocaine",
@@ -148,7 +148,7 @@ items = {
         pick_up_sound=sniff_sound,
         consumable=True,
         sanity_buff=20,
-        drop_weight=1,
+        drop_weight=0.7,
         drop_stack=1,
     ),
     "Diazepam": Item(
@@ -159,7 +159,7 @@ items = {
         pick_up_sound=pill_pickup,
         consumable=True,
         sanity_buff=7.5,
-        drop_weight=2,
+        drop_weight=1.4,
         drop_stack=2,
     ),
     "45 ACP": Item(
@@ -184,7 +184,7 @@ items = {
         "9MM",
         "Submachine gun ammo.",
         "9mm.png",
-        max_stack=999,
+        max_stack=9999,
         pick_up_sound=bullet_pickup,
         drop_weight=6,
         drop_stack=150,
@@ -214,7 +214,7 @@ items = {
         max_stack=3,
         pick_up_sound=turret_pickup,
         consumable=True,
-        drop_weight=3,
+        drop_weight=1.8,
         drop_stack=2,
     ),
     "Barricade": Item(
@@ -813,6 +813,7 @@ class Interactable:
 
         self.inv_save = player_inventory
         self.contents = {}
+        self.dialogue_bias = None
 
 
 
@@ -895,6 +896,8 @@ class Interactable:
 
         if self.name == "Payphone" and self.active:
             self.ring_phone(player_pos)
+            if self.dialogue_bias == None:
+                self.dialogue_bias = 0
 
         if self.type == "item":
             self.rect.topleft = func.minus_list(self.pos, camera_pos)
@@ -954,7 +957,7 @@ class Interactable:
         elif self.type == "NPC":
             self.npc_active = True
             dialogue.clear()
-            dialogue.append(Dialogue(self.name))
+            dialogue.append(Dialogue(self.name, self.dialogue_bias))
             print("INTERACTED")
 
             print(dialogue)

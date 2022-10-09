@@ -35,7 +35,7 @@ class App:
         self.screen_glitch = 1
 
         self.levels = ["Requiem", "Manufactory", "Liberation"]
-        self.day = 0
+        self.day = -1
 
     def collect_data(self):
         #self.chat.tick()

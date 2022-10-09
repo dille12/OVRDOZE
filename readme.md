@@ -1,4 +1,4 @@
-# 2d-shooter project
+# OVRDOZE: 2d-shooter project
 
 ![alt text](https://github.com/dille12/2dshooter/blob/main/texture/image.png "Overdoze")
 
@@ -10,13 +10,13 @@ If you'd like to contribute, feel free to join the [discord](https://discord.gg/
 
 1. Clone repo and extract the zip
 2. Copy the directory of the game
-3. Open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\2dshooter")
+3. Open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\OVRDOZE")
 4. Type in "pip install -r requirements.txt"
 5. Run RUN.py
 
 
 # SET-UP.
-## MULTIPLAYER 
+## MULTIPLAYER
 Multiplayer works currently within local network right now. You can play against your friends either in local wifi, or by installing LogMeIn Hamachi VPN.
 
 1. Install Hamachi from https://www.vpn.net/
