@@ -280,6 +280,7 @@ class Inventory:
         self.player = player
 
         self.click = False
+        self.columns = 3
 
         self.interctables_reference = list
 
@@ -378,7 +379,7 @@ class Inventory:
                             "item"
                         ].__dict__["max_stack"]
 
-        for slot in range(1, 10):
+        for slot in range(1, (1+self.columns*3)):
             if slot not in self.contents:
                 if scan_only == False:
                     self.contents[slot] = {"item": type, "amount": amount}
@@ -417,7 +418,7 @@ class Inventory:
         screen,
         x_d,
         y_d,
-        content,
+        object,
         default_pos,
         mouse_pos,
         clicked,
@@ -428,19 +429,21 @@ class Inventory:
         global barricade_in_hand, turret_bullets
         self.picked_up_slot = None
 
+        content = object.contents
+
         for slot in content:
 
             if self.item_in_hand == content[slot]:
                 continue
 
-            if slot <= 3:
+            if slot <= object.columns:
                 y = 1
-            elif slot <= 6:
+            elif slot <= object.columns*2:
                 y = 2
             else:
                 y = 3
 
-            x = (slot - 1) % 3 + 1
+            x = (slot - 1) % object.columns + 1
 
             pos = [default_pos[0] + x * 62 + x_d, default_pos[1] + y * 62 + y_d]
 
@@ -543,8 +546,12 @@ class Inventory:
                 f"Money : {player_actor.money}$", False, [255, 255, 255]
             )
             screen.blit(text, (15 + x_d, 130 + y_d))  #
-
-            screen.blit(inv_image, [15 + x_d, 150 + y_d])
+            if self.columns == 3:
+                screen.blit(inv_image, [15 + x_d, 150 + y_d])
+            elif self.columns == 4:
+                screen.blit(inv4_image, [15 + x_d, 150 + y_d])
+            elif self.columns == 5:
+                screen.blit(inv5_image, [15 + x_d, 150 + y_d])
             text = terminal2.render("INVENTORY", False, [255, 255, 255])
             screen.blit(text, (32 + x_d, 161 + y_d))  #
 
@@ -557,7 +564,7 @@ class Inventory:
                 screen,
                 x_d,
                 y_d,
-                self.contents,
+                self,
                 [-10, 160],
                 mouse_pos,
                 clicked,
@@ -576,7 +583,7 @@ class Inventory:
                     screen,
                     x_d,
                     y_d,
-                    self.search_obj.__dict__["contents"],
+                    self.search_obj,
                     [size[0] - 284, 160],
                     mouse_pos,
                     clicked,
@@ -589,16 +596,19 @@ class Inventory:
                 if clicked and self.hand_tick == 0:
                     inserted = False
                     for def_pos in [[24 - 62, 133], [542, 133]]:
-                        for slot in range(1, 10):
+                        col = self.columns if def_pos == [24 - 62, 133] else self.search_obj.columns
+                        for slot in range(1, (1+col*3)):
 
-                            if slot <= 3:
+
+
+                            if slot <= col:
                                 y = 1
-                            elif slot <= 6:
+                            elif slot <= col*2:
                                 y = 2
                             else:
                                 y = 3
 
-                            x = (slot - 1) % 3 + 1
+                            x = (slot - 1) % col + 1
 
                             pos = [def_pos[0] + x * 62 + x_d, def_pos[1] + y * 62 + y_d]
 
@@ -736,6 +746,7 @@ class Interactable:
         image=None,
         door_dest=None,
         active=True,
+        angle = 0
     ):
 
         self.init_values = [
@@ -751,6 +762,7 @@ class Interactable:
             image,
             door_dest,
             active,
+            angle,
         ]
 
         if type != "item":
@@ -814,8 +826,11 @@ class Interactable:
         self.inv_save = player_inventory
         self.contents = {}
         self.dialogue_bias = None
+        self.angle = angle
+        if angle:
+            self.image = pygame.transform.rotate(self.image, angle)
 
-
+        self.columns = 3
 
         if self.type == "crate":
             while True:
@@ -859,7 +874,8 @@ class Interactable:
         map,
         image,
         door_dest,
-        active) = self.init_values
+        active,
+        angle) = self.init_values
 
         self.__init__(
             pos,
@@ -874,6 +890,7 @@ class Interactable:
             image = image,
             door_dest = door_dest,
             active = active,
+            angle = angle
         )
 
 
@@ -897,6 +914,11 @@ class Interactable:
         if self.name == "Payphone" and self.active:
             self.ring_phone(player_pos)
             if self.dialogue_bias == None:
+                self.dialogue_bias = 0
+        elif self.name == "Alan":
+            if self.inv_save.columns == 5:
+                self.dialogue_bias = 1
+            else:
                 self.dialogue_bias = 0
 
         if self.type == "item":
@@ -1338,7 +1360,7 @@ class Player:
         self.turret_bullets = turret_bullets
         self.knockback_tick = 0
         self.knockback_angle = 0
-        self.money = 0
+        self.money = 100000
         self.money_last_tick = 0
         self.unitstatuses = []
 

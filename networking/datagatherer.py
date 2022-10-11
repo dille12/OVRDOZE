@@ -42,7 +42,7 @@ class DataGatherer:
 
         # print(f"Sending from player {self.player_team.name}\n{packet}")
 
-        reply = self.game_ref.network.send(packet)
+        reply = self.game_ref.net.send(packet)
 
         if reply.strip("/ ") == "KILL":
             sys.exit()

@@ -36,6 +36,10 @@ maps = [
             ),
 
             classes.Interactable(
+                [495, 630], None, name="Alan", type="NPC", image="npc_alley.png", angle = 180
+            ),
+
+            classes.Interactable(
                 [560, 330], None, name="Payphone", type="NPC", image="payphone.png"
             ),
 

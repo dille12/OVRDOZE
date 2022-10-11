@@ -13,6 +13,13 @@ terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
 
+def upgrade_backpack(arg):
+    player_inventory, items, player_actor = arg
+    player_actor.money -= player_inventory.columns*1000
+    player_inventory.columns += 1
+    dialogue[0].dialogue.append(["n", "Good choice."])
+    advance(None)
+
 
 def purchase_weapon(arg):
     player_inventory, items, player_actor = arg
@@ -54,6 +61,14 @@ shop_buy_button = Button(
     gameInstance=pygame,
     glitchInstance=None,
 )
+upgrade_backpack_button = Button(
+    [3 * size[0] / 8, 7 * size[1] / 8],
+    "UPGRADE",
+    upgrade_backpack,
+    None,
+    gameInstance=pygame,
+    glitchInstance=None,
+)
 
 def give_player_money(screen, click, mouse_pos, player_inventory, items, player_actor, map):
     player_actor.money += 1000
@@ -69,6 +84,31 @@ def open_basement(screen, click, mouse_pos, player_inventory, items, player_acto
             x.active = False
 
     advance(None)
+
+def open_shop_backpack(screen, click, mouse_pos, player_inventory, items, player_actor, map):
+    screen.blit(surf_back, [0, 0])
+
+    text = terminal2.render("ALANS BOOTLEG BACKPACKS", False, [255, 255, 255])
+    screen.blit(text, [20, 20])
+
+    text = terminal.render(f"Upgrade your backpack from {player_inventory.columns*3} to {(player_inventory.columns+1)*3} slots!", False, [255, 255, 255])
+    screen.blit(text, [20, 70])
+
+    text = terminal2.render(f"Cost : {player_inventory.columns*1000}$", False, [255, 255, 255])
+    screen.blit(text, [20, 120])
+
+    text = terminal2.render(f"Money : {player_actor.money}$", False, [255, 255, 255])
+    screen.blit(text, [20, 340])
+
+    x_len = text.get_size()[0]
+
+    shop_quit_button.tick(screen, mouse_pos, click, None)
+
+    if player_inventory.columns*1000 < player_actor.money:
+        upgrade_backpack_button.tick(screen, mouse_pos, click, None, arg=[player_inventory, items, player_actor])
+    # else:
+    #     text = terminal2.render(f"You are missing {player_inventory.columns*1000-player_actor.money}$", False, [255, 0, 0])
+    #     screen.blit(text, [40+x_len, 400])
 
 
 def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor, map):
@@ -170,6 +210,17 @@ dialogues = {
 
     ],
 
+    "Alan" : [
+        [
+            ["n", "I got some backbacks here\nif you'd like."],
+            open_shop_backpack,
+        ],
+        [
+            ["n", f"Sorry {player_name},\nI cant beat that backpack\nanymore."]
+        ]
+
+    ],
+
 
     "Rupert": [
         [
@@ -213,9 +264,9 @@ class Dialogue:
     def __init__(self, name, bias = None):
         self.name = name
         if bias == None:
-            self.dialogue = func.pick_random_from_list(dialogues[name])
+            self.dialogue = func.pick_random_from_list(dialogues[name]).copy()
         else:
-            self.dialogue = dialogues[name][bias]
+            self.dialogue = dialogues[name][bias].copy()
         print("BIAS:", bias)
         print(self.dialogue)
         self.linenumber = 0

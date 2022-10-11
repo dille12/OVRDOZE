@@ -367,6 +367,8 @@ weapon_fire_Sounds = mixer.get_sound_Variants("sound", "weapon_fire")
 reload = pygame.mixer.Sound("sound/reload.wav")
 no_ammo_sound = pygame.mixer.Sound("sound/no_ammo.wav")
 inv_image = pygame.image.load("texture/inv.png").convert_alpha()
+inv4_image = pygame.image.load("texture/inv4.png").convert_alpha()
+inv5_image = pygame.image.load("texture/inv5.png").convert_alpha()
 huuto = pygame.transform.scale(
     pygame.image.load("texture/huutomerkki.png"), [12, 33]
 ).convert_alpha()

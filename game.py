@@ -254,7 +254,7 @@ def main(
     player_weapons.append(give_weapon("gun", "M1911"))
 
     if map.name != "Overworld":
-
+        endless = True
         for x in [
             give_weapon("gun", "GLOCK"),
             give_weapon("gun", "FN57-S"),
@@ -272,6 +272,7 @@ def main(
             player_weapons.append(x)
 
     else:
+        endless = False
         dialogue.append(Dialogue("Intro"))
         player_pos = [25 * multiplier2,950 * multiplier2]
 
@@ -310,6 +311,9 @@ def main(
 
     c_weapon = player_weapons[0]
     weapon_scroll = 0
+
+    if endless:
+        player_inventory.columns = 4
 
     # pygame.mixer.music.set_volume(0.75)
 
@@ -360,6 +364,7 @@ def main(
     beat_red = 0
 
     wave_text_color = True
+    song_start_t = 0
 
     soldier = Soldier(app,
         [100,100],
@@ -394,6 +399,7 @@ def main(
 
         clock.tick(app.clocktick if not pause else 60)
 
+
         t = time.time()
         time_stamps = {}
 
@@ -413,6 +419,9 @@ def main(
 
             screen.fill((0, 0, 0))
             screen.blit(background_surf, (0, 0))
+
+            wave_change_timer  += tick_time
+            song_start_t  += tick_time
 
             s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
             quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=app)
@@ -720,9 +729,10 @@ def main(
                 if time.time() - wave_change_timer > wave_length:
 
                     if wave_number >= 5:
-                        for x in interactables:
-                            if x.type == "door":
-                                x.active = True
+                        if not endless:
+                            for x in interactables:
+                                if x.type == "door":
+                                    x.active = True
 
                     wave = False
                     pygame.display.set_gamma(1, 1.1, 1.1)
@@ -762,9 +772,10 @@ def main(
                     wave_anim_ticks = [0, 120]
 
                     if wave_number >= 5:
-                        for x in interactables:
-                            if x.type == "door":
-                                x.active = False
+                        if endless:
+                            for x in interactables:
+                                if x.type == "door":
+                                    x.active = False
 
             if (
                 len(enemy_list)
@@ -1355,9 +1366,11 @@ def main(
 
             draw_time += time.time() - start
 
+        # func.print_s(screen, f"TIME TILL WAVE: {round(wave_interval - (time.time() - wave_change_timer))}", 4)
+
         try:
             if multiplayer:
-                func.print_s(screen, "PING: " + str(round(last_ping * 1000)) + "ms", 3)
+                func.print_s(screen, "PING: " + str(round(last_ping * 1000)) + "ms", 4)
 
                 last_ping = last_ping * 59 / 60 + ping / 60
 
@@ -1702,6 +1715,11 @@ def main(
             kill_counter.tick(screen, cam_delta, kill_counter)
         except:
             pass
+
+        if endless:
+            text = terminal3.render("ENDLESS MODE", False, [255, 255, 255])
+            x,y = text.get_rect().center
+            screen.blit(text, [size[0]/2-x, 20/2-y])
 
         if multiplayer:
             text = terminal3.render("MULTIPLAYER", False, [255, 255, 255])

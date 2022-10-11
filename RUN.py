@@ -162,6 +162,23 @@ def main():
 
         sys.exit()
 
+    def start_sp_career(arg):
+        print("SPa")
+
+        app.write_prefs()
+        args = (
+            app,
+            app.name,
+            "NORMAL",
+            app.draw_los,
+            app.dev,
+            check_box_inter.__dict__["checked"],
+            app.overworld,
+        )
+
+        app.start_sp(args)
+
+
     def start_sp(arg):
         print("SPa")
 
@@ -180,6 +197,9 @@ def main():
 
     def start_mp(arg):
         return "mp_start"
+
+    def sp(arg):
+        return "sp"
 
     def settings(arg):
         return "settings"
@@ -206,14 +226,53 @@ def main():
 
     difficulty = "NORMAL"
 
-    button_sp_menu = Button(
+    button_sp= Button(
         [x_s, 200],
         "Singleplayer",
+        sp,
+        None,
+        gameInstance=app.pygame,
+        glitchInstance=glitch,
+    )
+
+    button_sp_menu = Button(
+        [x_s, 320],
+        "Endless Mode",
         sp_lob,
         None,
         gameInstance=app.pygame,
         glitchInstance=glitch,
     )
+
+    button_sp_new_game = Button(
+        [x_s, 200],
+        "Start New Game",
+        start_sp_career,
+        None,
+        gameInstance=app.pygame,
+        glitchInstance=glitch,
+    )
+
+    button_sp_continue_game = Button(
+        [x_s, 260],
+        "Continue",
+        sp_lob,
+        None,
+        gameInstance=app.pygame,
+        glitchInstance=glitch,
+        locked = True
+    )
+
+    button_back_sp = Button(
+        [x_s, 380],
+        "Back",
+        main_menu,
+        None,
+        gameInstance=app.pygame,
+        glitchInstance=glitch,
+    )
+
+
     button_mp_menu = Button(
         [x_s, 260],
         "Multiplayer",
@@ -723,7 +782,7 @@ def main():
                 screen,
             )
 
-            s1 = button_sp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s1 = button_sp.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
@@ -850,6 +909,21 @@ def main():
                 menu_status = sButtonUpnpBack
                 mouse_single_tick = False
 
+        if menu_status == "sp":
+
+            s1 = button_sp_continue_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s2 = button_sp_new_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s3 = button_sp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s4 = button_back_sp.tick(screen, mouse_pos, mouse_single_tick, glitch)
+
+
+            for x in [s1, s2, s3, s4]:
+                if x != None:
+                    menu_status = x
+                    mouse_single_tick = False
+
+
+
         if menu_status == "single_player_lobby":
 
             # text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
@@ -886,7 +960,7 @@ def main():
 
             if map_tick > 0:
                 map_tick -= 1
-                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = map_tick*2)
+                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = map_tick*2, black_bar_chance = 15-map_tick*2)
 
                 func.render_text_glitch(screen,  maps_dict[app.selected_map]["map"].name, [size[0]/2, map_pos[1]-40], glitch = 5, centerx = True, font = terminal)
 

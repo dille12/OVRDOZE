@@ -2,7 +2,7 @@ from values import *
 import func
 
 class Button:
-    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None):
+    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False):
         self.glitch = glitchInstance
         self.pygame = gameInstance
         self.pos = pos
@@ -26,6 +26,7 @@ class Button:
         self.targeted = False
         self.anim_tick = 0
         self.target_tick = 0
+        self.locked = locked
 
     def tick(self, screen, mouse_pos, click, glitch, arg=None):
         text = self.terminal_button.render(self.text, False, [255, 255, 255])
@@ -33,6 +34,9 @@ class Button:
         if self.targeted:
             color = [255*random.uniform(0.5,1), 100, 100]
             color2 = [255, 255, 255]
+        elif self.locked:
+            color = [100, 100, 100]
+            color2 = [66, 66, 66]
         else:
             color = [100, 100, 100]
             color2 = [133, 66, 66]
@@ -87,6 +91,7 @@ class Button:
         if (
             self.pos[0] < mouse_pos[0] < self.pos[0] + self.size[0] + 4
             and self.pos[1] - 2 < mouse_pos[1] < self.pos[1] + self.size[1]
+            and not self.locked
         ):
 
             if self.targeted == False:

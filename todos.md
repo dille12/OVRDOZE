@@ -23,7 +23,7 @@ or for new people who want to help: here are things that still need to get done.
 11. A zombie that chucks explosive fleshbombs.
 
 ## Known bugs
-1. Quitting to main menu and starting overworld again doesn't reset the map.
+1. ~~Quitting to main menu and starting overworld again doesn't reset the map.~~
 2. HUD displacement in higher resolutions.
 3. Knockback is not affected by fps timedelta.
 4. On higher resolutions zombies grind the game to a halt. Figure out what causes this (not the rendering!)

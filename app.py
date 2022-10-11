@@ -130,14 +130,21 @@ class App:
         maps_dict = {}
         self.maps_dict = maps_dict
         self.maps = maps
-        for index, map_1 in enumerate(maps):
+        i = 0
+        for map_1 in maps:
+
             map_surf = map_1.__dict__["background"]
             x, y = map_surf.get_rect().size
             scale_factor = (200*(size[0]/854)) / x
             img = self.pygame.transform.scale(
                 map_surf, (x * scale_factor, y * scale_factor)
             )
-            maps_dict[index] = {"map": map_1, "image": img}
+
+            if map_1.name == "Overworld":
+                self.overworld = map_1
+            else:
+                maps_dict[i] = {"map": map_1, "image": img}
+                i += 1
         return maps_dict
 
     def start_sp(self, arg):
