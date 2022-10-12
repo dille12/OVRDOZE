@@ -236,7 +236,7 @@ def main():
     )
 
     button_sp_menu = Button(
-        [x_s, 320],
+        [x_s, 220],
         "Endless Mode",
         sp_lob,
         None,
@@ -245,7 +245,7 @@ def main():
     )
 
     button_sp_new_game = Button(
-        [x_s, 200],
+        [x_s, 100],
         "Start New Game",
         start_sp_career,
         None,
@@ -254,7 +254,7 @@ def main():
     )
 
     button_sp_continue_game = Button(
-        [x_s, 260],
+        [x_s, 160],
         "Continue",
         sp_lob,
         None,
@@ -264,7 +264,7 @@ def main():
     )
 
     button_back_sp = Button(
-        [x_s, 380],
+        [x_s, 280],
         "Back",
         main_menu,
         None,

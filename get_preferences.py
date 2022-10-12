@@ -1,7 +1,21 @@
 import ast
+import os
+import sys
+
+def write_default_settings():
+    with open("settings.dat", "w", encoding="UTF8") as file:
+        file.write(
+            "username=Foo\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]")
 
 
 def pref():
+
+    if not os.path.isfile("settings.dat"):
+        print("NO SETTING FILE")
+        write_default_settings()
+        pref()
+
+
     file = open("settings.dat", encoding="UTF8")
     lines = file.readlines()
     file.close()

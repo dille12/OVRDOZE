@@ -14,6 +14,8 @@ class Button:
             .size
         )
 
+
+
         self.size = list(text_s)
 
         self.size[1] += 8
@@ -29,7 +31,7 @@ class Button:
         self.locked = locked
 
     def tick(self, screen, mouse_pos, click, glitch, arg=None):
-        text = self.terminal_button.render(self.text, False, [255, 255, 255])
+        text = self.terminal_button.render(self.text, False, [255, 255, 255] if not self.locked else [100,100,100])
 
         if self.targeted:
             color = [255*random.uniform(0.5,1), 100, 100]

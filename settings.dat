@@ -1,9 +1,0 @@
-username=Foo
-FOV=True
-DEV=True
-FS=True
-ULTRA=False
-LASTIP=10.249.16.79
-FPS=60
-VSYNC=False
-RES=[854, 480]
