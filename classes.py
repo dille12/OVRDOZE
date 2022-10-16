@@ -125,7 +125,7 @@ items = {
         "HE Grenade",
         "Fragmentation grenade.",
         "grenade.png",
-        max_stack=10,
+        max_stack=5,
         pick_up_sound=grenade_pickup,
         drop_weight=4,
         drop_stack=2,
@@ -169,13 +169,13 @@ items = {
         max_stack=9999,
         pick_up_sound=bullet_pickup,
         drop_weight=7,
-        drop_stack=150,
+        drop_stack=100,
     ),
     "50 CAL": Item(
         "50 CAL",
         "Sniper ammo.",
         "50cal.png",
-        max_stack=999,
+        max_stack=9999,
         pick_up_sound=bullet_pickup,
         drop_weight=3,
         drop_stack=40,
@@ -193,7 +193,7 @@ items = {
         "12 GAUGE",
         "Shotgun cartridge.",
         "gauge.png",
-        max_stack=999,
+        max_stack=9999,
         pick_up_sound=bullet_pickup,
         drop_weight=3,
         drop_stack=50,
@@ -202,7 +202,7 @@ items = {
         "7.62x39MM",
         "Assault rifle ammo.",
         "762.png",
-        max_stack=999,
+        max_stack=9999,
         pick_up_sound=bullet_pickup,
         drop_weight=3,
         drop_stack=120,
@@ -270,7 +270,7 @@ print(drop_table)
 
 
 class Inventory:
-    def __init__(self, list, player=False):
+    def __init__(self, app, list, player=False):
         self.inventory_open = False
         self.contents = {}
         self.search_obj = None
@@ -278,6 +278,7 @@ class Inventory:
         self.hand_tick = 0
         self.picked_up_slot = None
         self.player = player
+        self.app = app
 
         self.click = False
         self.columns = 3
@@ -291,6 +292,7 @@ class Inventory:
         for slot in self.contents:
             self.interctables_reference.append(
                 Interactable(
+                    self.app,
                     pos,
                     self,
                     type="item",
@@ -316,6 +318,7 @@ class Inventory:
         if self.inventory_open == False and self.item_in_hand != None:
             self.interctables_reference.append(
                 Interactable(
+                    self.app,
                     player_pos,
                     self,
                     type="item",
@@ -596,7 +599,12 @@ class Inventory:
                 if clicked and self.hand_tick == 0:
                     inserted = False
                     for def_pos in [[24 - 62, 133], [542, 133]]:
-                        col = self.columns if def_pos == [24 - 62, 133] else self.search_obj.columns
+                        if def_pos == [24 - 62, 133]:
+                            col = self.columns
+                        elif self.search_obj:
+                            self.search_obj.columns
+                        else:
+                            self.columns = 3
                         for slot in range(1, (1+col*3)):
 
 
@@ -698,6 +706,7 @@ class Inventory:
                     if inserted == False:
                         self.interctables_reference.append(
                             Interactable(
+                                self.app,
                                 player_pos,
                                 self,
                                 type="item",
@@ -734,6 +743,7 @@ class Inventory:
 class Interactable:
     def __init__(
         self,
+        app,
         pos,
         player_inventory,
         list=[],
@@ -750,6 +760,7 @@ class Interactable:
     ):
 
         self.init_values = [
+            app,
             pos,
             player_inventory,
             list,
@@ -764,6 +775,7 @@ class Interactable:
             active,
             angle,
         ]
+        self.app = app
 
         if type != "item":
             self.pos = func.mult(pos,multiplier2)
@@ -863,7 +875,8 @@ class Interactable:
 
 
     def re_init(self):
-        (pos,
+        (app,
+        pos,
         player_inventory,
         list,
         name,
@@ -878,6 +891,7 @@ class Interactable:
         angle) = self.init_values
 
         self.__init__(
+            app,
             pos,
             player_inventory,
             list = list,
@@ -979,7 +993,7 @@ class Interactable:
         elif self.type == "NPC":
             self.npc_active = True
             dialogue.clear()
-            dialogue.append(Dialogue(self.name, self.dialogue_bias))
+            dialogue.append(Dialogue(self.name, self.app, self.dialogue_bias))
             print("INTERACTED")
 
             print(dialogue)

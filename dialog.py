@@ -261,8 +261,9 @@ dialogues = {
 
 
 class Dialogue:
-    def __init__(self, name, bias = None):
+    def __init__(self, name, app, bias = None):
         self.name = name
+        self.app = app
         if bias == None:
             self.dialogue = func.pick_random_from_list(dialogues[name]).copy()
         else:

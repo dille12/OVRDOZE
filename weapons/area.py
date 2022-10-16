@@ -6,6 +6,7 @@ import classes
 import classtest
 from weapons.weapon import Weapon
 from objects import *
+from game_objects.bullet import Bullet
 
 
 class Grenade(Weapon):
@@ -112,7 +113,7 @@ class Grenade(Weapon):
             explosions.append(Explosion(self.pos, expl1, player_nade=True))
             for i in range(50):
                 bullet_list.append(
-                    Bullet.Bullet(
+                    Bullet(
                         self.pos,
                         random.uniform(0, 360),
                         15,
@@ -132,6 +133,7 @@ class Explosion:
         range=200,
         particles="normal",
         color_override="red",
+        player_damage_mult = 1
     ):
         print("EXPLOSION ADDED")
         self.pos = pos
@@ -142,6 +144,7 @@ class Explosion:
         self.player = player_nade
         self.particles = particles
         self.c_o = color_override
+        self.player_damage = player_damage_mult
 
     def damage_actor(
         self,
@@ -154,20 +157,21 @@ class Explosion:
         multi_kill=0,
         multi_kill_ticks=0,
         walls=[],
+        mult = 1
     ):
         dist = func.get_dist_points(actor.get_pos(), self.pos)
-        if dist < self.range:
+        if dist < self.range*mult:
             if los.check_los(self.pos, actor.get_pos(), walls) == False:
                 if self.player:
                     return multi_kill, multi_kill_ticks
-                return
+                return None, None
 
             angle = math.atan2(
                 actor.get_pos()[1] - self.pos[1], actor.get_pos()[0] - self.pos[0]
             )
-            actor.set_hp(round(self.range - dist), reduce=True)
+            actor.set_hp(round(self.range - dist)*mult, reduce=True)
             try:
-                actor.knockback(round((200 - dist) / 10), angle)
+                actor.knockback(round(mult * (200 - dist) / 10), angle)
             except:
                 pass
             if enemy and actor.get_hp() < 0:
@@ -207,7 +211,7 @@ class Explosion:
                 self.pos[0],
                 self.pos[1],
             )
-            self.damage_actor(player_actor, player_actor, camera_pos, walls=walls)
+            self.damage_actor(player_actor, player_actor, camera_pos, walls=walls, mult = self.player_damage)
             for x in enemy_list:
                 multi_kill, multi_kill_ticks = self.damage_actor(
                     player_actor,

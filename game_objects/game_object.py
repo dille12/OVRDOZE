@@ -3,6 +3,7 @@ import math
 import random
 import func
 from values import *
+from anim_list import *
 
 
 class Game_Object:
@@ -36,6 +37,9 @@ class Game_Object:
             )
             self._pos = [pos[0] - new_rect[0], pos[1] - new_rect[1]]
 
+    def create_explosion(self):
+        #explosions.append(Explosion(self._pos, expl1))
+        pass
 
     def update_life(self, kind_list):
         self._lifetime -= timedelta.mod(1)

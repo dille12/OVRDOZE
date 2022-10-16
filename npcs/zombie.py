@@ -113,8 +113,9 @@ class Zombie(pygame.sprite.Sprite):
         self.times = {"total": 0}
 
         self.visible = False
+        self.visible2 = False
 
-        self.inventory = classes.Inventory(interctables)
+        self.inventory = classes.Inventory(self.app, interctables)
         self.cached_route = False
 
         #app.zombiegroup.add(self)
@@ -332,7 +333,8 @@ class Zombie(pygame.sprite.Sprite):
 
         if self.app.draw_los and self.process_tick == 0:
 
-            self.visible = los.check_los(player_actor.get_pos(), self.pos, walls)
+            self.visible = los.check_los(player_actor.get_pos(), self.pos, walls[0])
+            self.visible2 = los.check_los(player_actor.get_pos(), self.pos, walls[1])
 
         if phase == 6:
             t_3 = time.time()
@@ -373,7 +375,7 @@ class Zombie(pygame.sprite.Sprite):
         if phase == 6:
             t_4 = time.time()
 
-        if los.check_los(self.target.pos, self.pos, walls):
+        if self.visible and self.visible2:
 
             dist = los.get_dist_points(self.pos, player_pos)
 
@@ -517,7 +519,9 @@ class Zombie(pygame.sprite.Sprite):
         if phase == 6:
             t_9 = time.time()
 
+
         if phase == 6:
+
 
             if self.pos != self.target_pos:
                 last_pos = self.target_pos

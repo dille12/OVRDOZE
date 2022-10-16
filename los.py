@@ -237,13 +237,12 @@ def render_cool(
 
         screen.blit(image_2, pos)
 
+def det(a, b):
+    return a[0] * b[1] - a[1] * b[0]
 
 def line_intersection(line1, line2):
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
-
-    def det(a, b):
-        return a[0] * b[1] - a[1] * b[0]
 
     div = det(xdiff, ydiff)
     if div == 0:
@@ -288,11 +287,12 @@ def check_point(point):
     return check
 
 
-def check_los(p1, p2, los_walls):
-    for wall_1 in los_walls:
-        point_1, point_2 = wall_1.get_points()
-        if intersect(p1, p2, point_1, point_2):
-            return False
+def check_los(p1, p2, los_walls, vis_walls = []):
+    for walls in [los_walls, vis_walls]:
+        for wall_1 in walls:
+            point_1, point_2 = wall_1.get_points()
+            if intersect(p1, p2, point_1, point_2):
+                return False
     return True
 
 

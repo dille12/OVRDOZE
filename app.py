@@ -2,7 +2,7 @@
 # goal: support passing obj instances between modules,
 # move funcs out of RUN.property
 # - Contrib: Velas2
-from maps import maps
+from maps import get_maps
 import get_preferences
 from networking.server import Server
 from networking.chat import Chat
@@ -129,9 +129,9 @@ class App:
     def getMaps(self):
         maps_dict = {}
         self.maps_dict = maps_dict
-        self.maps = maps
+        self.maps = get_maps(self)
         i = 0
-        for map_1 in maps:
+        for map_1 in self.maps:
 
             map_surf = map_1.__dict__["background"]
             x, y = map_surf.get_rect().size

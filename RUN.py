@@ -74,7 +74,7 @@ def main():
         intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading.....")
         intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
-        func.load_screen(screen, "Loading......")
+        #func.load_screen(screen, "Loading......")
         intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading Done")
         print("Done")

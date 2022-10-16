@@ -2,6 +2,8 @@ from game_objects.game_object import Game_Object
 from values import *
 import func
 import classes
+from anim_list import *
+from classtest import getcollisionspoint
 
 
 class Bullet(Game_Object):
@@ -15,6 +17,7 @@ class Bullet(Game_Object):
         piercing=False,
         mp=False,
         energy=False,
+        rocket=False
     ):
         super().__init__(
             name="bullet",
@@ -29,9 +32,12 @@ class Bullet(Game_Object):
         self.mp = mp
         self.speed = speed * random.uniform(0.9, 1.1)
         self.energy = energy
+        self.rocket = rocket
         if type != "shrapnel":
             if self.energy:
                 self.im = energy_bullet_length[round(self.speed)]
+            elif self.rocket:
+                self.im = rocket_texture
             else:
                 self.im = bullet_length[round(self.speed)]
             self.type = "bullet"
@@ -39,6 +45,8 @@ class Bullet(Game_Object):
             self.type = "shrapnel"
 
         self.piercing = piercing
+
+        self.added_explosion = False
 
 
     def get_string(self):
@@ -56,6 +64,16 @@ class Bullet(Game_Object):
     def detect_collision(self):
         pass
 
+    def kill_bullet(self, add_expl = True):
+
+        if self.rocket and add_expl and not self.added_explosion:
+            append_explosions.append([self._pos, expl1])
+            self.added_explosion = True
+            #explosions.append(Explosion(self._pos, expl1))
+
+        bullet_list.remove(self)
+
+
     def move_and_draw_Bullet(
         self,
         screen,
@@ -68,6 +86,7 @@ class Bullet(Game_Object):
         dummies={},
     ):
         super().update_life(bullet_list)
+        last_pos = self._pos.copy()
         self.move()
 
         if self.energy:
@@ -83,6 +102,25 @@ class Bullet(Game_Object):
                     )
                 )
 
+        elif self.rocket:
+            for i in range(random.randint(1,5)):
+                particle_list.append(
+                    classes.Particle(
+                        self._pos,
+                        pre_defined_angle=True,
+                        angle=self._angle + 270,
+                        magnitude=self._damage**0.2 - 0.5,
+                        screen=screen,
+                    )
+                )
+            colls = list(getcollisionspoint(map.block_vis_rects, self._pos))
+            if len(colls) != 0:
+                print(colls)
+                append_explosions.append([last_pos, expl1])
+                self.kill_bullet(add_expl=False)
+                return 0
+
+
         self.detect_collision()
         self.draw()
         try:
@@ -90,7 +128,7 @@ class Bullet(Game_Object):
             #     self._pos, map_boundaries, return_only_collision=True, collision_box=0
             # )
 
-            coll_types, pos = map.checkcollision(self._pos, [0,0], round(self.speed/4)*multiplier2, map_boundaries, ignore_barricades=True)
+            coll_types, pos = map.checkcollision(self._pos, [0,0], round(self.speed/4)*multiplier2, map_boundaries, ignore_barricades=True, bullet = True)
 
             if coll_types != {
                 "left": False,
@@ -99,7 +137,7 @@ class Bullet(Game_Object):
                 "bottom": False,
             }:
                 func.list_play(rico_sounds)
-                bullet_list.remove(self)
+                self.kill_bullet()
 
                 if coll_types["left"] or coll_types["right"]:
                     ang = 270 - self._angle
@@ -147,7 +185,7 @@ class Bullet(Game_Object):
                     )
                 try:
                     if not self.piercing:
-                        bullet_list.remove(self)
+                        self.kill_bullet()
                 except:
                     pass
 
@@ -177,7 +215,7 @@ class Bullet(Game_Object):
                     )
                     try:
                         if not self.piercing:
-                            bullet_list.remove(self)
+                            self.kill_bullet()
                     except:
                         pass
 
@@ -226,7 +264,7 @@ class Bullet(Game_Object):
                     print("")
                 try:
                     if not self.piercing:
-                        bullet_list.remove(self)
+                        self.kill_bullet()
                 except:
                     pass
 

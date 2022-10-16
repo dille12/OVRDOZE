@@ -22,6 +22,7 @@ guns = {
         ammo="INF",
         view=0.0,
         handling=0.7,
+        rocket_launcher=True
     ),
 
     "FN57-S": W.Gun(
@@ -152,6 +153,28 @@ guns = {
         view=0.03,
         handling=0.1,
     ),
+    "RPG-7": W.Gun(
+        name="RPG-7",
+        price=2300,
+        clip_s=1,
+        fire_r=2300,
+        spread=2,
+        spread_r=0.96,
+        bullet_speed=45,
+        reload_r=50,
+        damage=1000,
+        bullets_at_once=1,
+        shotgun=False,
+        sounds=rocket_launcher_sounds,
+        ammo_cap_lvlup=1,
+        image="rpg.png",
+        ammo="45 ACP",
+        view=0.03,
+        handling=0.2,
+        rocket_launcher = True,
+        semi_auto = True
+    ),
+
     "SPAS": W.Gun(
         name="SPAS-12",
         price=1300,

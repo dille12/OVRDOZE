@@ -5,7 +5,7 @@ import sys
 def write_default_settings():
     with open("settings.dat", "w", encoding="UTF8") as file:
         file.write(
-            "username=Foo\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]")
+            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]")
 
 
 def pref():
@@ -49,7 +49,6 @@ def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
     file.write("DEV=" + str(dev) + "\n")
-    print("FS=" + str(fs))
     file.write("FS=" + str(fs) + "\n")
     file.write("ULTRA=" + str(ultraviolence) + "\n")
     file.write("LASTIP=" + str(last_ip) + "\n")

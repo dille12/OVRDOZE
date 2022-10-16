@@ -257,6 +257,7 @@ for x in range(100):
 lazer_texture = load("texture/lazer.png", size = [15,8])
 y_size = lazer_texture.get_size()[1]
 
+rocket_texture = load("texture/rocket.png", size = [60,32])
 
 energy_bullet_length = []
 for x in range(100):
@@ -279,7 +280,7 @@ drug_use = pygame.mixer.Sound("sound/drug_use.wav")
 
 melee_sound = pygame.mixer.Sound("sound/sfx/melee.wav")
 melee_hit_sound = pygame.mixer.Sound("sound/sfx/melee_hit.wav")
-
+append_explosions = []
 bullet_pickup = pygame.mixer.Sound("sound/bullet.wav")
 grenade_pickup = pygame.mixer.Sound("sound/grenade_pickup.wav")
 needle_pickup = pygame.mixer.Sound("sound/needle_pickup.wav")
@@ -428,6 +429,10 @@ smg_sounds = {
 pistol_sounds_silenced = {
     "fire": get_sound_Variants("sound", "silenced"),
     "reload": pygame.mixer.Sound("sound/pistol_reload.wav"),
+}
+rocket_launcher_sounds = {
+    "fire": get_sound_Variants("sound/sfx", "rocket_launch"),
+    "reload": pygame.mixer.Sound("sound/sfx/rocket_reload.wav"),
 }
 
 typing = get_sound_Variants("sound", "type")

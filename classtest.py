@@ -286,7 +286,6 @@ class Map:
         # polygons.append([size[0],0,100,size[1]])
         # polygons.append([0,-100,size[0],100])
         # polygons.append([0,size[1],size[0],100])
-
         for polygon in POLYGONS:
             x, y, width, height = polygon
 
@@ -362,7 +361,7 @@ class Map:
                     point = point_dict["point"]
                     if point == ref_point["point"]:
                         continue
-                    if los.check_los(point, ref_point["point"], walls_filtered):
+                    if los.check_los(point, ref_point["point"], walls_filtered, self.no_los_walls):
                         ref_point["connected"].append(point)
 
         except Exception as e:
@@ -381,6 +380,7 @@ class Map:
         ignore_barricades=False,
         collider_rect=False,
         check_only_collision=False,
+        bullet = False
     ):
         if collider_rect:
             collider = pos
@@ -447,7 +447,7 @@ class Map:
 
         for check in check_order:
 
-            collisions = list(getcollisions(self.rectangles, collider))
+            collisions = list(getcollisions(self.rectangles if not bullet else self.block_vis_rects, collider))
 
             if check == check_order[0] and damage_barricades:
                 for barr in self.barricade_rects:
@@ -545,6 +545,7 @@ class Map:
             ]
         )
         self.rectangles = []
+        self.block_vis_rects = []
         for polygon in self.polygons:
             a, b, c, d = polygon
             x = [a[0], b[0], c[0], d[0]]
@@ -552,6 +553,7 @@ class Map:
             poly = pygame.Rect(min(x), min(y), max(x) - min(x), max(y) - min(y))
 
             self.rectangles.append(poly)
+            self.block_vis_rects.append(poly)
 
             polygons_temp.append([poly, [a, b, c, d]])
 
@@ -580,6 +582,17 @@ class Map:
 
         print("POINTS INSIDE:", len(self.points_inside_polygons))
         print("POINTS TOTAL:", points)
+        self.no_los_walls = []
+        for polygon in self.polygons_no_los_block:
+            a, b, c, d = polygon
+            # a = ratio(a,size_ratio)
+            # b = ratio(b,size_ratio)
+            # c = ratio(c,size_ratio)
+            # d = ratio(d,size_ratio)
+            self.no_los_walls.append(los.Wall(a, b, pol=polygon))
+            self.no_los_walls.append(los.Wall(b, c, pol=polygon))
+            self.no_los_walls.append(los.Wall(c, d, pol=polygon))
+            self.no_los_walls.append(los.Wall(d, a, pol=polygon))
 
         print("GENERATING WALL STRUCTURE")
         walls = []

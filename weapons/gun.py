@@ -45,6 +45,7 @@ class Gun(Weapon):
         energy_weapon=False,
         charge_up=False,
         charge_time=10,
+        rocket_launcher = False,
     ):
         super().__init__(
             name,
@@ -85,6 +86,7 @@ class Gun(Weapon):
         self.burst_fire_rate = burst_fire_rate
         self.burst_tick = 0
         self.current_burst_bullet = 0
+        self.rocket_launcher = rocket_launcher
 
         self.charge_up = charge_up
         self.charge_time = charge_time
@@ -127,6 +129,7 @@ class Gun(Weapon):
             energy_weapon=self.energy_weapon,
             charge_up=self.charge_up,
             charge_time=self.charge_time,
+            rocket_launcher=self.rocket_launcher,
         )
 
     def get_semi_auto(self):
@@ -169,6 +172,7 @@ class Gun(Weapon):
                         speed=self.bullet_speed,
                         piercing=self.piercing_bullets,
                         energy=self.energy_weapon,
+                        rocket=self.rocket_launcher,
                     )
                 )  # BULLET
 

@@ -59,6 +59,12 @@ def blit_glitch(screen, image, pos, glitch = 2, diagonal = False, black_bar_chan
         if lower_pos >= image_size[1]:
             lower_pos = image_size[1]
 
+def inverted(img):
+   inv = pygame.Surface(img.get_rect().size, pygame.SRCALPHA)
+   inv.fill((255,255,255,255))
+   inv.blit(img, (0,0), None, pygame.BLEND_RGB_SUB)
+   return inv
+
 def render_text_glitch(
     screen, string, pos, color=[255, 255, 255], centerx=False, glitch=10, font = None
 ):

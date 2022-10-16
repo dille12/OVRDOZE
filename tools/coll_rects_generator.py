@@ -71,7 +71,7 @@ def analyze_map_file(file_name):
             if i.y + i.height != y:
                 continue
 
-            print(i.y + i.height - 1, "y is supposed to be ", y - 1)
+            #print(i.y + i.height - 1, "y is supposed to be ", y - 1)
 
             for n in (n for n in rectangles if n.y == y):
                 if n.x == i.x and n.width == i.width:

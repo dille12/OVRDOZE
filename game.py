@@ -25,8 +25,9 @@ from dialog import *
 from unit_status import UnitStatus
 from npcs.zombie import Zombie
 from npcs.soldier import Soldier
-
+from anim_list import *
 # import path_finding
+from weapons.area import Explosion
 
 import armory
 import objects
@@ -174,7 +175,7 @@ def main(
 
     screen, mouse_conversion = app.update_screen()
 
-    expl1 = func.load_animation("anim/expl1", 0, 31)
+
     route = None
     clock = app.pygame.time.Clock()
     multiplayer_actors = {}
@@ -201,7 +202,7 @@ def main(
 
     ### load
 
-    player_inventory = classes.Inventory(interactables, player=True)
+    player_inventory = classes.Inventory(app, interactables, player=True)
     #player_inventory.append_to_inv(items["Barricade"], 1)
     turret_bro.clear()
 
@@ -266,6 +267,7 @@ def main(
             give_weapon("gun", "AR-15"),
             give_weapon("gun", "AK"),
             give_weapon("gun", "AWP"),
+            give_weapon("gun", "RPG-7"),
             give_weapon("gun", "M134 MINIGUN"),
             give_weapon("gun", "NRG-LMG Mark1"),
         ]:
@@ -273,7 +275,7 @@ def main(
 
     else:
         endless = False
-        dialogue.append(Dialogue("Intro"))
+        dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
 
     gun_name_list = [
@@ -288,6 +290,7 @@ def main(
         "SPAS",
         "P90",
         "SCAR18",
+        "RPG-7",
         "M134 MINIGUN",
         "NRG-LMG Mark1",
     ]
@@ -875,7 +878,7 @@ def main(
             interactables.remove(x)
 
         for x in turret_bro:
-            x.tick(screen, camera_pos, enemy_list, 0, walls_filtered, player_pos)
+            x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
 
         for x in particle_list:
             x.tick(screen, camera_pos, map)
@@ -1127,7 +1130,7 @@ def main(
             if player_alive:
                 func.list_play(death_sounds)
                 player_alive = False
-                respawn_ticks = 300
+                respawn_ticks = 300 if not endless else 120
                 for i in range(5):
                     particle_list.append(
                         classes.Particle(
@@ -1142,41 +1145,40 @@ def main(
                 respawn_ticks -= timedelta.mod(1)
             else:
                 player_actor.set_hp(100)
-                player_actor.money = 0
-                money_tick.value = 0
-                player_actor.sanity = 100
-                enemy_count = round(enemy_count*0.75)
+                if endless:
+                    player_pos = map.get_random_point(walls_filtered, enemies=enemy_list)
+                else:
+                    player_actor.money = 0
+                    money_tick.value = 0
+                    player_actor.sanity = 100
+                    enemy_count = round(enemy_count*0.75)
 
+                    for x in app.maps:
+                        if x.name == "Overworld":
+                            (
+                                map,
+                                map_render,
+                                los_bg,
+                                map_boundaries,
+                                NAV_MESH,
+                                player_pos,
+                                camera_pos,
+                                wall_points,
+                                walls_filtered,
+                            ) = load_level(x, mouse_conversion, player_inventory, app, screen, death = True)
 
+                            wave = False
+                            wave_number = 0
+                            wave_anim_ticks = [0, 0]
 
-                #player_pos = map.get_random_point(walls_filtered, enemies=enemy_list)
+                            if not skip_intervals:
+                                wave_interval = 17
+                                wave_change_timer = time.time()
+                            else:
+                                wave_interval = 2
+                                wave_change_timer = time.time() - 15
 
-                for x in app.maps:
-                    if x.name == "Overworld":
-                        (
-                            map,
-                            map_render,
-                            los_bg,
-                            map_boundaries,
-                            NAV_MESH,
-                            player_pos,
-                            camera_pos,
-                            wall_points,
-                            walls_filtered,
-                        ) = load_level(x, mouse_conversion, player_inventory, app, screen, death = True)
-
-                        wave = False
-                        wave_number = 0
-                        wave_anim_ticks = [0, 0]
-
-                        if not skip_intervals:
-                            wave_interval = 17
-                            wave_change_timer = time.time()
-                        else:
-                            wave_interval = 2
-                            wave_change_timer = time.time() - 15
-
-                        wave_length = 30
+                            wave_length = 30
 
 
                 # c_weapon = give_weapon(player_we[weapon_scroll])
@@ -1221,7 +1223,6 @@ def main(
                             closest_available_prompt = closest_prompt
 
         if closest_available_prompt != None:
-
             closest_available_prompt.tick_prompt(
                 screen, player_pos, camera_pos, f_press=f_press
             )
@@ -1230,6 +1231,11 @@ def main(
                 closest_prompt.tick_prompt(
                     screen, player_pos, camera_pos, f_press=f_press
                 )
+
+        # for x in interactables:
+        #     x.tick_prompt(
+        #         screen, player_pos, camera_pos, f_press=f_press
+        #     )
 
         last_hp = player_actor.get_hp()
         if multi_kill_ticks > 0:
@@ -1247,7 +1253,7 @@ def main(
                 player_actor,
                 camera_pos,
                 map,
-                walls_filtered,
+                [walls_filtered, map.no_los_walls],
                 NAV_MESH,
                 map_render,
                 phase=phase,
@@ -1287,6 +1293,10 @@ def main(
 
                 multi_kill_ticks = 45
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
+
+        for pos, type in append_explosions:
+            explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25))
+        append_explosions.clear()
 
         last_bullet_list = tuple(bullet_list)
 
@@ -1686,29 +1696,58 @@ def main(
                     screen.blit(text, [pos[0], pos[1]])
 
         else:
-            text = terminal.render("Money lost. Going back to Overworld...", False, [255, 255, 255])
-            pos = [size[0] / 2, size[1] / 2 - 40]
-            screen.blit(
-                text,
-                [
-                    pos[0] - text.get_rect().center[0],
-                    pos[1] - text.get_rect().center[1],
-                ],
-            )
+            if not endless:
+                text = terminal.render("Money lost. Going back to Overworld...", False, [255, 255, 255])
+                pos = [size[0] / 2, size[1] / 2 - 40]
+                screen.blit(
+                    text,
+                    [
+                        pos[0] - text.get_rect().center[0],
+                        pos[1] - text.get_rect().center[1],
+                    ],
+                )
 
-            text = terminal_map_desc.render("YOU DIED!", False, [255, 255, 255])
-            pos = [size[0] / 2, size[1] / 4 - 40]
-            screen.blit(
-                text,
-                [
-                    pos[0] - text.get_rect().center[0],
-                    pos[1] - text.get_rect().center[1],
-                ],
-            )
+                text = terminal_map_desc.render("YOU DIED!", False, [255, 255, 255])
+                pos = [size[0] / 2, size[1] / 4 - 40]
+                screen.blit(
+                    text,
+                    [
+                        pos[0] - text.get_rect().center[0],
+                        pos[1] - text.get_rect().center[1],
+                    ],
+                )
 
 
-            if 40 <= respawn_ticks <= 50 and fade_tick.value >= fade_tick.max_value:
-                fade_tick.value = 0
+                if 40 <= respawn_ticks <= 50 and fade_tick.value >= fade_tick.max_value:
+                    fade_tick.value = 0
+
+            else:
+                text = terminal.render("RESPAWN IN", False, [255, 255, 255])
+                pos = [size[0] / 2, size[1] / 2 - 40]
+                screen.blit(
+                    text,
+                    [
+                        pos[0] - text.get_rect().center[0],
+                        pos[1] - text.get_rect().center[1],
+                    ],
+                )
+
+                if respawn_ticks <= 40:
+                    t = "1"
+                elif respawn_ticks <= 80:
+                    t = "2"
+                else:
+                    t = "3"
+
+                text = terminal2.render(t, False, [255, 255, 255])
+                pos = [size[0] / 2, size[1] / 2]
+                screen.blit(
+                    text,
+                    [
+                        pos[0] - text.get_rect().center[0],
+                        pos[1] - text.get_rect().center[1],
+                    ],
+                )
 
 
         try:

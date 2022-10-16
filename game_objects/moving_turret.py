@@ -59,7 +59,7 @@ class MovingTurret(Game_Object):
         lowest = 99999
         closest_enemy = None
         for x in enemy_list:
-            if not los.check_los(self._pos, x.get_pos(), walls):
+            if not los.check_los(self._pos, x.get_pos(), walls[0]):
                 continue
             dist = los.get_dist_points(self._pos, x.get_pos())
             if dist > self._range:
@@ -111,7 +111,7 @@ class MovingTurret(Game_Object):
             self.target = self.scan_for_enemies(enemy_list, walls)
         else:
             if (
-                los.check_los(self._pos, self.target.get_pos(), walls)
+                los.check_los(self._pos, self.target.get_pos(), walls[0])
                 and los.get_dist_points(self._pos, self.target.get_pos()) < self._range
                 and self.target.check_if_alive()
             ):

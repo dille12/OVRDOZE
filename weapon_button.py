@@ -89,7 +89,14 @@ class weapon_button:
                 )
                 screen.blit(text, [size[0] / 3, 130])
 
-            if self.weapon.piercing_bullets:
+            if self.weapon.rocket_launcher:
+                text = terminal.render(
+                    f"Exploding projectiles", False, [255, 255, 255]
+                )
+                screen.blit(text, [size[0] / 3, 150])
+
+
+            elif self.weapon.piercing_bullets:
 
                 text = terminal.render(
                     f"Armor piercing bullets", False, [255, 255, 255]
