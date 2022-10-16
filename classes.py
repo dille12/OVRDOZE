@@ -602,9 +602,9 @@ class Inventory:
                         if def_pos == [24 - 62, 133]:
                             col = self.columns
                         elif self.search_obj:
-                            self.search_obj.columns
+                            col = self.search_obj.columns
                         else:
-                            self.columns = 3
+                            col = 3
                         for slot in range(1, (1+col*3)):
 
 

@@ -37,8 +37,26 @@ def draw(
     walls2 = []
     walls3 = []
 
+    if los_angle:
+        los_angle = 180 - get_angle_diff(0, los_angle)
+        print(los_angle)
+        if los_angle < 0:
+            los_angle += 360
+
+    camera_pos = ratio(camera_pos, size_ratio)
+    player_pos = ratio(player_pos, size_ratio)
+
+    start_pos = minus_list(player_pos, camera_pos)
+
     for i in walls:
         p1, p2 = i.get_points()
+
+        if los_angle:
+            if within_tolernace(start_pos, p1, los_angle, angle_tolerance) and within_tolernace(start_pos, p2, los_angle, angle_tolerance):
+                pass
+            else:
+                continue
+
         if check_point(func.minus(p1, camera_pos, op = "-")) or check_point(func.minus(p2, camera_pos, op = "-")):
             walls2.append(i)
 
@@ -50,10 +68,7 @@ def draw(
 
     start = time.time()
 
-    camera_pos = ratio(camera_pos, size_ratio)
-    player_pos = ratio(player_pos, size_ratio)
 
-    start_pos = minus_list(player_pos, camera_pos)
 
     # los.set_colorkey((255,255,255))
     if not quick_render:
@@ -77,14 +92,14 @@ def draw(
 
     if los_angle != None:
 
-        los_angle1 = 360 - los_angle - 10
+        los_angle1 = 360 - los_angle - los_angle
         line = [
             start_pos[0] + math.cos(math.radians(los_angle1)) * draw_distance,
             start_pos[1] + math.sin(math.radians(los_angle1)) * draw_distance,
         ]
         point_dict[los_angle1] = line
 
-        los_angle2 = 360 - los_angle + 10
+        los_angle2 = 360 - los_angle + los_angle
         line = [
             start_pos[0] + math.cos(math.radians(los_angle2)) * draw_distance,
             start_pos[1] + math.sin(math.radians(los_angle2)) * draw_distance,
@@ -105,6 +120,8 @@ def draw(
         wall_spes_points = []
 
         point1, point2 = wall_1.get_points()
+
+
 
         if (
             0 < point1[0] < size[0]

@@ -1359,6 +1359,8 @@ def main(
                 walls_filtered,
                 debug_angle=player_actor.get_angle(),
                 los_background=los_bg,
+                # los_angle = player_actor.angle+90,
+                # angle_tolerance = 45
             )
 
             ###

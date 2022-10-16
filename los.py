@@ -63,6 +63,15 @@ def debug_render(text_str):
     text = agency.render(str(text_str), False, [255, 255, 0])
     render_cool(text, [60, 60], 15, 16, render=True, offset=10)  ### IN GAME
 
+def within_tolernace(point1, point2, angle, tolerance):
+    angle2 = math.degrees(math.atan2(point2[0]-point1[0],point2[1]-point1[1]))
+
+    if abs(get_angle_diff(angle, angle2)) < tolerance:
+        return True
+    else:
+        return False
+
+
 
 def rot_center(image, angle, x, y):
 
