@@ -36,6 +36,31 @@ def get_Sound_All(folder):
     print(len(calm_e))
     return calm, hp_sound, hp_sound2, c1, c2, calm_e
 
+def set_music_volume(arg, volume):
+    pygame.mixer.music.set_volume(volume)
+
+
+def loop_over_list(list1, volume):
+    for index in list1:
+        if isinstance(index, pygame.mixer.Sound):
+            index.set_volume(volume)
+
+def loop_over_dict(dictionary, volume):
+    for list_index in dictionary:
+        if isinstance(dictionary[list_index], pygame.mixer.Sound):
+            dictionary[list_index].set_volume(volume)
+        elif isinstance(dictionary[list_index], list):
+            loop_over_list(dictionary[list_index], volume)
+
+def set_sound_volume(global_vars, volume):
+    for x in global_vars:
+        if isinstance(global_vars[x], pygame.mixer.Sound):
+            global_vars[x].set_volume(volume)
+        elif isinstance(global_vars[x], dict):
+            loop_over_dict(global_vars[x], volume)
+        elif isinstance(global_vars[x], list):
+            loop_over_list(global_vars[x], volume)
+
 
 def get_Sound(sound, file):
     path = file + "/" + sound + ".wav"

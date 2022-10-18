@@ -17,7 +17,7 @@ from classes import items, drop_index, drop_table
 import get_preferences
 import armory
 
-a, draw_los, a, a, ultraviolence, a, a, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
 
 from _thread import *
 

@@ -22,7 +22,6 @@ guns = {
         ammo="INF",
         view=0.0,
         handling=0.7,
-        rocket_launcher=True
     ),
 
     "FN57-S": W.Gun(
@@ -172,7 +171,8 @@ guns = {
         view=0.03,
         handling=0.2,
         rocket_launcher = True,
-        semi_auto = True
+        semi_auto = True,
+        extra_bullet = False,
     ),
 
     "SPAS": W.Gun(

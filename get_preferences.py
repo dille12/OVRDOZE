@@ -5,7 +5,7 @@ import sys
 def write_default_settings():
     with open("settings.dat", "w", encoding="UTF8") as file:
         file.write(
-            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]")
+            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]\nVOL=50\nMUSIC=100")
 
 
 def pref():
@@ -40,11 +40,14 @@ def pref():
             vsync = ast.literal_eval(value.strip("\n"))
         if attr == "RES":
             res = ast.literal_eval(value.strip("\n"))
+        if attr == "VOL":
+            vol = ast.literal_eval(value.strip("\n"))
+        if attr == "MUSIC":
+            music = ast.literal_eval(value.strip("\n"))
+    return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music
 
-    return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res
 
-
-def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res):
+def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music):
     file = open("settings.dat", "w", encoding="UTF8")
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
@@ -55,5 +58,7 @@ def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res
     file.write("FPS=" + str(fps) + "\n")
     file.write("VSYNC=" + str(vsync) + "\n")
     file.write("RES=" + str(res) + "\n")
+    file.write("VOL=" + str(vol) + "\n")
+    file.write("MUSIC=" + str(music) + "\n")
     file.close()
     print("Settings saved")

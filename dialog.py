@@ -3,7 +3,7 @@ from values import *
 import get_preferences
 from button import Button
 
-player_name, draw_los, a, a, ultraviolence, a, a, a, a = get_preferences.pref()
+player_name, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
 
 surf_back = pygame.Surface(size)
 surf_back.fill([0, 0, 0])
@@ -206,6 +206,13 @@ dialogues = {
             ["Mysterious voice", f"Never demand anything from us\nagain."],
             ["Mysterious voice", f"There will be no reward\ntoday. You will hear from us."],
             ["" , "The phone slams."],
+        ],
+        [
+            open_basement,
+            ["y", "What now?"],
+            ["Mysterious voice", f"You are performing\nnotably well."],
+            ["y", "..."],
+            give_player_money,
         ],
 
     ],

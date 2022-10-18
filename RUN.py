@@ -15,7 +15,8 @@ import get_preferences
 import func
 from glitch import Glitch
 from button import Button
-
+import mixer
+from scroll_bar import ScrollBar
 # import path_finding
 from app import App
 import map_creator
@@ -34,6 +35,8 @@ def main():
 
     clock = app.pygame.time.Clock()
     print("run init")
+
+    print("ALL SOUND VARIABLES")
 
     screen, mouse_conversion = app.update_screen()
 
@@ -324,7 +327,7 @@ def main():
         glitchInstance=glitch,
     )
     button_savesettings = Button(
-        [180, 130],
+        [180, 50],
         "Save Settings",
         main_menu_save,
         None,
@@ -389,6 +392,14 @@ def main():
         gameInstance=app.pygame,
         glitchInstance=glitch,
     )
+
+    scroll_bar_volume = ScrollBar("Game volume", [50,130], 200, mixer.set_sound_volume, max_value=100, init_value = app.volume, app = app)
+    scroll_bar_music = ScrollBar("Music volume", [300,130], 200, mixer.set_music_volume, max_value=100, init_value = app.music, app = app)
+
+    scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
+    scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
+
+
 
     check_box_difficulties = []
 
@@ -586,6 +597,12 @@ def main():
         buttonUpnpBack,
         button_back,
         button_quit_game,
+        button_savesettings,
+        button_sp,
+        button_sp_continue_game,
+        button_restart_game,
+        button_sp_new_game,
+        button_back_sp,
     ]
     checkboxes = [
         check_box_difficulties,
@@ -633,6 +650,9 @@ def main():
     while 1:
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -
+
+        app.volume = round(scroll_bar_volume.value)
+        app.music = round(scroll_bar_music.value)
 
         app.update_fps()
 
@@ -718,6 +738,9 @@ def main():
 
             menu_i += 1
 
+            for i in buttons:
+                i.red_tick = 10
+
 
             last_beat = time.time()
 
@@ -801,6 +824,9 @@ def main():
         if menu_status == "settings":
 
             s8_2 = button_savesettings.tick(screen, mouse_pos, mouse_single_tick, glitch)
+
+            scroll_bar_volume.tick(screen, mouse_pos, clicked, mouse_single_tick, arg = globals())
+            scroll_bar_music.tick(screen, mouse_pos, clicked, mouse_single_tick)
 
             text = terminal.render("Name:", False, [255, 255, 255])
             screen.blit(text, [20, 207])

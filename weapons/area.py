@@ -248,11 +248,11 @@ class Explosion:
                     )
 
         screen.blit(
-            self.images[self.ticks],
+            self.images[min((round(self.ticks), len(self.images)-1))],
             func.minus_list(func.minus_list(self.pos, camera_pos), self.rect_cent),
         )
-        self.ticks += 1
+        self.ticks += timedelta.mod(1)
 
-        if self.ticks == len(self.images):
+        if self.ticks > len(self.images):
             explosions.remove(self)
         return multi_kill, multi_kill_ticks

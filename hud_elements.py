@@ -58,7 +58,7 @@ class text_box:
                         self.text += event.unicode
 
         # Render the current text.
-        txt_surface = self.font.render(self.text, True, (255, 255, 255))
+        txt_surface = self.font.render(self.text, False, (255, 255, 255))
         # Resize the box if the text is too long.
         width = max(200, txt_surface.get_width() + 10)
         self.box.w = width
@@ -107,7 +107,7 @@ class Checkbox:
         self.cant_uncheck = cant_uncheck
 
     def _draw_button_text(self):
-        self.font_surf = self.font.render(self.caption, True, self.fc)
+        self.font_surf = self.font.render(self.caption, False, self.fc)
         w, h = self.font.size(self.caption)
         self.font_pos = (self.x + self.to[0], self.y + self.to[1])
         self.surface.blit(self.font_surf, self.font_pos)

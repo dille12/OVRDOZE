@@ -46,6 +46,7 @@ class Gun(Weapon):
         charge_up=False,
         charge_time=10,
         rocket_launcher = False,
+        extra_bullet = True,
     ):
         super().__init__(
             name,
@@ -58,10 +59,12 @@ class Gun(Weapon):
             kind="guns",
             energy_weapon=energy_weapon,
         )
+        self.extra_bullet = extra_bullet
         self._clip_size = clip_s
-        self._bullets_in_clip = clip_s + 1
+        self._bullets_in_clip = clip_s + (1 if self.extra_bullet else 0)
         self._bullet_per_min = fire_r
         self._firerate = tick_count / (fire_r / 60)
+
 
         self.spread_per_bullet = spread_per_bullet
         self.piercing_bullets = piercing
@@ -130,6 +133,7 @@ class Gun(Weapon):
             charge_up=self.charge_up,
             charge_time=self.charge_time,
             rocket_launcher=self.rocket_launcher,
+            extra_bullet=self.extra_bullet,
         )
 
     def get_semi_auto(self):
@@ -258,7 +262,7 @@ class Gun(Weapon):
 
             ammo_to_reload = self._clip_size
         else:
-            ammo_to_reload = self._clip_size - self._bullets_in_clip + 1
+            ammo_to_reload = self._clip_size - self._bullets_in_clip + (1 if self.extra_bullet else 0)
 
         if availabe_ammo == 0:
             return

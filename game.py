@@ -28,6 +28,8 @@ from npcs.soldier import Soldier
 from anim_list import *
 # import path_finding
 from weapons.area import Explosion
+from scroll_bar import ScrollBar
+
 
 import armory
 import objects
@@ -87,6 +89,7 @@ def write_packet(object):
 
 def quit(app):
     app.pygame.mixer.music.unload()
+    app.write_prefs()
     print("Quitting game")
 
     RUN.main()
@@ -354,13 +357,20 @@ def main(
         gameInstance=app.pygame,
         glitchInstance=glitch,
     )
+
+    scroll_bar_volume = ScrollBar("Game volume", [20,335], 200, mixer.set_sound_volume, max_value=100, init_value = app.volume, app = app)
+    scroll_bar_music = ScrollBar("Music volume", [20,400], 200, mixer.set_music_volume, max_value=100, init_value = app.music, app = app)
+
+
+
+
     drying_time = time.time()
 
     last_tick = time.time() - 1
 
     start_time = time.time()
 
-    playing_song = ""
+    up_next = ""
 
     fade_tick.value = 15
 
@@ -423,11 +433,18 @@ def main(
             screen.fill((0, 0, 0))
             screen.blit(background_surf, (0, 0))
 
+            if pause_tick:
+                resume_button.red_tick = 10
+                quit_button.red_tick = 10
+
             wave_change_timer  += tick_time
             song_start_t  += tick_time
 
             s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
             quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=app)
+
+            scroll_bar_volume.tick(screen, mouse_pos, clicked, click_single_tick, arg = globals())
+            scroll_bar_music.tick(screen, mouse_pos, clicked, click_single_tick)
 
             pressed = app.pygame.key.get_pressed()
             if (pressed[app.pygame.K_ESCAPE] or s1) and not pause_tick:
@@ -473,17 +490,19 @@ def main(
             # app.pygame.mouse.set_visible(False)
             block_movement = False
 
+
+
         if app.pygame.mixer.music.get_busy() == False:
 
             if overworld:
                 app.pygame.mixer.music.load("sound/songs/overworld_loop.wav")
                 app.pygame.mixer.music.play(-1)
             else:
-                up_next = playing_song
-                while up_next == playing_song:
+                last_played = up_next
+                while up_next == last_played:
                     up_next = func.pick_random_from_list(songs)
+                print("Playing:", up_next)
                 app.pygame.mixer.music.load(up_next)
-                playing_song = func.pick_random_from_list(songs)
                 app.pygame.mixer.music.play()
 
                 with open(
@@ -692,6 +711,8 @@ def main(
 
         elif pressed[app.pygame.K_f] == False:
             f_pressed = False
+
+
 
         time_stamps["init"] = time.time() - t
         t = time.time()

@@ -34,7 +34,7 @@ class App:
         self.unitstatuses = []
         self.screen_glitch = 1
 
-        self.levels = ["Requiem", "Manufactory", "Liberation"]
+        self.levels = ["Requiem", "Manufactory", "Liberation", "Contamination"]
         self.day = -1
 
     def collect_data(self):
@@ -64,11 +64,13 @@ class App:
             self.fps,
             self.vsync,
             self.res,
+            self.volume,
+            self.music,
         ) = get_preferences.pref()
 
     def write_prefs(self):
         get_preferences.write_prefs(
-            self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.ip, self.fps, self.vsync, self.res
+            self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.ip, self.fps, self.vsync, self.res, self.volume, self.music,
         )
 
 

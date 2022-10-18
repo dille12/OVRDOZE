@@ -589,7 +589,7 @@ def keypress_manager(key_r_click, c_weapon, player_inventory, player_actor):
     if key_r_click:
         if (
             c_weapon.reload_tick() == 0
-            and c_weapon.get_Ammo() != c_weapon.get_clip_size() + 1
+            and c_weapon.get_Ammo() != c_weapon.get_clip_size() + (1 if c_weapon.extra_bullet else 0)
         ):
             c_weapon.reload(player_inventory, player_actor, screen)
         elif c_weapon.reload_tick() != 0:

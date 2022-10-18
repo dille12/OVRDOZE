@@ -18,7 +18,7 @@ from dialog import *
 
 from unit_status import UnitStatus
 
-a, draw_los, a, a, ultraviolence, a, a, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
@@ -1223,18 +1223,18 @@ class Particle:
 
     def tick(self, screen, camera_pos, map=None):
 
-        if self.__lifetime > 0:
+        if round(self.__lifetime) > 0:
 
             if self.__type == "fire":
                 self.fire_x_vel += random.uniform(-0.5, 0.7) * self.fire_velocity_mod
                 self.__pos = [
-                    self.__pos[0] + self.fire_x_vel,
-                    self.__pos[1] - random.randint(1, 4) * self.fire_velocity_mod,
+                    self.__pos[0] + timedelta.mod(self.fire_x_vel),
+                    self.__pos[1] - timedelta.mod(random.randint(1, 4) * self.fire_velocity_mod),
                 ]
                 self.__color = [
                     255,
-                    round(255 * (self.__lifetime / (self.max_life + 5))),
-                    round(255 * ((self.__lifetime / (self.max_life + 5)) ** 2)),
+                    round(255 * (round(self.__lifetime) / (self.max_life + 5))),
+                    round(255 * ((round(self.__lifetime) / (self.max_life + 5)) ** 2)),
                 ]
                 self.__dim = [
                     self.__pos[0] - round(self.__lifetime / 2),
@@ -1244,29 +1244,29 @@ class Particle:
                 ]
             else:
                 self.__pos = [
-                    self.__pos[0]
-                    + math.sin(self.__direction + random.uniform(-0.5, 0.5))
+                    self.__pos[0] + timedelta.mod(
+                    math.sin(self.__direction + random.uniform(-0.5, 0.5))
                     * self.__lifetime
-                    + random.randint(-2, 2),
-                    self.__pos[1]
-                    + math.cos(self.__direction + random.uniform(-0.3, 0.3))
+                    + random.randint(-2, 2)),
+                    self.__pos[1] + timedelta.mod(
+                    math.cos(self.__direction + random.uniform(-0.3, 0.3))
                     * self.__lifetime
-                    + random.randint(-2, 2),
+                    + random.randint(-2, 2)),
                 ]
 
             if self.__type == "normal":
                 self.__dim = [
-                    self.__pos[0] - round(self.__lifetime / 2),
-                    self.__pos[1] - round(self.__lifetime / 2),
+                    self.__pos[0] - timedelta.mod(round(self.__lifetime / 2)),
+                    self.__pos[1] - timedelta.mod(round(self.__lifetime / 2)),
                     self.__lifetime / 2,
                     self.__lifetime / 2,
                 ]
-                self.__color = [255, 255 - 255 / self.__lifetime, 0]
+                self.__color = [255, 255 - 255 / round(self.__lifetime), 0]
 
             elif self.__type == "energy":
                 self.__dim = [
-                    self.__pos[0] - round(self.__lifetime / 2),
-                    self.__pos[1] - round(self.__lifetime / 2),
+                    self.__pos[0] - timedelta.mod(round(self.__lifetime / 2)),
+                    self.__pos[1] - timedelta.mod(round(self.__lifetime / 2)),
                     self.__lifetime / 2,
                     self.__lifetime / 2,
                 ]
@@ -1326,10 +1326,10 @@ class Particle:
                 ]
 
             pos = func.draw_pos([self.__dim[0], self.__dim[1]], camera_pos)
-            pos.append(self.__dim[2])
-            pos.append(self.__dim[3])
+            pos.append(self.__dim[2]*multiplier2)
+            pos.append(self.__dim[3]*multiplier2)
             pygame.draw.rect(self.draw_surface, self.__color, pos)
-            self.__lifetime -= 1
+            self.__lifetime -= timedelta.mod(1)
         else:
             particle_list.remove(self)
 
@@ -1374,7 +1374,7 @@ class Player:
         self.turret_bullets = turret_bullets
         self.knockback_tick = 0
         self.knockback_angle = 0
-        self.money = 100000
+        self.money = 0
         self.money_last_tick = 0
         self.unitstatuses = []
 

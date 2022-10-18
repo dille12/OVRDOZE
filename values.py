@@ -7,7 +7,7 @@ import mixer
 from screeninfo import get_monitors
 import get_preferences
 
-a, a, a, a, a, a, a, a, size = get_preferences.pref()
+a, a, a, a, a, a, a, a, size,a,a = get_preferences.pref()
 
 
 print("VALUE INIT")
