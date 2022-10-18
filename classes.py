@@ -1167,6 +1167,7 @@ class Particle:
         self.__type = type
         self.fire_velocity_mod = fire_velocity_mod
         self.fire_x_vel = random.randint(-1, 1) * self.fire_velocity_mod
+        self.intensity = random.uniform(0.05, 0.15)
         if pre_defined_angle == False:
             self.__direction = math.radians(random.randint(0, 360))
         else:
@@ -1195,6 +1196,9 @@ class Particle:
 
             self.__magnitude = round(magnitude * 3 * random.uniform(1, 1.3))
 
+            if self.__type == "blood_particle":
+                self.__magnitude *= 2
+
         else:
             self.__lifetime = round(random.randint(3, 10) * magnitude)
             self.__magnitude = round(magnitude * 3)
@@ -1215,8 +1219,8 @@ class Particle:
             ]
         elif self.color_override == "yellow":
             self.__color3 = [
-                random.randint(200, 220),
-                random.randint(200, 220),
+                random.randint(220, 255),
+                random.randint(220, 255),
                 random.randint(0, 50),
             ]
         self.draw_surface = screen
@@ -1294,14 +1298,14 @@ class Particle:
                 ]
                 if self.color_override == "red":
                     self.__color = [
-                        self.__color3[0] / ((2 + self.__lifetime) ** 0.4),
+                        self.__color3[0],
                         self.__color3[1] / self.__lifetime,
                         self.__color3[2] / self.__lifetime,
                     ]
                 elif self.color_override == "yellow":
                     self.__color = [
-                        self.__color3[0] / ((2 + self.__lifetime) ** 0.4),
-                        self.__color3[1] / ((2 + self.__lifetime) ** 0.4),
+                        self.__color3[0],
+                        self.__color3[1],
                         self.__color3[2] / self.__lifetime,
                     ]
                 # if map != None:
@@ -1328,7 +1332,16 @@ class Particle:
             pos = func.draw_pos([self.__dim[0], self.__dim[1]], camera_pos)
             pos.append(self.__dim[2]*multiplier2)
             pos.append(self.__dim[3]*multiplier2)
-            pygame.draw.rect(self.draw_surface, self.__color, pos)
+            if self.__type in ["blood_particle"]:
+                surf = pygame.Surface((round(pos[2]), round(pos[3])))
+                surf.fill([round(255-self.__color[0])*self.intensity, round(255-self.__color[1])*self.intensity, round(255-self.__color[2])*self.intensity])
+                self.draw_surface.blit(surf, (pos[0], pos[1]), None, pygame.BLEND_RGB_SUB)
+            elif self.__type == "fire":
+                surf = pygame.Surface((round(pos[2]), round(pos[3])))
+                surf.fill(self.__color)
+                self.draw_surface.blit(surf, (pos[0], pos[1]), None, pygame.BLEND_ADD)
+            else:
+                pygame.draw.rect(self.draw_surface, self.__color, pos)
             self.__lifetime -= timedelta.mod(1)
         else:
             particle_list.remove(self)

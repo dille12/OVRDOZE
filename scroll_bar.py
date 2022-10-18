@@ -1,5 +1,5 @@
 import pygame
-from values import menu_click, menu_click2
+from values import scroll_bar_clicks, menu_click2
 import mixer
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
@@ -19,7 +19,8 @@ class ScrollBar:
         self.scroll_pos = 100
         self.active = False
         self.app = app
-        
+        self.step = 5
+
         self.get_pos()
 
     def get_pos(self):
@@ -42,9 +43,9 @@ class ScrollBar:
         last_val = self.value
 
         if self.rect.collidepoint(mouse_pos) and mouse_click and (mouse_single_tick or self.active):
-            self.scroll_pos = mouse_pos[0]
-            self.scroll_pos = max(self.min_pos, self.scroll_pos)
-            self.scroll_pos = min(self.max_pos, self.scroll_pos)
+            self.scroll_pos  = mouse_pos[0]
+            self.scroll_pos  = max(self.min_pos, self.scroll_pos)
+            self.scroll_pos  = min(self.max_pos, self.scroll_pos)
             self.active = True
 
             if mouse_single_tick:
@@ -59,8 +60,9 @@ class ScrollBar:
         self.get_value()
 
         if self.value != last_val:
-            menu_click.stop()
-            menu_click.play()
+            for i in scroll_bar_clicks:
+                i.stop()
+            scroll_bar_clicks[round(self.value/4.16666666667)].play()
             self.on_change_function(arg, self.value/100)
 
         pygame.draw.rect(screen, [255,255,255] if not self.active else [255,0,0], (self.scroll_pos-self.scroll_bar_width/2, self.pos[1]+4, self.scroll_bar_width, 22), 2)

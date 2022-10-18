@@ -264,7 +264,7 @@ def get_maps(app):
                     active=False,
                 ),
             ],
-            SPAWNPOINT=[400, 60],
+            SPAWNPOINT=[667, 400],
             )
 
     ]

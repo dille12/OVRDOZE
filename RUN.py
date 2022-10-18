@@ -79,10 +79,11 @@ def main():
         intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
         #func.load_screen(screen, "Loading......")
         intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True)
+        intro8 = func.load_animation("anim/intro8", 30, 31, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading Done")
         print("Done")
 
-        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7]
+        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8]
     menu_i = 0
 
 

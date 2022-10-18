@@ -52,6 +52,7 @@ def blit_glitch(screen, image, pos, glitch = 2, diagonal = False, black_bar_chan
                 [pos[0] + random.randint(-glitch, glitch), pos[1] + upper_pos + (0 if not diagonal else random.randint(-glitch, glitch))],
                 area=[0, upper_pos, image_size[0], lower_pos-upper_pos],
             )
+
         if lower_pos == image_size[1]:
             break
         upper_pos = lower_pos

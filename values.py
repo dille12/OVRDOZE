@@ -407,6 +407,8 @@ fade_tick.value = 30
 door_sound = pygame.mixer.Sound("sound/door_sound.wav")
 phone_ring = pygame.mixer.Sound("sound/phone_ring.wav")
 
+scroll_bar_clicks = get_sound_Variants("sound/scrollbarclicks", "file")
+
 kill_sounds = get_sound_Variants("sound", "kill")
 # kill_sound = pygame.mixer.Sound("sound/kill5.wav")
 hit_sounds = get_sound_Variants("sound", "hit")
