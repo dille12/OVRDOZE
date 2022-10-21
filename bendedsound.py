@@ -21,6 +21,9 @@ class bendedSound:
         self.sound.set_volume(volume)
         self.bended_sound.set_volume(volume)
 
+    def get_num_channels(self):
+        return self.sound.get_num_channels()
+
 class PlayerHealth:
     def __init__(self):
         self.health = 100
