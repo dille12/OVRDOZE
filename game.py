@@ -206,7 +206,7 @@ def main(
     ### load
 
     player_inventory = classes.Inventory(app, interactables, player=True)
-    #player_inventory.append_to_inv(items["Barricade"], 1)
+    player_inventory.append_to_inv(items["Sentry Turret"], 3)
     turret_bro.clear()
 
     turret_bro.append(
@@ -1208,7 +1208,7 @@ def main(
 
         if last_hp == player_actor.get_hp() and player_alive == True:
             free_tick += timedelta.mod(1)
-            if free_tick > 60 and player_actor.get_hp() < 100:
+            if free_tick > 90 and player_actor.get_hp() < 100:
                 player_actor.set_hp(timedelta.mod(-1), reduce=True)
                 if player_actor.get_hp() >= 100:
                     player_actor.hp = 100
@@ -1432,7 +1432,7 @@ def main(
             except:
                 pass
 
-        if wave_number >= 5:
+        if wave_number >= 5 and not endless:
             if not wave:
                 text = terminal.render("EXIT DOOR IS OPEN!", False, [255, 255, 255])
                 screen.blit(
@@ -1918,6 +1918,8 @@ def main(
             background_surf.blit(screen, (0, 0))
         glitch.tick()
         melee_list.clear()
+
+        playerhealth.health = player_actor.hp
 
         if app.screen_glitch > 0:
             image_copy = screen.copy()

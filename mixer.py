@@ -2,19 +2,9 @@ import pygame
 import time
 import random
 import os
+from bendedsound import bendedSound
 
 
-def get_sound_Variants(folder, name2):
-    list = []
-    i = 1
-    while True:
-        try:
-            name = name2 + str(i)
-            list.append(get_Sound(name, folder))
-            i += 1
-
-        except:
-            return list
 
 
 def get_Sound_All(folder):
@@ -42,19 +32,19 @@ def set_music_volume(arg, volume):
 
 def loop_over_list(list1, volume):
     for index in list1:
-        if isinstance(index, pygame.mixer.Sound):
+        if isinstance(index, pygame.mixer.Sound) or isinstance(index, bendedSound):
             index.set_volume(volume)
 
 def loop_over_dict(dictionary, volume):
     for list_index in dictionary:
-        if isinstance(dictionary[list_index], pygame.mixer.Sound):
+        if isinstance(dictionary[list_index], pygame.mixer.Sound) or isinstance(dictionary[list_index], bendedSound):
             dictionary[list_index].set_volume(volume)
         elif isinstance(dictionary[list_index], list):
             loop_over_list(dictionary[list_index], volume)
 
 def set_sound_volume(global_vars, volume):
     for x in global_vars:
-        if isinstance(global_vars[x], pygame.mixer.Sound):
+        if isinstance(global_vars[x], pygame.mixer.Sound) or isinstance(global_vars[x], bendedSound):
             global_vars[x].set_volume(volume)
         elif isinstance(global_vars[x], dict):
             loop_over_dict(global_vars[x], volume)
@@ -62,10 +52,7 @@ def set_sound_volume(global_vars, volume):
             loop_over_list(global_vars[x], volume)
 
 
-def get_Sound(sound, file):
-    path = file + "/" + sound + ".wav"
-    print(path)
-    return pygame.mixer.Sound(path)
+
 
 
 def init(folder="random"):

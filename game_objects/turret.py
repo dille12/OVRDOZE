@@ -27,8 +27,11 @@ class Turret(Game_Object):
 
     def scan_for_enemies(self, enemy_list, walls):
         lowest = 99999
-        closest_enemy = None
-        for x in enemy_list:
+        dist = None
+        if not enemy_list:
+            return
+        for i in range(3):
+            x = random.choice(enemy_list)
             if not los.check_los(self._pos, x.get_pos(), walls):
                 continue
             dist = los.get_dist_points(self._pos, x.get_pos())
@@ -37,7 +40,7 @@ class Turret(Game_Object):
             if dist < lowest and dist < self._range:
                 lowest = dist
                 closest_enemy = x
-        return closest_enemy
+            return closest_enemy
 
     def shoot(self, shoot, angle2):
         if (
@@ -78,23 +81,24 @@ class Turret(Game_Object):
     def handle_scanning(self, enemy_list, walls, los):
         shoot = False
         aim_at = None
-        if self.target == None:
+        if not self.target:
             self.target = self.scan_for_enemies(enemy_list, walls)
         else:
-            if (
-                los.check_los(self._pos, self.target.get_pos(), walls)
-                and los.get_dist_points(self._pos, self.target.get_pos()) < self._range
-                and self.target.check_if_alive()
-            ):
-                aim_at = self.target.get_pos()
-            else:
-                self.target = None
+            aim_at = self.target.get_pos()
+            if random.uniform(0,1) < 0.1:
+                if not (
+                    los.check_los(self._pos, self.target.get_pos(), walls)
+                    and los.get_dist_points(self._pos, self.target.get_pos()) < self._range
+                    and self.target.check_if_alive()
+                ):
+                    self.target = None
 
-        if aim_at != None:
+
+        if aim_at:
             self._aiming_at = func.get_angle(self._pos, aim_at)
             shoot = True
 
-        elif shoot == False and random.randint(1, 300) == 1:
+        elif not shoot and random.randint(1, 300) == 1:
             self._aiming_at = (
                 random.randint(0, round(360 / self._turning_speed))
                 * self._turning_speed

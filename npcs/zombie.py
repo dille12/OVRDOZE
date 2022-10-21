@@ -189,6 +189,15 @@ class Zombie(pygame.sprite.Sprite):
                     )
                 )
 
+                # particle_list.append(
+                #     classes.Particle(
+                #         func.minus(self.pos, camera_pos),
+                #         type="flying_blood",
+                #         magnitude=1,
+                #         screen=screen,
+                #     )
+                # )
+
         self.killed = True
 
     def get_string(self):
@@ -426,6 +435,7 @@ class Zombie(pygame.sprite.Sprite):
                                 screen=map_render,
                             )
                         )
+
                 elif (
                     0 < self.attack_tick < self.attack_speed / 2
                     and self.type == "bomber"

@@ -6,6 +6,7 @@ import time
 import mixer
 from screeninfo import get_monitors
 import get_preferences
+from bendedsound import *
 
 a, a, a, a, a, a, a, a, size,a,a = get_preferences.pref()
 
@@ -118,10 +119,42 @@ Inventory_open = False
 tab_pressed = False
 
 
-def get_Sound(sound, file):
+
+
+
+
+
+
+
+def get_sound_Variants(folder, name2, dont_bend = False):
+    list = []
+    i = 1
+    while True:
+        try:
+            name = name2 + str(i)
+            list.append(make_sound(name, folder, dont_bend))
+            i += 1
+
+        except:
+            return list
+
+def make_sound(sound, file, dont_bend = False):
     path = file + "/" + sound + ".wav"
     print(path)
-    return pygame.mixer.Sound(path)
+    return get_Sound(path) if not dont_bend else pygame.mixer.Sound(path)
+
+
+def get_Sound(file):
+
+    sound = pygame.mixer.Sound(file)
+
+    file_name = file.split("/")[-1]
+
+    bended_file_name = "bended/" + file_name.removesuffix(".wav") + "_bended.wav"
+
+    sound2 = pygame.mixer.Sound(bended_file_name)
+
+    return bendedSound(sound, sound2)
 
 
 def rgb_image_load(image_dir):
@@ -169,17 +202,7 @@ def colorize(image, newColor):
     return image
 
 
-def get_sound_Variants(folder, name2):
-    list = []
-    i = 1
-    while True:
-        try:
-            name = name2 + str(i)
-            list.append(get_Sound(name, folder))
-            i += 1
 
-        except:
-            return list
 
 
 
@@ -274,19 +297,19 @@ grenade_throw = False
 grenade = load("texture/items/grenade.png", size = [30,30])
 molotov = load("texture/items/molotov.png", size = [40,40])
 
-molotov_explode_sound = pygame.mixer.Sound("sound/molotov.wav")
-molotov_pickup = pygame.mixer.Sound("sound/molotov_pickup.wav")
-drug_use = pygame.mixer.Sound("sound/drug_use.wav")
+molotov_explode_sound = get_Sound("sound/molotov.wav")
+molotov_pickup = get_Sound("sound/molotov_pickup.wav")
+drug_use = get_Sound("sound/drug_use.wav")
 
-melee_sound = pygame.mixer.Sound("sound/sfx/melee.wav")
-melee_hit_sound = pygame.mixer.Sound("sound/sfx/melee_hit.wav")
+melee_sound = get_Sound("sound/sfx/melee.wav")
+melee_hit_sound = get_Sound("sound/sfx/melee_hit.wav")
 append_explosions = []
-bullet_pickup = pygame.mixer.Sound("sound/bullet.wav")
-grenade_pickup = pygame.mixer.Sound("sound/grenade_pickup.wav")
-needle_pickup = pygame.mixer.Sound("sound/needle_pickup.wav")
-pill_pickup = pygame.mixer.Sound("sound/pill_pickup.wav")
-turret_pickup = pygame.mixer.Sound("sound/turret_pickup.wav")
-sniff_sound = pygame.mixer.Sound("sound/sinff.wav")
+bullet_pickup = get_Sound("sound/bullet.wav")
+grenade_pickup = get_Sound("sound/grenade_pickup.wav")
+needle_pickup = get_Sound("sound/needle_pickup.wav")
+pill_pickup = get_Sound("sound/pill_pickup.wav")
+turret_pickup = get_Sound("sound/turret_pickup.wav")
+sniff_sound = get_Sound("sound/sinff.wav")
 info = pygame.image.load("texture/info.png").convert_alpha()
 
 hud_color = [255, 255, 255]
@@ -346,14 +369,14 @@ money_tick = GameTick(35, oneshot=True)
 last_hp = 0
 damage_ticks = 0
 
-inv_click = pygame.mixer.Sound("sound/inv_click.wav")
-inv_open = pygame.mixer.Sound("sound/inv_open.wav")
-inv_close = pygame.mixer.Sound("sound/inv_close.wav")
+inv_click = get_Sound("sound/inv_click.wav")
+inv_open = get_Sound("sound/inv_open.wav")
+inv_close = get_Sound("sound/inv_close.wav")
 
 mov_turret_base = load("texture/movingturret_base.png", size = [70,70])
 mov_turret_gun = load("texture/movingturret_gun.png", size = [70,70])
 
-mov_fire = pygame.mixer.Sound("sound/mov_turret_fire.wav")
+mov_fire = get_Sound("sound/mov_turret_fire.wav")
 
 turret_leg = load("texture/turret_leg.png", size = [70,70])
 turret = load("texture/turret.png", size = [70,70])
@@ -361,12 +384,12 @@ stains = [
     load("texture/stain1.png"),
     load("texture/stain2.png")
 ]
-explosion_sound = mixer.get_sound_Variants("sound", "explosion")
-explosion_blood_sound = pygame.mixer.Sound("sound/explosion_blood.wav")
-weapon_fire_Sounds = mixer.get_sound_Variants("sound", "weapon_fire")
+explosion_sound = get_sound_Variants("sound", "explosion")
+explosion_blood_sound = get_Sound("sound/explosion_blood.wav")
+weapon_fire_Sounds = get_sound_Variants("sound", "weapon_fire")
 
-reload = pygame.mixer.Sound("sound/reload.wav")
-no_ammo_sound = pygame.mixer.Sound("sound/no_ammo.wav")
+reload = get_Sound("sound/reload.wav")
+no_ammo_sound = get_Sound("sound/no_ammo.wav")
 inv_image = pygame.image.load("texture/inv.png").convert_alpha()
 inv4_image = pygame.image.load("texture/inv4.png").convert_alpha()
 inv5_image = pygame.image.load("texture/inv5.png").convert_alpha()
@@ -374,16 +397,16 @@ huuto = pygame.transform.scale(
     pygame.image.load("texture/huutomerkki.png"), [12, 33]
 ).convert_alpha()
 huuto.set_alpha(100)
-thuds = mixer.get_sound_Variants("sound", "thud")
-kill_sound = pygame.mixer.Sound("sound/kill_sound.wav")
-menu_click = pygame.mixer.Sound("sound/menu_click.wav")
-menu_click2 = pygame.mixer.Sound("sound/menu_click2.wav")
-q_r_success = pygame.mixer.Sound("sound/sfx/quick_reload_success.wav")
-q_r_fail = pygame.mixer.Sound("sound/sfx/quick_reload_fail.wav")
-energy_cell_sound = pygame.mixer.Sound("sound/item_sounds/energy_ammo.wav")
+thuds = get_sound_Variants("sound", "thud")
+kill_sound = get_Sound("sound/kill_sound.wav")
+menu_click = get_Sound("sound/menu_click.wav")
+menu_click2 = get_Sound("sound/menu_click2.wav")
+q_r_success = get_Sound("sound/sfx/quick_reload_success.wav")
+q_r_fail = get_Sound("sound/sfx/quick_reload_fail.wav")
+energy_cell_sound = get_Sound("sound/item_sounds/energy_ammo.wav")
 
-gun_jam = pygame.mixer.Sound("sound/sfx/gun_jam.wav")
-gun_jam_clear = pygame.mixer.Sound("sound/sfx/gun_jam_clear.wav")
+gun_jam = get_Sound("sound/sfx/gun_jam.wav")
+gun_jam_clear = get_Sound("sound/sfx/gun_jam_clear.wav")
 
 barricade_texture = pygame.image.load("texture/barricade.png").convert()
 barricade_list = []
@@ -404,13 +427,13 @@ for i in range(10):
 fade_tick = GameTick(60, oneshot=True)
 fade_tick.value = 30
 
-door_sound = pygame.mixer.Sound("sound/door_sound.wav")
-phone_ring = pygame.mixer.Sound("sound/phone_ring.wav")
+door_sound = get_Sound("sound/door_sound.wav")
+phone_ring = get_Sound("sound/phone_ring.wav")
 
-scroll_bar_clicks = get_sound_Variants("sound/scrollbarclicks", "file")
+scroll_bar_clicks = get_sound_Variants("sound/scrollbarclicks", "file", dont_bend = True)
 
 kill_sounds = get_sound_Variants("sound", "kill")
-# kill_sound = pygame.mixer.Sound("sound/kill5.wav")
+# kill_sound = get_Sound("sound/kill5.wav")
 hit_sounds = get_sound_Variants("sound", "hit")
 rico_sounds = get_sound_Variants("sound", "rico")
 pl_hit = get_sound_Variants("sound", "pl_hit")
@@ -418,23 +441,23 @@ death_sounds = get_sound_Variants("sound", "death")
 shotgun_sounds = {"fire": get_sound_Variants("sound", "shotgun"), "reload": reload}
 assault_rifle_sounds = {
     "fire": get_sound_Variants("sound", "assault"),
-    "reload": pygame.mixer.Sound("sound/reload_assault.wav"),
+    "reload": get_Sound("sound/reload_assault.wav"),
 }
 sniper_rifle_sounds = {
     "fire": get_sound_Variants("sound", "sniper"),
-    "reload": pygame.mixer.Sound("sound/reload_assault.wav"),
+    "reload": get_Sound("sound/reload_assault.wav"),
 }
 smg_sounds = {
     "fire": get_sound_Variants("sound", "smg"),
-    "reload": pygame.mixer.Sound("sound/reload_assault.wav"),
+    "reload": get_Sound("sound/reload_assault.wav"),
 }
 pistol_sounds_silenced = {
     "fire": get_sound_Variants("sound", "silenced"),
-    "reload": pygame.mixer.Sound("sound/pistol_reload.wav"),
+    "reload": get_Sound("sound/pistol_reload.wav"),
 }
 rocket_launcher_sounds = {
     "fire": get_sound_Variants("sound/sfx", "rocket_launch"),
-    "reload": pygame.mixer.Sound("sound/sfx/rocket_reload.wav"),
+    "reload": get_Sound("sound/sfx/rocket_reload.wav"),
 }
 
 typing = get_sound_Variants("sound", "type")
@@ -443,17 +466,17 @@ ruperts_shop_selections = []
 
 assault_rifle_sounds2 = {
     "fire": get_sound_Variants("sound", "ar2_fire"),
-    "reload": pygame.mixer.Sound("sound/reload_assault.wav"),
+    "reload": get_Sound("sound/reload_assault.wav"),
 }
 
 nrg_sounds = {
     "fire": get_sound_Variants("sound", "nrg_fire"),
-    "reload": pygame.mixer.Sound("sound/nrg_reload.wav"),
+    "reload": get_Sound("sound/nrg_reload.wav"),
 }
 
-turret_fire1 = pygame.mixer.Sound("sound/turret_fire1.wav")
-turret_fire2 = pygame.mixer.Sound("sound/turret_fire1.wav")
-turret_fire3 = pygame.mixer.Sound("sound/turret_fire1.wav")
+turret_fire1 = get_Sound("sound/turret_fire1.wav")
+turret_fire2 = get_Sound("sound/turret_fire1.wav")
+turret_fire3 = get_Sound("sound/turret_fire1.wav")
 turret_fire = [turret_fire1, turret_fire2, turret_fire3]
 
 class Hint:

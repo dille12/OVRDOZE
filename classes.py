@@ -266,7 +266,6 @@ for item_1 in items:
     drop_index += items[item_1].__dict__["drop_weight"]
 
 
-print(drop_table)
 
 
 class Inventory:
@@ -410,7 +409,6 @@ class Inventory:
                         break
 
         for x in delete_slots:
-            print("DELETING SLOT")
             del self.contents[x]
 
     def get_inv(self):
@@ -468,7 +466,6 @@ class Inventory:
                 elif self.item_in_hand == None and type == "pickup":
                     self.item_in_hand = content[slot]
                     self.hand_tick = 3
-                    print("PICKING UP ITEM")
                     self.picked_up_slot = slot
 
                 elif (
@@ -523,7 +520,6 @@ class Inventory:
 
         if self.picked_up_slot != None:
             del content[self.picked_up_slot]
-            print("DELETED ITEM")
 
     def draw_inventory(
         self,
@@ -628,7 +624,6 @@ class Inventory:
                             ):
                                 inserted = True
                                 self.hand_tick = 3
-                                print("SLOT:", slot, x, y)
                                 if def_pos == [24 - 62, 133]:
                                     if slot in self.contents:
                                         if (
@@ -647,7 +642,6 @@ class Inventory:
                                                 ] += self.item_in_hand["amount"]
                                                 self.item_in_hand["item"].sound().play()
                                                 self.item_in_hand = None
-                                                print("Combining stack")
                                             else:
                                                 self.item_in_hand["amount"] -= (
                                                     self.item_in_hand["item"].__dict__[
@@ -661,16 +655,15 @@ class Inventory:
                                                     "max_stack"
                                                 ]
                                                 self.item_in_hand["item"].sound().play()
-                                                print("Combining stack")
+
 
                                         else:
 
-                                            print("Setting item in place of another")
                                             item_1 = self.contents[slot]
                                             self.contents[slot] = self.item_in_hand
                                             self.item_in_hand = item_1
                                     else:
-                                        print("Setting item in slot")
+
                                         self.contents[slot] = self.item_in_hand
                                         self.item_in_hand["item"].sound().play()
                                         self.item_in_hand = None
@@ -994,9 +987,6 @@ class Interactable:
             self.npc_active = True
             dialogue.clear()
             dialogue.append(Dialogue(self.name, self.app, self.dialogue_bias))
-            print("INTERACTED")
-
-            print(dialogue)
 
         elif self.type == "door":
             loading_cue.append(self.door_dest)
@@ -1163,15 +1153,18 @@ class Particle:
         fire_velocity_mod=1,
         app = None,
     ):
-        self.__pos = pos
-        self.__type = type
+        self.pos = pos
+        self.type = type
         self.fire_velocity_mod = fire_velocity_mod
         self.fire_x_vel = random.randint(-1, 1) * self.fire_velocity_mod
-        self.intensity = random.uniform(0.05, 0.15)
+        self.intensity = random.uniform(0.03, 0.10)
         if pre_defined_angle == False:
-            self.__direction = math.radians(random.randint(0, 360))
+            self.direction = math.radians(random.randint(0, 360))
         else:
-            self.__direction = math.radians(angle)
+            self.direction = math.radians(angle)
+
+        if self.type == "blood_particle":
+            magnitude *= 1.3
 
         if ultraviolence:
             if dont_copy == False:
@@ -1188,161 +1181,192 @@ class Particle:
                         )
                     )
 
-            self.__lifetime = round(
+            self.lifetime = round(
                 random.randint(3, 10) * magnitude * random.uniform(1, 1.3)
             )
 
             self.max_life = 10 * magnitude * 1.3
 
-            self.__magnitude = round(magnitude * 3 * random.uniform(1, 1.3))
+            self.magnitude = round(magnitude * 3 * random.uniform(1, 1.3))
 
-            if self.__type == "blood_particle":
-                self.__magnitude *= 2
+
+
 
         else:
-            self.__lifetime = round(random.randint(3, 10) * magnitude)
-            self.__magnitude = round(magnitude * 3)
-            self.start_lt = self.__lifetime
+            self.lifetime = round(random.randint(3, 10) * magnitude)
+            self.magnitude = round(magnitude * 3)
+            self.start_lt = self.lifetime
             self.max_life = 10 * magnitude
 
-        self.__color2 = [
+        self.color2 = [
             random.randint(0, 50),
             random.randint(155, 255),
             random.randint(235, 255),
         ]
         self.color_override = color_override
         if self.color_override == "red":
-            self.__color3 = [
+            self.color3 = [
                 random.randint(200, 220),
                 random.randint(0, 50),
                 random.randint(0, 50),
             ]
         elif self.color_override == "yellow":
-            self.__color3 = [
+            self.color3 = [
                 random.randint(220, 255),
                 random.randint(220, 255),
                 random.randint(0, 50),
             ]
+            self.intensity *= 2
         self.draw_surface = screen
 
     def tick(self, screen, camera_pos, map=None):
 
-        if round(self.__lifetime) > 0:
+        if round(self.lifetime) > 0:
 
-            if self.__type == "fire":
+            if self.type == "fire":
                 self.fire_x_vel += random.uniform(-0.5, 0.7) * self.fire_velocity_mod
-                self.__pos = [
-                    self.__pos[0] + timedelta.mod(self.fire_x_vel),
-                    self.__pos[1] - timedelta.mod(random.randint(1, 4) * self.fire_velocity_mod),
+                self.pos = [
+                    self.pos[0] + timedelta.mod(self.fire_x_vel),
+                    self.pos[1] - timedelta.mod(random.randint(1, 4) * self.fire_velocity_mod),
                 ]
-                self.__color = [
+                self.color = [
                     255,
-                    round(255 * (round(self.__lifetime) / (self.max_life + 5))),
-                    round(255 * ((round(self.__lifetime) / (self.max_life + 5)) ** 2)),
+                    round(255 * (round(self.lifetime) / (self.max_life + 5))),
+                    round(255 * ((round(self.lifetime) / (self.max_life + 5)) ** 2)),
                 ]
-                self.__dim = [
-                    self.__pos[0] - round(self.__lifetime / 2),
-                    self.__pos[1] - round(self.__lifetime / 2),
-                    2 * self.__lifetime / 3,
-                    2 * self.__lifetime / 3,
+                self.dim = [
+                    self.pos[0] - round(self.lifetime / 2),
+                    self.pos[1] - round(self.lifetime / 2),
+                    2 * self.lifetime / 3,
+                    2 * self.lifetime / 3,
                 ]
+            elif self.type == "flying_blood":
+                self.pos = [
+                    self.pos[0] + timedelta.mod(
+                    math.sin(self.direction) * self.lifetime),
+                    self.pos[1] + timedelta.mod(
+                    math.cos(self.direction) * self.lifetime)
+                ]
+
             else:
-                self.__pos = [
-                    self.__pos[0] + timedelta.mod(
-                    math.sin(self.__direction + random.uniform(-0.5, 0.5))
-                    * self.__lifetime
+                self.pos = [
+                    self.pos[0] + timedelta.mod(
+                    math.sin(self.direction + random.uniform(-0.5, 0.5))
+                    * self.lifetime
                     + random.randint(-2, 2)),
-                    self.__pos[1] + timedelta.mod(
-                    math.cos(self.__direction + random.uniform(-0.3, 0.3))
-                    * self.__lifetime
+                    self.pos[1] + timedelta.mod(
+                    math.cos(self.direction + random.uniform(-0.3, 0.3))
+                    * self.lifetime
                     + random.randint(-2, 2)),
                 ]
 
-            if self.__type == "normal":
-                self.__dim = [
-                    self.__pos[0] - timedelta.mod(round(self.__lifetime / 2)),
-                    self.__pos[1] - timedelta.mod(round(self.__lifetime / 2)),
-                    self.__lifetime / 2,
-                    self.__lifetime / 2,
+            if self.type == "normal":
+                self.dim = [
+                    self.pos[0] - timedelta.mod(round(self.lifetime / 2)),
+                    self.pos[1] - timedelta.mod(round(self.lifetime / 2)),
+                    self.lifetime / 2,
+                    self.lifetime / 2,
                 ]
-                self.__color = [255, 255 - 255 / round(self.__lifetime), 0]
+                self.color = [255, 255 - 255 / round(self.lifetime), 0]
 
-            elif self.__type == "energy":
-                self.__dim = [
-                    self.__pos[0] - timedelta.mod(round(self.__lifetime / 2)),
-                    self.__pos[1] - timedelta.mod(round(self.__lifetime / 2)),
-                    self.__lifetime / 2,
-                    self.__lifetime / 2,
+            elif self.type == "flying_blood":
+
+                self.dim = [
+                    self.pos[0],
+                    self.pos[1],
+                    self.lifetime ** 0.5,
+                    self.lifetime ** 0.5,
                 ]
 
-                delta = (self.__lifetime / self.start_lt) ** 3
+                self.color = [random.randint(175,220), 255 / round(self.lifetime+5), 255 / round(self.lifetime+5)]
 
-                self.__color = [255, 255 * delta, 255 * delta]
 
-            elif self.__type == "death_particle":
-                self.__dim = [
-                    self.__pos[0] - round(self.__lifetime),
-                    self.__pos[1] - round(self.__lifetime),
-                    self.__lifetime * 2,
-                    self.__lifetime * 2,
+            elif self.type == "energy":
+                self.dim = [
+                    self.pos[0] - timedelta.mod(round(self.lifetime / 2)),
+                    self.pos[1] - timedelta.mod(round(self.lifetime / 2)),
+                    self.lifetime / 2,
+                    self.lifetime / 2,
                 ]
-                self.__color = [self.__color2[0], self.__color2[1], self.__color2[2]]
 
-            elif self.__type == "blood_particle":
+                delta = (self.lifetime / self.start_lt) ** 3
 
-                self.__dim = [
-                    self.__pos[0] - round(self.__lifetime),
-                    self.__pos[1] - round(self.__lifetime),
-                    self.__lifetime * 2,
-                    self.__lifetime * 2,
+                self.color = [255, 255 * delta, 255 * delta]
+
+            elif self.type == "death_particle":
+                self.dim = [
+                    self.pos[0] - round(self.lifetime),
+                    self.pos[1] - round(self.lifetime),
+                    self.lifetime * 2,
+                    self.lifetime * 2,
+                ]
+                self.color = [self.color2[0], self.color2[1], self.color2[2]]
+
+            elif self.type == "blood_particle":
+
+                self.dim = [
+                    self.pos[0] - round(self.lifetime),
+                    self.pos[1] - round(self.lifetime),
+                    self.lifetime * 2,
+                    self.lifetime * 2,
                 ]
                 if self.color_override == "red":
-                    self.__color = [
-                        self.__color3[0],
-                        self.__color3[1] / self.__lifetime,
-                        self.__color3[2] / self.__lifetime,
+                    self.color = [
+                        self.color3[0],
+                        self.color3[1] / self.lifetime,
+                        self.color3[2] / self.lifetime,
                     ]
                 elif self.color_override == "yellow":
-                    self.__color = [
-                        self.__color3[0],
-                        self.__color3[1],
-                        self.__color3[2] / self.__lifetime,
+                    self.color = [
+                        self.color3[0],
+                        self.color3[1],
+                        self.color3[2] / self.lifetime,
                     ]
                 # if map != None:
                 #     if (
-                #         list(classtest.getcollisionspoint(map.rectangles, self.__pos))
+                #         list(classtest.getcollisionspoint(map.rectangles, self.pos))
                 #         != []
                 #     ):
                 #         particle_list.remove(self)
                 #         return
 
-            elif self.__type == "item_particle":
-                self.__dim = [
-                    self.__pos[0] - round(self.__lifetime / 2),
-                    self.__pos[1] - round(self.__lifetime / 2),
-                    self.__lifetime,
-                    self.__lifetime,
+            elif self.type == "item_particle":
+                self.dim = [
+                    self.pos[0] - round(self.lifetime / 2),
+                    self.pos[1] - round(self.lifetime / 2),
+                    self.lifetime,
+                    self.lifetime,
                 ]
-                self.__color = [
-                    255 - 255 / self.__lifetime**7,
-                    255 - 255 / self.__lifetime**0.2,
-                    255 - 255 / self.__lifetime**0.2,
+                self.color = [
+                    255 - 255 / self.lifetime**7,
+                    255 - 255 / self.lifetime**0.2,
+                    255 - 255 / self.lifetime**0.2,
                 ]
 
-            pos = func.draw_pos([self.__dim[0], self.__dim[1]], camera_pos)
-            pos.append(self.__dim[2]*multiplier2)
-            pos.append(self.__dim[3]*multiplier2)
-            if self.__type in ["blood_particle"]:
+            pos = func.draw_pos([self.dim[0], self.dim[1]], camera_pos)
+            pos.append(self.dim[2]*multiplier2)
+            pos.append(self.dim[3]*multiplier2)
+            if self.type in ["blood_particle"]:
+                for i in range(random.randint(2,4)):
+                    try:
+                        surf = pygame.Surface((round(pos[2])-random.randint(-2,2), round(pos[3])-random.randint(-2,2)))
+                    except:
+                        continue
+                    surf.fill([round(255-self.color[0])*self.intensity, round(255-self.color[1])*self.intensity, round(255-self.color[2])*self.intensity])
+                    self.draw_surface.blit(surf, (pos[0]-random.randint(-2,2), pos[1]-random.randint(-2,2)), None, pygame.BLEND_RGB_SUB)
+                mult = random.uniform(0.25,0.75)
+                pygame.draw.rect(self.draw_surface,
+                    [round(self.color[0] * mult), round(self.color[1] * mult), round(self.color[2] * mult)],
+                    [pos[0] + random.randint(-10,10) + random.randint(0, round(pos[2])), pos[1] + random.randint(-10,10) + random.randint(0,round(pos[3])), random.randint(1,3), random.randint(1,3)],
+                )
+
+            elif self.type == "fire":
                 surf = pygame.Surface((round(pos[2]), round(pos[3])))
-                surf.fill([round(255-self.__color[0])*self.intensity, round(255-self.__color[1])*self.intensity, round(255-self.__color[2])*self.intensity])
-                self.draw_surface.blit(surf, (pos[0], pos[1]), None, pygame.BLEND_RGB_SUB)
-            elif self.__type == "fire":
-                surf = pygame.Surface((round(pos[2]), round(pos[3])))
-                surf.fill(self.__color)
+                surf.fill(self.color)
                 self.draw_surface.blit(surf, (pos[0], pos[1]), None, pygame.BLEND_ADD)
             else:
-                pygame.draw.rect(self.draw_surface, self.__color, pos)
-            self.__lifetime -= timedelta.mod(1)
+                pygame.draw.rect(self.draw_surface, self.color, pos)
+            self.lifetime -= timedelta.mod(1)
         else:
             particle_list.remove(self)
 

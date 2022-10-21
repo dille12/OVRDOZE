@@ -213,6 +213,9 @@ class Bullet(Game_Object):
                             angle=self._angle + random.randint(45, 135),
                         )
                     )
+
+
+
                     try:
                         if not self.piercing:
                             self.kill_bullet()
@@ -242,6 +245,18 @@ class Bullet(Game_Object):
                 x.knockback(
                     self._damage, math.radians(self._angle), daemon_bullet=self.mp
                 )
+
+                for i in range(random.randint(5,10)):
+                    particle_list.append(
+                        classes.Particle(
+                            x.pos,
+                            type="flying_blood",
+                            pre_defined_angle=True,
+                            angle=self._angle + random.randint(75, 115),
+                            magnitude=random.uniform(2,3),
+                            screen=screen,
+                        )
+                    )
 
                 try:
                     if x.check_if_alive():

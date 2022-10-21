@@ -150,11 +150,11 @@ class Gun(Weapon):
 
         radian_angle = math.radians(angle) - 0.16184 + math.pi / 2
 
-        c = 198.59507 * 0.36919315403 / 1.875
+        c = 198.59507 * 0.36919315403 / 1.875  * multiplier2
 
         super().use()
 
-        x_offset = math.sin(radian_angle) * c
+        x_offset = math.sin(radian_angle) * c 
         y_offset = math.cos(radian_angle) * c
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
 

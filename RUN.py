@@ -218,8 +218,7 @@ def main():
     host = False
     background_tick = 1
 
-    app.pygame.mixer.music.load("sound/songs/menu_loop_new.wav")
-    app.pygame.mixer.music.play(-1)
+
     bpm = 120
     beat_time = 1 / (bpm / 60)
 
@@ -399,6 +398,9 @@ def main():
 
     scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
+
+    app.pygame.mixer.music.load("sound/songs/menu_loop_new.wav")
+    app.pygame.mixer.music.play(-1)
 
 
 
@@ -642,6 +644,8 @@ def main():
 
     app.pygame.display.set_gamma(1, 1, 1)
 
+    playerhealth.health = 100
+
     rgb_i = 2
     change_i = 0
     map_tick = 0
@@ -654,6 +658,8 @@ def main():
 
         app.volume = round(scroll_bar_volume.value)
         app.music = round(scroll_bar_music.value)
+
+        button_mp_menu.locked = not app.dev
 
         app.update_fps()
 
