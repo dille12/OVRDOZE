@@ -41,7 +41,7 @@ class Grenade(Weapon):
             return
         for i in range(15):
             random_angle = random.randint(0, 360)
-            dist = random.randint(0, 75)
+            dist = random.randint(0, 75) * multiplier2
             pos = [
                 self.pos[0] + math.cos(random_angle) * dist,
                 self.pos[1] + math.sin(random_angle) * dist,

@@ -317,7 +317,7 @@ def get_closest_point(pos, list):
 
 def player_movement2(pressed, player_pos, x_vel, y_vel):
     global evading, evade_skip_tick
-
+    sprinting = False
     if pressed[pygame.K_SPACE] and evading == False and evade_skip_tick <= 0:
         if pressed[pygame.K_w]:
             y_vel = timedelta.mod(-evade_speed)
@@ -335,6 +335,8 @@ def player_movement2(pressed, player_pos, x_vel, y_vel):
         if (x_vel, y_vel) != (0, 0):
             evade_skip_tick = 30
             evading = True
+            evade_sound.stop()
+            evade_sound.play()
 
     if evading == False:
 
@@ -366,6 +368,15 @@ def player_movement2(pressed, player_pos, x_vel, y_vel):
 
         if math.sqrt(x_vel**2 + y_vel**2) < velocity_cap:
             evading = False
+
+    if sprinting:
+        if footstep_tick.tick():
+            for x in footsteps:
+                x.stop()
+            pick_random_from_list(footsteps).play()
+    else:
+        pass
+
 
     if abs(x_vel) < velocity_cap:
         x_vel += timedelta.mod(x_acc / tick_count)
@@ -716,7 +727,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
                 and not c_weapon.jammed
             ):
                 reload.stop()
-                c_weapon.fire(player_pos, angle, screen, player_actor)
+                c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
                 firing_tick = True
 
         elif c_weapon.get_Ammo() == 0 and (
@@ -755,7 +766,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     Calculates the shortest route to a point using the navmesh points
     """
 
-    t = time.time()
+    t = time.perf_counter()
 
     if los.check_los(start_pos, end_pos, walls):
         return [end_pos], False
@@ -806,9 +817,9 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
                 del cache.path_cache[cache_key]
 
             cache.path_times["cache"][0] += 1
-            cache.path_times["cache"][1] += time.time() - t
+            cache.path_times["cache"][1] += time.perf_counter() - t
 
-            print("CACHE TIME:", time.time() - t)
+            print("CACHE TIME:", time.perf_counter() - t)
 
             return route, True
 
@@ -854,6 +865,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
 
         if route_ref["dist"] < shortest_route["dist"]:
             shortest_route = route_ref
+            shortest_route["route"].append(end_pos)
 
     if not quick:
         obs_points = []
@@ -892,7 +904,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
         #         del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
 
         cache.path_times["calc"][0] += 1
-        cache.path_times["calc"][1] += time.time() - t
+        cache.path_times["calc"][1] += time.perf_counter() - t
 
     return shortest_route["route"], False
 
@@ -914,6 +926,7 @@ def draw_HUD(
     wave_number,
     wave_text_color,
     beat_red,
+    app,
 ):
     global last_hp, damage_ticks
 
@@ -1202,8 +1215,11 @@ def draw_HUD(
     screen.blit(wave_surf, (0, 10 + y_d))
 
     try:
-        im = weapon.__dict__["image"]
-        screen.blit(im, [5 + x_d, 5 + y_d])
+        im = weapon.image
+        if weapon.jammed:
+            blit_glitch(screen, im, [5 + x_d, 5 + y_d], glitch = 20, black_bar_chance = 7)
+        else:
+            screen.blit(im, [5 + x_d, 5 + y_d])
 
         if weapon.charge_up and weapon.charge_tick.value != 0:
             size1 = weapon.image_red.get_rect().size
@@ -1302,8 +1318,9 @@ def draw_HUD(
             screen.blit(text, (max([150 + x_d, ammo_text_len + x_d]), 65 + y_d))  #
 
     else:
-        text = terminal4.render("JAMMED!", False, [255, 0, 0])
-        screen.blit(text, [5 + x_d, 40 + y_d])  #
+        if app.three_second_tick%10 < 5:
+            text = terminal4.render("JAMMED!", False, [255, 0, 0])
+            screen.blit(text, [5 + x_d, 40 + y_d])  #
 
     y_pos = 80
 
@@ -1327,10 +1344,10 @@ def draw_HUD(
     sanity = player_actor.__dict__["sanity"]
     bars_s = round((sanity) / 10)
 
-    if sanity < 40:
+    if sanity < 40 and app.three_second_tick%20 > 10:
 
         text = terminal3.render("CONSUME NARCOTICS TO REGAIN CONTROL", False, hud_color)
-        screen.blit(text, (size[0] - 217 + x_d, 380 + y_d))
+        screen.blit(text, (size[0] - 217 + x_d, size[1] - 100 + y_d))
 
     amount, tick = player_actor.get_sanity_change()
     if amount != False:
@@ -1343,16 +1360,16 @@ def draw_HUD(
         text = terminal3.render(str(amount) + "% SANITY REGAINED", False, hud_color)
         if 1 < tick <= 10:
             screen.blit(
-                text, (844 + x_d + (400 / tick) - text.get_rect().size[0], 400 + y_d)
+                text, (size[0] - 12 + x_d + (400 / tick) - text.get_rect().size[0], size[1] - 80 + y_d)
             )  #
         elif 10 < tick <= 60:
-            screen.blit(text, (844 + x_d - text.get_rect().size[0], 400 + y_d))  #
+            screen.blit(text, (size[0] - 12 + x_d - text.get_rect().size[0], size[1] - 80 + y_d))  #
         else:
             screen.blit(
                 text,
                 (
-                    844 + 150 - 300 / (tick - 59) + x_d - text.get_rect().size[0],
-                    400 + y_d,
+                    size[0] - 12 + 150 - 300 / (tick - 59) + x_d - text.get_rect().size[0],
+                    size[1] - 80 + y_d,
                 ),
             )
 

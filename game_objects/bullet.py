@@ -241,15 +241,21 @@ class Bullet(Game_Object):
                 )
                 == True
             ):
+                if x.class_type == "SOLDIER":
+                    if x.state != "attacking":
+                        rad = 2*math.pi - math.radians(self._angle + 180)
+                        x.aim_at = [math.cos(rad) * 100 + x.pos[0], math.sin(rad) * 100 + x.pos[1]]
+                        x.random_aim_tick = 120
+
 
                 x.knockback(
                     self._damage, math.radians(self._angle), daemon_bullet=self.mp
                 )
 
-                for i in range(random.randint(5,10)):
+                for i in range(min([round(self._damage/3), 50])):
                     particle_list.append(
                         classes.Particle(
-                            x.pos,
+                            [x.pos[0] + random.randint(-10,10), x.pos[1] + random.randint(-10,10)],
                             type="flying_blood",
                             pre_defined_angle=True,
                             angle=self._angle + random.randint(75, 115),

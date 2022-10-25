@@ -119,6 +119,8 @@ class App:
             screen = self.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=vs)
             mouse_conversion = 1
 
+        self.screen_copy = screen
+
         return screen, mouse_conversion
 
 

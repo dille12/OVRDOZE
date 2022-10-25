@@ -270,7 +270,7 @@ class Map:
 
         self.nav_mesh_available_spots = []
 
-        self.conv = fs_size[0] / size[0]
+        self.conv = multiplier
 
         self.size_converted = func.mult(self.size, 1 / self.conv)
 
@@ -361,7 +361,13 @@ class Map:
                     point = point_dict["point"]
                     if point == ref_point["point"]:
                         continue
-                    if los.check_los(point, ref_point["point"], walls_filtered, self.no_los_walls):
+                    good_point = True
+                    tolerance = 10
+                    for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
+                        for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
+                            if not los.check_los([point[0]+x, point[1]+y], [ref_point["point"][0]+x2, ref_point["point"][1]+y2], walls_filtered, self.no_los_walls):
+                                good_point = False
+                    if good_point:
                         ref_point["connected"].append(point)
 
         except Exception as e:
@@ -1137,16 +1143,18 @@ class Map:
 
     def compile_navmesh(self, conv):
         print("Navmesh conv:", conv)
-        for x1 in range(round(self.size[0] / 100) + 1):
-            if x1 >= size[0]-30:
-                continue
 
-            for y1 in range(round(self.size[1] / 100) + 1):
-                if y1 >= size[1]-30:
-                    continue
-                point = [x1 * 100 / conv, y1 * 100 / conv]
+
+        for x1 in range(round(self.background.get_size()[0] / 100) + 1):
+
+            for y1 in range(round(self.background.get_size()[1] / 100) + 1):
+
+                point = [x1 * 100, y1 * 100]
                 point[0] += 15
                 point[1] += 15
+
+                if not self.background.get_rect().collidepoint(point):
+                    continue
 
                 collision = False
 
@@ -1164,13 +1172,15 @@ class Map:
                     self.nav_mesh_available_spots.append(point)
 
     def get_random_point(
-        self, walls, p_pos=None, enemies=None, visibility=True, max_tries=100
+        self, walls, p_pos=None, enemies=None, visible_from_origin_point=None, visibility=True, max_tries=100, furthest_point_from_point = False, max_dist = 0, max_dist_point = None,
     ):
         tries = 0
+        furthest_p = func.pick_random_from_list(self.nav_mesh_available_spots)
+        furthest = 0
         while True:
             tries += 1
             point = func.pick_random_from_list(self.nav_mesh_available_spots)
-            conds = [True, True]
+            conds = [True, True, True, True]
             if p_pos != None:
                 if los.check_los(p_pos, point, walls):
                     conds[0] = False
@@ -1179,8 +1189,25 @@ class Map:
                     if los.check_los(point, x.get_pos(), walls):
                         conds[1] = False
                         break
+            if visible_from_origin_point:
+                if not los.check_los(point, visible_from_origin_point, walls):
+                    conds[2] = False
 
-            if False not in conds or tries > max_tries:
+            if max_dist:
+                if los.get_dist_points(point, max_dist_point) > max_dist:
+                    conds[3] = False
+
+            if furthest_point_from_point:
+                if False not in conds:
+                    dist = los.get_dist_points(point, furthest_point_from_point)
+                    if dist > furthest:
+                        furthest = dist
+                        furthest_p = point
+                if tries > max_tries:
+                    return furthest_p
+
+
+            elif False not in conds or tries > max_tries:
                 return point
 
     def render(self, conv):

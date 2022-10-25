@@ -139,14 +139,15 @@ class Gun(Weapon):
     def get_semi_auto(self):
         return self.semi_auto
 
-    def fire(self, bullet_pos, angle, screen, player_actor):
-        index = (0.9 + 0.1*player_actor.sanity/100)**0.1
-        if self.jammed:
-            return
-        if random.uniform(0, 1) > index:
-            self.jammed = True
-            UnitStatus(screen, player_actor, "GUN JAMMED!", [255,0,0])
-            return
+    def fire(self, bullet_pos, angle, screen, player_actor, ai = False):
+        if not ai:
+            index = (0.9 + 0.1*player_actor.sanity/100)**0.1
+            if self.jammed:
+                return
+            if random.uniform(0, 1) > index:
+                self.jammed = True
+                UnitStatus(screen, player_actor, "GUN JAMMED!", [255,0,0])
+                return
 
         radian_angle = math.radians(angle) - 0.16184 + math.pi / 2
 
@@ -154,7 +155,7 @@ class Gun(Weapon):
 
         super().use()
 
-        x_offset = math.sin(radian_angle) * c 
+        x_offset = math.sin(radian_angle) * c
         y_offset = math.cos(radian_angle) * c
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
 

@@ -24,7 +24,7 @@ import func
 from dialog import *
 from unit_status import UnitStatus
 from npcs.zombie import Zombie
-from npcs.soldier import Soldier
+from npcs.patrol import Patrol
 from anim_list import *
 # import path_finding
 from weapons.area import Explosion
@@ -379,13 +379,12 @@ def main(
     wave_text_color = True
     song_start_t = 0
 
-    soldier = Soldier(app,
-        [100,100],
-        interactables,
-        player_actor,
-        NAV_MESH,
-        walls_filtered,
-    )
+
+
+
+    app.three_second_tick = 0
+
+
 
     app.camera_pos = camera_pos
 
@@ -412,9 +411,15 @@ def main(
 
         clock.tick(app.clocktick if not pause else 60)
 
+        app.three_second_tick += timedelta.mod(1)
+        if app.three_second_tick > 180:
+            app.three_second_tick -= 180
+
 
         t = time.time()
         time_stamps = {}
+
+
 
         mouse_pos = app.pygame.mouse.get_pos()
 
@@ -583,7 +588,6 @@ def main(
 
             if event.type == app.pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:
-                    print("Scroll down")
                     if block_movement:
                         scroll[0] = True
                         continue
@@ -606,7 +610,6 @@ def main(
                             searching = False
 
                 elif event.button == 5:
-                    print("Scroll up")
                     if block_movement:
                         scroll[1] = True
                         continue
@@ -661,6 +664,8 @@ def main(
         last_camera_pos = camera_pos.copy()
 
         camera_pos = func.camera_aling(camera_pos, player_pos)
+
+        app.camera_pos = camera_pos
 
         if overworld:
 
@@ -769,7 +774,7 @@ def main(
 
                 #
 
-                if True:  # Kill enemies if no wave.
+                if False:  # Kill enemies if no wave.
 
                     if len(enemy_list) != 0:
                         rand_enemy = func.pick_random_from_list(enemy_list)
@@ -801,41 +806,56 @@ def main(
                                 if x.type == "door":
                                     x.active = False
 
-            if (
-                len(enemy_list)
-                < (enemy_count / (player_actor.__dict__["sanity"] / 100 + 0.25))
-                and wave
-            ):
-                type = "normal"
-                type_drop = random.uniform(0, 1)
-                if type_drop < 0.02:
-                    type = "big"
-                elif type_drop < 0.05:
-                    type = "bomber"
-                elif type_drop < 0.1:
-                    type = "runner"
+            if True:
 
-                zombo = Zombie(
-                    app,
-                    map.get_random_point(walls_filtered, p_pos=player_pos),
-                    interactables,
-                    player_actor,
-                    NAV_MESH,
-                    walls_filtered,
-                    hp_diff=zombie_hp,
-                    dam_diff=zombie_damage,
-                    type=type,
-                    wall_points=wall_points,
-                    player_ref=player_actor,
-                    identificator=random.randint(0, 4096),
-                )
-                # zombo = enem_obs.Enemy(map.get_random_point(walls_filtered, p_pos = player_pos), give_weapon("gun", func.pick_random_from_dict(armory.guns, key = True)), interactables)
-                # print(f"Zombie spawned with id {zombo.identificator}")
-                enemy_list.append(zombo)
-                if multiplayer:
-                    if "zombies" not in packet_dict:
-                        packet_dict["zombies"] = []
-                    packet_dict["zombies"].append(zombo)
+                if True:
+
+                    if len(enemy_list) < 1:
+                        patrol = Patrol(
+                            app,
+                            map.get_random_point(walls_filtered, p_pos=player_pos),
+                            interactables,
+                            player_actor,
+                            NAV_MESH,
+                            walls_filtered,
+                            map,
+                        )
+
+                else:
+                    if (
+                        len(enemy_list)
+                        < (enemy_count / (player_actor.__dict__["sanity"] / 100 + 0.25))
+                        and wave
+                    ):
+                        type = "normal"
+                        type_drop = random.uniform(0, 1)
+                        if type_drop < 0.02:
+                            type = "big"
+                        elif type_drop < 0.05:
+                            type = "bomber"
+                        elif type_drop < 0.1:
+                            type = "runner"
+                        zombo = Zombie(
+                            app,
+                            map.get_random_point(walls_filtered, p_pos=player_pos),
+                            interactables,
+                            player_actor,
+                            NAV_MESH,
+                            walls_filtered,
+                            hp_diff=zombie_hp,
+                            dam_diff=zombie_damage,
+                            type=type,
+                            wall_points=wall_points,
+                            player_ref=player_actor,
+                            identificator=random.randint(0, 4096),
+                        )
+                    # zombo = enem_obs.Enemy(map.get_random_point(walls_filtered, p_pos = player_pos), give_weapon("gun", func.pick_random_from_dict(armory.guns, key = True)), interactables)
+                    # print(f"Zombie spawned with id {zombo.identificator}")
+                        enemy_list.append(zombo)
+                        if multiplayer:
+                            if "zombies" not in packet_dict:
+                                packet_dict["zombies"] = []
+                            packet_dict["zombies"].append(zombo)
 
             # func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -856,7 +876,7 @@ def main(
         time_stamps["turrets"] = time.time() - t
         t = time.time()
         delete_list = []
-        for x in interactables:
+        for x in sorted(interactables, key=lambda x : x.rarity, reverse = True):
             x.__dict__["inv_save"] = player_inventory
             if x.__dict__["alive"] == False:
                 delete_list.append(x)
@@ -1066,13 +1086,13 @@ def main(
                     pressed, player_pos, x_vel, y_vel
                 )
 
-                if len(
-                    list(getcollisionspoint_condition(map.rectangles, player_pos, map.barricade_rects))
-                ) != 0 or not (
-                    0 < player_pos[0] < map.size[0] / map.conv
-                    and 0 < player_pos[1] < map.size[1] / map.conv
-                ):
-                    player_pos = player_pos2
+                # if len(
+                #     list(getcollisionspoint_condition(map.rectangles, player_pos, map.barricade_rects))
+                # ) != 0 or not (
+                #     0 < player_pos[0] < map.size[0] / map.conv
+                #     and 0 < player_pos[1] < map.size[1] / map.conv
+                # ):
+                #     player_pos = player_pos2
 
             if collision_check_player:
                 # angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
@@ -1268,18 +1288,22 @@ def main(
         t = time.time()
 
         for enemy in enemy_list:
-            enemy.tick(
-                screen,
-                map_boundaries,
-                player_actor,
-                camera_pos,
-                map,
-                [walls_filtered, map.no_los_walls],
-                NAV_MESH,
-                map_render,
-                phase=phase,
-                wall_points=wall_points,
-            )
+            if enemy.class_type == "SOLDIER":
+                enemy.tick(phase)
+            else:
+                enemy.tick(
+                    screen,
+                    map_boundaries,
+                    player_actor,
+                    camera_pos,
+                    map,
+                    [walls_filtered, map.no_los_walls],
+                    NAV_MESH,
+                    map_render,
+                    phase=phase,
+                    wall_points=wall_points,
+                )
+
 
         time_stamps["enemies"] = time.time() - t
         t = time.time()
@@ -1316,7 +1340,7 @@ def main(
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
         for pos, type in append_explosions:
-            explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25))
+            explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 300))
         append_explosions.clear()
 
         last_bullet_list = tuple(bullet_list)
@@ -1503,6 +1527,7 @@ def main(
                     wave_number,
                     wave_text_color,
                     beat_red,
+                    app,
                 )
 
             if not overworld:

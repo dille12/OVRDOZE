@@ -40,6 +40,11 @@ except:
 multi_kill_ticks = 0
 multiplier = 1920 / size[0]
 multiplier2 = size[0] / 854
+
+zoom = 1 #CONTROLS THE ZOOM OF THE GAME
+multiplier *= zoom
+multiplier2 /= zoom
+
 pygame.init()
 screen = pygame.display.set_mode(size)
 icon = pygame.image.load("texture/icon.png")
@@ -135,7 +140,8 @@ def get_sound_Variants(folder, name2, dont_bend = False):
             list.append(make_sound(name, folder, dont_bend))
             i += 1
 
-        except:
+        except Exception as e:
+            print(e)
             return list
 
 def make_sound(sound, file, dont_bend = False):
@@ -387,6 +393,19 @@ stains = [
 explosion_sound = get_sound_Variants("sound", "explosion")
 explosion_blood_sound = get_Sound("sound/explosion_blood.wav")
 weapon_fire_Sounds = get_sound_Variants("sound", "weapon_fire")
+
+radio_chatter = {
+    "wander" : get_sound_Variants("sound/radio_chatter", "standby"),
+    "attacking" : get_sound_Variants("sound/radio_chatter", "shout"),
+    "takingcover" : get_sound_Variants("sound/radio_chatter", "take_cover"),
+    "investigate" : get_sound_Variants("sound/radio_chatter", "attack"),
+}
+
+footsteps = get_sound_Variants("sound/sfx", "footstep")
+
+evade_sound = get_Sound("sound/sfx/woosh.wav")
+
+footstep_tick = GameTick(15)
 
 reload = get_Sound("sound/reload.wav")
 no_ammo_sound = get_Sound("sound/no_ammo.wav")

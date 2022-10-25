@@ -57,7 +57,7 @@ class Zombie(pygame.sprite.Sprite):
         self.wall_ref = walls
         self.player_ref = player_ref
         self.calculating = False
-
+        self.class_type = "ZOMBIE"
 
 
         if type == "normal":
@@ -327,15 +327,15 @@ class Zombie(pygame.sprite.Sprite):
 
         last_pos = self.pos.copy()
 
-        if self.knockback_tick != 0:
+        if self.knockback_tick > 0:
 
             self.pos = [
                 self.pos[0]
-                + math.cos(self.knockback_angle) * self.knockback_tick**0.5,
+                + timedelta.mod(math.cos(self.knockback_angle) * self.knockback_tick**0.5 * multiplier2),
                 self.pos[1]
-                - math.sin(self.knockback_angle) * self.knockback_tick**0.5,
+                - timedelta.mod(math.sin(self.knockback_angle) * self.knockback_tick**0.5 * multiplier2),
             ]
-            self.knockback_tick -= 1
+            self.knockback_tick -= timedelta.mod(1)
 
         if phase == 6:
             t_2 = time.time()

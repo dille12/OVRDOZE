@@ -222,7 +222,7 @@ def main():
     bpm = 120
     beat_time = 1 / (bpm / 60)
 
-    t = time.time()
+    t = time.perf_counter()
     glitch = Glitch(screen)
 
     x_s = size[0] / 2
@@ -650,7 +650,7 @@ def main():
     change_i = 0
     map_tick = 0
 
-    last_beat = time.time()
+    last_beat = time.perf_counter()
 
     while 1:
         # game_menu.update(game_state)
@@ -734,9 +734,11 @@ def main():
             rgb_i -= 1
 
 
+        curr = time.perf_counter()
+        if curr - t > beat_time:
 
-        if time.time() - t > beat_time:
-            t = time.time() - (time.time() - t - beat_time)
+            t = curr - (curr - t - beat_time)
+
 
             background_tick = 52
             background_vel = 0
@@ -749,7 +751,7 @@ def main():
                 i.red_tick = 10
 
 
-            last_beat = time.time()
+            last_beat = curr
 
             if menu_i == len(menu_animations):
                 menu_i = 0
@@ -759,13 +761,13 @@ def main():
             im = menu_animations[menu_i][
                 round(
                     (len(menu_animations[menu_i]) - 1)
-                    * (((time.time() - last_beat)) / beat_time) ** 1
+                    * (((curr - last_beat)) / beat_time) ** 1
                 )
             ]
 
             x1, y1 = im.get_rect().center
 
-            y2 = (1 - ((time.time() - last_beat) / beat_time) ** 0.2) * 100
+            y2 = (1 - ((curr - last_beat) / beat_time) ** 0.2) * 100
 
             screen.blit(
                 im,
@@ -775,8 +777,7 @@ def main():
 
         except Exception as e:
             print(e)
-            print(change_i)
-            print(change)
+
 
             # for y in range(10):
             #     pos = [random.randint(0,size[0]), random.randint(0,size[1])]
@@ -993,7 +994,7 @@ def main():
 
             if map_tick > 0:
                 map_tick -= 1
-                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = map_tick*2, black_bar_chance = 15-map_tick*2)
+                func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = map_tick*4, black_bar_chance = 15-map_tick*2)
 
                 func.render_text_glitch(screen,  maps_dict[app.selected_map]["map"].name, [size[0]/2, map_pos[1]-40], glitch = 5, centerx = True, font = terminal)
 

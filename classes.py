@@ -159,7 +159,7 @@ items = {
         pick_up_sound=pill_pickup,
         consumable=True,
         sanity_buff=7.5,
-        drop_weight=1.4,
+        drop_weight=1.8,
         drop_stack=2,
     ),
     "45 ACP": Item(
@@ -779,7 +779,7 @@ class Interactable:
         self.alive = True
 
         self.active = active
-
+        self.rarity = 10
         self.type = type
         if self.type == "crate":
             self.name = name
@@ -793,6 +793,8 @@ class Interactable:
             self.name = item.__dict__["name"]
             self.item = item
             self.amount = amount
+
+            self.rarity = item.drop_weight
 
             self.image = load("texture/items/" + self.item.__dict__["im"], size = [40,40])
             self.rect = self.image.get_rect()
@@ -1441,8 +1443,8 @@ class Player:
     def get_sanity_change(self):
         if self.sanity_change != None:
             amount = self.sanity_change
-            if self.sanity_change_tick != 0:
-                self.sanity_change_tick -= 1
+            if self.sanity_change_tick > 0:
+                self.sanity_change_tick -= timedelta.mod(1)
             else:
                 self.sanity_change = None
             return amount, self.sanity_change_tick
@@ -1452,8 +1454,12 @@ class Player:
         if add:
 
             self.sanity += amount
-            self.sanity_change = amount
+            if self.sanity_change_tick > 0:
+                self.sanity_change += amount
+            else:
+                self.sanity_change = amount
             self.sanity_change_tick = 90
+
 
         else:
 
