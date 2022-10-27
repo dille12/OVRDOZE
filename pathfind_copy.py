@@ -11,7 +11,7 @@ def get_point_from_list(point, dict):
 
 def recoursive_line_iteration(route, from_point, to_point, dict, end_nav_point):
 
-    if route[-1] in end_nav_point["connected"]:
+    if route[-1] is end_nav_point:
         return
     if len(to_point["connected"]) == 2:
         for p in (p for p in to_point["connected"] if p not in route):
@@ -41,7 +41,8 @@ def get_closest_route_to_finish_point(routes, end_point):
         if d < closest_dist:
             closest_dist = d
             closest = x
-    return closest
+
+    return x
 
 
 
@@ -49,6 +50,7 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
     """
     Calculates the shortest route to a point using the navmesh points
     """
+
     t = time.perf_counter()
 
     if los.check_los(start_pos, end_pos, walls[0], walls[1]):  #Check if endpoint is already visible from starting point.
@@ -79,6 +81,11 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
     if not start_nav_point or not end_nav_point:
         return [end_pos], False # if none are visible, return nothing
 
+
+    print("Beginning calc. ")
+    print("From", start_nav_point["point"])
+    print("To", end_nav_point["point"] )
+
     complete_routes = []
     routes = []
     routes_end_points = []
@@ -89,21 +96,18 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
     max_len = round(len(NAV_MESH)/2 + 2) # Maximum route length
     routes_max = 0
 
-
     while routes != []:
         if len(complete_routes) > 0: #Break loop once two complete routes have been found
             break
 
-        # if time.perf_counter() - t > 0.1: # Return error if routes can't be found in one second
-        #     return False, False
+        if time.perf_counter() - t > 0.1: # Return error if routes can't be found in one second
+            return False, False
 
         route = get_closest_route_to_finish_point(routes, end_nav_point["point"]) # Get a random choice from incomplete routes
-
-        routes.remove(route)
         #print("Distance to end:", los.get_dist_points(route[-1], end_nav_point["point"]))
-         # Remove it from the list
-        if route[-1] in routes_end_points: # Remove routes end point from a list that keeps track of routes' ending points.
-            routes_end_points.remove(route[-1]) #This prevents duplicate routes.
+        #routes.remove(route) # Remove it from the list
+        # if route[-1] in routes_end_points: # Remove routes end point from a list that keeps track of routes' ending points.
+        #     routes_end_points.remove(route[-1]) #This prevents duplicate routes.
         routes_max = max([routes_max, len(routes)]) # For debugging purposes keep track how many incomplete routes are there.
         if len(route) >= max_len: # If route exceeds maximum route length, kill route.
             continue
@@ -129,13 +133,13 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
                     continue
 
                 good_point = True
-                if point_3 in routes_end_points: # Check if there is a route that ends in this point already.
-                    for route_2 in (route_2 for route_2 in routes if route_2[-1] == point_3): # Get all routes that end here
-                        if len(route) + 1 >= len(route_2): # If current route is longer than the existing route, skip current route.
-                            good_point = False
-                            break
-                        else:
-                            routes.remove(route_2) # kill the existing route and replace it with shorter current one.
+                # if point_3 in routes_end_points: # Check if there is a route that ends in this point already.
+                #     for route_2 in (route_2 for route_2 in routes if route_2[-1] == point_3): # Get all routes that end here
+                #         if len(route) + 1 >= len(route_2): # If current route is longer than the existing route, skip current route.
+                #             good_point = False
+                #             break
+                #         else:
+                #             routes.remove(route_2) # kill the existing route and replace it with shorter current one.
 
                 if good_point:
 
@@ -146,6 +150,7 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
                     elif route_copy not in routes:
                         routes_end_points.append(route_copy[-1]) # Add the ending point to the list that keeps track of ending points.
                         routes.append(route_copy)
+
     shortest_route = {"dist": 100000, "route": []} # Init computing the shortest route.
 
     if not routes and not complete_routes:
@@ -177,8 +182,8 @@ if __name__ == '__main__':
     total_loops = 0
     for map in maps:
 
-        # if map.name != "Downtown":
-        #     continue
+        if map.name != "Downtown":
+            continue
 
         walls = map.generate_wall_structure2()
         no_los_walls = map.no_los_walls
@@ -187,7 +192,7 @@ if __name__ == '__main__':
         print("navmesh:", NAV_MESH)
         map.compile_navmesh(1)
 
-        loops = 2500
+        loops = 10
 
 
         print("STATRING CALC")

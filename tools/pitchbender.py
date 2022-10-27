@@ -17,6 +17,8 @@ def bend_all():
     Direc = input(r"Enter the path of the folder: ")
     print(f"Files in the directory: {Direc}")
 
+
+
     files = os.listdir(Direc)
     files = [f for f in files if os.path.isfile(Direc+'/'+f)] #Filtering only the files.
     for x in files:
@@ -27,7 +29,7 @@ def bend_all():
 
         y_fast = librosa.effects.pitch_shift(y_fast, sr, n_steps=-12)
 
-        sf.write(f"bended/{file_name}_bended.wav", y_fast, sr, 'PCM_24')
+        sf.write(f"C:/Users/vilia/Documents/GitHub/2dshooter/bended/{file_name}_bended.wav", y_fast, sr, 'PCM_24')
         print(f"{x} done")
 
 

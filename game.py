@@ -126,6 +126,8 @@ def main(
         difficulty
     ]
 
+
+
     if multiplayer:
         enemy_count = -1
 
@@ -537,8 +539,13 @@ def main(
                 camera_pos[1] + random.uniform(-beat_red + 1, beat_red - 1),
             ]
 
-        if time.time() - drying_time > 1:
-            map_render.blit(map.__dict__["map_rendered_alpha"], (0, 0))
+        if time.time() - drying_time > 0.1:
+
+            s1 = 250/multiplier
+
+            x = random.randint(0, round(map.map_rendered_alpha.get_size()[0]/s1) - 1)
+            y = random.randint(0, round(map.map_rendered_alpha.get_size()[1]/s1) - 1)
+            map_render.blit(map.__dict__["map_rendered_alpha"], (x*s1, y*s1), area = [x*s1, y*s1, s1, s1])
             drying_time = time.time()
 
         time_stamps["blood_drying"] = time.time() - t
@@ -774,7 +781,7 @@ def main(
 
                 #
 
-                if False:  # Kill enemies if no wave.
+                if map.enemy_type == "zombie":  # Kill enemies if no wave.
 
                     if len(enemy_list) != 0:
                         rand_enemy = func.pick_random_from_list(enemy_list)
@@ -789,7 +796,7 @@ def main(
                                 silent=True,
                             )
 
-                if time.time() - wave_change_timer > wave_interval:
+                if time.time() - wave_change_timer > wave_interval and map.enemy_type == "zombie":
                     wave_length += 3
                     # wave_interval += 1
                     wave = True
@@ -806,11 +813,11 @@ def main(
                                 if x.type == "door":
                                     x.active = False
 
-            if True:
+            if wave or map.enemy_type == "soldier":
 
-                if True:
+                if map.enemy_type == "soldier":
 
-                    if len(enemy_list) < 1:
+                    if len(enemy_list) < 10 and not enemy_count == -1:
                         patrol = Patrol(
                             app,
                             map.get_random_point(walls_filtered, p_pos=player_pos),
@@ -841,7 +848,7 @@ def main(
                             interactables,
                             player_actor,
                             NAV_MESH,
-                            walls_filtered,
+                            [walls_filtered, map.no_los_walls],
                             hp_diff=zombie_hp,
                             dam_diff=zombie_damage,
                             type=type,
@@ -1662,9 +1669,7 @@ def main(
 
                 if click_single_tick:
                     calc_time_1 = time.time()
-                    route, a = func.calc_route(
-                        player_pos, mo_pos_real, NAV_MESH, [walls_filtered, map.no_los_walls]
-                    )
+                    route, c = func.calc_route(player_pos, mo_pos_real, NAV_MESH, [walls_filtered, map.no_los_walls], False, app)
                     calc_time_2 = time.time() - calc_time_1
 
                 if route:
@@ -1676,7 +1681,7 @@ def main(
                             [255, 0, 0],
                             [point[0] - camera_pos[0], point[1] - camera_pos[1]],
                             [point_2[0] - camera_pos[0], point_2[1] - camera_pos[1]],
-                            4,
+                            3,
                         )
                         point_2 = point
                     app.pygame.draw.line(

@@ -169,6 +169,11 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     NAV_MESH = map.read_navmesh(walls_filtered)
 
+    if map.name == "Downtown":
+        map.enemy_type = "soldier"
+    else:
+        map.enemy_type = "zombie"
+
 
 
     print(mouse_conversion)
@@ -769,8 +774,6 @@ class Map:
 
                         wall2.set_new_points(i3, i4)
 
-                        print("SET POINTS")
-                        print(wall1.vertical)
 
         for x in del_walls:
             try:
@@ -1209,12 +1212,15 @@ class Map:
     def compile_navmesh(self, conv):
         print("Navmesh conv:", conv)
 
+        x_scale = self.background.get_size()[0]/20
+        y_scale = self.background.get_size()[0]/20
 
-        for x1 in range(round(self.background.get_size()[0] / 100) + 1):
 
-            for y1 in range(round(self.background.get_size()[1] / 100) + 1):
+        for x1 in range(20):
 
-                point = [x1 * 100, y1 * 100]
+            for y1 in range(20):
+
+                point = [x1 * x_scale, y1 * y_scale]
                 point[0] += 15
                 point[1] += 15
 
@@ -1242,7 +1248,7 @@ class Map:
         tries = 0
         furthest_p = func.pick_random_from_list(self.nav_mesh_available_spots)
         furthest = 0
-        while True:
+        while tries < max_tries:
             tries += 1
             point = func.pick_random_from_list(self.nav_mesh_available_spots)
             conds = [True, True, True, True]
@@ -1274,6 +1280,7 @@ class Map:
 
             elif False not in conds or tries > max_tries:
                 return point
+        return point
 
     def render(self, conv):
 

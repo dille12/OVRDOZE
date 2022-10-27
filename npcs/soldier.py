@@ -118,7 +118,6 @@ class Soldier:
 
         if self.route == False:
             self.route_tick = 60
-            print("Route was not found")
             self.route = []
             self.wander_to_random_point()
 
@@ -134,8 +133,8 @@ class Soldier:
                 if self.route[-1] == self.target_pos:
                     return
             self.route_tick = 60
-            print("Getting new route")
             start_new_thread(self.search_route, ())
+
 
 
     def shoot(self):
@@ -181,10 +180,12 @@ class Soldier:
 
 
         if last_state != self.state or random.randint(1,300) == 1:
-            for state in radio_chatter:
-                for x in radio_chatter[state]:
-                    x.stop()
-            func.pick_random_from_list(radio_chatter[self.state]).play()
+            can_play = True
+            for x in radio_chatter[self.state]:
+                if x.get_num_channels():
+                    can_play = False
+            if can_play:
+                func.pick_random_from_list(radio_chatter[self.state]).play()
 
             if self.state == "attacking":
                 for x in self.patrol.troops:
@@ -193,10 +194,10 @@ class Soldier:
 
     def wander_to_random_point(self):
         if self is self.patrol.patrol_leader:
-            self.target_pos = self.map.get_random_point(self.walls, max_dist = 1300, max_dist_point = self.pos.copy())
+            self.target_pos = self.map.get_random_point(self.walls, max_dist = 1300, max_dist_point = self.pos.copy(), max_tries = 10)
         else:
-            print("Routing troop towards patrol leader")
-            self.target_pos = self.map.get_random_point(self.walls, max_dist = 500, max_dist_point = self.patrol.patrol_leader.pos.copy(),)
+
+            self.target_pos = self.map.get_random_point(self.walls, max_dist = 500, max_dist_point = self.patrol.patrol_leader.pos.copy(), max_tries = 10)
 
 
 
@@ -204,12 +205,12 @@ class Soldier:
         tar_pos = self.target_pos.copy()
         if self.state == "takingcover":
             if self.at_target_pos() and los.check_los(self.pos, self.target_actor.pos, self.walls, self.map.no_los_walls):
-                self.target_pos = self.map.get_random_point(self.walls, max_dist = 400, max_dist_point = self.pos, p_pos = self.target_actor.pos)
+                self.target_pos = self.map.get_random_point(self.walls, max_dist = 400, max_dist_point = self.pos, p_pos = self.target_actor.pos, max_tries = 10)
                 self.aim_at = self.target_actor.pos.copy()
                 self.state_tick = 60
         elif self.state == "attacking":
             if self.at_target_pos() or not los.check_los(self.pos, self.target_actor.pos, self.walls):
-                self.target_pos = self.map.get_random_point(self.walls, visible_from_origin_point = self.target_actor.pos)
+                self.target_pos = self.map.get_random_point(self.walls, visible_from_origin_point = self.target_actor.pos, max_tries = 10)
                 self.state_tick = 60
 
         elif self.state == "investigate":
@@ -290,7 +291,6 @@ class Soldier:
         if self.collisions_with_walls > 30:
             self.route = []
             self.collisions_with_walls = 0
-            print("Cleared npcs route because he was stuck.")
             self.wander_to_random_point()
 
 
@@ -323,7 +323,7 @@ class Soldier:
 
     def aim(self):
         angle_to_player = func.get_angle(self.pos, self.target_actor.pos)
-        ignore_player = True
+        ignore_player = False
         if random.randint(1,10) == 1 and not ignore_player:
             if abs(los.get_angle_diff(angle_to_player, self.aim_angle)) < self.targeting_angle and los.check_los(self.pos, self.target_actor.pos, self.walls) and self.target_actor.hp > 0 and func.get_dist_points(self.pos, self.target_actor.pos) < self.range:
                 self.sees_target = True
@@ -334,9 +334,9 @@ class Soldier:
         if self.state == "wander":
             if self.random_aim_tick > 0:
                 self.random_aim_tick -= timedelta.mod(1)
-            if not los.check_los(self.pos, self.aim_at, self.walls) or self.random_aim_tick <= 0:
+            if self.random_aim_tick <= 0:
                 self.random_aim_tick = random.randint(60, 120)
-                self.aim_at = self.map.get_random_point(self.walls, visible_from_origin_point = self.pos, furthest_point_from_point = self.pos)
+                self.aim_at = self.map.get_random_point(self.walls, max_tries = 10)
         elif not self.sees_target and self.investigate_route:
             self.aim_at = self.target_pos.copy()
         elif self.sees_target:
@@ -456,7 +456,7 @@ class Soldier:
         if self.state_tick > 0:
             self.state_tick -= timedelta.mod(1)
         else:
-            self.state_tick = 5
+            self.state_tick = 60
             self.get_state()
             self.state_react()
             state_tick = True
@@ -467,7 +467,6 @@ class Soldier:
         # if not self.calculating:
         #
         #     if self.at_target_pos():
-        #         print("Resetting route")
         #         self.investigate_route = False
         #         self.route = []
         #         self.target_pos = self.pos.copy()
