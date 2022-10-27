@@ -397,7 +397,7 @@ class Map:
                         continue
 
                     good_point = True
-                    tolerance = 10
+                    tolerance = 2
                     if tolerance:
                         for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
                             for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):

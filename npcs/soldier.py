@@ -113,7 +113,7 @@ class Soldier:
     def search_route(self):
         self.calculating = True
         self.route, self.cached_route = func.calc_route(
-            self.pos, self.target_pos, self.NAV_MESH, self.walls, cache = self.app
+            self.pos, self.target_pos, self.NAV_MESH, [self.walls, self.map.no_los_walls], cache = self.app
         )
 
         if self.route == False:
@@ -203,7 +203,7 @@ class Soldier:
     def state_react(self):
         tar_pos = self.target_pos.copy()
         if self.state == "takingcover":
-            if self.at_target_pos() and los.check_los(self.pos, self.target_actor.pos, self.walls):
+            if self.at_target_pos() and los.check_los(self.pos, self.target_actor.pos, self.walls, self.map.no_los_walls):
                 self.target_pos = self.map.get_random_point(self.walls, max_dist = 400, max_dist_point = self.pos, p_pos = self.target_actor.pos)
                 self.aim_at = self.target_actor.pos.copy()
                 self.state_tick = 60
@@ -254,9 +254,9 @@ class Soldier:
         if not self.route and not self.at_target_pos():
             self.get_route_to_target()
 
-        if not los.check_los(self.pos, self.target_pos, self.walls):
+        if not los.check_los(self.pos, self.target_pos, self.walls, self.map.no_los_walls):
             if self.route:
-                if not los.check_los(self.pos, self.route[0], self.walls):
+                if not los.check_los(self.pos, self.route[0], self.walls, self.map.no_los_walls):
                     self.get_route_to_target()
             else:
                 self.get_route_to_target()
@@ -266,7 +266,7 @@ class Soldier:
             if los.get_dist_points(self.route[0], self.pos) > 40:
 
                 if len(self.route) > 1:
-                    if los.check_los(self.pos, self.route[1], self.walls):
+                    if los.check_los(self.pos, self.route[1], self.walls, self.map.no_los_walls):
                         self.route.remove(self.route[0])
 
                 self.target_angle = func.get_angle(self.pos, self.route[0])

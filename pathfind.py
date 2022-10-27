@@ -16,7 +16,7 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
 
     t = time.perf_counter()
 
-    if los.check_los(start_pos, end_pos, walls):  #Check if endpoint is already visible from starting point.
+    if los.check_los(start_pos, end_pos, walls[0], walls[1]):  #Check if endpoint is already visible from starting point.
         return [end_pos], False #Returns just endpoint
     dist_start = {}
     dist_end = {}
@@ -30,11 +30,11 @@ def find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = 
 
     try:
         for x in sorted(dist_start):
-            if los.check_los(start_pos, dist_start[x]["point"], walls):  #Get closest visible starting nav point.
+            if los.check_los(start_pos, dist_start[x]["point"], walls[0], walls[1]):  #Get closest visible starting nav point.
                 start_nav_point = dist_start[x]
                 break
         for x in sorted(dist_end):
-            if los.check_los(end_pos, dist_end[x]["point"], walls): #Get closest visible ending nav point from route ending point.
+            if los.check_los(end_pos, dist_end[x]["point"], walls[0], walls[1]): #Get closest visible ending nav point from route ending point.
                 end_nav_point = dist_end[x]
                 break
     except Exception as e:
@@ -123,6 +123,8 @@ if __name__ == '__main__':
     longest = 0
     for map in maps:
         walls = map.generate_wall_structure2()
+        no_los_walls = map.no_los_walls
+        print(no_los_walls)
         NAV_MESH = map.read_navmesh(walls)
         print("navmesh:", NAV_MESH)
         map.compile_navmesh(1)
@@ -133,7 +135,7 @@ if __name__ == '__main__':
             point1, point2 = map.get_random_point(walls), map.get_random_point(walls)
             #print("FROM", point1, "TO", point2)
             t = time.perf_counter()
-            r, i = find_shortest_path(point1, point2, NAV_MESH, walls)
+            r, i = find_shortest_path(point1, point2, NAV_MESH, [walls, no_los_walls])
             #print(r)
             elapsed = time.perf_counter() - t
             #print("Time elapsed:", elapsed)
@@ -146,14 +148,14 @@ if __name__ == '__main__':
 
         print("MAP TOTAL:", map.total)
 
-        print(f"AVERAGE TIME: {total/(loops*len(maps))*1000:.2f}ms, ({(total/(loops*len(maps)))/(1/60):.2f} frames on 60fps)")
-        for i in maps:
-            print(f"{i.name} : {i.total}, ERRORS: {i.total_error} ({i.total/2.5:.2f}ms per route)")
+    print(f"AVERAGE TIME: {total/(loops*len(maps))*1000:.2f}ms, ({(total/(loops*len(maps)))/(1/60):.2f} frames on 60fps)")
+    for i in maps:
+        print(f"{i.name} : {i.total}, ERRORS: {i.total_error} ({i.total/2.5:.2f}ms per route)")
 
-        print("WORST PERFORMING MAP:", sorted(maps, key=lambda x: x.total, reverse = True)[0].name)
-        print("LONGEST CALC:", longest, "calculating again...")
-        print(longest_points)
-        t = time.perf_counter()
-        print(find_shortest_path(longest_points[0], longest_points[1], NAV_MESH, walls))
-        elapsed = time.perf_counter() - t
-        print("Time elapsed:", elapsed)
+    print("WORST PERFORMING MAP:", sorted(maps, key=lambda x: x.total, reverse = True)[0].name)
+    print("LONGEST CALC:", longest, "calculating again...")
+    print(longest_points)
+    t = time.perf_counter()
+    print(find_shortest_path(longest_points[0], longest_points[1], NAV_MESH, [walls, no_los_walls]))
+    elapsed = time.perf_counter() - t
+    print("Time elapsed:", elapsed)

@@ -1697,8 +1697,6 @@ def main(
 
 
                 else:
-                    print(route)
-                    print("COULDN't FIND ROUTE")
                     text = terminal3.render(
                         "COULD'T FIND ROUTE!",
                         False,
