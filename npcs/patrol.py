@@ -24,7 +24,7 @@ class Patrol:
         self.patrol_leader = None
 
 
-        for i in range(3):
+        for i in range(random.randint(3,6)):
 
             soldier = Soldier(
                 app,
@@ -41,6 +41,8 @@ class Patrol:
             self.troops.append(soldier)
 
             enemy_list.append(soldier)
+
+        self.check_leader()
 
 
 

@@ -13,6 +13,7 @@ import los
 from itertools import accumulate
 import ast
 import classes
+import traceback
 
 from tools.image_transform import *
 
@@ -104,7 +105,7 @@ def getcollisionspoint_condition(tiles, point, condition):
 
 
 def load_level(map, mouse_conversion, player_inventory, app, screen, death = False):
-    func.load_screen(screen, "Loading Level")
+    func.load_screen(screen, f"Loading {map.name}")
     app.pygame.mixer.music.fadeout(750)
 
     fade_tick.value = 15
@@ -123,13 +124,17 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     barricade_list.clear()
     app.zombiegroup.empty()
 
+
+
     app.update_fps()
 
     block_movement_polygons = map.get_polygons()
 
-    map.compile_navmesh(mouse_conversion)
-
     map_render = map.render(mouse_conversion).convert()
+
+
+
+
 
     # NAV_MESH = map2.compile_navmesh(mouse_conversion)
     # map_render2 = map2.render(mouse_conversion).convert()
@@ -139,6 +144,8 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     map_boundaries = [0, 0]
 
     map_conversion = 1920 / 854
+
+    func.load_screen(screen, f"Initializing LOS")
 
     walls_filtered += map.generate_wall_structure2()
     for i in range(2):
@@ -155,6 +162,10 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     player_pos = map.spawn_point.copy()
     camera_pos = [0, 0]
+
+    func.load_screen(screen, f"Loading Navmesh")
+
+    map.compile_navmesh(mouse_conversion)
 
     NAV_MESH = map.read_navmesh(walls_filtered)
 
@@ -265,7 +276,8 @@ class Map:
         self.DESC = DESC
 
         self.GAMMA = GAMMA
-
+        self.total = 0
+        self.total_error = 0
         self.spawn_point = [SPAWNPOINT[0] * multiplier2, SPAWNPOINT[1] * multiplier2]
 
         self.nav_mesh_available_spots = []
@@ -347,6 +359,19 @@ class Map:
 
     def read_navmesh(self, walls_filtered):
         NAV_MESH = []
+
+        name = self.nav_mesh_name.removesuffix(".txt")
+
+        compiled_file = f"texture/maps/{name}_compiled.cnv"
+
+        if os.path.isfile(compiled_file):
+            with open(compiled_file) as file:
+                raw = file.read()
+
+            NAV_MESH = ast.literal_eval(raw)
+            return NAV_MESH
+
+
         try:
             file = open("texture/maps/" + self.nav_mesh_name, "r")
             lines = file.readlines()
@@ -356,22 +381,62 @@ class Map:
                 ref_point["point"][0] *= multiplier2
                 ref_point["point"][1] *= multiplier2
                 NAV_MESH.append(ref_point)
+
+            i = 0
             for ref_point in NAV_MESH:
+
+                i += 1
+
+                func.load_screen(screen, f"Compiling Navmesh ({i}/{len(NAV_MESH)})")
+
                 for point_dict in NAV_MESH:
                     point = point_dict["point"]
                     if point == ref_point["point"]:
                         continue
+                    if point in ref_point["connected"]:
+                        continue
+
                     good_point = True
                     tolerance = 10
-                    for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
-                        for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
-                            if not los.check_los([point[0]+x, point[1]+y], [ref_point["point"][0]+x2, ref_point["point"][1]+y2], walls_filtered, self.no_los_walls):
+                    if tolerance:
+                        for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
+                            for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
+                                if not los.check_los([point[0]+x, point[1]+y], [ref_point["point"][0]+x2, ref_point["point"][1]+y2], walls_filtered, self.no_los_walls):
+                                    good_point = False
+                                    break
+                        if not good_point:
+                            continue
+
+
+                    if los.check_los(point, ref_point["point"], walls_filtered, self.no_los_walls):
+
+                        good_point = True
+                        for point2 in ref_point["connected"]:
+
+                            angle_to_point = func.get_angle(ref_point["point"], point2)
+                            angle_to_point2 = func.get_angle(ref_point["point"], point)
+
+                            if abs(los.get_angle_diff(angle_to_point2, angle_to_point)) < 30:
                                 good_point = False
-                    if good_point:
-                        ref_point["connected"].append(point)
+
+                                ref_point["connected"].remove(point2)
+
+                                if func.get_dist_points(ref_point["point"], point2) < func.get_dist_points(ref_point["point"], point):
+                                    ref_point["connected"].append(point2)
+                                else:
+                                    ref_point["connected"].append(point)
+
+                        if good_point:
+                            ref_point["connected"].append(point)
+                            #point_dict["connected"].append(ref_point["point"])
 
         except Exception as e:
             print(e)
+            traceback.print_exc()
+
+        with open(compiled_file, "w") as file:
+            file.write(str(NAV_MESH))
+
 
         return NAV_MESH
 

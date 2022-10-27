@@ -47,15 +47,18 @@ def analyze_map_file(file_name):
     print(f"Map size:{size}")
 
     rectangles = []
+    last_pix = 1200
 
     for y in range(size[1]):
-
-        print(f"{y}/{size[1]}, {len(rectangles)}")
+        if y%10 == 0:
+            print(f"{y}/{size[1]}, {len(rectangles)}")
 
         for x in range(size[0]):
 
+
+
             if pxarray[x, y] == 0:
-                if pxarray[x - 1, y] != 0:  ## CREATE NEW RECT
+                if pxarray[x - 1, y] != 0 or x == 0:  ## CREATE NEW RECT
 
                     rectangles.append(pygame.Rect(x, y, 1, 1))
 
@@ -66,7 +69,7 @@ def analyze_map_file(file_name):
                             i.width += 1
                             break
 
-        for i in rectangles:
+        for i in (i for i in rectangles if i.y + i.height == y):
 
             if i.y + i.height != y:
                 continue
@@ -77,8 +80,7 @@ def analyze_map_file(file_name):
                 if n.x == i.x and n.width == i.width:
                     i.height += 1
                     rectangles.remove(n)
-                    print(n, "removed")
-                    print(i, "added")
+
 
     return image, rectangles
 
@@ -91,16 +93,31 @@ if __name__ == "__main__":
         "Transfer the collision image to the tool folder.\nInput the name for the map\n>"
     )
     image, rects = analyze_map_file(map)
+    size = image.get_size()
     print("Job complete. Here are the rectangles")
     print("\n[")
+    warnings = []
     for rect in rects:
+
         print(f"[{rect.x}, {rect.y}, {rect.width}, {rect.height}],")
 
+        if rect.height <= 5:
+            warnings.append(rect)
+
     print("]")
+    print("\n\nWARNING: SOME RECTANGLES ARE TOO SHORT")
+    for rect in warnings:
+        print(f"[{rect.x}, {rect.y}, {rect.width}, {rect.height}],")
 
-    image.set_alpha(50)
 
-    screen = pygame.display.set_mode([1800, 900])
+
+    mult = 800/size[0]
+
+    image2 = pygame.transform.scale(image, [size[0] * mult, size[1]*mult])
+
+    image2.set_alpha(50)
+
+    screen = pygame.display.set_mode([800, round(size[1] * mult)])
 
     clock = pygame.time.Clock()
 
@@ -113,9 +130,13 @@ if __name__ == "__main__":
 
         screen.fill([0, 0, 0])
 
-        screen.blit(image, [0, 0])
+        screen.blit(image2, [0, 0])
 
         for rect in rects:
-            pygame.draw.rect(screen, [255, 0, 0], rect, random.randint(1, 8))
+
+            if rect in warnings:
+                pygame.draw.rect(screen, [255, 255, 0], [rect.x * mult, rect.y * mult, 20, 20], random.randint(1, 8))
+            else:
+                pygame.draw.rect(screen, [255, 0, 0], [rect.x * mult, rect.y * mult, rect.width * mult, rect.height * mult], random.randint(1, 8) if rect in warnings else 1)
 
         pygame.display.update()

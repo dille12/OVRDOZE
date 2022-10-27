@@ -6,6 +6,7 @@ import time
 from values import *
 import classes
 import los
+from pathfind import find_shortest_path
 
 pygame.init()
 pygame.font.init()
@@ -766,147 +767,7 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     Calculates the shortest route to a point using the navmesh points
     """
 
-    t = time.perf_counter()
-
-    if los.check_los(start_pos, end_pos, walls):
-        return [end_pos], False
-    dist_start = {}
-    dist_end = {}
-    for nav_point in NAV_MESH:
-        point = nav_point["point"]
-        #if los.check_los(start_pos, point, walls):
-        dist_start[los.get_dist_points(start_pos, point)] = nav_point
-        #if los.check_los(end_pos, point, walls):
-        dist_end[los.get_dist_points(end_pos, point)] = nav_point
-
-    start_nav_point = False
-    end_nav_point = False
-
-    try:
-        for x in sorted(dist_start):
-            if los.check_los(start_pos, dist_start[x]["point"], walls):
-                start_nav_point = dist_start[x]
-                break
-        for x in sorted(dist_end):
-            if los.check_los(end_pos, dist_end[x]["point"], walls):
-                end_nav_point = dist_end[x]
-                break
-    except Exception as e:
-        print(e)
-        return [end_pos], False
-
-    if not start_nav_point or not end_nav_point:
-        return [end_pos], False
-
-
-
-    if False:
-
-        cache_key = str([start_nav_point["point"],end_nav_point["point"]])
-
-        if cache_key in cache.path_cache:
-            route = cache.path_cache[cache_key]
-            check = check_route(start_pos, end_pos, route, walls)
-            #check = False
-            if check:
-                del cache.path_cache[cache_key]
-                return [start_pos], False
-
-
-            if random.randint(1,10) == 1:
-                del cache.path_cache[cache_key]
-
-            cache.path_times["cache"][0] += 1
-            cache.path_times["cache"][1] += time.perf_counter() - t
-
-            print("CACHE TIME:", time.perf_counter() - t)
-
-            return route, True
-
-
-
-    complete_routes = []
-    routes = []
-    for conne in start_nav_point["connected"]:
-        routes.append([start_nav_point["point"], conne])
-
-    while routes != []:
-        if len(complete_routes) > 3:
-            # print("ROUTES SHOOT OVER 2000!")
-            # for route in routes:
-            #
-            #     print(route)   #sometimes continues infinetely, so the loop must be broken
-            break
-        route = pick_random_from_list(routes)
-        routes.remove(route)
-        point = route[-1]
-        point_2 = get_point_from_list(point, NAV_MESH)
-        if end_nav_point["point"] in point_2["connected"]:
-            route.append(end_nav_point["point"])
-            complete_routes.append(route)
-            # if quick:
-            #     break
-
-        else:
-            for point_3 in point_2["connected"]:
-                if point_3 in route:
-                    continue
-                if route.copy() + [point_3] in routes:
-                    continue
-                routes.append(route.copy() + [point_3])
-
-    shortest_route = {"dist": 10000, "route": []}
-
-    for route in complete_routes:
-        route_ref = {"dist": 0, "route": route}
-        last_pos = start_pos
-        for point in route:
-            route_ref["dist"] += los.get_dist_points(last_pos, point)
-
-        if route_ref["dist"] < shortest_route["dist"]:
-            shortest_route = route_ref
-            shortest_route["route"].append(end_pos)
-
-    if not quick:
-        obs_points = []
-        last_point = None
-        for route_point in shortest_route["route"]:
-            if last_point == None:
-                last_point = route_point
-                continue
-            if los.check_los(start_pos, route_point, walls):
-                obs_points.append(last_point)
-                last_point = route_point
-            else:
-                break
-
-        last_point = None
-        for route_point in reversed(shortest_route["route"]):
-            if last_point == None:
-                last_point = route_point
-                continue
-            if los.check_los(end_pos, route_point, walls):
-                obs_points.append(last_point)
-                last_point = route_point
-            else:
-                break
-
-        for point in obs_points:
-            try:
-                shortest_route["route"].remove(obs_points)
-            except:
-                print("COULDNT DELETE POINT")
-
-    if cache:
-        # if cache_key not in cache.path_cache:
-        #     cache.path_cache[cache_key] = shortest_route["route"]
-        #     if len(cache.path_cache) > 1000:
-        #         del cache.path_cache[pick_random_from_dict(cache.path_cache, key=True)]
-
-        cache.path_times["calc"][0] += 1
-        cache.path_times["calc"][1] += time.perf_counter() - t
-
-    return shortest_route["route"], False
+    return find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=quick, cache = cache)
 
 
 def draw_HUD(

@@ -37,7 +37,7 @@ class Soldier:
         self.NAV_MESH = NAV_MESH
         self.walls = walls
         self.im = player
-        self.targeting_angle = 45
+        self.targeting_angle = 90
         self.angle = 0
         self.target_angle = 0
         self.aim_at = [0,0]
@@ -65,12 +65,14 @@ class Soldier:
         self.class_type = "SOLDIER"
         self.killed = False
 
-        self.range = 700*multiplier2
+        self.collisions_with_walls = 0
+
+        self.range = 500*multiplier2
 
         self.inventory = classes.Inventory(self.app, self.interactables)
 
         for i in range(random.randint(1, 9)):
-            if random.uniform(0, 1) < 0.03:
+            if random.uniform(0, 1) < 0.05:
                 # item_to_pick = func.pick_random_from_dict(items, key = True)
                 #
 
@@ -113,7 +115,13 @@ class Soldier:
         self.route, self.cached_route = func.calc_route(
             self.pos, self.target_pos, self.NAV_MESH, self.walls, cache = self.app
         )
-        self.route_tick = 60
+
+        if self.route == False:
+            self.route_tick = 60
+            print("Route was not found")
+            self.route = []
+            self.wander_to_random_point()
+
         self.calculating = False
 
     def get_route_to_target(self):
@@ -125,6 +133,8 @@ class Soldier:
             if self.route:
                 if self.route[-1] == self.target_pos:
                     return
+            self.route_tick = 60
+            print("Getting new route")
             start_new_thread(self.search_route, ())
 
 
@@ -162,17 +172,32 @@ class Soldier:
             self.state = "investigate"
         else:
             self.state = "wander"
+
             self.movement_speed = 1.5
 
-        if last_state != self.state:
-            for x in radio_chatter[self.state]:
-                x.stop()
+            if self is not self.patrol.patrol_leader:
+                if func.get_dist_points(self.pos, self.patrol.patrol_leader.pos) > 700:
+                    self.movement_speed = 3
+
+
+        if last_state != self.state or random.randint(1,300) == 1:
+            for state in radio_chatter:
+                for x in radio_chatter[state]:
+                    x.stop()
             func.pick_random_from_list(radio_chatter[self.state]).play()
 
             if self.state == "attacking":
                 for x in self.patrol.troops:
                     if x.state == "wander":
                         x.investigating = True
+
+    def wander_to_random_point(self):
+        if self is self.patrol.patrol_leader:
+            self.target_pos = self.map.get_random_point(self.walls, max_dist = 1300, max_dist_point = self.pos.copy())
+        else:
+            print("Routing troop towards patrol leader")
+            self.target_pos = self.map.get_random_point(self.walls, max_dist = 500, max_dist_point = self.patrol.patrol_leader.pos.copy(),)
+
 
 
     def state_react(self):
@@ -199,15 +224,14 @@ class Soldier:
         else: #WANDER
 
             if self is not self.patrol.patrol_leader:
-                patrol_follow_condion = func.get_dist_points(self.pos, self.patrol.patrol_leader.pos) > 400
+                patrol_follow_condion = func.get_dist_points(self.target_pos, self.patrol.patrol_leader.pos) > 400
+
             else:
                 patrol_follow_condion = False
 
             if self.at_target_pos() or patrol_follow_condion:
-                if self is self.patrol.patrol_leader:
-                    self.target_pos = func.pick_random_from_list(self.map.nav_mesh_available_spots)
-                else:
-                    self.target_pos = self.map.get_random_point(self.walls, visible_from_origin_point = self.patrol.patrol_leader.pos.copy(), max_dist = 300, max_dist_point = self.patrol.patrol_leader.pos.copy(),)
+                self.wander_to_random_point()
+
 
         if tar_pos != self.target_pos:
             self.get_route_to_target()
@@ -258,15 +282,20 @@ class Soldier:
             else:
                 self.route.remove(self.route[0])
 
+        elif self.route == False:
+            self.wander_to_random_point()
 
-            if last_pos == self.pos:
 
-                self.stationary += 1
-                if self.stationary > 10:
-                    self.get_route_to_target()
 
-            else:
-                self.stationary = 0
+        if self.collisions_with_walls > 30:
+            self.route = []
+            self.collisions_with_walls = 0
+            print("Cleared npcs route because he was stuck.")
+            self.wander_to_random_point()
+
+
+        if self.collisions_with_walls > 0:
+            self.collisions_with_walls -= 0.5
 
         rad = math.radians(self.angle)
 
@@ -287,11 +316,14 @@ class Soldier:
             damager=self,
         )
 
+        if self.pos != coll_pos:
+            self.collisions_with_walls += 1
+
         self.pos = coll_pos
 
     def aim(self):
         angle_to_player = func.get_angle(self.pos, self.target_actor.pos)
-        ignore_player = False
+        ignore_player = True
         if random.randint(1,10) == 1 and not ignore_player:
             if abs(los.get_angle_diff(angle_to_player, self.aim_angle)) < self.targeting_angle and los.check_los(self.pos, self.target_actor.pos, self.walls) and self.target_actor.hp > 0 and func.get_dist_points(self.pos, self.target_actor.pos) < self.range:
                 self.sees_target = True
@@ -327,6 +359,8 @@ class Soldier:
     ):
 
         list.remove(self)
+        self.patrol.troops.remove(self)
+        self.patrol.check_leader()
 
         if not silent:
 
@@ -394,12 +428,12 @@ class Soldier:
 
     def tick(self, phase = 0):
 
-        self.patrol.check_leader()
+        times = {}
+        t = time.perf_counter()
 
         if self.route_tick > 0:
             self.route_tick -= 1
-        else:
-            self.route_tick = 30
+
 
         if self.hp < 250:
             self.hp += 0.1
@@ -407,11 +441,17 @@ class Soldier:
         self.aim()
         state_tick = False
 
+        times["aim"] = time.perf_counter() - t
+        t = time.perf_counter()
+
         if self.state in ("attacking", "takingcover") and self.sees_target:
             self.shoot()
             self.investigating = True
         else:
             self.weapon.weapon_tick()
+
+        times["shoot"] = time.perf_counter() - t
+        t = time.perf_counter()
 
         if self.state_tick > 0:
             self.state_tick -= timedelta.mod(1)
@@ -420,6 +460,9 @@ class Soldier:
             self.get_state()
             self.state_react()
             state_tick = True
+
+        times["state"] = time.perf_counter() - t
+        t = time.perf_counter()
 
         # if not self.calculating:
         #
@@ -436,6 +479,9 @@ class Soldier:
 
         #
         self.move()
+
+        times["move"] = time.perf_counter() - t
+        t = time.perf_counter()
 
         self.aim_angle_target = func.get_angle(self.pos, self.aim_at)
 
@@ -459,13 +505,35 @@ class Soldier:
             else:
                 self.aim_angle = self.aim_angle_target
 
+        times["angles"] = time.perf_counter() - t
+        t = time.perf_counter()
+
         im = pygame.transform.rotate(self.im, (360-self.aim_angle))
         center = im.get_rect().center
         self.app.screen_copy.blit(im, func.minus(func.minus(self.pos, self.app.camera_pos, op = "-"), center, op = "-"))
+
+        times["blit"] = time.perf_counter() - t
+        t = time.perf_counter()
+
+        for x in times:
+            if x not in self.app.soldier_cache:
+                self.app.soldier_cache[x] = times[x]
+            else:
+                self.app.soldier_cache[x] = self.app.soldier_cache[x] * (59/60) + times[x] * (1/60)
+
+
         #if self.calculating:
         if phase == 6:
             t = "PATROL LEADER" if (self is self.patrol.patrol_leader) else "TROOP"
-            text = terminal.render(f"{t} {self.state}", False, [255, 255, 255])
+            text = terminal.render(f"{t} {self.state} {self.collisions_with_walls}", False, [255, 255, 255])
             self.app.screen_copy.blit(text, func.minus(self.pos, self.app.camera_pos, op = "-"))
             pygame.draw.line(self.app.screen_copy, GREEN, func.minus(self.pos, self.app.camera_pos, op = "-"), func.minus(self.aim_at, self.app.camera_pos, op = "-"))
-            pygame.draw.line(self.app.screen_copy, WHITE_COLOR if state_tick else RED_COLOR, func.minus(self.pos, self.app.camera_pos, op = "-"), func.minus(self.target_pos, self.app.camera_pos, op = "-"))
+
+            last_pos = self.pos.copy()
+
+            route = self.route.copy() + [self.target_pos]
+
+            for x in route:
+
+                pygame.draw.line(self.app.screen_copy, WHITE_COLOR if state_tick else RED_COLOR, func.minus(last_pos, self.app.camera_pos, op = "-"), func.minus(x, self.app.camera_pos, op = "-"))
+                last_pos = x.copy()

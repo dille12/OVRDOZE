@@ -918,8 +918,8 @@ def main(
         for x in delete_list:
             interactables.remove(x)
 
-        for x in turret_bro:
-            x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
+        # for x in turret_bro:
+        #     x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
 
         for x in particle_list:
             x.tick(screen, camera_pos, map)
@@ -1482,6 +1482,12 @@ def main(
                 t = "RENDER TIMES"
             elif phase == 6:
                 t = "ENEMY DEBUG"
+                i = 0
+                for x in app.soldier_cache:
+                    text = terminal3.render(x + ":" + str(app.soldier_cache[x]), False, [255, 255, 0])
+                    screen.blit(text, [200, 50+i])
+                    i += 20
+
             elif phase == 7:
                 t = "ROUTE CACHE"
 
@@ -1497,11 +1503,14 @@ def main(
                     text = terminal3.render("Calcs per sec: " + str(app.path_times["calc"][0]/round(time.time() - start_time)), False, [255, 255, 0])
                     screen.blit(text, [200, 110])
 
+                    text = terminal3.render("Longest time: " + str(app.path_times["max"]), False, [255, 255, 0])
+                    screen.blit(text, [200, 140])
+
+
                     time.time() - start_time
 
                 except Exception as e:
-                    print(e)
-                    print(app.path_times)
+                    pass
 
 
             text = terminal3.render("DEVSCREEN: " + t, False, [255, 255, 255])
@@ -1558,13 +1567,25 @@ def main(
                     mouse_pos[0] + camera_pos[0],
                     mouse_pos[1] + camera_pos[1],
                 ]
-                if r_click_tick:
+                min_dist_point = None
+                dist = 9999
+                for point_dict in NAV_MESH:
+                    point = point_dict["point"]
+                    if func.get_dist_points(mo_pos_real, point) < dist:
+                        dist = func.get_dist_points(mo_pos_real, point)
+                        min_dist_point = point_dict
+
+
+                if r_click_tick :
                     ref_point = {
                         "point": [int(mo_pos_real[0]), int(mo_pos_real[1])],
                         "connected": [],
                     }
 
                     for point_dict in NAV_MESH:
+
+
+
                         point = point_dict["point"]
                         if point == ref_point["point"]:
                             continue
@@ -1603,7 +1624,20 @@ def main(
                 )
                 screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 40])
 
+                if f_pressed:
+                    text = terminal3.render(
+                        "POINT POS: " + str(min_dist_point["point"]),
+                        False,
+                        [255, 255, 255],
+                    )
+                    screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 80])
+
+
+
                 for point_dict in NAV_MESH:
+
+
+
                     point = point_dict["point"]
                     app.pygame.draw.circle(
                         screen,
@@ -1611,6 +1645,10 @@ def main(
                         [point[0] - camera_pos[0], point[1] - camera_pos[1]],
                         5,
                     )
+
+                    if point_dict != min_dist_point and f_pressed:
+                        continue
+
                     for point_2 in point_dict["connected"]:
                         app.pygame.draw.line(
                             screen,
@@ -1625,7 +1663,7 @@ def main(
                 if click_single_tick:
                     calc_time_1 = time.time()
                     route, a = func.calc_route(
-                        player_pos, mo_pos_real, NAV_MESH, walls_filtered
+                        player_pos, mo_pos_real, NAV_MESH, [walls_filtered, map.no_los_walls]
                     )
                     calc_time_2 = time.time() - calc_time_1
 
@@ -1653,6 +1691,18 @@ def main(
                         "CALC TIME: " + str(round(calc_time_2 * 1000, 2)) + "ms",
                         False,
                         [255, 255, 255],
+                    )
+                    screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
+
+
+
+                else:
+                    print(route)
+                    print("COULDN't FIND ROUTE")
+                    text = terminal3.render(
+                        "COULD'T FIND ROUTE!",
+                        False,
+                        [255, 0, 0],
                     )
                     screen.blit(text, [mouse_pos[0] + 20, mouse_pos[1] + 60])
 

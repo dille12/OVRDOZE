@@ -25,10 +25,11 @@ class App:
         pygame.init()
         pygame.font.init()
         self.path_cache = {}
-        self.path_times = {"calc" : [0, 0], "cache" : [0, 0]}
+        self.path_times = {"calc" : [0, 0], "cache" : [0, 0], "max" : 0}
 
         self.player_team = placeholder
 
+        self.soldier_cache = {}
 
         self.zombiegroup = pygame.sprite.Group()
         self.unitstatuses = []
