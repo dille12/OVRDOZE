@@ -7,7 +7,7 @@ from unit_status import UnitStatus
 pygame.init()
 import func
 from values import *
-import classtest
+import level
 import los
 import pyperclip
 import classes

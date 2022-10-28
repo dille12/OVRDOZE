@@ -1,6 +1,6 @@
 # how to normalize this more to a game object?
 from game_objects.game_object import Game_Object
-import classtest
+import level
 from values import *
 
 tolerance = 10
@@ -67,7 +67,7 @@ class Barricade(Game_Object):
             rect_2 = self.ref.Rect(x + camera_pos[0], y + camera_pos[1], w, h)
 
             collisions = list(
-                classtest.getcollisions(map.__dict__["rectangles"], rect_2)
+                level.getcollisions(map.__dict__["rectangles"], rect_2)
             )
             if collisions:
                 clear = False

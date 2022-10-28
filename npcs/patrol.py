@@ -34,6 +34,7 @@ class Patrol:
                 NAV_MESH,
                 walls_filtered,
                 map,
+                patrol_leader = True if not i else False
             )
 
             soldier.patrol = self

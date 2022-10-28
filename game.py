@@ -4,7 +4,7 @@ import math
 import random
 import time
 import mixer
-from classtest import *
+from level import *
 from _thread import *
 import threading
 import copy
@@ -817,7 +817,7 @@ def main(
 
                 if map.enemy_type == "soldier":
 
-                    if len(enemy_list) < 10 and not enemy_count == -1:
+                    if len(enemy_list) < 6 and not enemy_count == -1:
                         patrol = Patrol(
                             app,
                             map.get_random_point(walls_filtered, p_pos=player_pos),

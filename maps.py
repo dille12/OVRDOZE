@@ -1,4 +1,4 @@
-from classtest import *
+from level import *
 from values import *
 import classes
 
@@ -269,11 +269,12 @@ def get_maps(app):
 
         Map(
             "Downtown",
-            "map5_2.png",
+            "map5.png",
             "nav_mesh5.txt",
             [0, 0],
             mouse_conversion,
             [6650, 7000],
+            TOP_LAYER="map5_top.png",
             POLYGONS=[
 
                     [673, 0, 1015, 122],

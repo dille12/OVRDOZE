@@ -1,6 +1,6 @@
 import math
 import pygame
-import classtest
+import level
 import classes
 import func
 from values import *

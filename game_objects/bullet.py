@@ -3,7 +3,7 @@ from values import *
 import func
 import classes
 from anim_list import *
-from classtest import getcollisionspoint
+from level import getcollisionspoint
 
 
 class Bullet(Game_Object):

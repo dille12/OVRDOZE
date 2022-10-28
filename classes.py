@@ -7,7 +7,7 @@ import time
 pygame.init()
 import func
 from values import *
-import classtest
+import level
 import los
 import pyperclip
 
@@ -1326,7 +1326,7 @@ class Particle:
                     ]
                 # if map != None:
                 #     if (
-                #         list(classtest.getcollisionspoint(map.rectangles, self.pos))
+                #         list(level.getcollisionspoint(map.rectangles, self.pos))
                 #         != []
                 #     ):
                 #         particle_list.remove(self)

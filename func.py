@@ -666,7 +666,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
     if c_weapon.get_semi_auto():
         if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0:
             reload.stop()
-            c_weapon.fire(player_pos, angle, screen, player_actor)
+            c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
             firing_tick = True
         elif c_weapon.get_Ammo() == 0 and (
             player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"])
@@ -694,7 +694,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
             )
 
             reload.stop()
-            c_weapon.fire(player_pos, angle, screen, player_actor)
+            c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
             firing_tick = True
 
         else:
@@ -704,7 +704,7 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
                 and c_weapon.__dict__["current_burst_bullet"] != 0
             ):
 
-                c_weapon.fire(player_pos, angle, screen, player_actor)
+                c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
                 firing_tick = True
 
             elif c_weapon.get_Ammo() == 0 and (

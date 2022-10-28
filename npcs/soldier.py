@@ -6,7 +6,7 @@ import time
 pygame.init()
 import func
 from values import *
-import classtest
+import level
 import los
 import pyperclip
 import classes
@@ -27,6 +27,7 @@ class Soldier:
         NAV_MESH,
         walls,
         map,
+        patrol_leader = False
     ):
         self.app = app
         self.pos = pos
@@ -36,7 +37,17 @@ class Soldier:
         self.target_actor = target_actor
         self.NAV_MESH = NAV_MESH
         self.walls = walls
-        self.im = player
+
+        if patrol_leader:
+            self.weapon = func.pick_random_from_list([guns["SCAR18"], guns["AR-15"], guns["AK"], guns["P90"], guns["DESERT EAGLE"]]).copy()
+        else:
+
+            self.weapon = func.pick_random_from_list([guns["MP5"], guns["M1911"], guns["GLOCK"], guns["FN57-S"]]).copy()
+
+        if self.weapon.name in ["GLOCK", "M1911", "FN57-S", "DESERT EAGLE"]:
+            self.im = player_pistol
+        else:
+            self.im = player
         self.targeting_angle = 90
         self.angle = 0
         self.target_angle = 0
@@ -72,7 +83,7 @@ class Soldier:
         self.inventory = classes.Inventory(self.app, self.interactables)
 
         for i in range(random.randint(1, 9)):
-            if random.uniform(0, 1) < 0.05:
+            if random.uniform(0, 1) < 0.1:
                 # item_to_pick = func.pick_random_from_dict(items, key = True)
                 #
 
@@ -87,7 +98,7 @@ class Soldier:
                     items[item], random.randint(1, items[item].__dict__["drop_stack"])
                 )
 
-        self.weapon = func.pick_random_from_list([guns["AK"], guns["P90"]]).copy()
+
         self.weapon._damage *= 0.5
         self.weapon.hostile = True
         self.weapon.ammo = "INF"
@@ -185,7 +196,13 @@ class Soldier:
                 if x.get_num_channels():
                     can_play = False
             if can_play:
-                func.pick_random_from_list(radio_chatter[self.state]).play()
+
+                dist = max([1 - (los.get_dist_points(self.pos, self.target_actor.pos) / 3000 * multiplier2), 0]) * self.app.volume/100
+                playing = func.pick_random_from_list(radio_chatter[self.state])
+
+                playing.set_volume(dist)
+
+                playing.play()
 
             if self.state == "attacking":
                 for x in self.patrol.troops:

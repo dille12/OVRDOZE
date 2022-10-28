@@ -7,7 +7,7 @@ import time
 pygame.init()
 import func
 from values import *
-import classtest
+import level
 import los
 import pyperclip
 

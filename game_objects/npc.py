@@ -1,5 +1,5 @@
 from game_objects.game_object import Game_Object
-import classtest
+import level
 from values import *
 import los
 import func

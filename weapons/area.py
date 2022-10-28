@@ -3,7 +3,7 @@ import los
 import func
 from values import *
 import classes
-import classtest
+import level
 from weapons.weapon import Weapon
 from objects import *
 from game_objects.bullet import Bullet
@@ -46,7 +46,7 @@ class Grenade(Weapon):
                 self.pos[0] + math.cos(random_angle) * dist,
                 self.pos[1] + math.sin(random_angle) * dist,
             ]
-            if list(classtest.getcollisionspoint(map.rectangles, pos)) == []:
+            if list(level.getcollisionspoint(map.rectangles, pos)) == []:
                 burn_list.append(classes.Burn(pos, 3, random.randint(500, 600)))
         molotov_explode_sound.play()
         grenade_list.remove(self)

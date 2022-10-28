@@ -4,7 +4,7 @@ import math
 import random
 import time
 import mixer
-from classtest import *
+from level import *
 from _thread import *
 import threading
 import copy
