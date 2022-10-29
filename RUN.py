@@ -799,6 +799,9 @@ def main():
             text = terminal.render("Rendering resolution change requires restarting the game.", False, [255, 255, 255])
             x,y = text.get_rect().center
             screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
+
+            app.clear_compiled_navmeshes()
+
             button_restart_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
 

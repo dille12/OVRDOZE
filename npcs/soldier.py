@@ -321,8 +321,8 @@ class Soldier:
 
         rad = math.radians(self.angle)
 
-        self.pos[0] += self.velocity * math.cos(rad)
-        self.pos[1] += self.velocity * math.sin(rad)
+        self.pos[0] += timedelta.mod(self.velocity * math.cos(rad) * multiplier2)
+        self.pos[1] += timedelta.mod(self.velocity * math.sin(rad) * multiplier2)
 
 
 

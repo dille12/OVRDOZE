@@ -300,6 +300,10 @@ class Map:
 
         self.nav_mesh_name = nav_mesh_name
 
+        name2 = self.nav_mesh_name.removesuffix(".txt")
+
+        self.compiled_file = f"texture/maps/{name2}_compiled.cnv"
+
         self.barricade_rects = []
 
         # polygons.append([-100,0,100,size[1]])
@@ -368,12 +372,10 @@ class Map:
     def read_navmesh(self, walls_filtered):
         NAV_MESH = []
 
-        name = self.nav_mesh_name.removesuffix(".txt")
 
-        compiled_file = f"texture/maps/{name}_compiled.cnv"
 
-        if os.path.isfile(compiled_file):
-            with open(compiled_file) as file:
+        if os.path.isfile(self.compiled_file):
+            with open(self.compiled_file) as file:
                 raw = file.read()
 
             NAV_MESH = ast.literal_eval(raw)
@@ -442,7 +444,7 @@ class Map:
             print(e)
             traceback.print_exc()
 
-        with open(compiled_file, "w") as file:
+        with open(self.compiled_file, "w") as file:
             file.write(str(NAV_MESH))
 
 

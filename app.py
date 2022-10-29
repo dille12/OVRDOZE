@@ -7,7 +7,7 @@ import get_preferences
 from networking.server import Server
 from networking.chat import Chat
 from networking.datagatherer import DataGatherer
-
+import os
 import game
 from values import *
 import func
@@ -52,6 +52,12 @@ class App:
             self.clocktick = 144
         elif self.fps == "Unlimited":
             self.clocktick = 500
+
+    def clear_compiled_navmeshes(self):
+        for map in self.maps:
+            if os.path.isfile(map.compiled_file):
+                os.remove(map.compiled_file)
+
 
 
     def preferences(self):
