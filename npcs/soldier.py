@@ -14,6 +14,7 @@ from classes import items, drop_index, drop_table
 import get_preferences
 from armory import guns
 from _thread import *
+import numpy as np
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 
@@ -76,6 +77,8 @@ class Soldier:
         self.class_type = "SOLDIER"
         self.killed = False
 
+        self.semi_auto_fire_tick = 0
+
         self.collisions_with_walls = 0
 
         self.range = 500*multiplier2
@@ -83,7 +86,7 @@ class Soldier:
         self.inventory = classes.Inventory(self.app, self.interactables)
 
         for i in range(random.randint(1, 9)):
-            if random.uniform(0, 1) < 0.1:
+            if random.uniform(0, 1) < 0.33:
                 # item_to_pick = func.pick_random_from_dict(items, key = True)
                 #
 
@@ -102,11 +105,13 @@ class Soldier:
         self.weapon._damage *= 0.5
         self.weapon.hostile = True
         self.weapon.ammo = "INF"
+        self.weapon.spread_per_bullet *= 2
+        self.weapon._spread_recovery = self.weapon._spread_recovery ** 1.5
 
 
     def fire(self):
         if self.target.hp > 0:
-            func.weapon_fire(self.weapon, self.inventory, self.angle, self.pos, self, self.app.screen_copy, ai = True)
+            func.weapon_fire(self.weapon, self.inventory, self.angle, self.pos, self, self.app.screen_copy, ai = self)
 
     def get_pos(self):
         return self.pos
@@ -124,7 +129,7 @@ class Soldier:
     def search_route(self):
         self.calculating = True
         self.route, self.cached_route = func.calc_route(
-            self.pos, self.target_pos, self.NAV_MESH, [self.walls, self.map.no_los_walls], cache = self.app
+            self.pos, self.target_pos, self.NAV_MESH, [self.walls, self.map.numpy_array_wall_no_los], cache = self.app
         )
 
         if self.route == False:
@@ -160,7 +165,7 @@ class Soldier:
             self.pos,
             self,
             self.app.screen_copy,
-            ai = True
+            ai = self
         )
 
         # self.weapon.spread_recoverial()
@@ -197,7 +202,7 @@ class Soldier:
                     can_play = False
             if can_play:
 
-                dist = max([1 - (los.get_dist_points(self.pos, self.target_actor.pos) / 3000 * multiplier2), 0]) * self.app.volume/100
+                dist = max([1 - (los.get_dist_points(self.pos, self.target_actor.pos) / (3000 * multiplier2)), 0]) * self.app.volume/100
                 playing = func.pick_random_from_list(radio_chatter[self.state])
 
                 playing.set_volume(dist)
@@ -211,23 +216,23 @@ class Soldier:
 
     def wander_to_random_point(self):
         if self is self.patrol.patrol_leader:
-            self.target_pos = self.map.get_random_point(self.walls, max_dist = 1300, max_dist_point = self.pos.copy(), max_tries = 10)
+            self.target_pos = self.map.get_random_point(max_dist = 1300, max_dist_point = self.pos.copy(), max_tries = 10)
         else:
 
-            self.target_pos = self.map.get_random_point(self.walls, max_dist = 500, max_dist_point = self.patrol.patrol_leader.pos.copy(), max_tries = 10)
+            self.target_pos = self.map.get_random_point(max_dist = 500, max_dist_point = self.patrol.patrol_leader.pos.copy(), max_tries = 10)
 
 
 
     def state_react(self):
         tar_pos = self.target_pos.copy()
         if self.state == "takingcover":
-            if self.at_target_pos() and los.check_los(self.pos, self.target_actor.pos, self.walls, self.map.no_los_walls):
-                self.target_pos = self.map.get_random_point(self.walls, max_dist = 400, max_dist_point = self.pos, p_pos = self.target_actor.pos, max_tries = 10)
+            if self.at_target_pos() and los.check_los_jit(np.array(self.pos), np.array(self.target_actor.pos), self.walls, self.map.numpy_array_wall_no_los):
+                self.target_pos = self.map.get_random_point( max_dist = 400, max_dist_point = self.pos, p_pos = self.target_actor.pos, max_tries = 10)
                 self.aim_at = self.target_actor.pos.copy()
                 self.state_tick = 60
         elif self.state == "attacking":
-            if self.at_target_pos() or not los.check_los(self.pos, self.target_actor.pos, self.walls):
-                self.target_pos = self.map.get_random_point(self.walls, visible_from_origin_point = self.target_actor.pos, max_tries = 10)
+            if self.at_target_pos() or not los.check_los_jit(np.array(self.pos), np.array(self.target_actor.pos), self.walls):
+                self.target_pos = self.map.get_random_point(visible_from_origin_point = self.target_actor.pos, max_tries = 10)
                 self.state_tick = 60
 
         elif self.state == "investigate":
@@ -272,9 +277,9 @@ class Soldier:
         if not self.route and not self.at_target_pos():
             self.get_route_to_target()
 
-        if not los.check_los(self.pos, self.target_pos, self.walls, self.map.no_los_walls):
+        if not los.check_los_jit(np.array(self.pos), np.array(self.target_pos), self.walls, self.map.numpy_array_wall_no_los):
             if self.route:
-                if not los.check_los(self.pos, self.route[0], self.walls, self.map.no_los_walls):
+                if not los.check_los_jit(np.array(self.pos), np.array(self.route[0]), self.walls, self.map.numpy_array_wall_no_los):
                     self.get_route_to_target()
             else:
                 self.get_route_to_target()
@@ -284,7 +289,7 @@ class Soldier:
             if los.get_dist_points(self.route[0], self.pos) > 40:
 
                 if len(self.route) > 1:
-                    if los.check_los(self.pos, self.route[1], self.walls, self.map.no_los_walls):
+                    if los.check_los_jit(np.array(self.pos), np.array(self.route[1]), self.walls, self.map.numpy_array_wall_no_los):
                         self.route.remove(self.route[0])
 
                 self.target_angle = func.get_angle(self.pos, self.route[0])
@@ -342,7 +347,7 @@ class Soldier:
         angle_to_player = func.get_angle(self.pos, self.target_actor.pos)
         ignore_player = False
         if random.randint(1,10) == 1 and not ignore_player:
-            if abs(los.get_angle_diff(angle_to_player, self.aim_angle)) < self.targeting_angle and los.check_los(self.pos, self.target_actor.pos, self.walls) and self.target_actor.hp > 0 and func.get_dist_points(self.pos, self.target_actor.pos) < self.range:
+            if abs(los.get_angle_diff(angle_to_player, self.aim_angle)) < self.targeting_angle and los.check_los_jit(np.array(self.pos), np.array(self.target_actor.pos), self.walls) and self.target_actor.hp > 0 and func.get_dist_points(self.pos, self.target_actor.pos) < self.range:
                 self.sees_target = True
             else:
                 self.sees_target = False
@@ -353,7 +358,7 @@ class Soldier:
                 self.random_aim_tick -= timedelta.mod(1)
             if self.random_aim_tick <= 0:
                 self.random_aim_tick = random.randint(60, 120)
-                self.aim_at = self.map.get_random_point(self.walls, max_tries = 10)
+                self.aim_at = self.map.get_random_point(max_tries = 10)
         elif not self.sees_target and self.investigate_route:
             self.aim_at = self.target_pos.copy()
         elif self.sees_target:
@@ -381,10 +386,10 @@ class Soldier:
 
         if not silent:
 
-            player_actor.money += random.randint(5, 10)
+            player_actor.money += random.randint(50, 100)
             money_tick.value = 0
 
-            func.list_play(death_sounds)
+            func.list_play(death_sounds_soldier)
             func.list_play(kill_sounds)
 
             self.inventory.drop_inventory(self.pos)

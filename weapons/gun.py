@@ -47,6 +47,7 @@ class Gun(Weapon):
         charge_time=10,
         rocket_launcher = False,
         extra_bullet = True,
+        ai_fire_rate_mod = 7
     ):
         super().__init__(
             name,
@@ -64,6 +65,8 @@ class Gun(Weapon):
         self._bullets_in_clip = clip_s + (1 if self.extra_bullet else 0)
         self._bullet_per_min = fire_r
         self._firerate = tick_count / (fire_r / 60)
+
+        self.ai_fire_rate_mod = ai_fire_rate_mod
 
 
         self.spread_per_bullet = spread_per_bullet
@@ -134,6 +137,7 @@ class Gun(Weapon):
             charge_time=self.charge_time,
             rocket_launcher=self.rocket_launcher,
             extra_bullet=self.extra_bullet,
+            ai_fire_rate_mod = self.ai_fire_rate_mod,
         )
 
     def get_semi_auto(self):

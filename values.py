@@ -68,7 +68,7 @@ def set_multiplayer(arg):
     multiplayer = arg
     print("MULTIPLAYER=", multiplayer)
 
-
+raindrops = []
 WHITE_COLOR = [255, 255, 255]
 CYAN_COLOR = (0, 255, 255)
 PURPLE_COLOR = (255, 0, 255)
@@ -457,6 +457,7 @@ hit_sounds = get_sound_Variants("sound", "hit")
 rico_sounds = get_sound_Variants("sound", "rico")
 pl_hit = get_sound_Variants("sound", "pl_hit")
 death_sounds = get_sound_Variants("sound", "death")
+death_sounds_soldier = get_sound_Variants("sound", "death_soldier")
 shotgun_sounds = {"fire": get_sound_Variants("sound", "shotgun"), "reload": reload}
 assault_rifle_sounds = {
     "fire": get_sound_Variants("sound", "assault"),

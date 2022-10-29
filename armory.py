@@ -66,6 +66,7 @@ guns = {
         view=0.022,
         handling=0.35,
         piercing=True,
+        ai_fire_rate_mod = 15,
     ),
 
     "AR-15": W.Gun(
@@ -278,6 +279,7 @@ guns = {
         view=0.045,
         handling=0.15,
         semi_auto=True,
+        ai_fire_rate_mod = 40,
     ),
     "NRG-LMG Mark1": W.Gun(
         name="NRG-LMG Mark1",

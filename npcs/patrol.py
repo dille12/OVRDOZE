@@ -28,7 +28,7 @@ class Patrol:
 
             soldier = Soldier(
                 app,
-                map.get_random_point(walls_filtered, p_pos=self.target_actor.pos.copy(), max_dist = 300, max_dist_point = self.pos),
+                map.get_random_point(p_pos=self.target_actor.pos.copy(), max_dist = 300, max_dist_point = self.pos),
                 interactables,
                 target_actor,
                 NAV_MESH,

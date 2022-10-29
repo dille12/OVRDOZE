@@ -29,7 +29,7 @@ from anim_list import *
 # import path_finding
 from weapons.area import Explosion
 from scroll_bar import ScrollBar
-
+from game_objects.rain_drop import RainDrop
 
 import armory
 import objects
@@ -208,7 +208,6 @@ def main(
     ### load
 
     player_inventory = classes.Inventory(app, interactables, player=True)
-    player_inventory.append_to_inv(items["Sentry Turret"], 3)
     turret_bro.clear()
 
     turret_bro.append(
@@ -333,6 +332,7 @@ def main(
             file.endswith(".wav")
             and file != "menu_loop.wav"
             and file != "overworld_loop.wav"
+            and file != "downtown.wav"
         ):
             songs.append("sound/songs/" + file)
 
@@ -453,6 +453,9 @@ def main(
             scroll_bar_volume.tick(screen, mouse_pos, clicked, click_single_tick, arg = globals())
             scroll_bar_music.tick(screen, mouse_pos, clicked, click_single_tick)
 
+            app.volume = round(scroll_bar_volume.value)
+            app.music = round(scroll_bar_music.value)
+
             pressed = app.pygame.key.get_pressed()
             if (pressed[app.pygame.K_ESCAPE] or s1) and not pause_tick:
                 menu_click2.play()
@@ -503,6 +506,9 @@ def main(
 
             if overworld:
                 app.pygame.mixer.music.load("sound/songs/overworld_loop.wav")
+                app.pygame.mixer.music.play(-1)
+            elif map.name == "Downtown":
+                app.pygame.mixer.music.load("sound/songs/downtown.wav")
                 app.pygame.mixer.music.play(-1)
             else:
                 last_played = up_next
@@ -817,14 +823,14 @@ def main(
 
                 if map.enemy_type == "soldier":
 
-                    if len(enemy_list) < 6 and not enemy_count == -1:
+                    if len(enemy_list) < 20 and not enemy_count == -1:
                         patrol = Patrol(
                             app,
-                            map.get_random_point(walls_filtered, p_pos=player_pos),
+                            map.get_random_point(p_pos=player_pos),
                             interactables,
                             player_actor,
                             NAV_MESH,
-                            walls_filtered,
+                            map.numpy_array_wall_los,
                             map,
                         )
 
@@ -844,7 +850,7 @@ def main(
                             type = "runner"
                         zombo = Zombie(
                             app,
-                            map.get_random_point(walls_filtered, p_pos=player_pos),
+                            map.get_random_point(p_pos=player_pos),
                             interactables,
                             player_actor,
                             NAV_MESH,
@@ -855,8 +861,8 @@ def main(
                             wall_points=wall_points,
                             player_ref=player_actor,
                             identificator=random.randint(0, 4096),
+                            map=map
                         )
-                    # zombo = enem_obs.Enemy(map.get_random_point(walls_filtered, p_pos = player_pos), give_weapon("gun", func.pick_random_from_dict(armory.guns, key = True)), interactables)
                     # print(f"Zombie spawned with id {zombo.identificator}")
                         enemy_list.append(zombo)
                         if multiplayer:
@@ -930,6 +936,8 @@ def main(
 
         for x in particle_list:
             x.tick(screen, camera_pos, map)
+
+
 
         time_stamps["particles"] = time.time() - t
         t = time.time()
@@ -1194,7 +1202,7 @@ def main(
             else:
                 player_actor.set_hp(100)
                 if endless:
-                    player_pos = map.get_random_point(walls_filtered, enemies=enemy_list)
+                    player_pos = map.get_random_point(enemies=enemy_list)
                 else:
                     player_actor.money = 0
                     money_tick.value = 0
@@ -1444,6 +1452,12 @@ def main(
         time_stamps["los_draw"] = time.time() - t
         t = time.time()
 
+        if map.name in ["Overworld", "Downtown"]:
+            RainDrop(map, player_pos)
+
+        for x in raindrops:
+            x.tick(screen, camera_pos, map_render)
+
         if draw_los:
 
             if 60 * draw_time < 55:
@@ -1669,7 +1683,7 @@ def main(
 
                 if click_single_tick:
                     calc_time_1 = time.time()
-                    route, c = func.calc_route(player_pos, mo_pos_real, NAV_MESH, [walls_filtered, map.no_los_walls], False, app)
+                    route, c = func.calc_route(player_pos, mo_pos_real, NAV_MESH, [map.numpy_array_wall_los, map.numpy_array_wall_no_los], False, app)
                     calc_time_2 = time.time() - calc_time_1
 
                 if route:

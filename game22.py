@@ -409,7 +409,7 @@ def main(
     for x in walls_filtered:
         wall_points.append(x.get_points())
 
-    player_pos = map.get_random_point(walls_filtered)
+    player_pos = map.get_random_point()
     camera_pos = [0, 0]
 
     NAV_MESH = []
@@ -803,7 +803,7 @@ def main(
 
                 enemy_list.append(
                     enemies.Zombie(
-                        map.get_random_point(walls_filtered, p_pos=player_pos),
+                        map.get_random_point(p_pos=player_pos),
                         interactables,
                         player_pos,
                         NAV_MESH,
@@ -1019,7 +1019,7 @@ def main(
                 respawn_ticks -= 1
             else:
                 player_actor.set_hp(100)
-                player_pos = map.get_random_point(walls_filtered, enemies=enemy_list)
+                player_pos = map.get_random_point(enemies=enemy_list)
                 # c_weapon = give_weapon(player_we[weapon_scroll])
 
         c_weapon.add_to_spread(math.sqrt(x_vel**2 + y_vel**2) / 10)

@@ -15,7 +15,7 @@ width, height = size
 import objects
 import get_preferences
 from dialog import *
-
+import numpy as np
 from unit_status import UnitStatus
 
 a, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
@@ -1160,6 +1160,10 @@ class Particle:
         self.fire_velocity_mod = fire_velocity_mod
         self.fire_x_vel = random.randint(-1, 1) * self.fire_velocity_mod
         self.intensity = random.uniform(0.03, 0.10)
+
+        if len(particle_list) > 500:
+            particle_list.remove(particle_list[0])
+
         if pre_defined_angle == False:
             self.direction = math.radians(random.randint(0, 360))
         else:
@@ -1416,9 +1420,12 @@ class Player:
         self.money = 0
         self.money_last_tick = 0
         self.unitstatuses = []
+        self.np_pos = np.array([0,0], dtype = float)
 
     def set_pos(self, pos):
         self.pos = pos
+        self.np_pos[0] = pos[0]
+        self.np_pos[1] = pos[1]
 
     def set_angle(self, angle):
         self.angle = angle

@@ -11,7 +11,7 @@ import time
 import pygame.gfxdraw
 import func
 from values import *
-
+from numba import jit
 walls = []
 
 draw_distance = 1200 * multiplier2
@@ -24,6 +24,10 @@ debug_text = pygame.font.Font("texture/terminal.ttf", 10)
 def get_angle_diff(angle1, angle2):
     anglediff = (angle1 - angle2 + 180 + 360) % 360 - 180
     return anglediff
+
+
+def get_points_from_np(line):
+    return (line[0], line[1]), (line[2], line[3])
 
 
 def get_rounded_pos(point):
@@ -160,6 +164,12 @@ class Wall:
         t = debug_text.render(str(self.vertical), False, [255, 0, 0])
         screen.blit(t, self.__center)
 
+def walls_generate_np(walls_filtered, cam_array):
+    for line in walls_filtered:
+        line[0:2] -= cam_array
+        line[2:4] -= cam_array
+    return walls_filtered
+
 
 def walls_generate(walls_filtered, camera_pos):
     size_ratio = 1
@@ -295,6 +305,14 @@ def check_point(point):
     check = 0 < point[0] < size[0] and 0 < point[1] < size[1]
     return check
 
+def check_point_cam(point, cam):
+    check = 0 < point[0] - cam[0] < size[0] and 0 < point[1] - cam[1] < size[1]
+    return check
+
+def check_wall_np(wall, cam_array):
+    check = check_point(wall[0:2] - cam_array) or check_point(wall[2:4] - cam_array)
+    return check
+
 
 def check_los(p1, p2, los_walls, vis_walls = []):
     for walls in [los_walls, vis_walls]:
@@ -311,3 +329,33 @@ def check_los_points(p1, p2, los_walls):
         if intersect(p1, p2, point_1, point_2):
             return False
     return True
+
+
+print("INITTING JIT")
+
+@jit(nopython = True)
+def ccw_jit(A, B, C):
+    return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
+
+@jit(nopython = True)
+def intersect_jit(A, B, C, D):
+    return ccw_jit(A, C, D) != ccw_jit(B, C, D) and ccw_jit(A, B, C) != ccw_jit(A, B, D)
+
+@jit(nopython = True)
+def check_los_jit(p1, p2, walls, walls2 = None):
+    
+    for line in walls:
+        if intersect_jit(p1, p2, np.array([line[0], line[1]]), np.array([line[2], line[3]])):
+            return False
+
+    if walls2 == None:
+        return True
+
+    for line in walls2:
+        if intersect_jit(p1, p2, np.array([line[0], line[1]]), np.array([line[2], line[3]])):
+            return False
+
+    return True
+
+
+print("Success")

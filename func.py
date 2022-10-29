@@ -632,23 +632,12 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
     if ai:
         if c_weapon.get_semi_auto():
 
-            click = pick_random_from_list(
-                [
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ]
-            )
+            if ai.semi_auto_fire_tick <= 0:
+                click = True
+                ai.semi_auto_fire_tick = c_weapon.ai_fire_rate_mod + random.randint(-2,2)
+            else:
+                click = False
+                ai.semi_auto_fire_tick -= timedelta.mod(1)
 
         else:
             click = True

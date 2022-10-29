@@ -275,6 +275,7 @@ def get_maps(app):
             mouse_conversion,
             [6650, 7000],
             TOP_LAYER="map5_top.png",
+            GAMMA=[0.8, 0.9, 1.2],
             POLYGONS=[
 
                     [673, 0, 1015, 122],

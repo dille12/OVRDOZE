@@ -15,6 +15,7 @@ from classes import items, drop_index, drop_table
 import get_preferences
 import armory
 from _thread import *
+import numpy as np
 
 expl_blood = func.load_animation("anim/expl_blood", 0, 25)
 
@@ -34,6 +35,7 @@ class Zombie(pygame.sprite.Sprite):
         player_ref=None,
         identificator=random.randint(0, 4096),
         power=random.uniform(1.5, 2.75),
+        map = None
     ):
         super().__init__()
         self.app = app
@@ -58,6 +60,7 @@ class Zombie(pygame.sprite.Sprite):
         self.player_ref = player_ref
         self.calculating = False
         self.class_type = "ZOMBIE"
+        self.map = map
 
 
         if type == "normal":
@@ -228,7 +231,7 @@ class Zombie(pygame.sprite.Sprite):
     def search_route(self):
         self.calculating = True
         self.route, self.cached_route = func.calc_route(
-            self.pos, self.target.pos, self.navmesh_ref, self.wall_ref, cache = self.app
+            self.pos, self.target.pos, self.navmesh_ref, [self.map.numpy_array_wall_los, self.map.numpy_array_wall_no_los], cache = self.app
         )
         self.issue_event(f"setroute_{str(self.route)}")
         self.issue_event(f"setpos_{str(self.pos)}")
@@ -342,8 +345,8 @@ class Zombie(pygame.sprite.Sprite):
 
         if self.app.draw_los and self.process_tick == 0:
 
-            self.visible = los.check_los(player_actor.get_pos(), self.pos, walls[0])
-            self.visible2 = los.check_los(player_actor.get_pos(), self.pos, walls[1])
+            self.visible = los.check_los_jit(player_actor.np_pos, np.array(self.pos), self.map.numpy_array_wall_los)
+            self.visible2 = los.check_los_jit(player_actor.np_pos, np.array(self.pos), self.map.numpy_array_wall_no_los)
 
         if phase == 6:
             t_3 = time.time()

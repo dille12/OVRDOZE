@@ -200,7 +200,7 @@ if __name__ == '__main__':
         for i in range(loops):
             print("New calc")
             total_loops += 1
-            point1, point2 = map.get_random_point(walls), map.get_random_point(walls)
+            point1, point2 = map.get_random_point(), map.get_random_point()
             print("Start", point1, "End", point2)
             #print("FROM", point1, "TO", point2)
             t = time.perf_counter()

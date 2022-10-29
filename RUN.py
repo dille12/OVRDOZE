@@ -83,7 +83,7 @@ def main():
         func.load_screen(screen, "Loading Done")
         print("Done")
 
-        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8]
+        menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
     menu_i = 0
 
 

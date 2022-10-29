@@ -208,7 +208,7 @@ class Enemy:
                 self.target_pos = self.pos
 
         else:
-            point = map.get_random_point(None, max_tries=1)
+            point = map.get_random_point( max_tries=1)
             if los.check_los(point, self.pos, walls):
                 print("Wandering")
                 self.target_angle = 180 - math.degrees(

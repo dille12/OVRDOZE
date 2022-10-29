@@ -148,6 +148,9 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     func.load_screen(screen, f"Initializing LOS")
 
     walls_filtered += map.generate_wall_structure2()
+
+    map.generate_numpy_wall_points()
+
     for i in range(2):
         end_point = (
             map.__dict__["pos"][i] * map_conversion + map.__dict__["size"][i]
@@ -599,6 +602,31 @@ class Map:
 
         return collisiontypes, pos
 
+    def generate_numpy_wall_points(self):
+        y = np.zeros([0,0], dtype=int)
+        self.numpy_array_wall_los = np.full_like(y, 0, shape = (len(self.walls_los_block), 4))
+        for i, wall in enumerate(self.walls_los_block):
+            x,y = wall.get_points()
+            self.numpy_array_wall_los[i][0] = x[0]
+            self.numpy_array_wall_los[i][1] = x[1]
+            self.numpy_array_wall_los[i][2] = y[0]
+            self.numpy_array_wall_los[i][3] = y[1]
+
+        print(self.numpy_array_wall_los)
+
+
+        y = np.zeros([0,0], dtype=int)
+        self.numpy_array_wall_no_los = np.full_like(y, 0, shape = (len(self.no_los_walls), 4))
+        for i, wall in enumerate(self.no_los_walls):
+            x,y = wall.get_points()
+            self.numpy_array_wall_no_los[i][0] = x[0]
+            self.numpy_array_wall_no_los[i][1] = x[1]
+            self.numpy_array_wall_no_los[i][2] = y[0]
+            self.numpy_array_wall_no_los[i][3] = y[1]
+
+        print(self.numpy_array_wall_no_los)
+
+
     def generate_wall_structure2(self):
         print("CHECKING POINTS INSIDE WALLS")
         polygons_temp = []
@@ -669,6 +697,7 @@ class Map:
             self.no_los_walls.append(los.Wall(b, c, pol=polygon))
             self.no_los_walls.append(los.Wall(c, d, pol=polygon))
             self.no_los_walls.append(los.Wall(d, a, pol=polygon))
+
 
         print("GENERATING WALL STRUCTURE")
         walls = []
@@ -746,7 +775,7 @@ class Map:
                 if func.get_dist_points(p2, p3) < 3:
                     wall2.set_new_points(p2, p4)
 
-        for i in range(1):
+        for i in range(3):
 
             for wall1 in walls:
                 p1, p2 = wall1.get_points()
@@ -817,6 +846,8 @@ class Map:
             walls.remove(wall_1)
 
         print("WALLS:", len(walls))
+
+        self.walls_los_block = walls
 
         return walls
 
@@ -1243,9 +1274,10 @@ class Map:
                     self.nav_mesh_available_spots.append(point)
 
     def get_random_point(
-        self, walls, p_pos=None, enemies=None, visible_from_origin_point=None, visibility=True, max_tries=100, furthest_point_from_point = False, max_dist = 0, max_dist_point = None,
+        self, p_pos=None, enemies=None, visible_from_origin_point=None, visibility=True, max_tries=100, furthest_point_from_point = False, max_dist = 0, max_dist_point = None,
     ):
         tries = 0
+        walls = self.numpy_array_wall_los
         furthest_p = func.pick_random_from_list(self.nav_mesh_available_spots)
         furthest = 0
         while tries < max_tries:
@@ -1253,15 +1285,15 @@ class Map:
             point = func.pick_random_from_list(self.nav_mesh_available_spots)
             conds = [True, True, True, True]
             if p_pos != None:
-                if los.check_los(p_pos, point, walls):
+                if los.check_los_jit(np.array(p_pos), np.array(point), walls):
                     conds[0] = False
             if enemies != None:
                 for x in enemies:
-                    if los.check_los(point, x.get_pos(), walls):
+                    if los.check_los_jit(np.array(point), np.array(x.get_pos()), walls):
                         conds[1] = False
                         break
             if visible_from_origin_point:
-                if not los.check_los(point, visible_from_origin_point, walls):
+                if not los.check_los_jit(np.array(point), np.array(visible_from_origin_point), walls):
                     conds[2] = False
 
             if max_dist:
