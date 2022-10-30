@@ -48,6 +48,11 @@ def get_maps(app):
                 classes.Interactable(
                     app, [782, 1005], None, name="Basement", type="door", door_dest="Liberation", active = False,
                 ),
+
+                classes.Interactable(
+                    app, [0, 505], None, name="Downtown", type="door", door_dest="Downtown", active = True, angle = 90
+                ),
+
             ],
             SPAWNPOINT=[781, 930],
             GAMMA=[0.8, 0.9, 1.2],

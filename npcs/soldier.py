@@ -466,6 +466,10 @@ class Soldier:
         times["aim"] = time.perf_counter() - t
         t = time.perf_counter()
 
+        for x in burn_list:
+            if los.get_dist_points(x.pos, self.pos) < 25:
+                self.hp -= timedelta.mod(1)
+
         if self.state in ("attacking", "takingcover") and self.sees_target:
             self.shoot()
             self.investigating = True

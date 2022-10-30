@@ -9,7 +9,7 @@ from _thread import *
 import threading
 import copy
 import los
-import render_los_image
+import render_los_image_jit
 from network import Network
 import ast
 import network_parser
@@ -1410,17 +1410,21 @@ def main(
             screen.blit(map.top_layer, [-camera_pos[0], -camera_pos[1]])
 
         if draw_los:
-            los_image, draw_time = render_los_image.draw(
+
+            #print(camera_pos, player_pos, map.numpy_array_wall_los)
+
+            draw_p_pos = func.minus(player_pos, camera_pos, op = "-")
+
+            los_image, draw_time = render_los_image_jit.draw(
                 los_image,
                 phase,
-                camera_pos,
-                player_pos,
+                [round(camera_pos[0]), round(camera_pos[1])],
+                [round(draw_p_pos[0]), round(draw_p_pos[1])],
                 map,
-                walls_filtered,
-                debug_angle=player_actor.get_angle(),
-                los_background=los_bg,
-                # los_angle = player_actor.angle+90,
-                # angle_tolerance = 45
+                map.numpy_array_wall_los,
+                np.array(size),
+                los_background = los_bg
+
             )
 
             ###
@@ -1429,6 +1433,10 @@ def main(
 
             time_stamps["los_compute"] = time.time() - t
             t = time.time()
+
+            time_stamps["los_draw"] = draw_time
+            t = time.time()
+
             # draw_time = 0
             start = time.time()
 
@@ -1449,8 +1457,7 @@ def main(
         except Exception as e:
             print(e)
 
-        time_stamps["los_draw"] = time.time() - t
-        t = time.time()
+
 
         if map.name in ["Overworld", "Downtown"]:
             RainDrop(map, player_pos)

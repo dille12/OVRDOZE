@@ -14,7 +14,7 @@ from itertools import accumulate
 import ast
 import classes
 import traceback
-
+import render_los_image_jit
 from tools.image_transform import *
 
 from tools.wall_gen import *
@@ -172,6 +172,8 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     NAV_MESH = map.read_navmesh(walls_filtered)
 
+    func.load_screen(screen, f"Cleaning")
+
     if map.name == "Downtown":
         map.enemy_type = "soldier"
     else:
@@ -247,6 +249,10 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     turret_bro[0].wall_ref = walls_filtered
 
     app.pygame.display.set_gamma(map.GAMMA[0], map.GAMMA[1], map.GAMMA[2])
+
+
+    func.load_screen(screen, f"Initializing JIT")
+    init_jit()
 
     return (
         map,
@@ -1359,6 +1365,65 @@ def rot_center(image, angle, x, y):
     new_rect = rotated_image.get_rect(center=image.get_rect(center=(x, y)).center)
 
     return rotated_image, new_rect
+
+
+
+def init_jit():
+        player_pos = [209, 209]
+        camera_pos = [100, 700]
+        size = np.array([854, 480])
+        walls =  np.array([
+             [ 356,   67,  356,    0],
+             [ 356,    0,  445 ,   0],
+             [ 445,   67,  356  , 67],
+             [ 445,    0,  445   ,67],
+             [ 799,   66,  799,    0],
+             [ 799,    0,  889 ,   0],
+             [ 889,    0,  889  , 66],
+             [ 889,   66,  799   ,66],
+             [ 800,  200,  800,  532],
+             [ 800,  200,  889 , 200],
+             [ 889,  200,  889  ,266],
+             [ 889,  266, 1066,  266],
+             [1066,  266, 1066 , 334],
+             [1245,  328, 1245  ,266],
+             [1245,  266, 1422,  266],
+             [1422,  266, 1422,  328],
+             [1422,  328, 1245,  328],
+             [ 355,  333,  355,  267],
+             [ 355,  267,  443,  267],
+             [ 443,  267,  443,  666],
+             [ 266,  333,  355,  333],
+             [ 266,  466,  266,  333],
+             [ 266,  466,  355,  466],
+             [   0,  466,    0,  334],
+             [   0,  334,   88,  334],
+             [  88,  334,   88,  466],
+             [  88,  466,    0,  466],
+             [ 889,  334, 1066,  334],
+             [ 889,  334,  889,  532],
+             [ 889,  532,  800,  532],
+             [ 355,  666,  355,  466],
+             [ 443,  666,  355,  666],
+             [ 800,  868,  800,  734],
+             [ 800,  734,  888,  734],
+             [ 888,  734,  888,  868],
+             [ 976,  868,  888,  868],
+             [ 357,  868,  357,  801],
+             [ 357,  801,  444,  801],
+             [ 444,  801,  444,  868],
+             [ 800,  868,  444,  868],
+             [ 179,  934,  179,  868],
+             [ 179,  868,  357,  868],
+             [ 976,  868,  976,  934],
+             [ 976,  934,  179,  934],
+             [1156,  934, 1156,  868],
+             [1156,  868, 1422,  868],
+             [1422,  868, 1422,  934],
+             [1422,  934, 1156,  934]])
+        l = pygame.Surface((854, 480))
+
+        l, t = render_los_image_jit.draw(l, 1, camera_pos, player_pos, None, walls, size)
 
 
 map = (

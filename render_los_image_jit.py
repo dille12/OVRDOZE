@@ -12,15 +12,19 @@ import pygame.gfxdraw
 import func
 from values import *
 from los import *
+from numba import jit
+import pygame
+import jit_tools
 
 
 def draw(
-    los,
+    los_screen,
     phase,
     camera_pos,
     player_pos,
     map,
     walls,
+    size,
     los_angle=None,
     angle_tolerance=0,
     debug_angle=None,
@@ -33,423 +37,236 @@ def draw(
     This version uses numpy array of wall points to use jit powered intersection calculation.
     """
 
-    camera_pos = ratio(camera_pos, size_ratio)
-    player_pos = ratio(player_pos, size_ratio)
     cam_array = np.array(camera_pos, dtype = int)
-    start_pos = minus_list(player_pos, camera_pos)
-    s_np = np.array(start_pos, dtype = int)
+    #start_pos = minus_list(player_pos, camera_pos)
+    s_np = np.array(player_pos, dtype = int)
 
-    start = time.time()
+
 
     walls2 = np.empty((0,4), int)
 
-    for i in walls:
 
-        if check_wall_np(i, cam_array):
-            walls2 = np.append(walls2, [i], axis = 0)
+    walls = jit_tools.filter_walls_jit(walls, walls2, cam_array, size)
 
-    walls = walls_generate_np(walls2, cam_array)
-
-
-    # los.set_colorkey((255,255,255))
     if not quick_render:
-        los.fill(pygame.Color([0, 0, 0]))
+        los_screen.fill(pygame.Color([0, 0, 0]))
 
     if los_background:
-        los.blit(los_background, [-camera_pos[0], -camera_pos[1]])
-
-    point_dict = {}
-    point_dict_dist = {}
-    wall_points = []
-
-    for point in [(0, 0), (size[0], 0), (size[0], size[1]), (0, size[1])]:
-        angle = 180 + math.degrees(
-            math.atan2(point[1] - start_pos[1], point[0] - start_pos[0])
-        )
-        point_dict[angle] = point
-
-
-    angle_possible_intersections = {}
-
-    wall_angles = []
+        los_screen.blit(los_background, [0, 0], area = [camera_pos[0], camera_pos[1], size[0], size[1]])
 
 
 
-    for wall_1 in walls:
-        wall_spes_points = []
+
+    y = np.zeros([0,0], dtype=float)
+    angle_array = np.full_like(y, 0, shape = (walls.shape[0] + 4, 8))
+
+    angle_array = jit_tools.get_wall_angles(s_np, walls, angle_array)
+
+    jit_tools.filter_out_non_visible_walls(angle_array)
+
+    del_list = []
+    for i, line in enumerate(angle_array):
+        if line[-1] == 0:
+            del_list.append(i)
+
+    for i in sorted(del_list, reverse = True):
+        angle_array = np.delete(angle_array,i,axis = 0)
 
 
-        for point in get_points_from_np(wall_1):
+    individual_angle_array = np.full_like(y, 0, shape = (angle_array.shape[0] * 2 + 4, 4))
 
-            angle = 180 + math.degrees(
-                math.atan2(point[1] - start_pos[1], point[0] - start_pos[0])
-            )
+    individual_angle_array = jit_tools.re_arrange(individual_angle_array, angle_array)
 
-            if angle not in angle_possible_intersections:
-                angle_possible_intersections[angle] = [wall_1]
-            else:
-                angle_possible_intersections[angle].append(wall_1)
+    i = 1
+    for p1 in [0,0], [size[0], 0], [size[0], size[1]], [0, size[1]]:
+        angle1 =  math.atan2(p1[1] - s_np[1], p1[0] - s_np[0])
+        if angle1 < 0:
+            angle1 += math.pi * 2
 
-            wall_spes_points.append(angle)
-            if angle not in point_dict:
-                point_dict[angle] = point
-            else:
-                point2 = point_dict[angle]
-                dist1, dist2 = get_dist_points(start_pos, point), get_dist_points(
-                    start_pos, point2
-                )
-                if dist1 < dist2:
-                    point_dict[angle] = point
+        individual_angle_array[-i,0] = angle1
+        individual_angle_array[-i, 1] = p1[0]
+        individual_angle_array[-i, 2] = p1[1]
+        individual_angle_array[-i, 3] = 1
+        i += 1
 
-        angles = sorted(wall_spes_points)
-
-        wall_angles.append([angles, wall_1])
-
-        wall_points.append(get_points_from_np(wall_1))
+    individual_angle_array = jit_tools.check_visible_points(s_np, individual_angle_array, angle_array)
 
 
-    intersects_visible = {}
-
-    potential_point = []
-
-    for angles, wall_2 in wall_angles:
-
-        angle1, angle2 = sorted(angles)
-
-        diff1 = get_angle_diff(angle1, angle2)
-
-        for angle3 in point_dict:
-            diff2 = get_angle_diff(angle1, angle3)
-
-            if (
-                angle1 - diff1 >= angle1 - diff2 >= angle1
-                or angle1 - diff1 <= angle1 - diff2 <= angle1
-            ):
-
-                # if angle1-1 < angle3 < angle2+1:
-                if angle3 not in angle_possible_intersections:
-                    angle_possible_intersections[angle3] = [wall_2]
-                else:
-                    angle_possible_intersections[angle3].append(wall_2)
-
-
-    calcs = 0
-
-    point_intersections = {}
-    wall_points_set = {}
-
-    for angle in point_dict:
-
-        angle_spes_inter = [0, 0, 0]
-        angle_point = point_dict[angle]
-
-        point_intersections[angle] = []
-
-        angle_inter = []
-
-        for i in [-1, 0, 1]:
-
-            if i == -1:
-                j = 0
-            elif i == 0:
-                j = 1
-            else:
-                j = 2
-
-            line = [
-                start_pos[0] + math.cos(math.radians(angle + 180 + i)) * draw_distance,
-                start_pos[1] + math.sin(math.radians(angle + 180 + i)) * draw_distance,
-            ]
-            intersec_list = {}
-            intersecting = False
-            if angle not in angle_possible_intersections:
-                point_dict_dist[angle] = line
-                continue
-
-            for wall_1 in angle_possible_intersections[angle]:
-                calcs += 1
-                point_1, point_2 = get_points_from_np(wall_1)
-
-                if intersect_jit(s_np, np.array(line), wall_1[0:2], wall_1[2:4]):
-
-                    intersecting = True
-                    if angle_point in [point_1, point_2]:
-                        angle_spes_inter[j] = 1
-
-                    else:
-                        point_intersections[angle].append(wall_1)
-
-                    continue
-
-            if intersecting == False:
-                point_dict_dist[angle] = line
-
-        if 0 in angle_spes_inter:
-            line = [
-                angle_point[0] + math.cos(math.radians(angle + 180)) * draw_distance,
-                angle_point[1] + math.sin(math.radians(angle + 180)) * draw_distance,
-            ]
-
-            potential_point.append(angle_point)
-            closest = 10000
-            closest_point = None
-            closest_wall = None
-            for wall_1 in point_intersections[angle]:
-                point_1, point_2 = get_points_from_np(wall_1)
-                if angle_point in [point_1, point_2]:
-                    continue
-                if intersect_jit(np.array(angle_point), np.array(line), wall_1[0:2], wall_1[2:4]):
-                    inter_point = line_intersection(
-                        (angle_point, line), (point_1, point_2)
-                    )
-                    dist = get_dist_points(start_pos, inter_point)
-                    if dist < closest:
-                        closest_point = inter_point
-                        closest = dist
-                        closest_wall = wall_1
-
-            if closest_point != None:
-                if get_dist_points(angle_point, closest_point) > 5:
-                    intersects_visible[angle] = [closest_point, point_1, point_2]
-
-                    p1, p2 = get_points_from_np(closest_wall)
-
-                    if math.atan2(
-                        p1[1] - player_pos[1], p1[0] - player_pos[0]
-                    ) > math.atan2(p2[1] - player_pos[1], p2[0] - player_pos[0]):
-                        p_1 = p1
-                        p_2 = p2
-                    else:
-                        p_2 = p1
-                        p_1 = p2
-
-                    if angle_spes_inter[2] == 0:  #
-
-                        wall_points_set[angle] = [closest_wall, p_1, closest_point]
-                    else:
-                        wall_points_set[angle] = [closest_wall, p_2, closest_point]
-
-                    #     closest_wall.set_new_points(p_1, closest_point)
-                    # else:
-                    #     closest_wall.set_new_points(p_2, closest_point)
-
-
-    wall_inter = []
-    nearest = None
-    nearest_dist = None
-    nearest_wall = None
-    last_nearest_wall = [None]
-
-    skip_point = []
-    drawable_point = {}
-    visible_points = []
-
-    for angle in point_dict:
-        point = point_dict[angle]
-        intersecting_ray = False
-        for wall_1 in walls:
-
-            point_1, point_2 = get_points_from_np(wall_1)
-            if point in [point_1, point_2]:
-                continue
-            if intersect_jit(s_np, np.array(point), wall_1[0:2], wall_1[2:4]):
-                intersecting_ray = True
-
-        if not intersecting_ray:
-            drawable_point[angle] = point
-            visible_points.append(point)
-
+    del_list = []
+    angles = []
+    for i, line in enumerate(individual_angle_array):
+        if line[-1] == 0 or line[0] in angles:
+            del_list.append(i)
         else:
-            if angle in intersects_visible:
-                del intersects_visible[angle]
-                del wall_points_set[angle]
+            angles.append(line[0])
 
-    for angle in wall_points_set:
-        wall_1, p1, p2 = wall_points_set[angle]
-        wall_1[0:2] = p1
-        wall_1[2:4] = p2
+    for i in sorted(del_list, reverse = True):
+        individual_angle_array = np.delete(individual_angle_array,i ,axis = 0)
 
-    sorted_angles = sorted(drawable_point)
-
-    # sorted_angles.insert(0, sorted_angles[-1])
-    try:
-        last_angle = sorted_angles[-1]
-        point2 = drawable_point[sorted_angles[-1]]
-
-        if last_angle in intersects_visible:
-            sorted_angles.insert(0, sorted_angles[-1])
-            del sorted_angles[-1]
-
-            last_angle = sorted_angles[-1]
-            point2 = drawable_point[sorted_angles[-1]]
-
-    except:
-        return los, 0
-
-    first_angle = last_angle
+    amount_of_points = individual_angle_array.shape[0]
 
 
-    draw_point_list = drawable_point.values()
-    wall_points = []
-    for wall_1 in walls:
-        wall_points.append(get_points_from_np(wall_1))
+    angles = individual_angle_array[individual_angle_array[:, 0].argsort()]
 
-    ##############################################################################################################################################################################################
-    last_point_intersected = False
-    last_intersect_wp = None
-    angle_completed_wall = []
-    for i in sorted_angles:
-        next_point = None
-        if i in intersects_visible:
+    #print("sorted angles:", angles)
 
-            p1 = drawable_point[i]
-            i1 = intersects_visible[i][0]
+    triangle_array = np.full_like(y, 0, shape = (amount_of_points, 8))
 
-            if (p1, point2) in wall_points or (point2, p1) in wall_points:
-                point = p1
-                next_point = i1
-                angle_completed_wall.append(i)
-            else:
-                # if last_intersect_wp != None:
-                #     if last_intersect_wp[0][0] <= i1[0] <= last_intersect_wp[1][0] and last_intersect_wp[0][1] <= i1[1] <= last_intersect_wp[1][1]:
-                #         point = i1
-                #         next_point = p1
-                #
-                #     else:
-                #
-                #         point = p1
-                #         next_point = i1
-                #
-                # else:
-                point = i1
-                next_point = p1
 
+    for i, line in enumerate(angles):
+
+        if i == 0:
+            i2 = angles.shape[0] - 1
         else:
-            point = drawable_point[i]
+            i2 = i - 1
 
+        triangle_array[i, 0] = line[0] + 0.00001
+        triangle_array[i2, 4] = line[0] - 0.00001
+
+
+    start = time.perf_counter()
+
+    triangle_array = jit_tools.calc_triangles(np.array(player_pos), triangle_array, angles, angle_array)
+
+    return draw_triangles(s_np, triangle_array, angles, angle_array, los_screen, phase), time.perf_counter() - start
+
+def draw_triangles(s_np, triangle_array, angles, angle_array, screen, phase):
+
+    for line in angles:
+        if line[-1] == 0:
+            continue
+        pygame.draw.line(screen, [255,255,255], s_np, line[1:3],3)
+
+
+    for triangle in triangle_array:
         try:
 
-            cond1 = (point, point2) not in wall_points
-            cond2 = (point2, point) not in wall_points
 
-            if (
-                i in point_dict_dist
-                and last_angle in point_dict_dist
-                and cond1
-                and cond2
-            ):
+            x1, y1 = s_np
+            x2, y2 = int(triangle[1]), int(triangle[2])
+            x3, y3 = int(triangle[5]), int(triangle[6])
 
-                x1, y1 = get_rounded_pos(start_pos)
-                x2, y2 = get_rounded_pos(point_dict_dist[i])
-                x3, y3 = get_rounded_pos(point_dict_dist[last_angle])
-
-                pygame.gfxdraw.filled_trigon(
-                    los, x1, y1, x2, y2, x3, y3, (255, 255, 255)
-                )
-
-                # pygame.draw.polygon(los,[255,255,255],[start_pos,point_dict_dist[i],point_dict_dist[last_angle]])
-
-            else:
-                x1, y1 = get_rounded_pos(start_pos)
-                x2, y2 = get_rounded_pos(point)
-                x3, y3 = get_rounded_pos(point2)
-                pygame.gfxdraw.filled_trigon(
-                    los, x1, y1, x2, y2, x3, y3, (255, 255, 255)
-                )
-                # pygame.draw.polygon(los,[255,255,255],[start_pos,point,point2])
-
-        except Exception as e:
-            print(point, e)
-        if next_point != None:
-            point2 = next_point
-            last_point_intersected = True
-            last_intersect_wp = intersects_visible[i][1:]
-        else:
-            last_point_intersected = False
-            last_intersect_wp = None
-            point2 = point
-
-        last_angle = i
-
-    ##############################################################################################################################################################################################
-
-    # min_angle = max(angle_possible_intersections)
-
-    debug_angle = 180 - debug_angle
-    if debug_angle < 0:
-        debug_angle += 360
-    elif debug_angle > 360:
-        debug_angle -= 360
-
-    res_key = min(drawable_point.keys(), key=lambda x: abs(debug_angle - x))
-
-    if phase == 2:
-        for point1, point2 in wall_points:
-            pygame.draw.circle(los, [255, 0, 0], point1, 5)
-            pygame.draw.circle(los, [255, 0, 0], point2, 5)
-        pygame.draw.line(los, [255, 0, 0], start_pos, point_dict[res_key])
-        try:
-            for wall_1 in walls:
-                #if point_dict[res_key] in wall_1.get_points():
-                wall_1.highlight(los)
-
-            text = debug_text.render(
-                "WALLS LOADED: " + str(len(walls)),
-                False,
-                [255,255,0],
+            pygame.gfxdraw.filled_trigon(
+                screen, x1, y1, x2, y2, x3, y3, [255,255,255]
             )
 
-            los.blit(text, (200,50))
-
-
-
+            # pygame.draw.circle(screen, [255,255/i,255/i], [x2,y2], 10)
+            # pygame.draw.circle(screen, [255,255,255], [x3,y3], 10)
 
         except Exception as e:
-            print("exception")
             print(e)
 
     if phase == 1:
-
-        for aids in drawable_point:
-            point = drawable_point[aids]
-            if aids == first_angle:
-                color = [200, 200, 200]
-            elif aids in intersects_visible:
-                if aids in angle_completed_wall:
-                    color = [255, 0, 255]
-                else:
-                    color = [255, 0, 0]
-            elif aids in point_dict_dist:
-                color = [0, 255, 0]
-            else:
-                color = [0, 255, 255]
-            if aids != res_key:
-                pygame.draw.line(los, color, start_pos, point)
-                pygame.draw.rect(los, color, [point[0], point[1], 10, 10])
-
-            else:
-
-                pygame.draw.line(los, color, start_pos, point, 4)
-                pygame.draw.rect(los, color, [point[0], point[1], 10, 10])
-                text = debug_text.render(
-                    str(int(conv * (point[0] + camera_pos[0])))
-                    + ":"
-                    + str(int(conv * (point[1] + camera_pos[1])))
-                    + ":"
-                    + str(round(aids, 3)),
-                    False,
-                    color,
-                )
-                los.blit(text, (point[0] + 10, point[1] + 10))
-
-        for aids in intersects_visible:
-            point = intersects_visible[aids][0]
-
-            pygame.draw.line(los, [255, 0, 0], start_pos, point)
-            pygame.draw.rect(los, [255, 0, 0], [point[0], point[1], 10, 10])
+        for line in angles:
+            if line[-1] == 0:
+                continue
+            pygame.draw.line(screen, [255,0,0], s_np, line[1:3])
+    elif phase == 2:
+        for line in angle_array:
+            if line[-1] == 0:
+                continue
+            pygame.draw.line(screen, [255,0,255], line[0:2], line[3:5])
 
 
-    walls = []
-    draw_time = time.time() - start
+    return screen
 
-    return los, draw_time
+
+
+
+
+if __name__ == '__main__':
+    player_pos = [-58.21221355950286, -314.7711827184913]
+    #camera_pos = [623.8173302107729, 500]
+    camera_pos = [100, 700]
+
+    start_pos = minus_list(player_pos, camera_pos)
+
+    clock = pygame.time.Clock()
+    size = np.array([854, 480])
+    walls =  np.array([
+         [ 356,   67,  356,    0],
+         [ 356,    0,  445 ,   0],
+         [ 445,   67,  356  , 67],
+         [ 445,    0,  445   ,67],
+         [ 799,   66,  799,    0],
+         [ 799,    0,  889 ,   0],
+         [ 889,    0,  889  , 66],
+         [ 889,   66,  799   ,66],
+         [ 800,  200,  800,  532],
+         [ 800,  200,  889 , 200],
+         [ 889,  200,  889  ,266],
+         [ 889,  266, 1066,  266],
+         [1066,  266, 1066 , 334],
+         [1245,  328, 1245  ,266],
+         [1245,  266, 1422,  266],
+         [1422,  266, 1422,  328],
+         [1422,  328, 1245,  328],
+         [ 355,  333,  355,  267],
+         [ 355,  267,  443,  267],
+         [ 443,  267,  443,  666],
+         [ 266,  333,  355,  333],
+         [ 266,  466,  266,  333],
+         [ 266,  466,  355,  466],
+         [   0,  466,    0,  334],
+         [   0,  334,   88,  334],
+         [  88,  334,   88,  466],
+         [  88,  466,    0,  466],
+         [ 889,  334, 1066,  334],
+         [ 889,  334,  889,  532],
+         [ 889,  532,  800,  532],
+         [ 355,  666,  355,  466],
+         [ 443,  666,  355,  666],
+         [ 800,  868,  800,  734],
+         [ 800,  734,  888,  734],
+         [ 888,  734,  888,  868],
+         [ 976,  868,  888,  868],
+         [ 357,  868,  357,  801],
+         [ 357,  801,  444,  801],
+         [ 444,  801,  444,  868],
+         [ 800,  868,  444,  868],
+         [ 179,  934,  179,  868],
+         [ 179,  868,  357,  868],
+         [ 976,  868,  976,  934],
+         [ 976,  934,  179,  934],
+         [1156,  934, 1156,  868],
+         [1156,  868, 1422,  868],
+         [1422,  868, 1422,  934],
+         [1422,  934, 1156,  934]])
+
+    for i in range(1):
+
+
+        screen = pygame.display.set_mode((854, 480))
+        w = []
+        angles = []
+        triangle_array = []
+
+        l = pygame.Surface((854, 480))
+
+        while 1:
+
+            clock.tick(60)
+
+            #start_pos = minus_list(player_pos, camera_pos)
+            if pygame.mouse.get_pressed()[0]:
+                player_pos = list(pygame.mouse.get_pos())
+                t = time.perf_counter()
+                l, t1 = draw(l, 1, camera_pos, player_pos, None, walls, size)
+                print(f"{(time.perf_counter() - t)*1000:.2f}ms")
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    sys.exit()
+
+            screen.fill((0,0,0))
+
+            screen.blit(l, (0,0))
+
+            # for line in w:
+            #     pygame.draw.line(screen, [255,255,255] if line[-1] == 1 else [255,0,0], (line[0], line[1]), (line[3], line[4]))
+
+
+            i = 1
+
+
+            pygame.display.update()

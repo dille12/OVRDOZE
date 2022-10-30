@@ -834,7 +834,7 @@ class Interactable:
         self.contents = {}
         self.dialogue_bias = None
         self.angle = angle
-        if angle:
+        if angle and self.type != "door":
             self.image = pygame.transform.rotate(self.image, angle)
 
         self.columns = 3
@@ -955,8 +955,8 @@ class Interactable:
                 )
 
                 rect.inflate_ip(
-                    100 * self.door_tick.value / self.door_tick.max_value,
-                    10 * self.door_tick.value / self.door_tick.max_value,
+                    (100 if not self.angle else 10) * self.door_tick.value / self.door_tick.max_value,
+                    (100 if self.angle else 10) * self.door_tick.value / self.door_tick.max_value,
                 )
 
                 pygame.draw.rect(screen, [255, 255, 255], rect, 3)
@@ -1522,8 +1522,8 @@ class Burn:
             particle_list.append(
                 Particle(
                     [
-                        self.pos[0] + random.randint(-4, 4) * 2,
-                        self.pos[1] + random.randint(-4, 4) * 2,
+                        self.pos[0] + random.randint(-4, 4) * 2 * multiplier2,
+                        self.pos[1] + random.randint(-4, 4) * 2 * multiplier2,
                     ],
                     type="fire",
                     magnitude=(self.magnitude * (self.lifetime / self.life_max) ** 0.7),

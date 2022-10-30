@@ -21,6 +21,7 @@ vecEdges = []
 debug_text = pygame.font.Font("texture/terminal.ttf", 10)
 
 
+
 def get_angle_diff(angle1, angle2):
     anglediff = (angle1 - angle2 + 180 + 360) % 360 - 180
     return anglediff
@@ -343,7 +344,7 @@ def intersect_jit(A, B, C, D):
 
 @jit(nopython = True)
 def check_los_jit(p1, p2, walls, walls2 = None):
-    
+
     for line in walls:
         if intersect_jit(p1, p2, np.array([line[0], line[1]]), np.array([line[2], line[3]])):
             return False
