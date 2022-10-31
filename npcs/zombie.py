@@ -354,7 +354,7 @@ class Zombie(pygame.sprite.Sprite):
         # pygame.draw.rect(screen, [255,255,255],[self.temp_pos[0], self.temp_pos[1], 20, 20])
 
         for x in burn_list:
-            if los.get_dist_points(x.pos, self.pos) < 25:
+            if los.get_dist_points(x.pos, self.pos) < 40*multiplier2:
                 self.hp -= timedelta.mod(1)
 
         self.target_angle = 180 - math.degrees(

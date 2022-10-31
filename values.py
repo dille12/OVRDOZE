@@ -303,6 +303,9 @@ grenade_throw = False
 grenade = load("texture/items/grenade.png", size = [30,30])
 molotov = load("texture/items/molotov.png", size = [40,40])
 
+grenade_ico = colorize(load("texture/items/grenade.png", size = [50,50]), pygame.Color((200,200,200)))
+molotov_ico =  colorize(load("texture/items/molotov.png", size = [50,50]), pygame.Color((200,200,200)))
+
 molotov_explode_sound = get_Sound("sound/molotov.wav")
 molotov_pickup = get_Sound("sound/molotov_pickup.wav")
 drug_use = get_Sound("sound/drug_use.wav")
