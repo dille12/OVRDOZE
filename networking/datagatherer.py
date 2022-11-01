@@ -18,39 +18,42 @@ class DataGatherer:
 
     def parse(self, data):
 
-        print("Parsing data...")
 
         for individual_packet in data.split("END#"):
             for line in individual_packet.split("\n"):
-                if line == "PACKET" or line == "/":
+                if line == "PACKET" or line == "/" or not line:
                     continue
                 try:
-                    print(f"Evaluating line: {line}")
+                    line = line.strip(" ")
                     eval(line)
-                    print("SUCCESS")
                 except Exception as e:
-                    print(f"Evaluation exception: {e}")
+                    print(line)
+                    print(f"Evaluation exception:", traceback.print_exc())
 
     def threaded_data_gather(self):
         self.gathering = True
-        t = time.time()
+        t = time.perf_counter()
         packet = f"PACKET\n"
         for x in self.data:
             packet += x + "\n"
             self.data.remove(x)
+
         packet += "END#"
 
         # print(f"Sending from player {self.player_team.name}\n{packet}")
 
         reply = self.game_ref.net.send(packet)
 
+        reply = reply.replace("/", "")
+        reply = reply.replace(" ", "")
+
         if reply.strip("/ ") == "KILL":
             sys.exit()
 
         if reply.strip(" ") not in ["ok", "/", "/ok", "/ok/", "ok/", ""]:
-            print("Received packet:\n", reply)
             self.parse(reply)
-        self.game_ref.ping.append(time.time() - t)
+        self.game_ref.ping.append(time.perf_counter() - t)
         if len(self.game_ref.ping) > 10:
             self.game_ref.ping.remove(self.game_ref.ping[0])
         self.gathering = False
+        self.game_ref.pos_sent = False

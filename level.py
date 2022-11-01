@@ -248,7 +248,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     turret_bro[0].navmesh_ref = NAV_MESH.copy()
     turret_bro[0].wall_ref = walls_filtered
 
-    app.pygame.display.set_gamma(map.GAMMA[0], map.GAMMA[1], map.GAMMA[2])
+    #pygame.display.set_gamma(map.GAMMA[0], map.GAMMA[1], map.GAMMA[2])
 
 
     func.load_screen(screen, f"Initializing JIT")

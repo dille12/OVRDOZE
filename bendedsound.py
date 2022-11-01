@@ -3,7 +3,6 @@ class bendedSound:
     def __init__(self, sound, bended_sound):
         self.sound = sound
         self.bended_sound = bended_sound
-        print("Created a bended sound file")
 
         if not (isinstance(self.sound, pygame.mixer.Sound) and isinstance(self.bended_sound, pygame.mixer.Sound)):
             print("WARNING: NO SOUND FILE FOR:", self)

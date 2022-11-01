@@ -132,7 +132,7 @@ weapons = {
         view=0.03,
         handling=0.1,
     ),
-    "SPAS": armory.Weapon(
+    "SPAS-12": armory.Weapon(
         "SPAS-12",
         clip_s=6,
         fire_r=120,
@@ -463,7 +463,7 @@ def main(
         give_weapon("GLOCK"),
         give_weapon("AWP"),
         give_weapon("AK"),
-        give_weapon("SPAS"),
+        give_weapon("SPAS-12"),
         give_weapon("P90"),
     ]
 

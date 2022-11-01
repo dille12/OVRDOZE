@@ -28,8 +28,6 @@ try:
             m = n
             break
 
-    print(m)
-
     fs_size = (m.width, m.height)
 except:
     fs_size = (1920, 1080)
@@ -66,7 +64,6 @@ multiplayer = False
 def set_multiplayer(arg):
     global multiplayer
     multiplayer = arg
-    print("MULTIPLAYER=", multiplayer)
 
 raindrops = []
 WHITE_COLOR = [255, 255, 255]
@@ -141,12 +138,10 @@ def get_sound_Variants(folder, name2, dont_bend = False):
             i += 1
 
         except Exception as e:
-            print(e)
             return list
 
 def make_sound(sound, file, dont_bend = False):
     path = file + "/" + sound + ".wav"
-    print(path)
     return get_Sound(path) if not dont_bend else pygame.mixer.Sound(path)
 
 
@@ -203,7 +198,6 @@ def colorize(image, newColor):
     image.fill((0, 0, 0, 255), None, pygame.BLEND_RGBA_MULT)
     # add in new RGB values
     image.fill(newColor[0:3] + (0,), None, pygame.BLEND_RGBA_ADD)
-    print("colorized")
 
     return image
 

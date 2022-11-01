@@ -11,6 +11,7 @@ import os
 import game
 from values import *
 import func
+import ast
 
 
 class App:
@@ -28,18 +29,47 @@ class App:
         self.path_times = {"calc" : [0, 0], "cache" : [0, 0], "max" : 0}
         self.route = None
         self.player_team = placeholder
+        self.net = None
+
+        self.players = [self.name]
+        self.nwobjects = {}
+        self.selected_map = 0
+
+        self.ping = [0]
 
         self.soldier_cache = {}
 
         self.zombiegroup = pygame.sprite.Group()
         self.unitstatuses = []
         self.screen_glitch = 1
-
+        self.pos_sent = False
         self.levels = ["Requiem", "Manufactory", "Liberation", "Contamination"]
         self.day = -1
 
+        self.start_game_with_mp = []
+
+
+    def send_data(self, line):
+        self.data_collector.data.append(line)
+
+    def start_mp_list(self, list):
+        self.start_game_with_mp = list
+
+    def append_player(self, name):
+        changed = False
+        if name not in self.players:
+            self.players.append(name)
+            changed = True
+        if changed:
+            self.send_data(f"self.game_ref.append_player('{self.name}')")
+
+
     def collect_data(self):
         #self.chat.tick()
+        if not self.net:
+            return
+
+
         try:
             self.data_collector.tick()
         except Exception as e:
@@ -52,6 +82,11 @@ class App:
             self.clocktick = 144
         elif self.fps == "Unlimited":
             self.clocktick = 500
+
+    def set_map(self, id):
+        self.selected_map = id
+        self.map_tick = 5
+        menu_click2.play()
 
     def clear_compiled_navmeshes(self):
         for map in self.maps:
@@ -74,6 +109,8 @@ class App:
             self.volume,
             self.music,
         ) = get_preferences.pref()
+
+        self.name = str(random.randint(1,9999))
 
     def write_prefs(self):
         get_preferences.write_prefs(
@@ -111,7 +148,10 @@ class App:
 
 
 
-    def update_screen(self):
+    def update_screen(self, return_screen = False):
+
+        if return_screen:
+            return pygame.display.get_surface(), 1
 
         if self.vsync:
             vs = 1
@@ -119,12 +159,14 @@ class App:
             vs = 0
 
         if self.fs:
-            screen = self.pygame.display.set_mode(size, pygame.FULLSCREEN | pygame.SCALED , vsync=vs)
+            screen = pygame.display.set_mode(size, pygame.FULLSCREEN | pygame.SCALED , vsync=vs)
             mouse_conversion = 1
         else:
             print("Setting to windowed")
-            screen = self.pygame.display.set_mode(size, pygame.RESIZABLE, vsync=vs)
+            screen = pygame.display.set_mode(size, vsync=vs)
             mouse_conversion = 1
+
+        print("Screen update done")
 
         self.screen_copy = screen
 
@@ -139,7 +181,7 @@ class App:
 
     def getMaps(self):
         maps_dict = {}
-        self.maps_dict = maps_dict
+
         self.maps = get_maps(self)
         i = 0
         for map_1 in self.maps:
@@ -156,6 +198,8 @@ class App:
             else:
                 maps_dict[i] = {"map": map_1, "image": img}
                 i += 1
+
+        self.maps_dict = maps_dict
         return maps_dict
 
     def start_sp(self, arg):
@@ -173,10 +217,14 @@ class App:
             map=map,
         )
 
+    def launch_multiplier_server(self, arg):
+        print("LAUNCHING!")
+        reply = self.net.send(f"PACKET\nself.game_ref.start_mp_list([{self.players}, {self.selected_map}])\nEND#")
+        self.start_multiplayer_client(self.players, self.selected_map)
 
 
-    def start_multiplayer_client(self, arg):
-        reply = self.net.send("/STARTGAME/")
+
+    def start_multiplayer_client(self, players, selected_map):
         self.write_prefs()
         func.load_screen(screen, "Loading")
         game.main(
@@ -185,5 +233,5 @@ class App:
             net=self.net,
             players=players,
             self_name=self.name,
-            map=maps_dict[selected_map]["map"],
+            map=self.maps_dict[selected_map]["map"],
         )

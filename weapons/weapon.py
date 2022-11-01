@@ -58,8 +58,6 @@ class Weapon:
 
             self.image.set_alpha(200)
 
-            print("Image loaded")
-
             temp = pygame.transform.scale(
                 pygame.image.load(f"texture/{self.kind}/{image}"), [30, 10]
             ).convert_alpha()

@@ -33,7 +33,9 @@ from game_objects.rain_drop import RainDrop
 
 import armory
 import objects
-import enemies
+from npcs.mp_dummy import Player_Multi
+
+
 import RUN
 
 import enem_obs
@@ -60,26 +62,7 @@ def give_weapon(kind, name):
 #     print("SINGLEPLAYER")
 
 
-def thread_data_collect(
-    net,
-    packet,
-    player_actor,
-    multiplayer_actors,
-    bullet_list,
-    grenade_list,
-    current_threading,
-    zomb_info,
-):
-    try:
-        reply = net.send(packet).translate({ord("/"): None})
-        network_parser.gen_from_packet(
-            reply, player_actor, multiplayer_actors, zomb_info
-        )
 
-    except Exception as e:
-        print("CLIENT ERROR:", traceback.print_exc())
-        pass
-    current_threading = False
 
 
 def write_packet(object):
@@ -126,7 +109,7 @@ def main(
         difficulty
     ]
 
-
+    self_name = app.name
 
     if multiplayer:
         enemy_count = -1
@@ -178,22 +161,28 @@ def main(
 
     level_order = ["Requiem", "Manufactory", "Liberation"]
 
-    screen, mouse_conversion = app.update_screen()
+    print(app)
 
-
-    route = None
-    clock = app.pygame.time.Clock()
-    multiplayer_actors = {}
-    if multiplayer:
-
-        for y in players:
-            if y == "" or y == self_name:
-                continue
-            multiplayer_actors[y] = enemies.Player_Multi(y)
-    enemy_up_time = time.time()
+    screen, mouse_conversion = app.update_screen(return_screen = True)
 
     weapon_keys = list(armory.__weapons_map["gun"].keys())
     print("KEYS", weapon_keys)
+
+    route = None
+    clock = app.pygame.time.Clock()
+    app.multiplayer_actors = {}
+    print("Initting actors")
+    if multiplayer:
+        print("MP INIT")
+        for y in players:
+            print(y)
+            if y == "" or y == self_name:
+                continue
+            app.multiplayer_actors[y] = Player_Multi(y, app, weapons = armory.__weapons_map["gun"])
+    print("MP DUMMIES INITTED")
+    enemy_up_time = time.time()
+
+
 
     # multiplayer = True
 
@@ -218,6 +207,9 @@ def main(
 
     app.day = -1
 
+    print("Loading level...")
+
+
     (
         map,
         map_render,
@@ -229,6 +221,8 @@ def main(
         wall_points,
         walls_filtered,
     ) = load_level(map, mouse_conversion, player_inventory, app, screen)
+
+    print("Level loaded")
 
     wave = False
     wave_number = 0
@@ -247,7 +241,7 @@ def main(
     player_melee = armory.Melee.Melee(
         strike_count=2, damage=35, hostile=False, owner_object=player_actor
     )
-
+    equipped_gun = None
     # draw_los = True
 
     m_clicked = False
@@ -263,17 +257,17 @@ def main(
         for x in [
             give_weapon("gun", "GLOCK"),
             give_weapon("gun", "FN57-S"),
-            give_weapon("gun", "DESERT EAGLE"),
+            give_weapon("gun", "DESERTEAGLE"),
             give_weapon("gun", "P90"),
             give_weapon("gun", "MP5"),
-            give_weapon("gun", "SPAS"),
+            give_weapon("gun", "SPAS-12"),
             give_weapon("gun", "SCAR18"),
             give_weapon("gun", "AR-15"),
             give_weapon("gun", "AK"),
             give_weapon("gun", "AWP"),
             give_weapon("gun", "RPG-7"),
-            give_weapon("gun", "M134 MINIGUN"),
-            give_weapon("gun", "NRG-LMG Mark1"),
+            give_weapon("gun", "M134-MINIGUN"),
+            give_weapon("gun", "NRG-LMG.Mark1"),
         ]:
             player_weapons.append(x)
 
@@ -287,16 +281,16 @@ def main(
         "FN57-S",
         "GLOCK",
         "AR-15",
-        "DESERT EAGLE",
+        "DESERTEAGLE",
         "MP5",
         "AWP",
         "AK",
-        "SPAS",
+        "SPAS-12",
         "P90",
         "SCAR18",
         "RPG-7",
-        "M134 MINIGUN",
-        "NRG-LMG Mark1",
+        "M134-MINIGUN",
+        "NRG-LMG.Mark1",
     ]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
@@ -312,7 +306,7 @@ def main(
 
     # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AR-15"),1))
     # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AK"),2))
-    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "SPAS"),3))
+    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "SPAS-12"),3))
     for weapon_1 in player_weapons:
         not_used_weapons.append(weapon_1.name)
 
@@ -398,6 +392,12 @@ def main(
         tick_delta = tick_time / (1 / 60)
 
         timedelta.timedelta = min([tick_delta, 3])
+
+        if multiplayer:
+
+            app.collect_data()
+            c_weapon.owner = player_actor
+            c_weapon.app = app
 
 
 
@@ -595,6 +595,8 @@ def main(
 
         scroll = [False, False]
 
+        last_gun = c_weapon.name
+
         for event in app.pygame.event.get():
             if event.type == app.pygame.QUIT:
                 sys.exit()
@@ -643,6 +645,11 @@ def main(
                             or c_weapon.__dict__["ammo"] == "INF"
                         ):
                             searching = False
+
+        if last_gun != c_weapon.name:
+            app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_gun({time.perf_counter()}, '{c_weapon.name}')")
+
+
 
         pressed = app.pygame.key.get_pressed()
         if pressed[app.pygame.K_ESCAPE] and not pause_tick:
@@ -777,7 +784,7 @@ def main(
                                     x.active = True
 
                     wave = False
-                    pygame.display.set_gamma(1, 1.1, 1.1)
+                    #pygame.display.set_gamma(1, 1.1, 1.1)
                     wave_change_timer = time.time()
 
                     wave_anim_ticks = [120, 0]
@@ -806,7 +813,7 @@ def main(
                     wave_length += 3
                     # wave_interval += 1
                     wave = True
-                    pygame.display.set_gamma(1.2, 0.9, 0.9)
+                    #pygame.display.set_gamma(1.2, 0.9, 0.9)
                     wave_number += 1
 
                     wave_text_tick = -20
@@ -865,10 +872,7 @@ def main(
                         )
                     # print(f"Zombie spawned with id {zombo.identificator}")
                         enemy_list.append(zombo)
-                        if multiplayer:
-                            if "zombies" not in packet_dict:
-                                packet_dict["zombies"] = []
-                            packet_dict["zombies"].append(zombo)
+
 
             # func.print_s(screen, str(round(enemy_count/((player_actor.__dict__["sanity"]/100)+0.25),3)),3)
 
@@ -942,81 +946,6 @@ def main(
         time_stamps["particles"] = time.time() - t
         t = time.time()
 
-        if multiplayer:
-
-            if (
-                data_collector == None
-                or data_collector.is_alive() == False
-                and server_tick == tick_rate
-            ):
-
-                try:
-                    ping = time.time() - thread_start - 1 / 60
-                except:
-                    pass
-                thread_start = time.time()
-
-                x_pos_1 = str(round(player_pos[0]))
-                y_pos_1 = str(round(player_pos[1]))
-                angle_1 = str(round(player_actor.get_angle()))
-
-                packet = (
-                    "PACKET\nPLAYER:"
-                    + self_name
-                    + "_"
-                    + x_pos_1
-                    + "_"
-                    + y_pos_1
-                    + "_"
-                    + angle_1
-                    + "_"
-                    + str(player_actor.get_hp())
-                    + "\n"
-                )
-
-                for type_1 in packet_dict:
-                    for x in packet_dict[type_1]:
-                        packet += x.get_string() + "\n"
-
-                for issue in zombie_events:
-                    packet += issue + "\n"
-                packet += "#END"
-
-                packet_dict.clear()
-
-                zomb_info = [
-                    interactables,
-                    camera_pos,
-                    map_render,
-                    NAV_MESH,
-                    walls_filtered,
-                    zombie_hp,
-                    zombie_damage,
-                ]
-                data_collector = threading.Thread(
-                    target=thread_data_collect,
-                    args=(
-                        net,
-                        packet,
-                        player_actor,
-                        multiplayer_actors,
-                        bullet_list,
-                        grenade_list,
-                        current_threading,
-                        zomb_info,
-                    ),
-                )
-                data_collector.start()
-
-                server_tick = 0
-            if server_tick < tick_rate:
-                server_tick += 1
-
-            for x in multiplayer_actors:
-                multiplayer_actors[x].tick(
-                    screen, player_pos, camera_pos, walls_filtered, player_actor
-                )
-
         bullet_list_copy = bullet_list.copy()
         grenade_list_copy = grenade_list.copy()
 
@@ -1085,7 +1014,7 @@ def main(
 
             player_actor.set_angle(player_angle)
 
-            if c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "DESERT EAGLE"]:
+            if c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "DESERTEAGLE"]:
                 pl = player_pistol
             else:
                 pl = player
@@ -1123,6 +1052,11 @@ def main(
                     player_pos = angle_coll
 
             player_actor.set_pos(player_pos)
+
+            if multiplayer and not app.pos_sent:
+                app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_values({time.perf_counter()},{player_pos}, {player_angle})")
+                app.pos_sent = True
+
 
             if player_actor.knockback_tick != 0:
 
@@ -1170,6 +1104,7 @@ def main(
                         screen,
                     )
                     player_melee.tick(screen, r_click_tick)
+
 
                     if c_weapon._bullets_in_clip == 0 and click_single_tick:
                         gun_jam.play()
@@ -1302,6 +1237,11 @@ def main(
         time_stamps["prompts"] = time.time() - t
         t = time.time()
 
+        for x in app.multiplayer_actors:
+            app.multiplayer_actors[x].tick(
+                screen, player_pos, camera_pos, walls_filtered, player_actor
+            )
+
         for enemy in enemy_list:
             if enemy.class_type == "SOLDIER":
                 enemy.tick(phase)
@@ -1342,7 +1282,7 @@ def main(
                 enemy_list,
                 player_actor,
                 draw_blood_parts=map_render,
-                dummies=multiplayer_actors,
+                dummies=app.multiplayer_actors,
             )
             if kills_bullet != 0 and kills_bullet != None:
                 kills += kills_bullet
@@ -1450,9 +1390,15 @@ def main(
 
         try:
             if multiplayer:
-                func.print_s(screen, "PING: " + str(round(last_ping * 1000)) + "ms", 4)
 
-                last_ping = last_ping * 59 / 60 + ping / 60
+                ping = 0
+                for i in app.ping:
+                    ping += i
+
+                ping /= len(app.ping)
+
+                func.print_s(screen, "PING: " + str(round(ping * 1000)) + "ms", 4)
+
 
         except Exception as e:
             print(e)
@@ -1957,26 +1903,7 @@ def main(
             wave_anim_ticks[0] -= timedelta.mod(1)
         if wave_anim_ticks[1] > 0:
             wave_anim_ticks[1] -= timedelta.mod(1)
-        try:
 
-            if multiplayer:
-                for list_1, list_copy, slot in [
-                    [bullet_list, bullet_list_copy, "bullets"],
-                    [grenade_list, grenade_list_copy, "grenades"],
-                ]:
-
-                    if slot not in packet_dict:
-                        packet_dict[slot] = []
-
-                    for object in reversed(list_1):
-                        if object not in list_copy and object.__dict__["mp"] == False:
-                            packet_dict[slot].append(object)
-                        else:
-                            break
-                    list_copy = list_1.copy()
-
-        except Exception as e:
-            print(e)
 
         if not fade_tick.tick():
             tick = fade_tick.rounded()

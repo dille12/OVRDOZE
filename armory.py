@@ -45,8 +45,8 @@ guns = {
         handling=0.9,
     ),
 
-    "DESERT EAGLE" : W.Gun(
-        name="DESERT EAGLE",
+    "DESERTEAGLE" : W.Gun(
+        name="DESERTEAGLE",
         price=950,
         clip_s=7,
         fire_r=2000,
@@ -133,8 +133,8 @@ guns = {
         view=0.035,
         handling=0.45,
     ),
-    "M134 MINIGUN": W.Gun(
-        name="M134 MINIGUN",
+    "M134-MINIGUN": W.Gun(
+        name="M134-MINIGUN",
         price=6500,
         clip_s=999,
         fire_r=2300,
@@ -176,7 +176,7 @@ guns = {
         extra_bullet = False,
     ),
 
-    "SPAS": W.Gun(
+    "SPAS-12": W.Gun(
         name="SPAS-12",
         price=1300,
         clip_s=6,
@@ -281,8 +281,8 @@ guns = {
         semi_auto=True,
         ai_fire_rate_mod = 40,
     ),
-    "NRG-LMG Mark1": W.Gun(
-        name="NRG-LMG Mark1",
+    "NRG-LMG.Mark1": W.Gun(
+        name="NRG-LMG.Mark1",
         price=6700,
         clip_s=67,
         fire_r=600,

@@ -67,7 +67,8 @@ class Gun(Weapon):
         self._firerate = tick_count / (fire_r / 60)
 
         self.ai_fire_rate_mod = ai_fire_rate_mod
-
+        self.owner = None
+        self.app = None
 
         self.spread_per_bullet = spread_per_bullet
         self.piercing_bullets = piercing
@@ -143,6 +144,39 @@ class Gun(Weapon):
     def get_semi_auto(self):
         return self.semi_auto
 
+    def visual_and_audio_fire(self, bul_pos, angle, screen):
+
+        super().use()
+
+        for x in range(self._bullets_at_once):
+            if self.energy_weapon:
+                for x in range(random.randint(14, 23)):
+                    particle_list.append(
+                        classes.Particle(
+                            bul_pos,
+                            pre_defined_angle=True,
+                            angle=angle + 90,
+                            magnitude=self._damage**0.2 - 0.5,
+                            screen=screen,
+                            type="energy",
+                        )
+                    )
+
+            else:
+                for x in range(random.randint(8, 16)):
+                    particle_list.append(
+                        classes.Particle(
+                            bul_pos,
+                            pre_defined_angle=True,
+                            angle=angle + 90,
+                            magnitude=self._damage**0.1 - 0.5,
+                            screen=screen,
+                        )
+                    )
+
+
+
+
     def fire(self, bullet_pos, angle, screen, player_actor, ai = False):
         if not ai:
             index = (0.9 + 0.1*player_actor.sanity/100)**0.1
@@ -157,12 +191,17 @@ class Gun(Weapon):
 
         c = 198.59507 * 0.36919315403 / 1.875  * multiplier2
 
-        super().use()
+
 
         x_offset = math.sin(radian_angle) * c
         y_offset = math.cos(radian_angle) * c
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
 
+        self.visual_and_audio_fire(bul_pos, angle, screen)
+
+        if self.owner:
+            self.app.send_data(f"self.game_ref.multiplayer_actors['{self.owner.name}'].equipped_gun.visual_and_audio_fire({bul_pos}, {angle}, self.game_ref.screen_copy)")
+            print("Sent fire info")
         multiplier = 2 if self.get_double_damage_time() > 0 else 1
         spread_cumulative = 0
         for x in range(self._bullets_at_once):
@@ -182,33 +221,10 @@ class Gun(Weapon):
                         piercing=self.piercing_bullets,
                         energy=self.energy_weapon,
                         rocket=self.rocket_launcher,
+                        send_info=True if self.owner else False,
                     )
                 )  # BULLET
 
-                if self.energy_weapon:
-                    for x in range(random.randint(14, 23)):
-                        particle_list.append(
-                            classes.Particle(
-                                bul_pos,
-                                pre_defined_angle=True,
-                                angle=angle + 90,
-                                magnitude=self._damage**0.2 - 0.5,
-                                screen=screen,
-                                type="energy",
-                            )
-                        )
-
-                else:
-                    for x in range(random.randint(8, 16)):
-                        particle_list.append(
-                            classes.Particle(
-                                bul_pos,
-                                pre_defined_angle=True,
-                                angle=angle + 90,
-                                magnitude=self._damage**0.1 - 0.5,
-                                screen=screen,
-                            )
-                        )
 
                 if self._shotgun == False:
                     self._bullets_in_clip -= 1

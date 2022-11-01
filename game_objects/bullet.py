@@ -17,7 +17,8 @@ class Bullet(Game_Object):
         piercing=False,
         mp=False,
         energy=False,
-        rocket=False
+        rocket=False,
+        send_info=False
     ):
         super().__init__(
             name="bullet",
@@ -168,6 +169,20 @@ class Bullet(Game_Object):
 
         crystal_pay = False
 
+        if self.type == "bullet":
+
+            x,y = rot_bullet.get_rect().center
+
+            draw_pos = func.draw_pos([self._pos[0] - x, self._pos[1] - y], camera_pos)
+
+            screen.blit(rot_bullet, draw_pos)
+
+        else:
+            pygame.draw.circle(screen, [255, 153, 0], draw_pos, 3)
+
+        if self.mp:
+            return 0
+
         if self.team == "hostile":
             if classes.player_hit_detection(
                 self._pos, self._last_pos, player, self._damage
@@ -289,14 +304,6 @@ class Bullet(Game_Object):
                 except:
                     pass
 
-        if self.type == "bullet":
 
-            x,y = rot_bullet.get_rect().center
 
-            draw_pos = func.draw_pos([self._pos[0] - x, self._pos[1] - y], camera_pos)
-
-            screen.blit(rot_bullet, draw_pos)
-
-        else:
-            pygame.draw.circle(screen, [255, 153, 0], draw_pos, 3)
         return dead

@@ -42,7 +42,7 @@ class Server:
                     )
 
                 elif reply[:6] == "PACKET":
-                    time.sleep(0.1)
+                    #time.sleep(0.1)
                     for individual_packet in reply.split("END#"):
                         for line in individual_packet.split("\n"):
                             if line == "PACKET" or line == "/" or line == "":
@@ -51,8 +51,7 @@ class Server:
                                 if x == conn:
                                     continue
                                 self.players[x]["data"].append(line)
-                                print("Saved line for", self.players[x]["team"].name)
-                                print(">>> ", line)
+
 
                     if self.players[conn]["data"] != []:
 
@@ -60,11 +59,9 @@ class Server:
                         for line_2 in self.players[conn]["data"]:
                             data += line_2 + "\n"
                             self.players[conn]["data"].remove(line_2)
-                            print("FOUND LINE:", self.players[conn]["username"], line_2)
                         data += "END#"
-                        print(f"{data}")
                     else:
-                        data = "ok"
+                        data = "/"
                     conn.send(str.encode(data))
 
                 elif "STARTGAME" in reply.split("/"):
