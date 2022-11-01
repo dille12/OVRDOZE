@@ -727,15 +727,21 @@ def main(
             tab_pressed = False
 
         f_press = False
-
         if pressed[app.pygame.K_f] and f_pressed == False and player_actor.get_hp() > 0:
-
             f_pressed = True
-
             f_press = True
-
         elif pressed[app.pygame.K_f] == False:
             f_pressed = False
+
+        q_press = False
+        if pressed[app.pygame.K_q] and q_pressed == False and player_actor.get_hp() > 0:
+            q_pressed = True
+            q_press = True
+        elif pressed[app.pygame.K_q] == False:
+            q_pressed = False
+
+        if q_press:
+            player_actor.change_nade(player_inventory)
 
 
 
@@ -885,7 +891,7 @@ def main(
 
 
         for x in turret_list:
-            x.tick(screen, camera_pos, enemy_list, 0, walls_filtered, player_pos)
+            x.tick(screen, camera_pos, enemy_list, 0, map.numpy_array_wall_los, player_pos)
 
         for x in npcs:
             x.tick(screen, player_actor, camera_pos, map)
@@ -959,7 +965,9 @@ def main(
 
             grenade_throw = True
 
-            if player_inventory.get_amount_of_type("HE Grenade") > 0:
+
+
+            if player_inventory.get_amount_of_type("HE Grenade") > 0 and player_actor.preferred_nade == "HE Grenade":
                 grenade_list.append(
                     armory.Grenade(
                         player_pos, func.minus(mouse_pos, camera_pos), "HE Grenade"
@@ -968,7 +976,7 @@ def main(
                 player_inventory.remove_amount("HE Grenade", 1)
                 print("throwing nade")
 
-            elif player_inventory.get_amount_of_type("Molotov") > 0:
+            elif player_inventory.get_amount_of_type("Molotov") > 0 and player_actor.preferred_nade == "Molotov":
                 grenade_list.append(
                     armory.Grenade(
                         player_pos, func.minus(mouse_pos, camera_pos), "Molotov"
@@ -976,6 +984,8 @@ def main(
                 )
                 player_inventory.remove_amount("Molotov", 1)
                 print("throwing nade")
+
+            player_actor.update_nade(player_inventory)
 
         elif pressed[app.pygame.K_g] == False:
             grenade_throw = False
@@ -1073,7 +1083,7 @@ def main(
             player_pos = player_actor.pos
 
             for x in burn_list:
-                if los.get_dist_points(x.pos, player_pos) < 25:
+                if los.get_dist_points(x.pos, player_pos) < 40*multiplier2:
                     player_actor.set_hp(timedelta.mod(1), reduce=True)
 
             if player_actor.__dict__["barricade_in_hand"] != None:

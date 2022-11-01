@@ -1421,6 +1421,26 @@ class Player:
         self.money_last_tick = 0
         self.unitstatuses = []
         self.np_pos = np.array([0,0], dtype = float)
+        self.preferred_nade = "HE Grenade"
+
+    def update_nade(self, inventory):
+        nade_types = ["HE Grenade", "Molotov"]
+
+        if inventory.get_amount_of_type(self.preferred_nade) == 0:
+            for x in nade_types:
+                if inventory.get_amount_of_type(x) != 0:
+                    self.preferred_nade = x
+
+    def change_nade(self, inventory):
+        nade_types = ["HE Grenade", "Molotov"]
+
+        for x in nade_types:
+            if inventory.get_amount_of_type(x) != 0 and x != self.preferred_nade:
+                self.preferred_nade = x
+                return
+
+
+
 
     def set_pos(self, pos):
         self.pos = pos
@@ -1544,10 +1564,12 @@ class Burn:
             ]
 
             if not self.infinite:
-                pygame.draw.rect(
-                    map_render,
-                    [0, 0, 0],
-                    [pos[0], pos[1], random.randint(1, 7), random.randint(1, 7)],
-                )
+                size = random.randint(1,7)
+                surf = pygame.Surface((size,size))
+                surf.fill((30,30,30))
+                map_render.blit(surf, pos, None, pygame.BLEND_RGB_SUB)
+
+
+
         if not self.infinite:
             self.lifetime -= timedelta.mod(1)

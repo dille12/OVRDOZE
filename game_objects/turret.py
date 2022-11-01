@@ -4,6 +4,7 @@ from values import *
 import los
 import classes
 import func
+import numpy as np
 
 
 class Turret(Game_Object):
@@ -22,17 +23,20 @@ class Turret(Game_Object):
         self.size = turret.get_rect().size[0] / 2
         self.target = None
 
+        self.np_pos = np.array(self._pos)
+
     def get_string(self):
         return super().get_string("TURRET")
 
     def scan_for_enemies(self, enemy_list, walls):
         lowest = 99999
         dist = None
+
         if not enemy_list:
             return
         for i in range(3):
             x = random.choice(enemy_list)
-            if not los.check_los(self._pos, x.get_pos(), walls):
+            if not los.check_los_jit(self.np_pos, np.array(x.get_pos()), walls):
                 continue
             dist = los.get_dist_points(self._pos, x.get_pos())
             if dist > self._range:
@@ -87,7 +91,7 @@ class Turret(Game_Object):
             aim_at = self.target.get_pos()
             if random.uniform(0,1) < 0.1:
                 if not (
-                    los.check_los(self._pos, self.target.get_pos(), walls)
+                    los.check_los_jit(self.np_pos, np.array(self.target.get_pos()), walls)
                     and los.get_dist_points(self._pos, self.target.get_pos()) < self._range
                     and self.target.check_if_alive()
                 ):

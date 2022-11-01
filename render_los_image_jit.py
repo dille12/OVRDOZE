@@ -120,8 +120,8 @@ def draw(
         else:
             i2 = i - 1
 
-        triangle_array[i, 0] = line[0] + 0.00001
-        triangle_array[i2, 4] = line[0] - 0.00001
+        triangle_array[i, 0] = line[0] + 0.0001
+        triangle_array[i2, 4] = line[0] - 0.0001
 
 
     start = time.perf_counter()

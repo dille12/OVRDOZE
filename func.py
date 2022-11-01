@@ -1172,6 +1172,33 @@ def draw_HUD(
             text = terminal4.render("JAMMED!", False, [255, 0, 0])
             screen.blit(text, [5 + x_d, 40 + y_d])  #
 
+    player_actor.update_nade(player_inventory)
+
+    if player_actor.preferred_nade == "HE Grenade":
+        screen.blit(grenade_ico, [240 + x_d, 5 + y_d])
+        nades = player_inventory.get_amount_of_type("HE Grenade")
+
+        x,y = grenade_ico.get_size()
+
+        text = terminal.render(str(nades), False, [255, 255, 255] if nades else [255,0,0])
+
+        x1, y1 = text.get_size()
+
+        screen.blit(text, [240 + x_d + x - x1, 5 + y_d + y - y1])  #
+
+    elif player_actor.preferred_nade == "Molotov":
+        screen.blit(molotov_ico, [240 + x_d, 5 + y_d])
+        nades = player_inventory.get_amount_of_type("Molotov")
+
+        x,y = molotov_ico.get_size()
+
+        text = terminal.render(str(nades), False, [255, 255, 255])
+
+        x1, y1 = text.get_size()
+
+        screen.blit(text, [240 + x_d + x - x1, 5 + y_d + y - y1])  #
+
+
     y_pos = 80
 
     for w_1 in player_weapons:
