@@ -368,6 +368,8 @@ dialogue_tick = GameTick(40)
 
 money_tick = GameTick(35, oneshot=True)
 
+beat_blink = GameTick(12, oneshot = True)
+
 
 last_hp = 0
 damage_ticks = 0

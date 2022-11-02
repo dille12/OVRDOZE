@@ -110,7 +110,7 @@ class App:
             self.music,
         ) = get_preferences.pref()
 
-        self.name = str(random.randint(1,9999))
+        self.name = "Client" + str(random.randint(1,9999))
 
     def write_prefs(self):
         get_preferences.write_prefs(

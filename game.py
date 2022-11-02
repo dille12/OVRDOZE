@@ -324,9 +324,7 @@ def main(
     for file in os.listdir(path):
         if (
             file.endswith(".wav")
-            and file != "menu_loop.wav"
-            and file != "overworld_loop.wav"
-            and file != "downtown.wav"
+            and file not in ("menu_loop.wav", "overworld_loop.wav", "downtown.wav", "menu_loop_new.wav")
         ):
             songs.append("sound/songs/" + file)
 
@@ -531,6 +529,8 @@ def main(
             if time.time() - song_start_t > beat_map[beat_index] > 0:
                 beat_red = 3
                 beat_index += 1
+
+                beat_blink.value = 0
 
                 if wave_text_color:
                     wave_text_color = False
@@ -794,7 +794,7 @@ def main(
                     wave_change_timer = time.time()
 
                     wave_anim_ticks = [120, 0]
-                wave_text_tick += timedelta.mod(beat_red)
+                wave_text_tick += timedelta.mod(beat_red*multiplier2)
 
             else:
 
@@ -1827,6 +1827,7 @@ def main(
                     ],
                 )
 
+        beat_blink.tick()
 
         try:
             kill_counter.tick(screen, cam_delta, kill_counter)

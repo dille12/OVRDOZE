@@ -417,14 +417,15 @@ class Map:
                     if tolerance:
                         for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
                             for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
-                                if not los.check_los([point[0]+x, point[1]+y], [ref_point["point"][0]+x2, ref_point["point"][1]+y2], walls_filtered, self.no_los_walls):
+                                if not los.check_los_jit(np.array([point[0]+x, point[1]+y]), np.array([ref_point["point"][0]+x2, ref_point["point"][1]+y2]), self.numpy_array_wall_los, self.numpy_array_wall_no_los):
                                     good_point = False
                                     break
                         if not good_point:
                             continue
 
 
-                    if los.check_los(point, ref_point["point"], walls_filtered, self.no_los_walls):
+
+                    if los.check_los_jit(np.array(point), np.array(ref_point["point"]), self.numpy_array_wall_los, self.numpy_array_wall_no_los):
 
                         good_point = True
                         for point2 in ref_point["connected"]:

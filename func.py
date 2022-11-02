@@ -789,7 +789,7 @@ def draw_HUD(
             screen,
             [255, 0, 0],
             [-1, -1, size[0] + 2, size[1] + 2],
-            round((beat_red - 0.8) * 3),
+            round((beat_red - 0.8) * 5*multiplier2),
         )
 
     hud_color = [
@@ -1024,8 +1024,12 @@ def draw_HUD(
     if wave or wave_anim_ticks[0] > 0:
         wave_end_tick, wave_start_tick = wave_anim_ticks
 
-        if wave_text_color:
 
+        inverted = wave_text_color
+        # if beat_blink.value%(beat_blink.max_value/2) < (beat_blink.max_value/4) and beat_blink.value < beat_blink.max_value:
+        #     inverted = not inverted
+
+        if inverted:
             color1 = [255, 255, 255]
             color2 = [255, 0, 0]
         else:
