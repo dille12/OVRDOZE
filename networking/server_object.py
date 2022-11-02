@@ -1,12 +1,22 @@
 import random
+from values import *
 
 class MP_Object:
-    def __init__(self, app):
+    def __init__(self):
+        self.app = ID_container
+        if "id" in self.__dict__:
+            if self.id != -1:
+                self.app.nwobjects[self.id] = self
+                return
+
         while True:
             self.id = random.randint(0, 4294967296)
-            self.app = app
+
             if self.id not in self.app.nwobjects:
                 self.app.nwobjects[self.id] = self
                 break
 
-        print("Identification Successful")
+
+    def kill_id(self):
+        if self.id in self.app.nwobjects:
+            del self.app.nwobjects[self.id]

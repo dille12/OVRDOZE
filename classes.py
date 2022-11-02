@@ -1377,6 +1377,8 @@ class Particle:
             particle_list.remove(self)
 
 
+
+
 def player_hit_detection(pos, lastpos, player, damage):
 
     if player.get_hp() <= 0:
@@ -1404,9 +1406,10 @@ def player_hit_detection(pos, lastpos, player, damage):
 
 
 class Player:
-    def __init__(self, name, turret_bullets=1):
+    def __init__(self, app, name, turret_bullets=1):
         self.pos = [0, 0]
         self.name = name
+        self.app = app
         self.hp = 100
         self.sanity = 100
         self.sanity_change = None
@@ -1499,11 +1502,18 @@ class Player:
 
     def set_hp(self, hp, reduce=False):
         if reduce:
-
             self.hp -= hp
-
         else:
             self.hp = hp
+        if self.app.multiplayer:
+            self.app.send_data(f"self.game_ref.multiplayer_actors['{self.name}'].set_hp({round(self.hp)})")
+
+
+
+    def force_player_damage(self, damage):
+        if self.hp > 0:
+            self.set_hp(damage, reduce=True)
+            func.list_play(pl_hit)
 
 
 class Wall:

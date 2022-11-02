@@ -30,11 +30,12 @@ class App:
         self.route = None
         self.player_team = placeholder
         self.net = None
+        self.server_tick_rate = GameTick(1)
 
         self.players = [self.name]
         self.nwobjects = {}
         self.selected_map = 0
-
+        self.multiplayer = True
         self.ping = [0]
 
         self.soldier_cache = {}
@@ -50,10 +51,18 @@ class App:
 
 
     def send_data(self, line):
+        if not self.multiplayer:
+            return
         self.data_collector.data.append(line)
 
     def start_mp_list(self, list):
         self.start_game_with_mp = list
+
+    def damage_dummy(name, damage):
+        if name == self.name:
+            self.player_actor_ref.force_player_damage(damage)
+        else:
+            self.multiplayer_actors.force_player_damage(damage)
 
     def append_player(self, name):
         changed = False

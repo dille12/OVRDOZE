@@ -4,9 +4,10 @@ import random
 import func
 from values import *
 from anim_list import *
+from networking.server_object import MP_Object
 
 
-class Game_Object:
+class Game_Object(MP_Object):
     def __init__(
         self,
         name="obj",
@@ -18,6 +19,7 @@ class Game_Object:
         lifetime=100,
         texture=None,
     ):
+        super().__init__()
         self.name = name
         self._pos = pos.copy()
         self.hostile = hostile

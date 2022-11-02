@@ -17,11 +17,13 @@ class Grenade(Weapon):
         self.angle_rad = math.atan2(target_pos[1] - pos[1], target_pos[0] - pos[0])
         self.velocity = los.get_dist_points(pos, target_pos) / 45
 
-        if type == "HE Grenade":
+        if type == "HE":
             self.image = grenade
 
         elif type == "Molotov":
             self.image = molotov
+        else:
+            print("ERROR : ", type)
 
         self.target_pos = target_pos
 

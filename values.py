@@ -322,6 +322,12 @@ not_used_weapons = []
 
 player_weapons = []
 
+class ID_container:
+    def __init__(self):
+        self.nwobjects = {}
+
+ID_container = ID_container()
+
 
 class TimeDelta:
     def __init__(self):

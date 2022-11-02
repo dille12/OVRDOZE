@@ -18,8 +18,12 @@ class Bullet(Game_Object):
         mp=False,
         energy=False,
         rocket=False,
-        send_info=False
+        daemon_bullet=False,
+        id=-1,
+        owner=None,
     ):
+        self.id = id
+        self.owner = owner
         super().__init__(
             name="bullet",
             pos=pos,
@@ -30,6 +34,9 @@ class Bullet(Game_Object):
             lifetime=30,
             texture=energy_bullet_length[round(speed)] if energy else bullet_length[round(speed)],
         )
+
+        self.daemon_bullet = daemon_bullet
+
         self.mp = mp
         self.speed = speed * random.uniform(0.9, 1.1)
         self.energy = energy
@@ -46,6 +53,7 @@ class Bullet(Game_Object):
             self.type = "shrapnel"
 
         self.piercing = piercing
+        self.actors_hit = []
 
         self.added_explosion = False
 
@@ -66,6 +74,8 @@ class Bullet(Game_Object):
         pass
 
     def kill_bullet(self, add_expl = True):
+
+        self.kill_id()
 
         if self.rocket and add_expl and not self.added_explosion:
             append_explosions.append([self._pos, expl1])
@@ -114,20 +124,17 @@ class Bullet(Game_Object):
                         screen=screen,
                     )
                 )
-            colls = list(getcollisionspoint(map.block_vis_rects, self._pos))
-            if len(colls) != 0:
-                print(colls)
-                append_explosions.append([last_pos, expl1])
-                self.kill_bullet(add_expl=False)
-                return 0
+            if not self.daemon_bullet:
+                colls = list(getcollisionspoint(map.block_vis_rects, self._pos))
+                if len(colls) != 0:
+                    append_explosions.append([last_pos, expl1])
+                    self.kill_bullet(add_expl=False)
+                    return 0
 
 
         self.detect_collision()
         self.draw()
         try:
-            # angle_coll = map.check_collision(
-            #     self._pos, map_boundaries, return_only_collision=True, collision_box=0
-            # )
 
             coll_types, pos = map.checkcollision(self._pos, [0,0], round(self.speed/4)*multiplier2, map_boundaries, ignore_barricades=True, bullet = True)
 
@@ -158,7 +165,7 @@ class Bullet(Game_Object):
                     )
 
         except Exception as e:
-            print("exception")
+            print("exception at bullet rico")
             print(e)
 
         if self.type == "bullet":
@@ -180,7 +187,7 @@ class Bullet(Game_Object):
         else:
             pygame.draw.circle(screen, [255, 153, 0], draw_pos, 3)
 
-        if self.mp:
+        if self.daemon_bullet:
             return 0
 
         if self.team == "hostile":
@@ -205,7 +212,7 @@ class Bullet(Game_Object):
                     pass
 
         if dummies != {}:
-            for x in dummies:
+            for x in (x for x in dummies if x not in self.actors_hit):
                 if (
                     dummies[x].hit_detection(
                         camera_pos,
@@ -229,13 +236,17 @@ class Bullet(Game_Object):
                         )
                     )
 
-
+                    if self.owner:
+                        if not self.piercing:
+                            self.owner.app.send_data(f"ID_container.nwobjects[{self.id}].kill_bullet()")
+                        self.owner.app.send_data(f"self.game_ref.player_actor_ref.force_player_damage({self._damage})")
 
                     try:
                         if not self.piercing:
                             self.kill_bullet()
                     except:
                         pass
+                    self.actors_hit.append(x)
 
                     if dummies[x].check_if_alive():
                         return False

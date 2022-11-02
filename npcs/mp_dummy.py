@@ -15,8 +15,8 @@ prompt = pygame.font.Font("texture/terminal.ttf", 14)
 
 class Player_Multi(MP_Object):
     def __init__(self, username, app, weapons = None):
-
-        super().__init__(app)
+        self.app = app
+        super().__init__()
         self.name = username
         self.pos = [0, 0]
         self.draw_pos = [0,0]
@@ -25,7 +25,7 @@ class Player_Multi(MP_Object):
         self.draw_angle = 0
         self.player_blit = player
         self.killed = False
-        self.name_text = prompt.render(self.name, False, [255, 255, 255])
+
         self.last_tick = time.time()
         self.vel = [0, 0]
         self.acc = [0, 0]
@@ -51,6 +51,9 @@ class Player_Multi(MP_Object):
         self.equipped_gun.owner = self
         self.equipped_gun.app = self.app
 
+    def set_hp(self, hp):
+        self.hp = hp
+
     def check_if_alive(self):
         if self.killed:
             return False
@@ -75,6 +78,13 @@ class Player_Multi(MP_Object):
             )
         print("KILLED")
         self.killed = True
+
+    def force_player_damage(self, damage):
+        if self.hp > 0:
+            self.hp -= damage
+            func.list_play(pl_hit)
+        else:
+            self.kill_actor(camera_pos, actor_list, map_render, player_actor)
 
     def hit_detection(
         self, camera_pos, pos, lastpos, damage, actor_list, map_render, player_actor
@@ -102,10 +112,12 @@ class Player_Multi(MP_Object):
             return True
         return False
 
-    def tick(self, screen, player_pos, camera_pos, walls, player_actor):
+    def tick(self, screen, player_pos, camera_pos, walls, player_actor, map_render):
 
         if self.hp > 0:
             self.killed = False
+        else:
+            self.kill_actor(camera_pos, dict, map_render, player_actor)
 
         if self.killed:
             return
@@ -120,9 +132,9 @@ class Player_Multi(MP_Object):
 
         self.draw_pos = [
             self.draw_pos[0]
-            + (-self.draw_pos[0] + self.pos[0]) * 0.1,
+            + (-self.draw_pos[0] + self.pos[0]) * 0.4,
             self.draw_pos[1]
-            + (-self.draw_pos[1] + self.pos[1]) * 0.1,
+            + (-self.draw_pos[1] + self.pos[1]) * 0.4,
         ]
 
         self.draw_angle = self.draw_angle + (-self.draw_angle + self.angle) * 0.1
@@ -158,6 +170,7 @@ class Player_Multi(MP_Object):
         screen.blit(player_rotated, [self.draw_pos[0] + offset[0], self.draw_pos[1] + offset[1]])
 
         # screen.blit(self.player_blit, func.minus_list(self.pos,camera_pos))
+        self.name_text = prompt.render(self.name + str(self.hp), False, [255, 255, 255])
         text_rect = self.name_text.get_rect().size
 
         screen.blit(

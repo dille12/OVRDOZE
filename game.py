@@ -172,7 +172,9 @@ def main(
     clock = app.pygame.time.Clock()
     app.multiplayer_actors = {}
     print("Initting actors")
+    app.multiplayer = multiplayer
     if multiplayer:
+
         print("MP INIT")
         for y in players:
             print(y)
@@ -236,7 +238,9 @@ def main(
 
     wave_length = 30
 
-    player_actor = classes.Player(self_name, turret_bullets)
+    player_actor = classes.Player(app, self_name, turret_bullets)
+
+    app.player_actor_ref = player_actor
 
     player_melee = armory.Melee.Melee(
         strike_count=2, damage=35, hostile=False, owner_object=player_actor
@@ -392,10 +396,10 @@ def main(
         timedelta.timedelta = min([tick_delta, 3])
 
         if multiplayer:
-
-            app.collect_data()
-            c_weapon.owner = player_actor
-            c_weapon.app = app
+            if app.server_tick_rate.tick():
+                app.collect_data()
+                c_weapon.owner = player_actor
+                c_weapon.app = app
 
 
 
@@ -403,7 +407,7 @@ def main(
 
             # hp_time_dilation = 0.1 + (player_actor.hp/100)**0.4 * 0.9
 
-            if player_actor.hp < 30:
+            if player_actor.hp < 30 and not multiplayer:
 
                 timedelta.timedelta *= 0.5
 
@@ -970,11 +974,13 @@ def main(
             if player_inventory.get_amount_of_type("HE Grenade") > 0 and player_actor.preferred_nade == "HE Grenade":
                 grenade_list.append(
                     armory.Grenade(
-                        player_pos, func.minus(mouse_pos, camera_pos), "HE Grenade"
+                        player_pos, func.minus(mouse_pos, camera_pos), "HE"
                     )
                 )
                 player_inventory.remove_amount("HE Grenade", 1)
                 print("throwing nade")
+
+                app.send_data(f"grenade_list.append(Grenade({player_pos}, {func.minus(mouse_pos, camera_pos)}, 'HE'))")
 
             elif player_inventory.get_amount_of_type("Molotov") > 0 and player_actor.preferred_nade == "Molotov":
                 grenade_list.append(
@@ -984,6 +990,8 @@ def main(
                 )
                 player_inventory.remove_amount("Molotov", 1)
                 print("throwing nade")
+
+                app.send_data(f"grenade_list.append(Grenade({player_pos}, {func.minus(mouse_pos, camera_pos)}, 'Molotov'))")
 
             player_actor.update_nade(player_inventory)
 
@@ -1130,6 +1138,10 @@ def main(
 
             if player_alive:
                 func.list_play(death_sounds)
+
+                if multiplayer:
+                    app.send_data("")
+
                 player_alive = False
                 respawn_ticks = 300 if not endless else 120
                 for i in range(5):
@@ -1249,7 +1261,7 @@ def main(
 
         for x in app.multiplayer_actors:
             app.multiplayer_actors[x].tick(
-                screen, player_pos, camera_pos, walls_filtered, player_actor
+                screen, player_pos, camera_pos, walls_filtered, player_actor, map_render,
             )
 
         for enemy in enemy_list:

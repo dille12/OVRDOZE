@@ -2,8 +2,11 @@ from _thread import *
 import time
 import ast
 import traceback
-
+from values import *
 import sys
+
+from game_objects.bullet import Bullet
+from weapons.area import Grenade
 
 
 class DataGatherer:
