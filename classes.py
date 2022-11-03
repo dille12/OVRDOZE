@@ -739,6 +739,7 @@ class Interactable:
         app,
         pos,
         player_inventory,
+        player_weapons = [],
         list=[],
         name="Box",
         type="crate",
@@ -756,6 +757,7 @@ class Interactable:
             app,
             pos,
             player_inventory,
+            player_weapons,
             list,
             name,
             type,
@@ -770,7 +772,7 @@ class Interactable:
         ]
         self.app = app
 
-        if type != "item":
+        if type not in ("item", "gun_drop"):
             self.pos = func.mult(pos,multiplier2)
         else:
             self.pos = pos
@@ -784,29 +786,34 @@ class Interactable:
         if self.type == "crate":
             self.name = name
             self.image = load("texture/box.png", size = [80,80], alpha = False)
-        elif self.type == "item":
+        elif self.type == "item" or self.type == "gun_drop":
             self.lifetime = 3000
             self.pos = [
                 self.pos[0] + random.randint(-35, 35),
                 self.pos[1] + random.randint(-35, 35),
             ]
-            self.name = item.__dict__["name"]
+            self.name = item.name
             self.item = item
             self.amount = amount
+            if self.type == "item":
+                self.rarity = item.drop_weight
+                self.image = load("texture/items/" + self.item.im, size = [40,40])
+            else:
+                self.image = func.colorize(load(self.item.image_directory, size = [100, 34]), pygame.Color(200,200,200))
 
-            self.rarity = item.drop_weight
-
-            self.image = load("texture/items/" + self.item.__dict__["im"], size = [40,40])
             self.rect = self.image.get_rect()
             self.rect.inflate_ip(4, 4)
-            if items[self.name].drop_weight < 0.6:
-                self.prompt_color = RED_COLOR
-            elif items[self.name].drop_weight < 1.5:
-                self.prompt_color = PURPLE_COLOR
-            elif items[self.name].drop_weight < 3.5:
-                self.prompt_color = CYAN_COLOR
+            if self.type == "item":
+                if items[self.name].drop_weight < 0.6:
+                    self.prompt_color = RED_COLOR
+                elif items[self.name].drop_weight < 1.5:
+                    self.prompt_color = PURPLE_COLOR
+                elif items[self.name].drop_weight < 3.5:
+                    self.prompt_color = CYAN_COLOR
+                else:
+                    self.prompt_color = WHITE_COLOR
             else:
-                self.prompt_color = WHITE_COLOR
+                self.prompt_color = (255, 106, 0)
 
         elif self.type == "NPC":
             self.name = name
@@ -831,6 +838,7 @@ class Interactable:
             self.center_pos = self.pos.copy()
 
         self.inv_save = player_inventory
+        self.gun_save = player_weapons
         self.contents = {}
         self.dialogue_bias = None
         self.angle = angle
@@ -873,6 +881,7 @@ class Interactable:
         (app,
         pos,
         player_inventory,
+        player_weapons,
         list,
         name,
         type,
@@ -889,6 +898,7 @@ class Interactable:
             app,
             pos,
             player_inventory,
+            player_weapons = player_weapons,
             list = list,
             name = name,
             type = type,
@@ -930,7 +940,7 @@ class Interactable:
             else:
                 self.dialogue_bias = 0
 
-        if self.type == "item":
+        if self.type == "item" or self.type == "gun_drop":
             self.rect.topleft = func.minus_list(self.pos, camera_pos)
             if round(self.lifetime) % 18 < 9:
                 pygame.draw.rect(
@@ -984,6 +994,16 @@ class Interactable:
                 self.alive = False
             else:
                 self.amount = cond
+
+        elif self.type == "gun_drop":
+            able_to_append = True
+            for i in self.gun_save:
+                if i.name == self.name:
+                    able_to_append = False
+            if able_to_append:
+                self.gun_save.append(self.item.copy())
+                self.alive = False
+                self.item.reload_sound.play()
 
         elif self.type == "NPC":
             self.npc_active = True
@@ -1039,6 +1059,26 @@ class button_prompt:
 
                 self.text_render = prompt.render(
                     "NO ROOM IN INVENTORY", False, [255, 0, 0]
+                )
+
+        elif self.object.type == "gun_drop":
+            self.text_render2 = prompt.render(
+                self.object.name,
+                False,
+                [255, 255, 255],
+            )
+
+            able_to_append = True
+            for i in self.object.gun_save:
+                if i.name == self.object.name:
+                    able_to_append = False
+            if able_to_append:
+
+                self.text_render = prompt.render("F to pick up", False, [255, 255, 255])
+
+            else:
+                self.text_render = prompt.render(
+                    "ALREADY IN INVENTORY", False, [255, 0, 0]
                 )
 
         elif self.object.type == "NPC":

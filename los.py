@@ -346,14 +346,14 @@ def intersect_jit(A, B, C, D):
 def check_los_jit(p1, p2, walls, walls2 = None):
 
     for line in walls:
-        if intersect_jit(p1, p2, np.array([line[0], line[1]]), np.array([line[2], line[3]])):
+        if intersect_jit(p1, p2, line[0:2], line[2:4]):
             return False
 
     if walls2 == None:
         return True
 
     for line in walls2:
-        if intersect_jit(p1, p2, np.array([line[0], line[1]]), np.array([line[2], line[3]])):
+        if intersect_jit(p1, p2, line[0:2], line[2:4]):
             return False
 
     return True

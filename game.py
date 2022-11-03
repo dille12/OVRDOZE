@@ -267,7 +267,7 @@ def main(
             give_weapon("gun", "SPAS-12"),
             give_weapon("gun", "SCAR18"),
             give_weapon("gun", "AR-15"),
-            give_weapon("gun", "AK"),
+            give_weapon("gun", "AK47"),
             give_weapon("gun", "AWP"),
             give_weapon("gun", "RPG-7"),
             give_weapon("gun", "M134-MINIGUN"),
@@ -288,7 +288,7 @@ def main(
         "DESERTEAGLE",
         "MP5",
         "AWP",
-        "AK",
+        "AK47",
         "SPAS-12",
         "P90",
         "SCAR18",
@@ -309,7 +309,7 @@ def main(
         ruperts_shop_selections.append(x)
 
     # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AR-15"),1))
-    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AK"),2))
+    # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "AK47"),2))
     # ruperts_shop_selections.append(weapon_button(give_weapon("gun", "SPAS-12"),3))
     for weapon_1 in player_weapons:
         not_used_weapons.append(weapon_1.name)
@@ -385,6 +385,8 @@ def main(
 
 
     app.camera_pos = camera_pos
+
+    interactables.append(classes.Interactable(app, [100,100], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = give_weapon("gun", "AK47")))
 
     while 1:
 
@@ -1041,6 +1043,8 @@ def main(
                 screen, mouse_pos, pl, player_pos, camera_pos, player_actor
             )
 
+            last_pos = player_pos.copy()
+
             if not block_movement:
 
                 player_pos2 = player_pos.copy()
@@ -1048,13 +1052,6 @@ def main(
                     pressed, player_pos, x_vel, y_vel
                 )
 
-                # if len(
-                #     list(getcollisionspoint_condition(map.rectangles, player_pos, map.barricade_rects))
-                # ) != 0 or not (
-                #     0 < player_pos[0] < map.size[0] / map.conv
-                #     and 0 < player_pos[1] < map.size[1] / map.conv
-                # ):
-                #     player_pos = player_pos2
 
             if collision_check_player:
                 # angle_coll = map.check_collision(player_pos, map_boundaries, collision_box = 10, screen = screen, x_vel = x_vel, y_vel = y_vel, phase = phase)
@@ -1067,7 +1064,17 @@ def main(
                 )
                 if angle_coll:
                     # dddwwwfunc.debug_render(math.degrees(angle_coll))
+
+
+
                     player_pos = angle_coll
+
+            for x in (getcollisionspoint(map.rectangles, player_pos)):
+                if x in map.barricade_rects:
+                    continue
+                player_pos = last_pos.copy()
+
+
 
             player_actor.set_pos(player_pos)
 

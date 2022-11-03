@@ -177,12 +177,12 @@ def draw_triangles(s_np, triangle_array, angles, angle_array, screen, phase):
 if __name__ == '__main__':
     player_pos = [-58.21221355950286, -314.7711827184913]
     #camera_pos = [623.8173302107729, 500]
-    camera_pos = [100, 700]
+    camera_pos = [100, 200]
 
     start_pos = minus_list(player_pos, camera_pos)
 
     clock = pygame.time.Clock()
-    size = np.array([854, 480])
+
     walls =  np.array([
          [ 356,   67,  356,    0],
          [ 356,    0,  445 ,   0],
@@ -235,13 +235,17 @@ if __name__ == '__main__':
 
     for i in range(1):
 
+        size1 = 1336, 768
 
-        screen = pygame.display.set_mode((854, 480))
+        size = np.array(size1)
+
+
+        screen = pygame.display.set_mode(size1)
         w = []
         angles = []
         triangle_array = []
 
-        l = pygame.Surface((854, 480))
+        l = pygame.Surface(size1)
 
         while 1:
 

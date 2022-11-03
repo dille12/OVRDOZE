@@ -40,7 +40,7 @@ class Soldier:
         self.walls = walls
 
         if patrol_leader:
-            self.weapon = func.pick_random_from_list([guns["SCAR18"], guns["AR-15"], guns["AK"], guns["P90"], guns["DESERTEAGLE"]]).copy()
+            self.weapon = func.pick_random_from_list([guns["SCAR18"], guns["AR-15"], guns["AK47"], guns["P90"], guns["DESERTEAGLE"]]).copy()
         else:
 
             self.weapon = func.pick_random_from_list([guns["MP5"], guns["M1911"], guns["GLOCK"], guns["FN57-S"]]).copy()

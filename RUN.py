@@ -144,6 +144,8 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, mp
         [map_pos[0], map_pos[1] + 10 + rect_map2.h],
         [map_pos[0], map_pos[1] + 5 + rect_map2.h],
     )
+
+    # AIDS AIDS
     app.pygame.draw.line(
         screen,
         [255, 255, 255],
@@ -171,8 +173,6 @@ def main():
 
     clock = app.pygame.time.Clock()
     print("run init")
-
-    print("ALL SOUND VARIABLES")
 
     screen, mouse_conversion = app.update_screen()
 
@@ -1170,8 +1170,10 @@ def main():
 
             # text = terminal.render("Your IP: -", False, [255,255,255])
             # screen.blit(text, [30,420])
+            
+            type = "(LOCAL NETWORK)" if ip_address[:3] == "192" else ""
 
-            text = terminal.render("Your IP: " + ip_address, False, [255, 255, 255])
+            text = terminal.render("Your IP: " + ip_address + " " + type, False, [255, 255, 255])
             screen.blit(text, [30, 420])
 
             text = terminal.render("Joining to:", False, [255, 255, 255])

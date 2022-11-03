@@ -75,7 +75,7 @@ weapons = {
         burst_bullets=3,
         burst_fire_rate=2,
     ),
-    "AK": armory.Weapon(
+    "AK47": armory.Weapon(
         "AK47",
         clip_s=30,
         fire_r=520,
@@ -462,7 +462,7 @@ def main(
         give_weapon("AR-15"),
         give_weapon("GLOCK"),
         give_weapon("AWP"),
-        give_weapon("AK"),
+        give_weapon("AK47"),
         give_weapon("SPAS-12"),
         give_weapon("P90"),
     ]

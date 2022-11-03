@@ -17,7 +17,7 @@ or for new people who want to help: here are things that still need to get done.
 5. More stuff to do in overworld. Stock market, upgrades for you and the robot, bigger inventory purchases.
 6. More dialogue (more NPCs).
 7. More equipment (a temporary radar consumable, which reveals a Halo-like radar in HUD).
-8. Separate "career" mode from endless mode, start a career mode by starting game in Overworld.
+8. ~~Separate "career" mode from endless mode, start a career mode by starting game in Overworld.~~
 9. Ability to save progress in career mode.
 10. Add a thank you page for collaborators.
 11. A zombie that chucks explosive fleshbombs.
@@ -25,6 +25,6 @@ or for new people who want to help: here are things that still need to get done.
 ## Known bugs
 1. ~~Quitting to main menu and starting overworld again doesn't reset the map.~~
 2. HUD displacement in higher resolutions.
-3. Knockback is not affected by fps timedelta.
-4. On higher resolutions zombies grind the game to a halt. Figure out what causes this (not the rendering!)
-5. Investigate why zombies get stuck in Requiem in lower right corner.
+3. ~~Knockback is not affected by fps timedelta.~~
+4. ~~On higher resolutions zombies grind the game to a halt. Figure out what causes this (not the rendering!)~~
+5. ~~Investigate why zombies get stuck in Requiem in lower right corner.~~

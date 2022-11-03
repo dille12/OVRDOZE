@@ -92,7 +92,7 @@ guns = {
         burst_bullets=3,
         burst_fire_rate=2,
     ),
-    "AK": W.Gun(
+    "AK47": W.Gun(
         name="AK47",
         price=2700,
         clip_s=30,

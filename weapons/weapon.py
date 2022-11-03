@@ -38,6 +38,7 @@ class Weapon:
 
         self.image_file_name = image
         self.view = view
+        self.image_directory = f"texture/{self.kind}/{image}"
         if image != "":
             self.image = func.colorize(
                 pygame.image.load(f"texture/{self.kind}/{image}"),

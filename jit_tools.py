@@ -21,7 +21,8 @@ def walls_generate_np(walls_filtered, cam_array):
 
 @jit(nopython = True)
 def check_wall_np(wall, cam_array, size):
-    check = check_point(wall[0:2] - cam_array, size) or check_point(wall[2:4] - cam_array, size)
+    center = (wall[0:2] + wall[2:4])/2
+    check = check_point(wall[0:2] - cam_array, size) or check_point(wall[2:4] - cam_array, size) or check_point(center - cam_array, size)
     return check
 
 @jit(nopython = True)
