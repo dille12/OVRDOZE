@@ -128,7 +128,7 @@ def draw(
 
     triangle_array = jit_tools.calc_triangles(np.array(player_pos), triangle_array, angles, angle_array)
 
-    return draw_triangles(s_np, triangle_array, angles, angle_array, los_screen, phase), time.perf_counter() - start
+    return draw_triangles(s_np, triangle_array, angles, angle_array, los_screen, phase), triangle_array, time.perf_counter() - start
 
 def draw_triangles(s_np, triangle_array, angles, angle_array, screen, phase):
 
@@ -244,30 +244,11 @@ if __name__ == '__main__':
 
         l = pygame.Surface(size1)
 
-        while 1:
+        t = time.perf_counter()
+        l, triangles, t1 = draw(l, 1, camera_pos, player_pos, None, walls, size)
 
-            clock.tick(60)
-
-            #start_pos = minus_list(player_pos, camera_pos)
-            if pygame.mouse.get_pressed()[0]:
-                player_pos = list(pygame.mouse.get_pos())
-                t = time.perf_counter()
-                l, t1 = draw(l, 1, camera_pos, player_pos, None, walls, size)
-                print(f"{(time.perf_counter() - t)*1000:.2f}ms")
-            events = pygame.event.get()
-            for event in events:
-                if event.type == pygame.QUIT:
-                    sys.exit()
-
-            screen.fill((0,0,0))
-
-            screen.blit(l, (0,0))
-
-            # for line in w:
-            #     pygame.draw.line(screen, [255,255,255] if line[-1] == 1 else [255,0,0], (line[0], line[1]), (line[3], line[4]))
-
-
-            i = 1
-
-
-            pygame.display.update()
+        for i in triangles:
+            print("[", end="")
+            for j in i:
+                print(f"{j}, ", end="")
+            print("],", end="")
