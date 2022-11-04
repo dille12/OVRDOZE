@@ -1170,7 +1170,7 @@ def main():
 
             # text = terminal.render("Your IP: -", False, [255,255,255])
             # screen.blit(text, [30,420])
-            
+
             type = "(LOCAL NETWORK)" if ip_address[:3] == "192" else ""
 
             text = terminal.render("Your IP: " + ip_address + " " + type, False, [255, 255, 255])

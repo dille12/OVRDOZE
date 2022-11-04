@@ -5,7 +5,7 @@ import random
 import math
 
 #@jit(nopython = True)
-def filter_walls_jit(walls, walls2, cam_array, size):
+def filter_walls_jit(walls, walls2, cam_array, size): # This should be converted to use jit.
     for i in walls:
         if check_wall_np(i, cam_array, size):
             walls2 = np.append(walls2, [i], axis = 0)

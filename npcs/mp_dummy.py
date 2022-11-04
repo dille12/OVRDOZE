@@ -190,7 +190,7 @@ class Player_Multi(MP_Object):
             if self.time_overridden > time:
                 return
         self.time_overridden = time
-        self.pos = pos
+        self.pos = [pos[0] * multiplier2, pos[1] * multiplier2]
         self.angle = angle
 
     # def set_values(self, x, y, a, hp):

@@ -24,6 +24,9 @@ class Bullet(Game_Object):
     ):
         self.id = id
         self.owner = owner
+
+        pos = func.mult(pos, multiplier2)
+
         super().__init__(
             name="bullet",
             pos=pos,

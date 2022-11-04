@@ -59,7 +59,7 @@ class Turret(Game_Object):
             func.pick_random_from_list(turret_fire).play()
             bullet_list.append(
                 Bullet(
-                    [self._pos[0], self._pos[1]],
+                    [self._pos[0]/multiplier2, self._pos[1]/multiplier2],
                     self._angle + random.uniform(-10, 10),
                     self._damage,
                     hostile=False,

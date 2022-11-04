@@ -1063,10 +1063,6 @@ def main(
                     ignore_barricades=True,
                 )
                 if angle_coll:
-                    # dddwwwfunc.debug_render(math.degrees(angle_coll))
-
-
-
                     player_pos = angle_coll
 
             for x in (getcollisionspoint(map.rectangles, player_pos)):
@@ -1079,7 +1075,7 @@ def main(
             player_actor.set_pos(player_pos)
 
             if multiplayer and not app.pos_sent:
-                app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_values({time.perf_counter()},{player_pos}, {player_angle})")
+                app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_values({time.perf_counter()},{[player_pos[0]/multiplier2, player_pos[1]/multiplier2]}, {player_angle})")
                 app.pos_sent = True
 
 

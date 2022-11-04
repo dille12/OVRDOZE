@@ -119,7 +119,7 @@ class Grenade(Weapon):
             for i in range(50):
                 bullet_list.append(
                     Bullet(
-                        self.pos,
+                        [self.pos[0]/multiplier2, self.pos[1]/multiplier2],
                         random.uniform(0, 360),
                         15,
                         hostile=True,

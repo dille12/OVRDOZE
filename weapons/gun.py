@@ -148,6 +148,8 @@ class Gun(Weapon):
 
         super().use()
 
+        bul_pos = [bul_pos[0] * multiplier2, bul_pos[1] * multiplier2]
+
         for x in range(self._bullets_at_once):
             if self.energy_weapon:
                 for x in range(random.randint(14, 23)):
@@ -197,10 +199,12 @@ class Gun(Weapon):
         y_offset = math.cos(radian_angle) * c
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
 
-        self.visual_and_audio_fire(bul_pos, angle, screen)
+        bul_pos_apparent = [bul_pos[0] / multiplier2, bul_pos[1] / multiplier2]
+
+        self.visual_and_audio_fire(bul_pos_apparent, angle, screen)
 
         if self.owner:
-            self.app.send_data(f"self.game_ref.multiplayer_actors['{self.owner.name}'].equipped_gun.visual_and_audio_fire({bul_pos}, {angle}, self.game_ref.screen_copy)")
+            self.app.send_data(f"self.game_ref.multiplayer_actors['{self.owner.name}'].equipped_gun.visual_and_audio_fire({bul_pos_apparent}, {angle}, self.game_ref.screen_copy)")
         multiplier = 2 if self.get_double_damage_time() > 0 else 1
         spread_cumulative = 0
         for x in range(self._bullets_at_once):
@@ -210,7 +214,7 @@ class Gun(Weapon):
                 shooting_angle = angle + random.uniform(-self._spread - self._c_bullet_spread, self._spread + self._c_bullet_spread)
 
                 bullet_temp = Bullet.Bullet(
-                    bul_pos,
+                    bul_pos_apparent,
                     shooting_angle,
                     self._damage * multiplier,
                     hostile=self.hostile,
@@ -224,7 +228,7 @@ class Gun(Weapon):
                 bullet_list.append(bullet_temp)  # BULLET
 
                 if self.owner:
-                    self.app.send_data(f"bullet_list.append(Bullet({bul_pos}, {shooting_angle}, {self._damage * multiplier}, speed={self.bullet_speed}, piercing={self.piercing_bullets}, energy={self.energy_weapon}, rocket={self.rocket_launcher}, daemon_bullet=True, id={bullet_temp.id}))")
+                    self.app.send_data(f"bullet_list.append(Bullet({bul_pos_apparent}, {shooting_angle}, {self._damage * multiplier}, speed={self.bullet_speed}, piercing={self.piercing_bullets}, energy={self.energy_weapon}, rocket={self.rocket_launcher}, daemon_bullet=True, id={bullet_temp.id}))")
 
                 if self._shotgun == False:
                     self._bullets_in_clip -= 1
