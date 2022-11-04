@@ -1,7 +1,6 @@
 import unittest
 from jit_tools import *
 from render_los_image_jit import *
-import pygame
 
 class TestJit(unittest.TestCase):
     def test_jit_los(self):
@@ -72,6 +71,10 @@ class TestJit(unittest.TestCase):
         l, triangles, t1 = draw(l, 1, camera_pos, player_pos, None, walls, size)
         for y in range(triangles.shape[1]):
             for x in range(triangles.shape[0]):
-                print(triangles[x,y], "==", a1[x,y], triangles[x,y] == a1[x,y])
-                self.assertAlmostEqual(triangles[x,y], a1[x,y])
-                self.assertEqual(triangles[x,y], a1[x,y])
+
+                value1 = round(triangles[x,y],2)
+                value2 = round(triangles[x,y],2)
+
+                print(value1, "==", value2, value1 == value2)
+                self.assertAlmostEqual(value1, value2)
+                self.assertEqual(value1, value2)
