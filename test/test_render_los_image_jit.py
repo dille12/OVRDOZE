@@ -70,9 +70,9 @@ class TestJit(unittest.TestCase):
         size = np.array(size1)
         l = pygame.display.set_mode(size1)
         l, triangles, t1 = draw(l, 1, camera_pos, player_pos, None, walls, size)
-        print(a1, "\n=>\n", triangles)
-
         for y in range(triangles.shape[1]):
             for x in range(triangles.shape[0]):
                 self.assertAlmostEqual(triangles[x,y], a1[x,y])
                 self.assertEqual(triangles[x,y], a1[x,y])
+
+                print(triangles[x,y], "==", a1[x,y], triangles[x,y] == a1[x,y])
