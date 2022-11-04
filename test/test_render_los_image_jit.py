@@ -72,7 +72,6 @@ class TestJit(unittest.TestCase):
         l, triangles, t1 = draw(l, 1, camera_pos, player_pos, None, walls, size)
         for y in range(triangles.shape[1]):
             for x in range(triangles.shape[0]):
+                print(triangles[x,y], "==", a1[x,y], triangles[x,y] == a1[x,y])
                 self.assertAlmostEqual(triangles[x,y], a1[x,y])
                 self.assertEqual(triangles[x,y], a1[x,y])
-
-                print(triangles[x,y], "==", a1[x,y], triangles[x,y] == a1[x,y])
