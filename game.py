@@ -344,7 +344,7 @@ def main(
         "Resume",
         cont_game,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     quit_button = Button(
@@ -352,7 +352,7 @@ def main(
         "Quit",
         quit,
         app,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -511,9 +511,9 @@ def main(
             if overworld:
                 app.pygame.mixer.music.load("sound/songs/overworld_loop.wav")
                 app.pygame.mixer.music.play(-1)
-            elif map.name == "Downtown":
-                app.pygame.mixer.music.load("sound/songs/downtown.wav")
-                app.pygame.mixer.music.play(-1)
+            # elif map.name == "Downtown":
+            #     app.pygame.mixer.music.load("sound/songs/Palpitations.wav")
+            #     app.pygame.mixer.music.play(-1)
             else:
                 last_played = up_next
                 while up_next == last_played:
@@ -1380,7 +1380,7 @@ def main(
 
             draw_p_pos = func.minus(player_pos, camera_pos, op = "-")
 
-            los_image, draw_time = render_los_image_jit.draw(
+            los_image, triangles, draw_time = render_los_image_jit.draw(
                 los_image,
                 phase,
                 [round(camera_pos[0]), round(camera_pos[1])],
@@ -1976,7 +1976,7 @@ def main(
         if app.screen_glitch > 0:
             image_copy = screen.copy()
             screen.fill((0,0,0))
-            func.blit_glitch(screen, image_copy, [0,0], round(2*app.screen_glitch))
+            func.blit_glitch(screen, image_copy, [0,0], round(2*app.screen_glitch), black_bar_chance = 15)
             app.screen_glitch -= timedelta.mod(1)
 
         app.pygame.display.update()

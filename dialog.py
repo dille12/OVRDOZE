@@ -50,7 +50,7 @@ shop_quit_button = Button(
     "Exit",
     advance,
     None,
-    gameInstance=pygame,
+    gameInstance=None,
     glitchInstance=None,
 )
 shop_buy_button = Button(
@@ -58,7 +58,7 @@ shop_buy_button = Button(
     "BUY",
     purchase_weapon,
     None,
-    gameInstance=pygame,
+    gameInstance=None,
     glitchInstance=None,
 )
 upgrade_backpack_button = Button(
@@ -66,7 +66,7 @@ upgrade_backpack_button = Button(
     "UPGRADE",
     upgrade_backpack,
     None,
-    gameInstance=pygame,
+    gameInstance=None,
     glitchInstance=None,
 )
 

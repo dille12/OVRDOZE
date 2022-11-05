@@ -1424,7 +1424,7 @@ def init_jit():
              [1422,  934, 1156,  934]])
         l = pygame.Surface((854, 480))
 
-        l, t = render_los_image_jit.draw(l, 1, camera_pos, player_pos, None, walls, size)
+        l, t, t = render_los_image_jit.draw(l, 1, camera_pos, player_pos, None, walls, size)
 
 
 map = (

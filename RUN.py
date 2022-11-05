@@ -198,7 +198,7 @@ def main():
     textbox_ip.text = app.last_ip
     players = []
     port = 5555
-    menu_alpha = 125
+    menu_alpha = 75
 
     quick_load = False
 
@@ -379,7 +379,7 @@ def main():
         "Singleplayer",
         sp,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -388,7 +388,7 @@ def main():
         "Endless Mode",
         sp_lob,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -397,7 +397,7 @@ def main():
         "Start New Game",
         start_sp_career,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -406,7 +406,7 @@ def main():
         "Continue",
         sp_lob,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
         locked = True
     )
@@ -416,7 +416,7 @@ def main():
         "Back",
         main_menu,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -426,7 +426,7 @@ def main():
         "Multiplayer",
         start_mp,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_settings = Button(
@@ -434,16 +434,16 @@ def main():
         "Settings",
         settings,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
     button_quit_game = Button(
-        [x_s, 380], "Exit", quit, None, gameInstance=app.pygame, glitchInstance=glitch
+        [x_s, 380], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
     )
 
     button_restart_game = Button(
-        [x_s, 380], "Restart", restart, None, gameInstance=app.pygame, glitchInstance=glitch
+        [x_s, 380], "Restart", restart, None, gameInstance=app, glitchInstance=glitch
     )
 
 
@@ -452,7 +452,7 @@ def main():
         "Host",
         host_game,
         "3",
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_join_game = Button(
@@ -460,7 +460,7 @@ def main():
         "Join",
         join_game,
         app.ip,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_back = Button(
@@ -468,7 +468,7 @@ def main():
         "Back",
         main_menu,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_savesettings = Button(
@@ -476,7 +476,7 @@ def main():
         "Save Settings",
         main_menu_save,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     buttonUpnp = Button(
@@ -484,7 +484,7 @@ def main():
         "dev-test-upnp",
         upnp_menu,
         "upnp_menu",
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -493,7 +493,7 @@ def main():
         "START GAME",
         app.launch_multiplier_server,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_start_single_player = Button(
@@ -501,7 +501,7 @@ def main():
         "START GAME",
         start_sp,
         difficulty,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_host_quit = Button(
@@ -509,7 +509,7 @@ def main():
         "Back",
         kill_server,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     button_client_quit = Button(
@@ -517,7 +517,7 @@ def main():
         "Back",
         main_menu,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -526,7 +526,7 @@ def main():
         "dev-test-upnp",
         upnp_test,
         "upnp_test",
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
     buttonUpnpBack = Button(
@@ -534,7 +534,7 @@ def main():
         "Back",
         start_mp,
         None,
-        gameInstance=app.pygame,
+        gameInstance=app,
         glitchInstance=glitch,
     )
 
@@ -729,7 +729,7 @@ def main():
 
     app.net = None
     background_vel = 0
-    buttons = [
+    app.buttons = [
         button_sp_menu,
         button_mp_menu,
         button_settings,
@@ -778,7 +778,7 @@ def main():
     }
 
     game_menu = Menu(
-        buttons=buttons,
+        buttons=app.buttons,
         checkboxes=checkboxes,
         background=background,
         screen=screen,
@@ -897,7 +897,7 @@ def main():
 
             menu_i += 1
 
-            for i in buttons:
+            for i in app.buttons:
                 i.red_tick = 10
 
 
@@ -1185,13 +1185,11 @@ def main():
         glitch.tick()
 
 
-        # try:
-        #     if app.fs:
-        #         print("Scaling", app.full_screen.get_rect().size, screen.get_size())
-        #         app.pygame.transform.scale(screen, app.full_screen.get_rect().size, app.full_screen)
-        # except Exception as e:
-        #     print(e)
-        #     app.update_screen()
+        if glitch.glitch_tick > 0:
+            image_copy = screen.copy()
+            screen.fill((100,100,100))
+            func.blit_glitch(screen, image_copy, [0,0], round(2*glitch.glitch_tick))
+
         app.pygame.display.update()
 
 

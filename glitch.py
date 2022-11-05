@@ -10,4 +10,5 @@ class Glitch:
     def tick(self):
         if self.glitch_tick != 0:
             self.glitch_tick -= 1
+            return
             self.screen.blit(func.pick_random_from_list(self.images), (0, 0))
