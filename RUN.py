@@ -21,6 +21,7 @@ from scroll_bar import ScrollBar
 from app import App
 import map_creator
 from menu import Menu
+import map_creator
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
@@ -305,6 +306,12 @@ def main():
 
         return "start"
 
+    def launch_map_editor(args):
+        pygame.mixer.music.fadeout(1000)
+        map_creator.launch()
+
+
+
     def quit(args):
 
         app.write_prefs()
@@ -438,8 +445,17 @@ def main():
         glitchInstance=glitch,
     )
 
+    button_map_creator = Button(
+        [x_s, 380],
+        "Map Editor",
+        launch_map_editor,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+    )
+
     button_quit_game = Button(
-        [x_s, 380], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
+        [x_s, 440], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
     )
 
     button_restart_game = Button(
@@ -751,6 +767,7 @@ def main():
         button_restart_game,
         button_sp_new_game,
         button_back_sp,
+        button_map_creator,
     ]
     checkboxes = [
         check_box_difficulties,
@@ -970,6 +987,7 @@ def main():
             s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             if s1 != None:
                 menu_status = s1

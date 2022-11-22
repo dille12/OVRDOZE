@@ -1446,7 +1446,7 @@ def player_hit_detection(pos, lastpos, player, damage):
 
 
 class Player:
-    def __init__(self, app, name, turret_bullets=1):
+    def __init__(self, app, name, turret_bullets=1, inv = None):
         self.pos = [0, 0]
         self.name = name
         self.app = app
@@ -1465,6 +1465,7 @@ class Player:
         self.unitstatuses = []
         self.np_pos = np.array([0,0], dtype = float)
         self.preferred_nade = "HE Grenade"
+        self.inv = inv
 
     def update_nade(self, inventory):
         nade_types = ["HE Grenade", "Molotov"]

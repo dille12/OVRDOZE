@@ -12,7 +12,6 @@ import los
 import render_los_image_jit
 from network import Network
 import ast
-import network_parser
 from app import App
 from weapon_button import weapon_button
 from button import Button
@@ -184,7 +183,7 @@ def main(
     print("MP DUMMIES INITTED")
     enemy_up_time = time.time()
 
-
+    app.weapon_ref = armory.__weapons_map["gun"]
 
     # multiplayer = True
 
@@ -238,7 +237,7 @@ def main(
 
     wave_length = 30
 
-    player_actor = classes.Player(app, self_name, turret_bullets)
+    player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
 
     app.player_actor_ref = player_actor
 
@@ -386,7 +385,7 @@ def main(
 
     app.camera_pos = camera_pos
 
-    interactables.append(classes.Interactable(app, [100,100], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = give_weapon("gun", "AK47")))
+
 
     while 1:
 

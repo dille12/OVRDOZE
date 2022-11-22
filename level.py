@@ -168,7 +168,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     func.load_screen(screen, f"Loading Navmesh")
 
-    map.compile_navmesh(mouse_conversion)
+    map.compile_navmesh(multiplier)
 
     NAV_MESH = map.read_navmesh(walls_filtered)
 
@@ -283,20 +283,22 @@ class Map:
         DESC="",
         TOP_LAYER=None,
         NO_LOS_POLYGONS=[],
+        mult2 = multiplier2,
+        mult = multiplier,
     ):
         self.name = name
-        self.size = [map_size[0] * multiplier2, map_size[1] * multiplier2]
+        self.size = [map_size[0] * mult2, map_size[1] * mult2]
         self.polygons = []
         self.DESC = DESC
 
         self.GAMMA = GAMMA
         self.total = 0
         self.total_error = 0
-        self.spawn_point = [SPAWNPOINT[0] * multiplier2, SPAWNPOINT[1] * multiplier2]
+        self.spawn_point = [SPAWNPOINT[0] * mult2, SPAWNPOINT[1] * mult2]
 
         self.nav_mesh_available_spots = []
 
-        self.conv = multiplier
+        self.conv = mult
 
         self.size_converted = func.mult(self.size, 1 / self.conv)
 
@@ -305,10 +307,9 @@ class Map:
         self.pos = [pos[0] / self.conv, pos[1] / self.conv]
 
         self.nav_mesh_name = nav_mesh_name
-
-        name2 = self.nav_mesh_name.removesuffix(".txt")
-
-        self.compiled_file = f"texture/maps/{name2}_compiled.cnv"
+        if self.nav_mesh_name:
+            name2 = self.nav_mesh_name.removesuffix(".txt")
+            self.compiled_file = f"texture/maps/{name2}_compiled.cnv"
 
         self.barricade_rects = []
 
@@ -344,11 +345,11 @@ class Map:
                     [(x + width) / self.conv, (y + height) / self.conv],
                 ]
             )
-
-        self.background = pygame.transform.scale(
-            pygame.image.load("texture/maps/" + dir),
-            [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
-        ).convert()
+        if dir:
+            self.background = pygame.transform.scale(
+                pygame.image.load("texture/maps/" + dir),
+                [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
+            ).convert()
 
         if TOP_LAYER == None:
             self.top_layer = None
@@ -375,6 +376,58 @@ class Map:
             ]
         )
 
+    def generate_navmesh(self, NAV_MESH, level, loading_screen = True):
+        i = 0
+        for ref_point in NAV_MESH:
+
+            i += 1
+            if loading_screen:
+                func.load_screen(screen, f"Compiling Navmesh ({i}/{len(NAV_MESH)})")
+
+            for point_dict in NAV_MESH:
+                point = point_dict["point"]
+                if point == ref_point["point"]:
+                    continue
+                if point in ref_point["connected"]:
+                    continue
+
+                good_point = True
+                tolerance = 10
+                if tolerance:
+                    for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
+                        for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
+                            if not los.check_los_jit(np.array([point[0]+x, point[1]+y]), np.array([ref_point["point"][0]+x2, ref_point["point"][1]+y2]), self.numpy_array_wall_los, self.numpy_array_wall_no_los):
+                                good_point = False
+                                break
+                    if not good_point:
+                        continue
+
+
+
+                if los.check_los_jit(np.array(point), np.array(ref_point["point"]), level.numpy_array_wall_los, level.numpy_array_wall_no_los):
+
+                    good_point = True
+                    for point2 in ref_point["connected"]:
+
+                        angle_to_point = func.get_angle(ref_point["point"], point2)
+                        angle_to_point2 = func.get_angle(ref_point["point"], point)
+
+                        if abs(los.get_angle_diff(angle_to_point2, angle_to_point)) < 30:
+                            good_point = False
+
+                            ref_point["connected"].remove(point2)
+
+                            if func.get_dist_points(ref_point["point"], point2) < func.get_dist_points(ref_point["point"], point):
+                                ref_point["connected"].append(point2)
+                            else:
+                                ref_point["connected"].append(point)
+
+                    if good_point:
+                        ref_point["connected"].append(point)
+                        #point_dict["connected"].append(ref_point["point"])
+
+        return NAV_MESH
+
     def read_navmesh(self, walls_filtered):
         NAV_MESH = []
 
@@ -398,54 +451,7 @@ class Map:
                 ref_point["point"][1] *= multiplier2
                 NAV_MESH.append(ref_point)
 
-            i = 0
-            for ref_point in NAV_MESH:
-
-                i += 1
-
-                func.load_screen(screen, f"Compiling Navmesh ({i}/{len(NAV_MESH)})")
-
-                for point_dict in NAV_MESH:
-                    point = point_dict["point"]
-                    if point == ref_point["point"]:
-                        continue
-                    if point in ref_point["connected"]:
-                        continue
-
-                    good_point = True
-                    tolerance = 10
-                    if tolerance:
-                        for x, y in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
-                            for x2, y2 in ([tolerance,tolerance], [-tolerance,tolerance], [-tolerance,-tolerance], [tolerance, -tolerance]):
-                                if not los.check_los_jit(np.array([point[0]+x, point[1]+y]), np.array([ref_point["point"][0]+x2, ref_point["point"][1]+y2]), self.numpy_array_wall_los, self.numpy_array_wall_no_los):
-                                    good_point = False
-                                    break
-                        if not good_point:
-                            continue
-
-
-
-                    if los.check_los_jit(np.array(point), np.array(ref_point["point"]), self.numpy_array_wall_los, self.numpy_array_wall_no_los):
-
-                        good_point = True
-                        for point2 in ref_point["connected"]:
-
-                            angle_to_point = func.get_angle(ref_point["point"], point2)
-                            angle_to_point2 = func.get_angle(ref_point["point"], point)
-
-                            if abs(los.get_angle_diff(angle_to_point2, angle_to_point)) < 30:
-                                good_point = False
-
-                                ref_point["connected"].remove(point2)
-
-                                if func.get_dist_points(ref_point["point"], point2) < func.get_dist_points(ref_point["point"], point):
-                                    ref_point["connected"].append(point2)
-                                else:
-                                    ref_point["connected"].append(point)
-
-                        if good_point:
-                            ref_point["connected"].append(point)
-                            #point_dict["connected"].append(ref_point["point"])
+            NAV_MESH = self.generate_navmesh(NAV_MESH, self)
 
         except Exception as e:
             print(e)
@@ -1252,8 +1258,10 @@ class Map:
     def compile_navmesh(self, conv):
         print("Navmesh conv:", conv)
 
-        x_scale = self.background.get_size()[0]/20
-        y_scale = self.background.get_size()[0]/20
+        x_scale = (self.size[0]/conv)/20
+        y_scale =(self.size[1]/conv)/20
+
+        rect = pygame.Rect(0,0,self.size[0]/conv,self.size[1]/conv)
 
 
         for x1 in range(20):
@@ -1264,7 +1272,7 @@ class Map:
                 point[0] += 15
                 point[1] += 15
 
-                if not self.background.get_rect().collidepoint(point):
+                if not rect.collidepoint(point):
                     continue
 
                 collision = False

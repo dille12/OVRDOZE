@@ -44,13 +44,13 @@ class Zombie(pygame.sprite.Sprite):
         self.pos = pos
         self.target_pos = pos
         self.tick_every = 1
-        self.moving_speed = power
+        self.moving_speed = power*0.8
         self.detection_range = 300 * power
         self.detection_rate = 0.05 * self.tick_every
         self.target_angle = 0
         self.detected = False
         self.killed = False
-        self.damage = round(5 * power * dam_diff)
+        self.damage = round(3 * power * dam_diff)
         self.knockback_resistance = 1
         self.hp = 100 * hp_diff
         self.attack_speed = 30
@@ -181,6 +181,10 @@ class Zombie(pygame.sprite.Sprite):
                 )
 
             self.inventory.drop_inventory(self.pos)
+
+            if random.uniform(0,1) < 0.002:
+                weapon = func.pick_random_from_dict(armory.guns, key = True)
+                interactables.append(classes.Interactable(self.app, self.pos, self.target.inv, player_weapons = player_weapons, type = "gun_drop", item = armory.guns[weapon]))
 
             for i in range(5):
                 particle_list.append(
