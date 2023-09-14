@@ -29,7 +29,7 @@ import map_creator
 import scipy
 import highscores
 
-VERSION = "0.9.1"
+VERSION = "0.9.11"
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)

@@ -1186,7 +1186,7 @@ def main(
                 respawn_ticks = 300 if not endless else 120
                 death_wave = wave_number
 
-                if endless:
+                if endless and not multiplayer:
                     app.pygame.mouse.set_visible(True)
                     if app.highscore[map.name][difficulty][0] < death_wave:
                         app.highscore[map.name][difficulty][0] = death_wave
@@ -1210,7 +1210,7 @@ def main(
 
             if respawn_ticks > 0:
                 respawn_ticks -= timedelta.mod(1)
-            elif not endless:
+            else:
                 player_actor.set_hp(100)
                 if endless:
                     player_pos = map.get_random_point(enemies=enemy_list)
@@ -1866,7 +1866,7 @@ def main(
                 if 40 <= respawn_ticks <= 50 and fade_tick.value >= fade_tick.max_value:
                     fade_tick.value = 0
 
-            else:
+            elif not multiplayer:
 
                 text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 - 40]
@@ -1913,6 +1913,17 @@ def main(
 
                 retry_button.tick(screen, mouse_pos, click_single_tick, glitch)
                 quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch)
+
+            else:
+                text = terminal.render(f"Respawning", False, [255, 255, 255])
+                pos = [size[0] / 2, size[1] / 2 - 40]
+                screen.blit(
+                    text,
+                    [
+                        pos[0] - text.get_rect().center[0],
+                        pos[1] - text.get_rect().center[1],
+                    ],
+                )
 
 
 
