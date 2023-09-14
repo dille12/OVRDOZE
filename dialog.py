@@ -153,12 +153,12 @@ dialogues = {
     "Intro" : [
         [
             ["y" , "..."],
-            ["" , "You wake up in an alley with your\nrobot friend."],
+            ["" , "You wake up in an alley with an\ninfernal headache."],
             ["y" , "Shit my head... What happened?"],
             ["" , "You find a pistol in your pocket.\nStrange, you are not allowed\nto carry a weapon."],
             ["", "At least you can now protect\nyourself from thugs and zombies."],
             ["", "You feel your other pockets too\nin search for money,\nbut no luck."],
-            ["y", "Aight, time to go to work."]
+            ["y", "Another night, huh..."]
         ]
     ],
 
@@ -261,7 +261,6 @@ dialogues = {
             ["y", "...."],
             open_shop,
             ["n", "Get out freak."],
-            ["n", "And take that monstrosity of a\nrobot with you."],
         ],
     ]
 }

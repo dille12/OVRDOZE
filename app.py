@@ -16,6 +16,9 @@ import ast
 
 class App:
     def __init__(self, pygame):
+
+
+
         self.pygame = pygame
         self.server = Server(self)
         self.ip = None
@@ -119,7 +122,7 @@ class App:
             self.music,
         ) = get_preferences.pref()
 
-        self.name = "Client" + str(random.randint(1,9999))
+        #self.name = "Client" + str(random.randint(1,9999))
 
     def write_prefs(self):
         get_preferences.write_prefs(

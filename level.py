@@ -21,7 +21,6 @@ from tools.wall_gen import *
 
 from values import *
 
-
 def render_center(image, pos):
     im = zoom_transform(image, zoom)
     r_pos = minus([-im.get_rect().center[0], -im.get_rect().center[1]], pos)
@@ -239,6 +238,8 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
         interactables.append(x)
 
         if map.name == "Overworld" and x.name == "Basement" and not death:
+            if not app.levels:
+                return False
             x.door_dest = app.levels[0]
             app.levels.remove(app.levels[0])
             print("Set door destination to:", x.door_dest)
@@ -307,9 +308,12 @@ class Map:
         self.pos = [pos[0] / self.conv, pos[1] / self.conv]
 
         self.nav_mesh_name = nav_mesh_name
+
+
+
         if self.nav_mesh_name:
             name2 = self.nav_mesh_name.removesuffix(".txt")
-            self.compiled_file = f"texture/maps/{name2}_compiled.cnv"
+            self.compiled_file = get_preferences.get_path(f"ovrdoze_data/{name2}_compiled.cnv")
 
         self.barricade_rects = []
 
@@ -442,7 +446,7 @@ class Map:
 
 
         try:
-            file = open("texture/maps/" + self.nav_mesh_name, "r")
+            file = open(f"texture/maps/{self.nav_mesh_name}", "r")
             lines = file.readlines()
             file.close()
             for line in lines:

@@ -29,7 +29,7 @@ from anim_list import *
 from weapons.area import Explosion
 from scroll_bar import ScrollBar
 from game_objects.rain_drop import RainDrop
-
+import highscores
 import armory
 import objects
 from npcs.mp_dummy import Player_Multi
@@ -81,6 +81,9 @@ def cont_game(arg):
     return True
 
 
+
+
+
 def main(
     app,
     multiplayer=False,
@@ -104,9 +107,13 @@ def main(
         "ONSLAUGHT": [1.5, 1.35, 1.2, 0.7, 40],
     }  #
 
+
+
     sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[
         difficulty
     ]
+
+    print("Enemy count:", enemy_count)
 
     self_name = app.name
 
@@ -116,6 +123,12 @@ def main(
         packet_dict.clear()
 
     global barricade_in_hand
+
+    def restart(arg):
+
+        args = (app, self_name, difficulty, draw_los, dev_tools, skip_intervals, map)
+
+        app.start_sp(args)
 
     clicked = False
     fps_counter = time.time()
@@ -138,6 +151,8 @@ def main(
     data_collector = None
     collision_check_player = True
 
+
+    death_wave = -1
 
 
     last_ping = 0
@@ -210,18 +225,22 @@ def main(
 
     print("Loading level...")
 
+    try:
 
-    (
-        map,
-        map_render,
-        los_bg,
-        map_boundaries,
-        NAV_MESH,
-        player_pos,
-        camera_pos,
-        wall_points,
-        walls_filtered,
-    ) = load_level(map, mouse_conversion, player_inventory, app, screen)
+        (
+            map,
+            map_render,
+            los_bg,
+            map_boundaries,
+            NAV_MESH,
+            player_pos,
+            camera_pos,
+            wall_points,
+            walls_filtered,
+        ) = load_level(map, mouse_conversion, player_inventory, app, screen)
+
+    except:
+        RUN.main(ms = "beta")
 
     print("Level loaded")
 
@@ -315,7 +334,7 @@ def main(
 
     c_weapon = player_weapons[0]
     weapon_scroll = 0
-
+    newHigh = [False, False]
     if endless:
         player_inventory.columns = 4
 
@@ -354,6 +373,26 @@ def main(
         gameInstance=app,
         glitchInstance=glitch,
     )
+
+
+    retry_button = Button(
+        [size[0] / 3, 2 * size[1]/3],
+        "Retry",
+        restart,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+    )
+    quit_button_alt = Button(
+        [2 * size[0] / 3, 2 * size[1]/3],
+        "Quit",
+        quit,
+        app,
+        gameInstance=app,
+        glitchInstance=glitch,
+    )
+
+
 
     scroll_bar_volume = ScrollBar("Game volume", [20,335], 200, mixer.set_sound_volume, max_value=100, init_value = app.volume, app = app)
     scroll_bar_music = ScrollBar("Music volume", [20,400], 200, mixer.set_music_volume, max_value=100, init_value = app.music, app = app)
@@ -544,11 +583,6 @@ def main(
 
         except:
             pass
-        if wave:
-            camera_pos = [
-                camera_pos[0] + random.uniform(-beat_red + 1, beat_red - 1),
-                camera_pos[1] + random.uniform(-beat_red + 1, beat_red - 1),
-            ]
 
         if time.time() - drying_time > 0.1:
 
@@ -915,17 +949,21 @@ def main(
                     loading_cue.clear()
                     for x in app.maps:
                         if x.name == door_dest:
-                            (
-                                map,
-                                map_render,
-                                los_bg,
-                                map_boundaries,
-                                NAV_MESH,
-                                player_pos,
-                                camera_pos,
-                                wall_points,
-                                walls_filtered,
-                            ) = load_level(x, mouse_conversion, player_inventory, app, screen)
+                            try:
+                                (
+                                    map,
+                                    map_render,
+                                    los_bg,
+                                    map_boundaries,
+                                    NAV_MESH,
+                                    player_pos,
+                                    camera_pos,
+                                    wall_points,
+                                    walls_filtered,
+                                ) = load_level(x, mouse_conversion, player_inventory, app, screen)
+                            except:
+                                RUN.main(ms = "beta")
+
 
                             wave = False
                             wave_number = 0
@@ -1065,7 +1103,12 @@ def main(
                     player_pos = angle_coll
 
             for x in (getcollisionspoint(map.rectangles, player_pos)):
-                if x in map.barricade_rects:
+                break_loop = False
+                for y in map.barricade_rects:
+                    if y[0] == x:
+                        break_loop = True
+                        break
+                if break_loop:
                     continue
                 player_pos = last_pos.copy()
 
@@ -1097,11 +1140,6 @@ def main(
                     player_actor.set_hp(timedelta.mod(1), reduce=True)
 
             if player_actor.__dict__["barricade_in_hand"] != None:
-                func.print_s(
-                    screen,
-                    str(player_actor.__dict__["barricade_in_hand"].__dict__["stage"]),
-                    3,
-                )
                 result = player_actor.__dict__["barricade_in_hand"].tick(
                     screen, camera_pos, mouse_pos, click_single_tick, map
                 )
@@ -1146,6 +1184,20 @@ def main(
 
                 player_alive = False
                 respawn_ticks = 300 if not endless else 120
+                death_wave = wave_number
+
+                if endless:
+                    app.pygame.mouse.set_visible(True)
+                    if app.highscore[map.name][difficulty][0] < death_wave:
+                        app.highscore[map.name][difficulty][0] = death_wave
+                        highscores.saveHighscore(app)
+                        newHigh[0] = True
+
+                    if app.highscore[map.name][difficulty][1] < player_actor.money:
+                        app.highscore[map.name][difficulty][1] = player_actor.money
+                        highscores.saveHighscore(app)
+                        newHigh[1] = True
+
                 for i in range(5):
                     particle_list.append(
                         classes.Particle(
@@ -1158,7 +1210,7 @@ def main(
 
             if respawn_ticks > 0:
                 respawn_ticks -= timedelta.mod(1)
-            else:
+            elif not endless:
                 player_actor.set_hp(100)
                 if endless:
                     player_pos = map.get_random_point(enemies=enemy_list)
@@ -1204,6 +1256,7 @@ def main(
             free_tick += timedelta.mod(1)
             if free_tick > 90 and player_actor.get_hp() < 100:
                 player_actor.set_hp(timedelta.mod(-1), reduce=True)
+                player_actor.set_sanity(timedelta.mod(0.05 * sanity_drain))
                 if player_actor.get_hp() >= 100:
                     player_actor.hp = 100
 
@@ -1538,7 +1591,7 @@ def main(
                 )
 
             if not overworld:
-                player_actor.set_sanity(timedelta.mod(0.005 * sanity_drain))
+                player_actor.set_sanity(timedelta.mod(0.001 * sanity_drain))
 
             if phase == 3:
                 map_points = map.__dict__["points_inside_polygons"]
@@ -1814,7 +1867,8 @@ def main(
                     fade_tick.value = 0
 
             else:
-                text = terminal.render("RESPAWN IN", False, [255, 255, 255])
+
+                text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 - 40]
                 screen.blit(
                     text,
@@ -1824,15 +1878,20 @@ def main(
                     ],
                 )
 
-                if respawn_ticks <= 40:
-                    t = "1"
-                elif respawn_ticks <= 80:
-                    t = "2"
-                else:
-                    t = "3"
+                if newHigh[0]:
+                    text = terminal3.render(f"NEW RECORD!", False, [255, 255, 255])
+                    pos = [size[0] / 2, size[1] / 2 - 10]
+                    screen.blit(
+                        text,
+                        [
+                            pos[0] - text.get_rect().center[0],
+                            pos[1] - text.get_rect().center[1],
+                        ],
+                    )
 
-                text = terminal2.render(t, False, [255, 255, 255])
-                pos = [size[0] / 2, size[1] / 2]
+
+                text = terminal.render(f"Money gathered: {player_actor.money}$", False, [255, 255, 255])
+                pos = [size[0] / 2, size[1] / 2 + 20]
                 screen.blit(
                     text,
                     [
@@ -1840,6 +1899,22 @@ def main(
                         pos[1] - text.get_rect().center[1],
                     ],
                 )
+
+                if newHigh[1]:
+                    text = terminal3.render(f"NEW RECORD!", False, [255, 255, 255])
+                    pos = [size[0] / 2, size[1] / 2 + 40]
+                    screen.blit(
+                        text,
+                        [
+                            pos[0] - text.get_rect().center[0],
+                            pos[1] - text.get_rect().center[1],
+                        ],
+                    )
+
+                retry_button.tick(screen, mouse_pos, click_single_tick, glitch)
+                quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch)
+
+
 
         beat_blink.tick()
 
@@ -1879,7 +1954,7 @@ def main(
             if len(str(seconds)) == 1:
                 seconds = "0" + str(seconds)
 
-            func.print_s(screen, f"{minutes}:{seconds}", 3)
+            #func.print_s(screen, f"{minutes}:{seconds}", 3)
 
         else:
             obje = enumerate(time_stamps, 1)

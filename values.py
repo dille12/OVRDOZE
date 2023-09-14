@@ -521,4 +521,9 @@ hints = [
 "You can exit the basement after 5 waves, but you may stay as long as you wish.",
 "Wave time increases after every wave, but resets on death.",
 "Time slows down while your health is below 30%.",
+"Take them all with no hesitation.",
+"You can dodge by pressing the spacebar.",
+"You can extract recources from crates by pressing shift faster.",
+"Move more slowly by pressing control.",
+"Zombies drop weapons from time to time.",
 ]

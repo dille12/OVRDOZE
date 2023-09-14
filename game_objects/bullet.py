@@ -123,7 +123,7 @@ class Bullet(Game_Object):
                         self._pos,
                         pre_defined_angle=True,
                         angle=self._angle + 270,
-                        magnitude=self._damage**0.2 - 0.5,
+                        magnitude=self._damage**0.2 - 1,
                         screen=screen,
                     )
                 )

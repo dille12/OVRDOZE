@@ -3,20 +3,46 @@ import os
 import sys
 
 def write_default_settings():
-    with open("settings.dat", "w", encoding="UTF8") as file:
+
+    path = get_path("ovrdoze_data/settings.dat")
+
+
+    with open(path, "w", encoding="UTF8") as file:
         file.write(
             "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]\nVOL=50\nMUSIC=50")
 
 
+def get_path(path):
+
+    if getattr(sys, 'frozen', False):
+        path_sub = os.path.dirname(sys.executable)
+
+    else:
+        path_sub = ""
+
+    return os.path.join(path_sub, path)
+
+
+
 def pref():
 
-    if not os.path.isfile("settings.dat"):
+    path = get_path("ovrdoze_data/settings.dat")
+    path2 = get_path("ovrdoze_data/")
+
+
+    print(path, path2)
+
+    if not os.path.exists(path2):
+        os.mkdir(path2)
+        print("ovrdoze_data created.")
+
+    if not os.path.isfile(path):
         print("NO SETTING FILE")
+
         write_default_settings()
         pref()
 
-
-    file = open("settings.dat", encoding="UTF8")
+    file = open(path, encoding="UTF8")
     lines = file.readlines()
     file.close()
     for line in lines:
@@ -44,11 +70,16 @@ def pref():
             vol = ast.literal_eval(value.strip("\n"))
         if attr == "MUSIC":
             music = ast.literal_eval(value.strip("\n"))
+
+
     return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music
 
 
 def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music):
-    file = open("settings.dat", "w", encoding="UTF8")
+
+    path = get_path("ovrdoze_data/settings.dat")
+
+    file = open(path, "w", encoding="UTF8")
     file.write("username=" + str(name) + "\n")
     file.write("FOV=" + str(draw_los) + "\n")
     file.write("DEV=" + str(dev) + "\n")
@@ -61,4 +92,6 @@ def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res
     file.write("VOL=" + str(vol) + "\n")
     file.write("MUSIC=" + str(music) + "\n")
     file.close()
+
+
     print("Settings saved")

@@ -1,4 +1,8 @@
 import os, sys
+
+if getattr(sys, 'frozen', False):
+    os.chdir(sys._MEIPASS)
+
 import pygame
 import math
 import random
@@ -22,13 +26,17 @@ from app import App
 import map_creator
 from menu import Menu
 import map_creator
+import scipy
+import highscores
+
+VERSION = "0.9.1"
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 prompt = pygame.font.Font("texture/terminal.ttf", 14)
 
 
-def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, mp = False, host = False):
+def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):
     rect_map = maps_dict[app.selected_map]["image"].get_rect()
 
     map_pos = [size[0]/2 - rect_map.center[0], 80 * (size[0]/854)]
@@ -162,26 +170,43 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, mp
 
     )
     screen.blit(text, [map_pos[0] + rect_map2.w / 2  - text.get_rect().size[0] / 2, map_pos[1]+ 12 + rect_map2.h])
+    if difficulty == 0 or difficulty == "NO ENEMIES":
+        return
+
+    if maps_dict[app.selected_map]["map"].name not in app.highscore:
+        return
+
+    wave = app.highscore[maps_dict[app.selected_map]["map"].name][difficulty][0]
+    text = terminal.render(f"Highest wave: {wave}", False, [255, 255, 255])
+
+    screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 30])
+
+    money = app.highscore[maps_dict[app.selected_map]["map"].name][difficulty][1]
+    text = terminal.render(f"Most money earned: {money}$", False, [255, 255, 255])
+
+    screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 60])
 
 
-def main():
+
+def main(ms = "start"):
 
     app = App(pygame)
 
 
     maps_dict = app.getMaps()
-
-
     clock = app.pygame.time.Clock()
     print("run init")
 
+    highscores.write_default_highscore()
+    highscores.checkHighscores(app)
+
+    print("highscores imported")
+
     screen, mouse_conversion = app.update_screen()
-
-
 
     func.load_screen(screen, "Loading")
 
-    menu_status = "start"
+    menu_status = ms
 
     app.pygame.mouse.set_visible(True)
 
@@ -455,7 +480,11 @@ def main():
     )
 
     button_quit_game = Button(
-        [x_s, 440], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
+        [x_s, 380], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
+    )
+
+    button_back_beta = Button(
+        [x_s, 380], "Back", main_menu, None, gameInstance=app, glitchInstance=glitch
     )
 
     button_restart_game = Button(
@@ -804,6 +833,9 @@ def main():
         particle_list=particle_list,
     )
 
+
+
+
     #app.pygame.display.set_gamma(1, 1, 1)
 
     playerhealth.health = 100
@@ -821,7 +853,7 @@ def main():
         app.volume = round(scroll_bar_volume.value)
         app.music = round(scroll_bar_music.value)
 
-        button_mp_menu.locked = not app.dev
+        #button_mp_menu.locked = not app.dev
 
         app.update_fps()
 
@@ -959,8 +991,24 @@ def main():
         #
         # screen.blit(background, (0,0))
 
+        text = terminal.render(f"Version {VERSION}", False, [255, 255, 255])
+        screen.blit(text, [10, size[1]-30])
+
+
         for x in particle_list:
             x.tick(screen, [0, 0])
+
+        if menu_status == "beta":
+            text = terminal.render("Thank you for playing the story beta! Stay tuned for more.", False, [255, 255, 255])
+            x,y = text.get_rect().center
+            screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
+
+            s1 = button_back_beta.tick(screen, mouse_pos, mouse_single_tick, glitch)
+
+            if s1 != None:
+                menu_status = s1
+
+
 
         if menu_status == "res_change":
             text = terminal.render("Rendering resolution change requires restarting the game.", False, [255, 255, 255])
@@ -987,7 +1035,7 @@ def main():
             s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            #button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             if s1 != None:
                 menu_status = s1
@@ -1134,7 +1182,7 @@ def main():
             # text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
             # screen.blit(text, [400,20])
 
-            render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, mp = False, host = True)
+
 
             check_box_inter.render_checkbox()
 
@@ -1146,6 +1194,8 @@ def main():
                 if diff.__dict__["checked"]:
                     difficulty = diff.__dict__["caption"]
                     button_start_single_player.__dict__["args"] = difficulty
+
+            render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = True)
 
             s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s8_2 = button_client_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
@@ -1162,7 +1212,7 @@ def main():
 
         if menu_status == "lobby":
 
-            render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, mp = True, host = host)
+            render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, 0, mp = True, host = host)
 
             text = terminal.render("Players:", False, [255, 255, 255])
 
