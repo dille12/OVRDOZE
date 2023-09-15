@@ -4,6 +4,7 @@ import func
 import classes
 from anim_list import *
 from level import getcollisionspoint
+import los
 
 
 class Bullet(Game_Object):
@@ -137,6 +138,11 @@ class Bullet(Game_Object):
 
         self.detect_collision()
         self.draw()
+
+        for i in getcollisionspoint(map.block_vis_rects, self._pos):
+            self.kill_bullet()
+            return
+
         try:
 
             coll_types, pos = map.checkcollision(self._pos, [0,0], round(self.speed/4)*multiplier2, map_boundaries, ignore_barricades=True, bullet = True)
@@ -148,14 +154,20 @@ class Bullet(Game_Object):
                 "bottom": False,
             }:
                 func.list_play(rico_sounds)
-                self.kill_bullet()
+
 
                 if coll_types["left"] or coll_types["right"]:
                     ang = 270 - self._angle
                 else:
                     ang = 90 - self._angle
 
-
+                if abs(los.get_angle_diff(ang + 90, self._angle)) > 100:
+                    self._angle = ang - 90
+                    self._angle_radians = math.radians(self._angle) + math.pi / 2
+                    self.speed *= 0.9
+                    self.move()
+                else:
+                    self.kill_bullet()
                 for i in range(round(self._damage**0.5)):
                     particle_list.append(
                         classes.Particle(

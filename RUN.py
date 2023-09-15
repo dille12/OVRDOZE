@@ -224,7 +224,7 @@ def main(ms = "start"):
     textbox_ip.text = app.last_ip
     players = []
     port = 5555
-    menu_alpha = 75
+    menu_alpha = 60
 
     quick_load = False
 
@@ -1274,8 +1274,8 @@ def main(ms = "start"):
 
         if glitch.glitch_tick > 0:
             image_copy = screen.copy()
-            screen.fill((100,100,100))
-            func.blit_glitch(screen, image_copy, [0,0], round(2*glitch.glitch_tick))
+            screen.fill((menu_alpha,menu_alpha,menu_alpha))
+            func.blit_glitch(screen, image_copy, [0,0], round(10*glitch.glitch_tick))
 
         app.pygame.display.update()
 
