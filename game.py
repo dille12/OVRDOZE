@@ -267,6 +267,7 @@ def main(
     # draw_los = True
 
     m_clicked = False
+    grenadeJoyThrow = False
 
     phase = 0
 
@@ -382,6 +383,7 @@ def main(
         None,
         gameInstance=app,
         glitchInstance=glitch,
+        controller=0,
     )
     quit_button_alt = Button(
         [2 * size[0] / 3, 2 * size[1]/3],
@@ -390,6 +392,7 @@ def main(
         app,
         gameInstance=app,
         glitchInstance=glitch,
+        controller=1,
     )
 
 
@@ -415,7 +418,7 @@ def main(
     wave_text_color = True
     song_start_t = 0
 
-
+    last_joy_pos = [0,0]
 
 
     app.three_second_tick = 0
@@ -463,21 +466,53 @@ def main(
         t = time.time()
         time_stamps = {}
 
+        if pygame.joystick.get_count():
+            j = app.joysticks[0]
+            x = j.get_axis(2)
+            y = j.get_axis(3)
+
+            current_hypotenuse = math.sqrt(x**2 + y**2)
+            if current_hypotenuse > 1:
+                x = x / current_hypotenuse
+                y = y / current_hypotenuse
+
+            current_hypotenuse = math.sqrt(x**2 + y**2)
+
+            factor = 1 - 0.08 * current_hypotenuse**2
+
+            angle = math.atan2(y, x)
+
+            offx = math.cos(angle) * 200 * (0.5 + current_hypotenuse*0.5)
+            offy = math.sin(angle) * 200 * (0.5 + current_hypotenuse*0.5)
+
+            last_joy_pos[0] = last_joy_pos[0] * factor + (1-factor) * offx
+            last_joy_pos[1] = last_joy_pos[1] * factor + (1-factor) * offy
+
+            mouse_pos = [size[0]/2 + last_joy_pos[0], size[1]/2 + last_joy_pos[1]]
 
 
-        mouse_pos = app.pygame.mouse.get_pos()
+        else:
 
-        mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
+            mouse_pos = app.pygame.mouse.get_pos()
+
+            mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
+
+
+
 
         click_single_tick = False
-        if app.pygame.mouse.get_pressed()[0] and clicked == False:
+        firingButton = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+
+        if firingButton and clicked == False:
             clicked = True
             click_single_tick = True
-        elif app.pygame.mouse.get_pressed()[0] == False:
+        elif firingButton == False:
             clicked = False
 
         if pause:
-            app.pygame.mouse.set_visible(True)
+
+            if not app.joysticks:
+                app.pygame.mouse.set_visible(True)
 
             screen.fill((0, 0, 0))
             screen.blit(background_surf, (0, 0))
@@ -636,11 +671,29 @@ def main(
 
         last_gun = c_weapon.name
 
+        app.joystickEvents = []
+
         for event in app.pygame.event.get():
             if event.type == app.pygame.QUIT:
                 sys.exit()
 
-            if event.type == app.pygame.MOUSEBUTTONDOWN:
+            # Handle hotplugging
+            if event.type == pygame.JOYDEVICEADDED:
+                # This event will be generated when the program starts for every
+                # joystick, filling up the list without needing to create them manually.
+                joy = pygame.joystick.Joystick(event.device_index)
+                app.joysticks[joy.get_instance_id()] = joy
+                print(f"Joystick {joy.get_instance_id()} connencted")
+
+            if event.type == pygame.JOYDEVICEREMOVED:
+                del app.joysticks[event.instance_id]
+                print(f"Joystick {event.instance_id} disconnected")
+
+            if event.type == pygame.JOYBUTTONDOWN:
+                app.joystickEvents.append(event.button)
+
+
+            if event.type == app.pygame.MOUSEBUTTONDOWN or event.type == pygame.JOYBUTTONDOWN:
                 if event.button == 4:
                     if block_movement:
                         scroll[0] = True
@@ -701,11 +754,13 @@ def main(
         elif not pressed[app.pygame.K_ESCAPE]:
             pause_tick = False
 
+        rPressed = pressed[app.pygame.K_r] or 1 in app.joystickEvents
+
         key_r_click = False
-        if pressed[app.pygame.K_r] and r_1 == False:
+        if rPressed and r_1 == False:
             r_1 = True
             key_r_click = True
-        elif pressed[app.pygame.K_r] == False:
+        elif rPressed == False:
             r_1 = False
 
         screen.fill([0, 0, 0])
@@ -753,7 +808,7 @@ def main(
         cam_delta = func.minus_list(last_camera_pos, camera_pos)
 
         if (
-            pressed[app.pygame.K_TAB]
+            (pressed[app.pygame.K_TAB] or 6 in app.joystickEvents)
             and tab_pressed == False
             and player_actor.get_hp() > 0
         ):
@@ -766,6 +821,7 @@ def main(
             tab_pressed = False
 
         f_press = False
+
         if pressed[app.pygame.K_f] and f_pressed == False and player_actor.get_hp() > 0:
             f_pressed = True
             f_press = True
@@ -999,9 +1055,15 @@ def main(
         grenade_list_copy = grenade_list.copy()
 
         grenade_throw_string = ""
-
+        grenadeJoy = False
+        if app.joysticks:
+            if app.joysticks[0].get_axis(4) > 0.1 and grenadeJoyThrow == False and player_actor.get_hp() > 0:
+                grenadeJoyThrow = True
+                grenadeJoy = True
+            elif not app.joysticks[0].get_axis(4) > -0.5:
+                grenadeJoyThrow = False
         if (
-            pressed[app.pygame.K_g]
+            (pressed[app.pygame.K_g] or grenadeJoy)
             and grenade_throw == False
             and player_actor.get_hp() > 0
         ):
@@ -1086,7 +1148,7 @@ def main(
 
                 player_pos2 = player_pos.copy()
                 player_pos, x_vel, y_vel = func.player_movement2(
-                    pressed, player_pos, x_vel, y_vel
+                    pressed, player_pos, x_vel, y_vel, app
                 )
 
 
@@ -1154,6 +1216,7 @@ def main(
                 if player_inventory.get_inv() == False and not overworld:
 
                     firing_tick = func.weapon_fire(
+                        app,
                         c_weapon,
                         player_inventory,
                         player_actor.get_angle(),
@@ -1207,48 +1270,48 @@ def main(
                             screen=map_render,
                         )
                     )
-
-            if respawn_ticks > 0:
-                respawn_ticks -= timedelta.mod(1)
-            else:
-                player_actor.set_hp(100)
-                if endless:
-                    player_pos = map.get_random_point(enemies=enemy_list)
+            if not (endless and not multiplayer):
+                if respawn_ticks > 0:
+                    respawn_ticks -= timedelta.mod(1)
                 else:
-                    player_actor.money = 0
-                    money_tick.value = 0
-                    player_actor.sanity = 100
-                    enemy_count = round(enemy_count*0.75)
+                    player_actor.set_hp(100)
+                    if endless:
+                        player_pos = map.get_random_point(enemies=enemy_list)
+                    else:
+                        player_actor.money = 0
+                        money_tick.value = 0
+                        player_actor.sanity = 100
+                        enemy_count = round(enemy_count*0.75)
 
-                    for x in app.maps:
-                        if x.name == "Overworld":
-                            (
-                                map,
-                                map_render,
-                                los_bg,
-                                map_boundaries,
-                                NAV_MESH,
-                                player_pos,
-                                camera_pos,
-                                wall_points,
-                                walls_filtered,
-                            ) = load_level(x, mouse_conversion, player_inventory, app, screen, death = True)
+                        for x in app.maps:
+                            if x.name == "Overworld":
+                                (
+                                    map,
+                                    map_render,
+                                    los_bg,
+                                    map_boundaries,
+                                    NAV_MESH,
+                                    player_pos,
+                                    camera_pos,
+                                    wall_points,
+                                    walls_filtered,
+                                ) = load_level(x, mouse_conversion, player_inventory, app, screen, death = True)
 
-                            wave = False
-                            wave_number = 0
-                            wave_anim_ticks = [0, 0]
+                                wave = False
+                                wave_number = 0
+                                wave_anim_ticks = [0, 0]
 
-                            if not skip_intervals:
-                                wave_interval = 17
-                                wave_change_timer = time.time()
-                            else:
-                                wave_interval = 2
-                                wave_change_timer = time.time() - 15
+                                if not skip_intervals:
+                                    wave_interval = 17
+                                    wave_change_timer = time.time()
+                                else:
+                                    wave_interval = 2
+                                    wave_change_timer = time.time() - 15
 
-                            wave_length = 30
+                                wave_length = 30
 
 
-                # c_weapon = give_weapon(player_we[weapon_scroll])
+                    # c_weapon = give_weapon(player_we[weapon_scroll])
 
         c_weapon.add_to_spread(math.sqrt(x_vel**2 + y_vel**2) / 10)
 
@@ -1292,12 +1355,12 @@ def main(
 
         if closest_available_prompt != None:
             closest_available_prompt.tick_prompt(
-                screen, player_pos, camera_pos, f_press=f_press
+                screen, player_pos, camera_pos, f_press= f_press or 2 in app.joystickEvents
             )
         else:
             if closest_prompt != None:
                 closest_prompt.tick_prompt(
-                    screen, player_pos, camera_pos, f_press=f_press
+                    screen, player_pos, camera_pos, f_press= f_press or 2 in app.joystickEvents
                 )
 
         # for x in interactables:

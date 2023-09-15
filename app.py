@@ -16,9 +16,6 @@ import ast
 
 class App:
     def __init__(self, pygame):
-
-
-
         self.pygame = pygame
         self.server = Server(self)
         self.ip = None
@@ -34,6 +31,9 @@ class App:
         self.player_team = placeholder
         self.net = None
         self.server_tick_rate = GameTick(1)
+
+        pygame.joystick.init()
+        self.joysticks = {}
 
         self.players = [self.name]
         self.nwobjects = {}

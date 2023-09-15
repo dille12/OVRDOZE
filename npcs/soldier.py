@@ -111,7 +111,7 @@ class Soldier:
 
     def fire(self):
         if self.target.hp > 0:
-            func.weapon_fire(self.weapon, self.inventory, self.angle, self.pos, self, self.app.screen_copy, ai = self)
+            func.weapon_fire(self.app, self.weapon, self.inventory, self.angle, self.pos, self, self.app.screen_copy, ai = self)
 
     def get_pos(self):
         return self.pos

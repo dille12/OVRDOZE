@@ -3,7 +3,7 @@ import func
 import pygame
 
 class Button:
-    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False):
+    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False, controller = -1):
         self.glitch = glitchInstance
         self.app = gameInstance
         self.pos = pos
@@ -18,7 +18,7 @@ class Button:
         self.red_tick = 10
 
         self.size = list(text_s)
-
+        self.controller = controller
         self.size[1] += 8
 
         self.pos_tick = 0
@@ -103,18 +103,24 @@ class Button:
                 2,
             )
 
+        CI = False
+        if self.controller != -1:
+            CI = self.controller in self.app.joystickEvents
+            if CI:
+                self.app.joystickEvents = []
+
         if (
             pos[0] < mouse_pos[0] < pos[0] + self.size[0] + 4
             and pos[1] - 2 < mouse_pos[1] < pos[1] + self.size[1]
             and not self.locked
-        ):
+        ) or CI:
 
             if self.targeted == False:
                 self.targeted = True
                 menu_click.play()
                 self.target_tick = 10
 
-            if click:
+            if click or CI:
                 menu_click2.play()
                 if self.app:
                     for x in self.app.buttons:

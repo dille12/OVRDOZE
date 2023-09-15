@@ -314,10 +314,106 @@ def get_closest_point(pos, list):
     key_min = min(dists.keys(), key=(lambda k: dists[k]))
     return dists[key_min]
 
+def joystick_movement(joystick, player_pos, x_vel, y_vel, evading, evade_skip_tick, app):
+    space = False
+    shift = False
+    for event in pygame.event.get():
+        if event.type == pygame.JOYBUTTONDOWN:
+            if event.button == 0:
+                space = True
+            elif event.button == 8:
+                shift = True
 
-def player_movement2(pressed, player_pos, x_vel, y_vel):
+    x_amount = joystick.get_axis(0)
+    y_amount = joystick.get_axis(1)
+    current_hypotenuse = math.sqrt(x_amount**2 + y_amount**2)
+    if current_hypotenuse > 1:
+        x_amount = x_amount / current_hypotenuse
+        y_amount = y_amount / current_hypotenuse
+
+
+    if abs(x_amount) < 0.05:
+        x_amount = 0
+
+    if abs(y_amount) < 0.05:
+        y_amount = 0
+
+    if space and evading == False and evade_skip_tick <= 0:
+        y_vel = timedelta.mod(evade_speed) * y_amount
+        x_vel = timedelta.mod(evade_speed) * x_amount
+
+        if (x_vel, y_vel) != (0, 0):
+            evade_skip_tick = 30
+            evading = True
+            evade_sound.stop()
+            evade_sound.play()
+
+    if evading == False:
+        total_vel = math.sqrt(x_amount**2 + y_amount**2)
+        velocity_cap = timedelta.mod(9 / 1.875)
+        if total_vel > 5/9:
+            sprinting = True
+            crouching = False
+        elif total_vel < 2.75/9:
+            crouching = True
+            sprinting = False
+        else:
+            sprinting = False
+            crouching = False
+
+        x_acc = timedelta.mod(acceleration) * x_amount
+        y_acc = timedelta.mod(acceleration) * y_amount
+
+    else:
+        velocity_cap = timedelta.mod(5 / 1.875)
+        x_acc, y_acc = 0, 0
+
+        if math.sqrt(x_vel**2 + y_vel**2) < velocity_cap:
+            evading = False
+
+    if sprinting:
+        if footstep_tick.tick():
+            for x in footsteps:
+                x.stop()
+            pick_random_from_list(footsteps).play()
+    else:
+        pass
+
+
+    if abs(x_vel) < velocity_cap:
+        x_vel += timedelta.mod(x_acc / tick_count)
+    if abs(y_vel) < velocity_cap:
+        y_vel += timedelta.mod(y_acc / tick_count)
+
+    if abs(x_vel) > 0.1:
+        x_vel *= timedelta.exp(breaking)
+    else:
+        x_vel = 0
+    if abs(y_vel) > 0.1:
+        y_vel *= timedelta.exp(breaking)
+    else:
+        y_vel = 0
+
+    if evade_skip_tick > 0:
+        evade_skip_tick -= timedelta.mod(1)
+    else:
+        evading = False
+
+    player_pos[0] += x_vel * multiplier2
+    player_pos[1] += y_vel * multiplier2
+
+    return player_pos, x_vel, y_vel
+
+
+def player_movement2(pressed, player_pos, x_vel, y_vel, app):
     global evading, evade_skip_tick
     sprinting = False
+
+    if pygame.joystick.get_count():
+        joystick = app.joysticks[0]
+        return joystick_movement(joystick, player_pos, x_vel, y_vel, evading, evade_skip_tick, app)
+
+
     if pressed[pygame.K_SPACE] and evading == False and evade_skip_tick <= 0:
         if pressed[pygame.K_w]:
             y_vel = timedelta.mod(-evade_speed)
@@ -620,7 +716,7 @@ def keypress_manager(key_r_click, c_weapon, player_inventory, player_actor):
                 c_weapon.__dict__["_reload_tick"] = c_weapon.__dict__["_reload_rate"]
 
 
-def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, ai=False):
+def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, ai=False):
     firing_tick = False
 
     c_weapon.spread_recoverial()
@@ -641,7 +737,10 @@ def weapon_fire(c_weapon, player_inventory, angle, player_pos, player_actor, scr
         else:
             click = True
     else:
-        click = pygame.mouse.get_pressed()[0]
+        if app.joysticks:
+            click = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+        else:
+            click = pygame.mouse.get_pressed()[0]
 
     if c_weapon.charge_up:
 
@@ -1279,6 +1378,7 @@ def draw_HUD(
         player_actor.get_pos(),
         r_click_tick,
         player_actor,
+        app
     )
 
     last_hp = hp

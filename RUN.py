@@ -29,7 +29,7 @@ import map_creator
 import scipy
 import highscores
 
-VERSION = "0.9.11"
+VERSION = "0.9.12"
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
@@ -413,6 +413,7 @@ def main(ms = "start"):
         None,
         gameInstance=app,
         glitchInstance=glitch,
+        controller = 0,
     )
 
     button_sp_menu = Button(
@@ -422,6 +423,7 @@ def main(ms = "start"):
         None,
         gameInstance=app,
         glitchInstance=glitch,
+        controller = 0,
     )
 
     button_sp_new_game = Button(
@@ -548,6 +550,7 @@ def main(ms = "start"):
         difficulty,
         gameInstance=app,
         glitchInstance=glitch,
+        controller = 0,
     )
     button_host_quit = Button(
         [68, 130],
@@ -852,7 +855,7 @@ def main(ms = "start"):
 
         app.volume = round(scroll_bar_volume.value)
         app.music = round(scroll_bar_music.value)
-
+        app.joystickEvents = []
         #button_mp_menu.locked = not app.dev
 
         app.update_fps()
@@ -915,6 +918,22 @@ def main(ms = "start"):
                     x.update_checkbox(
                         event, mouse_pos, part_of_list=check_box_difficulties
                     )
+
+            # Handle hotplugging
+            if event.type == pygame.JOYDEVICEADDED:
+                # This event will be generated when the program starts for every
+                # joystick, filling up the list without needing to create them manually.
+                joy = pygame.joystick.Joystick(event.device_index)
+                app.joysticks[joy.get_instance_id()] = joy
+                print(f"Joystick {joy.get_instance_id()} connencted")
+
+            if event.type == pygame.JOYDEVICEREMOVED:
+                del app.joysticks[event.instance_id]
+                print(f"Joystick {event.instance_id} disconnected")
+
+            if event.type == pygame.JOYBUTTONDOWN:
+                app.joystickEvents.append(event.button)
+
 
             if event.type == app.pygame.QUIT:
                 sys.exit()

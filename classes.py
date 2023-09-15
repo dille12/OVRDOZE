@@ -75,14 +75,15 @@ class Item:
     def sound(self):
         return self.pickup_sound
 
-    def render(self, screen, pos, mouse_pos, clicked, r_click_tick):
+    def render(self, screen, pos, mouse_pos, clicked, r_click_tick, transfer = False):
         render_pos = [pos[0] - self.center[0], pos[1] - self.center[1]]
         screen.blit(self.image, render_pos)
-
+        if transfer:
+            print("Rendering item with transfer on")
         if (
             render_pos[0] < mouse_pos[0] < render_pos[0] + self.rect[0]
             and render_pos[1] < mouse_pos[1] < render_pos[1] + self.rect[1]
-        ):
+        ) or transfer:
             text = terminal2.render(self.name, False, [255, 255, 255])
             t_s = text.get_rect().size
             alpha_surf = pygame.Surface(t_s).convert()
@@ -101,7 +102,8 @@ class Item:
             if r_click_tick:
                 return (True, "consume")
 
-            elif clicked and pressed[pygame.K_LSHIFT]:
+            elif (clicked and pressed[pygame.K_LSHIFT]) or transfer:
+                print("Quick transfering")
                 return (True, "append")
 
             elif clicked:
@@ -425,12 +427,17 @@ class Inventory:
         clicked,
         r_click_tick,
         player_actor,
+        app,
         inv_2=False,
     ):
         global barricade_in_hand, turret_bullets
         self.picked_up_slot = None
 
         content = object.contents
+        auto_transfer = False
+        if inv_2 and 3 in app.joystickEvents:
+            auto_transfer = True
+            print("Transfering...")
 
         for slot in content:
 
@@ -449,8 +456,10 @@ class Inventory:
             pos = [default_pos[0] + x * 62 + x_d, default_pos[1] + y * 62 + y_d]
 
             item_clicked, type = content[slot]["item"].render(
-                screen, pos, mouse_pos, clicked, r_click_tick
+                screen, pos, mouse_pos, clicked, r_click_tick, transfer = auto_transfer
             )
+
+            auto_transfer = False
 
             if item_clicked and self.hand_tick == 0:
 
@@ -518,6 +527,7 @@ class Inventory:
 
                     screen.blit(text, [pos[0] + 25 - t_s[0], pos[1] + 25 - t_s[1]])
 
+
         if self.picked_up_slot != None:
             del content[self.picked_up_slot]
 
@@ -531,6 +541,7 @@ class Inventory:
         player_pos,
         r_click_tick,
         player_actor,
+        app,
     ):
 
         if clicked and self.click == False and self.inventory_open:
@@ -569,6 +580,7 @@ class Inventory:
                 clicked,
                 r_click_tick,
                 player_actor,
+                app,
             )
 
             if self.search_obj != None:
@@ -588,6 +600,7 @@ class Inventory:
                     clicked,
                     r_click_tick,
                     player_actor,
+                    app,
                     inv_2=True,
                 )
 
@@ -602,9 +615,6 @@ class Inventory:
                         else:
                             col = 3
                         for slot in range(1, (1+col*3)):
-
-
-
                             if slot <= col:
                                 y = 1
                             elif slot <= col*2:

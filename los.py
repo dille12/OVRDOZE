@@ -26,6 +26,10 @@ def get_angle_diff(angle1, angle2):
     anglediff = (angle1 - angle2 + 180 + 360) % 360 - 180
     return anglediff
 
+def get_angle_diff_rad(angle1, angle2):
+    anglediff = (angle1 - angle2 + math.pi + 2*math.pi) % 2*math.pi - math.pi
+    return anglediff
+
 
 def get_points_from_np(line):
     return (line[0], line[1]), (line[2], line[3])
