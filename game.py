@@ -316,6 +316,8 @@ def main(
         "RPG-7",
         "M134-MINIGUN",
         "NRG-LMG.Mark1",
+        "USAS-15",
+        "NRG-SHLL",
     ]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
@@ -950,7 +952,7 @@ def main(
                 else:
                     if (
                         len(enemy_list)
-                        < (enemy_count / (player_actor.__dict__["sanity"] / 100 + 0.25))
+                        < (enemy_count / (player_actor.sanity / 100 + 0.25))
                         and wave
                     ):
                         type = "normal"
@@ -1325,7 +1327,7 @@ def main(
             free_tick += timedelta.mod(1)
             if free_tick > 90 and player_actor.get_hp() < 100:
                 player_actor.set_hp(timedelta.mod(-1), reduce=True)
-                player_actor.set_sanity(timedelta.mod(0.05 * sanity_drain))
+                player_actor.set_sanity(timedelta.mod(0.2 * sanity_drain))
                 if player_actor.get_hp() >= 100:
                     player_actor.hp = 100
 
@@ -1660,7 +1662,7 @@ def main(
                 )
 
             if not overworld:
-                player_actor.set_sanity(timedelta.mod(0.001 * sanity_drain))
+                player_actor.set_sanity(timedelta.mod(0.003 * sanity_drain))
 
             if phase == 3:
                 map_points = map.__dict__["points_inside_polygons"]

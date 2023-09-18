@@ -29,7 +29,11 @@ import map_creator
 import scipy
 import highscores
 
-VERSION = "0.9.12"
+VERSION = "0.9"
+
+with open("commit_message.txt", "r") as f:
+    subversion = f.readline().strip("\n")
+VERSION = VERSION + "." + subversion
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)

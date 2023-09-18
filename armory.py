@@ -176,9 +176,9 @@ guns = {
         extra_bullet = False,
     ),
 
-    "USAS": W.Gun(
-        name="USAS",
-        price=1500,
+    "USAS-15": W.Gun(
+        name="USAS-15",
+        price=2400,
         clip_s=8,
         fire_r=300,
         spread=8,
@@ -192,7 +192,7 @@ guns = {
         semi_auto=False,
         sounds=shotgun_sounds,
         ammo_cap_lvlup=2,
-        image="spas12.png",
+        image="usas.png",
         ammo="12 GAUGE",
         view=0.01,
         handling=0.2,
@@ -214,7 +214,7 @@ guns = {
         semi_auto=False,
         sounds=shotgun_sounds,
         ammo_cap_lvlup=2,
-        image="spas12.png",
+        image="shll.png",
         ammo="Energy Cell",
         view=0.01,
         handling=0.2,
