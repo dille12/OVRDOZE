@@ -85,8 +85,8 @@ class Bullet(Game_Object):
             append_explosions.append([self._pos, expl1])
             self.added_explosion = True
             #explosions.append(Explosion(self._pos, expl1))
-
-        bullet_list.remove(self)
+        if self in bullet_list:
+            bullet_list.remove(self)
 
 
     def move_and_draw_Bullet(

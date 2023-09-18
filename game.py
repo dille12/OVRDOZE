@@ -291,6 +291,8 @@ def main(
             give_weapon("gun", "RPG-7"),
             give_weapon("gun", "M134-MINIGUN"),
             give_weapon("gun", "NRG-LMG.Mark1"),
+            give_weapon("gun", "USAS"),
+            give_weapon("gun", "NRG-SHLL"),
         ]:
             player_weapons.append(x)
 
@@ -501,7 +503,10 @@ def main(
 
 
         click_single_tick = False
-        firingButton = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+        if app.joysticks:
+            firingButton = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+        else:
+            firingButton = pygame.mouse.get_pressed()[0]
 
         if firingButton and clicked == False:
             clicked = True
@@ -1251,15 +1256,16 @@ def main(
 
                 if endless and not multiplayer:
                     app.pygame.mouse.set_visible(True)
-                    if app.highscore[map.name][difficulty][0] < death_wave:
-                        app.highscore[map.name][difficulty][0] = death_wave
-                        highscores.saveHighscore(app)
-                        newHigh[0] = True
+                    if map.name != "Downtown":
+                        if app.highscore[map.name][difficulty][0] < death_wave:
+                            app.highscore[map.name][difficulty][0] = death_wave
+                            highscores.saveHighscore(app)
+                            newHigh[0] = True
 
-                    if app.highscore[map.name][difficulty][1] < player_actor.money:
-                        app.highscore[map.name][difficulty][1] = player_actor.money
-                        highscores.saveHighscore(app)
-                        newHigh[1] = True
+                        if app.highscore[map.name][difficulty][1] < player_actor.money:
+                            app.highscore[map.name][difficulty][1] = player_actor.money
+                            highscores.saveHighscore(app)
+                            newHigh[1] = True
 
                 for i in range(5):
                     particle_list.append(
@@ -1930,8 +1936,10 @@ def main(
                     fade_tick.value = 0
 
             elif not multiplayer:
-
-                text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
+                if map.name == "Downtown":
+                    text = terminal_map_desc.render(f"YOU DIED!", False, [255, 255, 255])
+                else:
+                    text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 - 40]
                 screen.blit(
                     text,

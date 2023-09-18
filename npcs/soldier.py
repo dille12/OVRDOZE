@@ -159,6 +159,7 @@ class Soldier:
             return
 
         firing_tick = func.weapon_fire(
+            self.app,
             self.weapon,
             self.inventory,
             (360-self.aim_angle),
@@ -181,18 +182,18 @@ class Soldier:
             self.movement_speed = 7
         elif self.sees_target:
             self.state = "attacking"
-            self.movement_speed = 3
+            self.movement_speed = 6.5
         elif self.investigating or self.investigate_route:
-            self.movement_speed = 4
+            self.movement_speed = 5
             self.state = "investigate"
         else:
             self.state = "wander"
 
-            self.movement_speed = 1.5
+            self.movement_speed = 2.5
 
             if self is not self.patrol.patrol_leader:
                 if func.get_dist_points(self.pos, self.patrol.patrol_leader.pos) > 700:
-                    self.movement_speed = 3
+                    self.movement_speed = 5
 
 
         if last_state != self.state or random.randint(1,300) == 1:
@@ -326,7 +327,7 @@ class Soldier:
 
 
 
-        self.velocity *= 0.95
+        self.velocity *= timedelta.exp(0.95)
 
 
         collision_types, coll_pos = self.map.checkcollision(

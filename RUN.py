@@ -1226,7 +1226,7 @@ def main(ms = "start"):
                 menu_status = s7_2
                 mouse_single_tick = False
             if s8_2 != None:
-                menu_status = s8_2
+                menu_status = "sp"
                 mouse_single_tick = False
 
         if menu_status == "lobby":
