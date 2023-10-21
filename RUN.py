@@ -138,7 +138,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
     )
 
     text = terminal.render(
-        str(round(maps_dict[app.selected_map]["map"].__dict__["size"][1] /  (100*multiplier2)))
+        str(round(maps_dict[app.selected_map]["map"].size[1] /  (100*multiplier2)))
         + "m",
         False,
         [255, 255, 255],
@@ -230,7 +230,7 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 60
 
-    quick_load = False
+    quick_load = True
 
     if 'menu_animations' not in globals():
         print("Loading animations...")
@@ -649,7 +649,7 @@ def main(ms = "start"):
     )
 
     if app.dev:
-        check_box_dev_commands.__dict__["checked"] = True
+        check_box_dev_commands.checked = True
 
     check_box_fov = hud_elements.Checkbox(
         screen,

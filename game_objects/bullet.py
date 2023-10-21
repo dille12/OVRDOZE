@@ -56,7 +56,13 @@ class Bullet(Game_Object):
         else:
             self.type = "shrapnel"
 
-        self.piercing = piercing
+        if piercing:
+            self.piercing = piercing
+        else:
+            self.piercing = 1
+
+
+
         self.actors_hit = []
 
         self.added_explosion = False
@@ -221,7 +227,10 @@ class Bullet(Game_Object):
                         )
                     )
                 try:
-                    if not self.piercing:
+
+                    self.piercing -= 1
+
+                    if self.piercing <= 0:
                         self.kill_bullet()
                 except:
                     pass
@@ -325,7 +334,10 @@ class Bullet(Game_Object):
                 except:
                     print("")
                 try:
-                    if not self.piercing:
+
+                    self.piercing -= 1
+
+                    if self.piercing <= 0:
                         self.kill_bullet()
                 except:
                     pass

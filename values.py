@@ -315,6 +315,11 @@ turret_pickup = get_Sound("sound/turret_pickup.wav")
 sniff_sound = get_Sound("sound/sinff.wav")
 info = pygame.image.load("texture/info.png").convert_alpha()
 
+arrowRight = load("texture/arrow.png", size = [50,50])
+arrowRightRed = colorize(arrowRight.copy(), pygame.Color((255,0,0)))
+arrowLeft = pygame.transform.flip(arrowRight.copy(), True, False)
+arrowLeftRed = colorize(arrowLeft.copy(), pygame.Color((255,0,0)))
+
 hud_color = [255, 255, 255]
 
 

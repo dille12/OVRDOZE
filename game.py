@@ -257,7 +257,7 @@ def main(
     wave_length = 30
 
     player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
-
+    player_actor.money = 10000
     app.player_actor_ref = player_actor
 
     player_melee = armory.Melee.Melee(
@@ -291,7 +291,7 @@ def main(
             give_weapon("gun", "RPG-7"),
             give_weapon("gun", "M134-MINIGUN"),
             give_weapon("gun", "NRG-LMG.Mark1"),
-            give_weapon("gun", "USAS"),
+            give_weapon("gun", "USAS-15"),
             give_weapon("gun", "NRG-SHLL"),
         ]:
             player_weapons.append(x)
@@ -300,6 +300,7 @@ def main(
         endless = False
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
+    
 
     gun_name_list = [
         "M1911",
