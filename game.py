@@ -215,11 +215,7 @@ def main(
     player_inventory = classes.Inventory(app, interactables, player=True)
     turret_bro.clear()
 
-    turret_bro.append(
-        objects.MovingTurret.MovingTurret(
-            [100, 300], 4, 5, 500, 20, -1, NAV_MESH=None, walls=None, map=None
-        )
-    )
+
 
     app.day = -1
 
@@ -239,7 +235,8 @@ def main(
             walls_filtered,
         ) = load_level(map, mouse_conversion, player_inventory, app, screen)
 
-    except:
+    except Exception as e:
+        print(e)
         RUN.main(ms = "beta")
 
     print("Level loaded")
@@ -423,11 +420,7 @@ def main(
 
     app.three_second_tick = 0
 
-
-
     app.camera_pos = camera_pos
-
-
 
     while 1:
 
@@ -501,7 +494,10 @@ def main(
 
 
         click_single_tick = False
-        firingButton = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+        if app.joysticks:
+            firingButton = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+        else:
+            firingButton = pygame.mouse.get_pressed()[0]
 
         if firingButton and clicked == False:
             clicked = True
@@ -1040,8 +1036,8 @@ def main(
         for x in delete_list:
             interactables.remove(x)
 
-        # for x in turret_bro:
-        #     x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
+        for x in turret_bro:
+            x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
 
         for x in particle_list:
             x.tick(screen, camera_pos, map)
@@ -1249,8 +1245,8 @@ def main(
                 respawn_ticks = 300 if not endless else 120
                 death_wave = wave_number
 
-                if endless and not multiplayer:
-                    app.pygame.mouse.set_visible(True)
+                if endless and not multiplayer and map.name != "Downtown":
+
                     if app.highscore[map.name][difficulty][0] < death_wave:
                         app.highscore[map.name][difficulty][0] = death_wave
                         highscores.saveHighscore(app)
@@ -1930,8 +1926,14 @@ def main(
                     fade_tick.value = 0
 
             elif not multiplayer:
+                if not app.joysticks:
+                    app.pygame.mouse.set_visible(True)
 
-                text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
+                if map.name != "Downtown":
+                    text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
+                else:
+                    text = terminal_map_desc.render(f"YOU DIED!", False, [255, 255, 255])
+
                 pos = [size[0] / 2, size[1] / 2 - 40]
                 screen.blit(
                     text,

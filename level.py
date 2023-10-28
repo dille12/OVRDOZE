@@ -244,10 +244,14 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
             app.levels.remove(app.levels[0])
             print("Set door destination to:", x.door_dest)
 
-    turret_bro[0].map_ref = map
-    turret_bro[0]._pos = player_pos.copy()
-    turret_bro[0].navmesh_ref = NAV_MESH.copy()
-    turret_bro[0].wall_ref = walls_filtered
+    for x in turret_bro:
+
+        x.map_ref = map
+        x._pos = player_pos.copy()
+        x.navmesh_ref = NAV_MESH.copy()
+        x.wall_ref = walls_filtered
+
+    app.MovTurretData = [map, NAV_MESH.copy(), walls_filtered]
 
     #pygame.display.set_gamma(map.GAMMA[0], map.GAMMA[1], map.GAMMA[2])
 

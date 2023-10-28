@@ -219,6 +219,16 @@ items = {
         drop_weight=1.8,
         drop_stack=2,
     ),
+    "Moving Turret": Item(
+        "Moving Turret",
+        "Turret that protects you on the go.",
+        "turretMov.png",
+        max_stack=3,
+        pick_up_sound=turret_pickup,
+        consumable=True,
+        drop_weight=0.4,
+        drop_stack=1,
+    ),
     "Barricade": Item(
         "Barricade",
         "Blocks passage.",
@@ -488,10 +498,9 @@ class Inventory:
 
                         self.picked_up_slot = slot
                     self.hand_tick = 3
-                    if content[slot]["item"].__dict__["name"] == "Sentry Turret":
+                    if content[slot]["item"].name == "Sentry Turret":
                         pos_player = player_actor.get_pos()
-
-                        turret_bullets = player_actor.__dict__["turret_bullets"]
+                        turret_bullets = player_actor.turret_bullets
                         turr = objects.Turret.Turret(
                             pos_player, 8, 10, 500, 20, 500 * turret_bullets
                         )
@@ -500,6 +509,24 @@ class Inventory:
                             packet_dict["turrets"] = []
                         packet_dict["turrets"].append(turr)
                         turret_pickup.play()
+
+                    elif content[slot]["item"].name == "Moving Turret":
+                        pos_player = player_actor.get_pos()
+
+                        map, NAV_MESH, walls_filtered = app.MovTurretData
+
+                        x = objects.MovingTurret.MovingTurret(
+                            pos_player, 4, 5, 500, 20, 1000, NAV_MESH=None, walls=None, map=None
+                        )
+                        x.map_ref = map
+                        x._pos = pos_player.copy()
+                        x.navmesh_ref = NAV_MESH.copy()
+                        x.wall_ref = walls_filtered
+
+                        turret_bro.append(
+                            x
+                        )
+
                     elif content[slot]["item"].__dict__["name"] == "Barricade":
                         pos_player = player_actor.get_pos()
                         player_actor.__dict__[
@@ -760,7 +787,8 @@ class Interactable:
         image=None,
         door_dest=None,
         active=True,
-        angle = 0
+        angle = 0,
+        overrideSize = [119, 119]
     ):
 
         self.init_values = [
@@ -779,6 +807,7 @@ class Interactable:
             door_dest,
             active,
             angle,
+            overrideSize,
         ]
         self.app = app
 
@@ -829,7 +858,7 @@ class Interactable:
             self.name = name
             self.image = pygame.transform.scale(
                 pygame.image.load("texture/" + image),
-                [round(119 / multiplier), round(119 / multiplier)],
+                [round(overrideSize[0] / multiplier), round(overrideSize[1] / multiplier)],
             ).convert_alpha()
             self.npc_active = False
 
@@ -902,7 +931,8 @@ class Interactable:
         image,
         door_dest,
         active,
-        angle) = self.init_values
+        angle,
+        overrideSize) = self.init_values
 
         self.__init__(
             app,
@@ -919,7 +949,8 @@ class Interactable:
             image = image,
             door_dest = door_dest,
             active = active,
-            angle = angle
+            angle = angle,
+            overrideSize = overrideSize
         )
 
 
@@ -1476,6 +1507,7 @@ class Player:
         self.np_pos = np.array([0,0], dtype = float)
         self.preferred_nade = "HE Grenade"
         self.inv = inv
+        self.scrollLimit = len(ruperts_shop_selections)
 
     def update_nade(self, inventory):
         nade_types = ["HE Grenade", "Molotov"]

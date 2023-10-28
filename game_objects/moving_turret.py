@@ -48,6 +48,7 @@ class MovingTurret(Game_Object):
         self.route = []
 
         self.velocity = 0
+        self.angle_rad = 0
 
         self.size = turret.get_rect().size[0] / 2
         self.target = None
@@ -212,7 +213,7 @@ class MovingTurret(Game_Object):
 
     def clean_up(self):
         if self._lifetime == 0:
-            super().clean_up(turret_list)
+            super().clean_up(turret_bro)
 
     def get_route_to_target(self, target):
         if self.route_tick == 0:

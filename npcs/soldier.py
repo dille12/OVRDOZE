@@ -159,6 +159,7 @@ class Soldier:
             return
 
         firing_tick = func.weapon_fire(
+            self.app,
             self.weapon,
             self.inventory,
             (360-self.aim_angle),
