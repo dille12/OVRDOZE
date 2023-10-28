@@ -2,6 +2,8 @@ import func
 from values import *
 import get_preferences
 from button import Button
+from upgrade_button import upgradeButton
+from armory import upgradeMap, statMap
 
 player_name, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
 
@@ -39,6 +41,33 @@ def purchase_weapon(arg):
                 player_inventory.append_to_inv(items[x.weapon.ammo], amount)
 
 
+def upgrade_weapon(arg):
+    player_inventory, items, player_actor = arg
+    for x in player_actor.upgradeButtons:
+        if x.active:
+            
+            w = x.weapon
+            u = w.availableUpgrades[x.upgradeI]
+
+
+            upgradeInstructions = upgradeMap[u]
+
+            if "addval" in upgradeInstructions:
+                w.__dict__[upgradeInstructions["stat"]] += upgradeInstructions["addval"]
+
+            if "val" in upgradeInstructions:
+                w.__dict__[upgradeInstructions["stat"]] = upgradeInstructions["val"]
+
+                if upgradeInstructions["stat"] == "burst" and upgradeInstructions["val"] == True:
+                    w.semi_auto = False
+
+            w.activatedUpgrades.append(x.upgradeI)
+
+
+
+            
+
+
 def advance(arg):
     dialogue[0].linenumber += 1
     dialogue[0].letternumber = 0
@@ -61,6 +90,17 @@ shop_buy_button = Button(
     gameInstance=None,
     glitchInstance=None,
 )
+
+shop_upgrade_button = Button(
+    [3 * size[0] / 8, 7 * size[1] / 8],
+    "Upgrade",
+    upgrade_weapon,
+    None,
+    gameInstance=None,
+    glitchInstance=None,
+)
+
+
 upgrade_backpack_button = Button(
     [3 * size[0] / 8, 7 * size[1] / 8],
     "UPGRADE",
@@ -69,6 +109,12 @@ upgrade_backpack_button = Button(
     gameInstance=None,
     glitchInstance=None,
 )
+
+def refresh_player_buttons(screen, click, mouse_pos, player_inventory, items, player_actor, map):
+    player_actor.upgradeButtons = []
+    for i, x in enumerate(player_weapons):
+        player_actor.upgradeButtons.append(upgradeButton(x, i))
+    advance(None)
 
 def give_player_money(screen, click, mouse_pos, player_inventory, items, player_actor, map):
     player_actor.money += 1000
@@ -84,6 +130,42 @@ def open_basement(screen, click, mouse_pos, player_inventory, items, player_acto
             x.active = False
 
     advance(None)
+
+
+def open_upgrade_station(screen, click, mouse_pos, player_inventory, items, player_actor, map):
+    screen.blit(surf_back, [0, 0])
+    text = terminal2.render("UPGRADE STATION", False, [255, 255, 255])
+    screen.blit(text, [20, 20])
+    dialogue[0].max_y_pos = len(player_actor.upgradeButtons)
+    shop_quit_button.tick(screen, mouse_pos, click, None)
+
+
+    pygame.draw.rect(screen, [255, 255, 255], [5, 100, 10, 267], 1)
+
+    l = max(3, len(player_actor.upgradeButtons))
+
+    scroll_bar = pygame.Rect(
+        7,
+        102 + 263 * dialogue[0].y_pos / l,
+        6,
+        263 * (3 / l),
+    )
+
+    pygame.draw.rect(screen, [255, 255, 255], scroll_bar)
+
+
+    for x in player_actor.upgradeButtons:
+        x.tick(screen, dialogue[0].y_pos, mouse_pos, click, player_actor)
+
+        if x.active and not x.owned and x.upgradeI not in x.weapon.activatedUpgrades:
+            shop_upgrade_button.tick(
+                    screen,
+                    mouse_pos,
+                    click,
+                    None,
+                    arg=[player_inventory, items, player_actor],
+                )
+
 
 def open_shop_backpack(screen, click, mouse_pos, player_inventory, items, player_actor, map):
     screen.blit(surf_back, [0, 0])
@@ -124,6 +206,8 @@ def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor, m
     screen.blit(text, [20, 400])
 
     shop_quit_button.tick(screen, mouse_pos, click, None)
+
+    dialogue[0].max_y_pos = len(ruperts_shop_selections)
 
     pygame.draw.rect(screen, [255, 255, 255], [5, 100, 10, 267], 1)
     scroll_bar = pygame.Rect(
@@ -228,6 +312,15 @@ dialogues = {
 
     ],
 
+    "Vagabond" : [
+        [
+            ["n", "Let me see those\nguns of yours."],
+            refresh_player_buttons,
+            open_upgrade_station,
+        ],
+
+    ],
+
 
     "Rupert": [
         [
@@ -280,6 +373,7 @@ class Dialogue:
         self.letternumber = 0
         self.y_pos_abs = 0
         self.y_pos = 0
+        self.max_y_pos = 0
 
     def main(
         self,
@@ -322,7 +416,7 @@ class Dialogue:
             if scroll[0] and self.y_pos_abs > 0:
                 self.y_pos_abs -= 1
 
-            elif scroll[1] and self.y_pos_abs < len(ruperts_shop_selections) - 3:
+            elif scroll[1] and self.y_pos_abs < self.max_y_pos - 3:
                 self.y_pos_abs += 1
             line(screen, click, mouse_pos, player_inventory, items, player_actor, map)
 

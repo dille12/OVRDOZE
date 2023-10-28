@@ -29,7 +29,11 @@ import map_creator
 import scipy
 import highscores
 
-VERSION = "0.9.12"
+VERSION = "0.9"
+
+with open("commit_message.txt", "r") as f:
+    subversion = f.readline().strip("\n")
+VERSION = VERSION + "." + subversion
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
@@ -134,7 +138,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
     )
 
     text = terminal.render(
-        str(round(maps_dict[app.selected_map]["map"].__dict__["size"][1] /  (100*multiplier2)))
+        str(round(maps_dict[app.selected_map]["map"].size[1] /  (100*multiplier2)))
         + "m",
         False,
         [255, 255, 255],
@@ -226,7 +230,7 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 60
 
-    quick_load = False
+    quick_load = True
 
     if 'menu_animations' not in globals():
         print("Loading animations...")
@@ -645,7 +649,7 @@ def main(ms = "start"):
     )
 
     if app.dev:
-        check_box_dev_commands.__dict__["checked"] = True
+        check_box_dev_commands.checked = True
 
     check_box_fov = hud_elements.Checkbox(
         screen,
@@ -1226,7 +1230,7 @@ def main(ms = "start"):
                 menu_status = s7_2
                 mouse_single_tick = False
             if s8_2 != None:
-                menu_status = s8_2
+                menu_status = "sp"
                 mouse_single_tick = False
 
         if menu_status == "lobby":

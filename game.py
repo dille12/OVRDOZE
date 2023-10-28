@@ -254,7 +254,7 @@ def main(
     wave_length = 30
 
     player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
-
+    player_actor.money = 10000
     app.player_actor_ref = player_actor
 
     player_melee = armory.Melee.Melee(
@@ -288,6 +288,8 @@ def main(
             give_weapon("gun", "RPG-7"),
             give_weapon("gun", "M134-MINIGUN"),
             give_weapon("gun", "NRG-LMG.Mark1"),
+            give_weapon("gun", "USAS-15"),
+            give_weapon("gun", "NRG-SHLL"),
         ]:
             player_weapons.append(x)
 
@@ -295,6 +297,7 @@ def main(
         endless = False
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
+
 
     gun_name_list = [
         "M1911",
@@ -311,6 +314,8 @@ def main(
         "RPG-7",
         "M134-MINIGUN",
         "NRG-LMG.Mark1",
+        "USAS-15",
+        "NRG-SHLL",
     ]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
@@ -941,7 +946,7 @@ def main(
                 else:
                     if (
                         len(enemy_list)
-                        < (enemy_count / (player_actor.__dict__["sanity"] / 100 + 0.25))
+                        < (enemy_count / (player_actor.sanity / 100 + 0.25))
                         and wave
                     ):
                         type = "normal"
@@ -1245,17 +1250,18 @@ def main(
                 respawn_ticks = 300 if not endless else 120
                 death_wave = wave_number
 
-                if endless and not multiplayer and map.name != "Downtown":
+                if endless and not multiplayer:
+                    app.pygame.mouse.set_visible(True)
+                    if map.name != "Downtown":
+                        if app.highscore[map.name][difficulty][0] < death_wave:
+                            app.highscore[map.name][difficulty][0] = death_wave
+                            highscores.saveHighscore(app)
+                            newHigh[0] = True
 
-                    if app.highscore[map.name][difficulty][0] < death_wave:
-                        app.highscore[map.name][difficulty][0] = death_wave
-                        highscores.saveHighscore(app)
-                        newHigh[0] = True
-
-                    if app.highscore[map.name][difficulty][1] < player_actor.money:
-                        app.highscore[map.name][difficulty][1] = player_actor.money
-                        highscores.saveHighscore(app)
-                        newHigh[1] = True
+                        if app.highscore[map.name][difficulty][1] < player_actor.money:
+                            app.highscore[map.name][difficulty][1] = player_actor.money
+                            highscores.saveHighscore(app)
+                            newHigh[1] = True
 
                 for i in range(5):
                     particle_list.append(
@@ -1315,7 +1321,7 @@ def main(
             free_tick += timedelta.mod(1)
             if free_tick > 90 and player_actor.get_hp() < 100:
                 player_actor.set_hp(timedelta.mod(-1), reduce=True)
-                player_actor.set_sanity(timedelta.mod(0.05 * sanity_drain))
+                player_actor.set_sanity(timedelta.mod(0.2 * sanity_drain))
                 if player_actor.get_hp() >= 100:
                     player_actor.hp = 100
 
@@ -1650,7 +1656,7 @@ def main(
                 )
 
             if not overworld:
-                player_actor.set_sanity(timedelta.mod(0.001 * sanity_drain))
+                player_actor.set_sanity(timedelta.mod(0.003 * sanity_drain))
 
             if phase == 3:
                 map_points = map.__dict__["points_inside_polygons"]
@@ -1926,14 +1932,10 @@ def main(
                     fade_tick.value = 0
 
             elif not multiplayer:
-                if not app.joysticks:
-                    app.pygame.mouse.set_visible(True)
-
-                if map.name != "Downtown":
-                    text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
-                else:
+                if map.name == "Downtown":
                     text = terminal_map_desc.render(f"YOU DIED!", False, [255, 255, 255])
-
+                else:
+                    text = terminal_map_desc.render(f"YOU DIED ON WAVE {death_wave if death_wave != -1 else wave_number}!", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 - 40]
                 screen.blit(
                     text,

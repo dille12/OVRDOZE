@@ -35,7 +35,7 @@ class Gun(Weapon):
         handling=1,
         semi_auto=False,
         bullet_speed=20,
-        piercing=False,
+        piercing=1,
         ammo_cap_lvlup=5,
         ammo="9MM",
         image="",
@@ -47,7 +47,9 @@ class Gun(Weapon):
         charge_time=10,
         rocket_launcher = False,
         extra_bullet = True,
-        ai_fire_rate_mod = 7
+        ai_fire_rate_mod = 7,
+        availableUpgrades = ["Paska", "Kulli", "Muna"],
+        activatedUpgrades = [].copy(),
     ):
         super().__init__(
             name,
@@ -69,6 +71,7 @@ class Gun(Weapon):
         self.ai_fire_rate_mod = ai_fire_rate_mod
         self.owner = None
         self.app = None
+        self.activatedUpgrades = activatedUpgrades
 
         self.spread_per_bullet = spread_per_bullet
         self.piercing_bullets = piercing
@@ -97,6 +100,8 @@ class Gun(Weapon):
 
         self.charge_up = charge_up
         self.charge_time = charge_time
+
+        self.availableUpgrades = availableUpgrades
 
         self.jammed = False
 
@@ -139,6 +144,8 @@ class Gun(Weapon):
             rocket_launcher=self.rocket_launcher,
             extra_bullet=self.extra_bullet,
             ai_fire_rate_mod = self.ai_fire_rate_mod,
+            availableUpgrades = self.availableUpgrades,
+            activatedUpgrades = self.activatedUpgrades.copy(),
         )
 
     def get_semi_auto(self):

@@ -53,6 +53,10 @@ def get_maps(app):
                     app, [0, 505], None, name="Downtown", type="door", door_dest="Downtown", active = True, angle = 90
                 ),
 
+                classes.Interactable(
+                    app, [270, 910], None, name="Vagabond", type="NPC", image="npc2.png"
+                ),
+
             ],
             SPAWNPOINT=[781, 930],
             GAMMA=[0.8, 0.9, 1.2],
