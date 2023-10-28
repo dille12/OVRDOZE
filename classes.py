@@ -516,9 +516,9 @@ class Inventory:
                         map, NAV_MESH, walls_filtered = app.MovTurretData
 
                         x = objects.MovingTurret.MovingTurret(
-                            pos_player, 4, 5, 500, 20, 1000, NAV_MESH=None, walls=None, map=None
+                            pos_player, 4, 5, 500, 20, 1000, NAV_MESH=None, walls=None, map=None, app = app
                         )
-                        x.map_ref = map
+                        x.map = map
                         x._pos = pos_player.copy()
                         x.navmesh_ref = NAV_MESH.copy()
                         x.wall_ref = walls_filtered
@@ -1304,6 +1304,9 @@ class Particle:
                 random.randint(0, 50),
             ]
             self.intensity *= 2
+        elif isinstance(self.color_override, list):
+            self.color3 = self.color_override
+
         self.draw_surface = screen
 
     def tick(self, screen, camera_pos, map=None):
@@ -1409,6 +1412,7 @@ class Particle:
                         self.color3[1],
                         self.color3[2] / self.lifetime,
                     ]
+
                 # if map != None:
                 #     if (
                 #         list(level.getcollisionspoint(map.rectangles, self.pos))
@@ -1428,6 +1432,13 @@ class Particle:
                     255 - 255 / self.lifetime**7,
                     255 - 255 / self.lifetime**0.2,
                     255 - 255 / self.lifetime**0.2,
+                ]
+
+            if isinstance(self.color_override, list):
+                self.color = [
+                    self.color3[0],
+                    self.color3[1],
+                    self.color3[2] / self.lifetime,
                 ]
 
             pos = func.draw_pos([self.dim[0], self.dim[1]], camera_pos)

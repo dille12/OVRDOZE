@@ -94,6 +94,7 @@ guns = {
         burst=True,
         burst_bullets=3,
         burst_fire_rate=2,
+        availableUpgrades = ["Add Pierce", "Extended Mag", "Improved Firerate"],
     ),
     "AK47": W.Gun(
         name="AK47",
@@ -199,6 +200,7 @@ guns = {
         ammo="12 GAUGE",
         view=0.01,
         handling=0.2,
+        availableUpgrades = ["Explosive Ammo", "Improved Firerate", "Extended Mag"],
     ),
 
     "NRG-SHLL": W.Gun(
@@ -367,11 +369,17 @@ upgradeMap = {
     "Extended Mag" : {"Desc" : "Adds 10 bullets to the magazine.", "stat": "_clip_size", "addval" : 10},
     "Add Pierce" : {"Desc" : "Bullets pierce one enemy more.", "stat": "piercing_bullets", "addval" : 1},
     "3 Round Burst" : {"Desc" : "The weapon shoots devastating 3 round bursts.", "stat": "burst", "val" : True},
+    "Explosive Ammo" : {"Desc" : "Bullets explode after expiring.", "stat": "explosive", "val" : True},
+    "Improved Firerate" : {"Desc" : "Weapon fires more rounds per minute.", "stat": "_bullet_per_min", "addval" : 200},
+
+
 }
 
 statMap = {
     "semi_auto" : "Semi automatic",
     "_clip_size" : "Clip size",
     "piercing_bullets" : "Bullet piercing",
-    "burst" : "Burst fire"
+    "burst" : "Burst fire",
+    "explosive" : "Explosive ammo",
+    "_bullet_per_min" : "Fire rate",
 }

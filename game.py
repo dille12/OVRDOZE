@@ -215,7 +215,7 @@ def main(
     player_inventory = classes.Inventory(app, interactables, player=True)
     turret_bro.clear()
 
-
+    player_inventory.append_to_inv(items["Moving Turret"], 1)
 
     app.day = -1
 
@@ -428,7 +428,7 @@ def main(
     app.camera_pos = camera_pos
 
     while 1:
-
+        app.phase = phase
         tick_time = time.time() - last_tick
         last_tick = time.time()
 
@@ -1437,7 +1437,10 @@ def main(
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
         for pos, type in append_explosions:
-            explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 300))
+            if type == "small":
+                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 100))
+            else:
+                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 300))
         append_explosions.clear()
 
         last_bullet_list = tuple(bullet_list)

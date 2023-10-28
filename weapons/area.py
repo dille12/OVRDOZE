@@ -33,7 +33,6 @@ class Grenade(Weapon):
         self.height = 0
         self.angular_velocity = self.velocity
         self.vert_vel = 5
-        print("GRENADE INIT")
 
     def get_string(self):
         return super().get_string("GRENADE")
@@ -80,7 +79,6 @@ class Grenade(Weapon):
             self.pos.copy(), map_boundaries, collision_box=5, dir_coll=True
         )
         if coll_pos:
-            print("HIT")
             self.molotov_explode(map)
             if vert_coll:
                 self.angle_rad = math.pi - self.angle_rad
@@ -140,9 +138,12 @@ class Explosion:
         color_override="red",
         player_damage_mult = 1
     ):
-        print("EXPLOSION ADDED")
         self.pos = pos
-        self.rect_cent = expl1[0].get_rect().center
+        if expl1 != "small":
+            self.rect_cent = expl1[0].get_rect().center
+            self.small = False
+        else:
+            self.small = True
         self.ticks = 0
         self.range = range
         self.images = expl1
@@ -204,18 +205,33 @@ class Explosion:
     ):
         if self.ticks == 0:
 
+            if self.small:
+                for aids in range(15):
+                    particle_list.append(
+                        classes.Particle(
+                            self.pos,
+                            magnitude=1.5,
+                            screen=screen,
+                            color_override = [random.randint(180,190), random.randint(110,130), random.randint(30,50)]
+                            )
+                    )
+                explosions.remove(self)
+
             if self.particles == "blood":
                 explosion_blood_sound.stop()
                 explosion_blood_sound.play()
             else:
                 func.list_play(explosion_sound)
 
-            st_i, st_rect = func.rot_center(
-                func.pick_random_from_list(stains),
-                random.randint(0, 360),
-                self.pos[0],
-                self.pos[1],
-            )
+            if not self.small:
+
+                st_i, st_rect = func.rot_center(
+                    func.pick_random_from_list(stains),
+                    random.randint(0, 360),
+                    self.pos[0],
+                    self.pos[1],
+                )
+
             self.damage_actor(player_actor, player_actor, camera_pos, walls=walls, mult = self.player_damage)
             for x in enemy_list:
                 multi_kill, multi_kill_ticks = self.damage_actor(
@@ -230,34 +246,38 @@ class Explosion:
                     walls=walls,
                 )
 
-            if self.particles != "blood":
+            if self.particles != "blood" and not self.small:
 
                 map_render.blit(
                     st_i, st_rect
                 )  # func.minus_list(self.pos,stains[0].get_rect().center)
-            if self.particles == "normal":
-                for aids in range(50):
-                    particle_list.append(
-                        classes.Particle(self.pos, magnitude=3, screen=screen)
-                    )
-            else:
-                for aids in range(50):
-                    particle_list.append(
-                        classes.Particle(
-                            func.minus(self.pos, camera_pos),
-                            magnitude=random.uniform(0.6, 1.7),
-                            type="blood_particle",
-                            screen=map_render,
-                            color_override=self.c_o,
+
+            if not self.small:
+
+                if self.particles == "normal":
+                    for aids in range(50):
+                        particle_list.append(
+                            classes.Particle(self.pos, magnitude=3, screen=screen)
+                            )
+                else:
+                    for aids in range(50):
+                        particle_list.append(
+                            classes.Particle(
+                                func.minus(self.pos, camera_pos),
+                                magnitude=random.uniform(0.6, 1.7),
+                                type="blood_particle",
+                                screen=map_render,
+                                color_override=self.c_o,
+                            )
                         )
-                    )
+        if not self.small:
+            screen.blit(
+                self.images[min((round(self.ticks), len(self.images)-1))],
+                func.minus_list(func.minus_list(self.pos, camera_pos), self.rect_cent),
+            )
+            self.ticks += timedelta.mod(1)
 
-        screen.blit(
-            self.images[min((round(self.ticks), len(self.images)-1))],
-            func.minus_list(func.minus_list(self.pos, camera_pos), self.rect_cent),
-        )
-        self.ticks += timedelta.mod(1)
+            if self.ticks > len(self.images):
+                explosions.remove(self)
 
-        if self.ticks > len(self.images):
-            explosions.remove(self)
         return multi_kill, multi_kill_ticks

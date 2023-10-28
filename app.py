@@ -49,6 +49,7 @@ class App:
         self.pos_sent = False
         self.levels = ["Requiem", "Manufactory", "Liberation", "Contamination"]
         self.day = -1
+        self.phase = 0
 
         self.start_game_with_mp = []
 

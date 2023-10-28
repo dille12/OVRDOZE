@@ -8,6 +8,7 @@ import math
 import numpy as np
 
 
+
 class MovingTurret(Game_Object):
     def __init__(
         self,
@@ -20,6 +21,7 @@ class MovingTurret(Game_Object):
         NAV_MESH=[],
         walls=[],
         map=None,
+        app = None,
     ):
         super().__init__(
             "turret", pos, False, 0, damage, lifetime=lifetime, texture=turret
@@ -43,7 +45,7 @@ class MovingTurret(Game_Object):
 
         # self.navmesh_ref = NAV_MESH.copy()
         # self.wall_ref = walls
-        # self.map_ref = map
+        self.map = map
 
         self.route = []
 
@@ -53,6 +55,11 @@ class MovingTurret(Game_Object):
         self.size = turret.get_rect().size[0] / 2
         self.target = None
 
+        self.app = app
+
+        self.back_up_ticks = 0
+        self.back_up_dir = 1
+
     def get_string(self):
         return super().get_string("MOVINGTURRET")
 
@@ -60,7 +67,8 @@ class MovingTurret(Game_Object):
         lowest = 99999
         closest_enemy = None
         for x in enemy_list:
-            if not los.check_los(self._pos, x.get_pos(), walls[0]):
+            if not los.check_los_jit(np.array(self._pos), np.array(x.pos), self.map.numpy_array_wall_los):
+
                 continue
             dist = los.get_dist_points(self._pos, x.get_pos())
             if dist > self._range:
@@ -112,7 +120,7 @@ class MovingTurret(Game_Object):
             self.target = self.scan_for_enemies(enemy_list, walls)
         else:
             if (
-                los.check_los(self._pos, self.target.get_pos(), walls[0])
+                los.check_los_jit(np.array(self._pos), np.array(self.target.get_pos()), self.map.numpy_array_wall_los)
                 and los.get_dist_points(self._pos, self.target.get_pos()) < self._range
                 and self.target.check_if_alive()
             ):
@@ -216,11 +224,24 @@ class MovingTurret(Game_Object):
             super().clean_up(turret_bro)
 
     def get_route_to_target(self, target):
+        print("Getting route")
         if self.route_tick == 0:
             self.route_tick = 60
             self.route, a = func.calc_route(
-                self._pos, target, self.navmesh_ref, self.wall_ref, quick=False
+                self._pos, target, self.navmesh_ref, [self.map.numpy_array_wall_los, self.map.numpy_array_wall_no_los], quick=False
             )
+        lpos = 0
+        r2 = []
+        for x in self.route:
+
+            if lpos:
+                r2.append([(x[0] + lpos[0]) / 2, (x[1] + lpos[1]) / 2])
+            r2.append(x)
+            lpos = x
+
+        self.route = r2
+
+
 
     def move(self, player_pos):
 
@@ -228,9 +249,22 @@ class MovingTurret(Game_Object):
             self.route_tick -= 1
         last_pos = self._pos.copy()
 
-        if los.get_dist_points(self._pos, self.target_move_pos) > 20:
+        if self.back_up_ticks > 0:
+            self.velocity = 0
 
-            self.moving = True
+
+            collision_types, coll_pos = self.map.checkcollision(
+                self._pos,
+                [
+                    math.cos(self.angle_rad) * self.moving_speed,
+                    self._pos[1] - math.sin(self.angle_rad) * self.moving_speed,
+                ],
+                self.size,
+                self.map.size_converted,
+                ignore_barricades=True,
+            )
+
+            self._pos = coll_pos
 
             self.mov_angle = 180 - math.degrees(
                 math.atan2(
@@ -250,91 +284,127 @@ class MovingTurret(Game_Object):
                     )
             # else:
 
-            self.angle_rad = math.radians(self.base_angle)
 
-            angle_diff2 = los.get_angle_diff(self.mov_angle, self.base_angle)
 
-            if (1 - abs(angle_diff2) / 90) < 0:
-                self.diff_from_angle = (1 - abs(angle_diff2) / 90) ** 9
-            else:
-                self.diff_from_angle = 1 - abs(angle_diff2) / 90
 
-            self.diff_from_angle *= 1.25
-            self.diff_from_angle -= 0.25
-
-            self.velocity += (
-                self.acceleration * self.diff_from_angle * timedelta.timedelta
-            )
-
-            # func.minus(self.velocity,[math.cos(self.angle_rad) *self.acceleration * diff_from_angle, - math.sin(self.angle_rad) * self.acceleration * diff_from_angle ]) #-
-
-            if self.velocity > timedelta.mod(self.moving_speed):
-                self.velocity = timedelta.mod(self.moving_speed)
-
-            # if los.get_dist_points([0,0], self.velocity) > self.moving_speed:
-            #     print("TOO FAST")
-            #     norm = los.get_dist_points([0,0], self.velocity)
-            #     print(norm)
-            #     delta = self.moving_speed / norm
-            #
-            #     self.velocity = func.mult(self.velocity,delta)
-
-            collision_types, coll_pos = self.map_ref.checkcollision(
-                self._pos,
-                [
-                    math.cos(self.angle_rad) * self.moving_speed,
-                    self._pos[1] - math.sin(self.angle_rad) * self.moving_speed,
-                ],
-                self.size,
-                self.map_ref.size_converted,
-                ignore_barricades=True,
-            )
-            self._pos = coll_pos
-            if (
-                los.get_dist_points(self._pos, self.target_move_pos) < 20
-                or los.get_dist_points(self._pos, player_pos) < 50
-            ):
-                self.target_move_pos = self._pos
 
         else:
 
-            # self._pos = func.minus(self._pos, self.velocity)
-            #
-            # self.velocity = func.mult(self.velocity,0.9)
+            if los.get_dist_points(self._pos, self.target_move_pos) > 20:
 
-            if self.route != []:
+                self.moving = True
 
-                if los.check_los(player_pos, self._pos, self.wall_ref):
+                self.mov_angle = 180 - math.degrees(
+                    math.atan2(
+                        self._pos[1] - self.target_move_pos[1],
+                        self._pos[0] - self.target_move_pos[0],
+                    )
+                )
+
+                if self.mov_angle != self.base_angle:
+                    angle_diff = los.get_angle_diff(self.mov_angle, self.base_angle)
+                    if abs(angle_diff) <= self.turning_speed:
+                        self.base_angle = self.mov_angle
+                    else:
+
+                        self.base_angle += timedelta.mod(
+                            angle_diff / abs(angle_diff) * self.turning_speed
+                        )
+                # else:
+
+                self.angle_rad = math.radians(self.base_angle)
+
+                angle_diff2 = los.get_angle_diff(self.mov_angle, self.base_angle)
+
+                if (1 - abs(angle_diff2) / 90) < 0:
+                    self.diff_from_angle = (1 - abs(angle_diff2) / 90) ** 9
+                else:
+                    self.diff_from_angle = 1 - abs(angle_diff2) / 90
+
+                self.diff_from_angle *= 1.25
+                self.diff_from_angle -= 0.25
+
+                self.velocity += (
+                    self.acceleration * self.diff_from_angle * timedelta.timedelta
+                )
+
+
+
+                # func.minus(self.velocity,[math.cos(self.angle_rad) *self.acceleration * diff_from_angle, - math.sin(self.angle_rad) * self.acceleration * diff_from_angle ]) #-
+
+                if self.velocity > timedelta.mod(self.moving_speed):
+                    self.velocity = timedelta.mod(self.moving_speed)
+
+                nextPosEase = timedelta.mod(los.get_dist_points(self._pos, self.target_move_pos) / 10) ** 1.1
+
+                if self.velocity > timedelta.mod(self.moving_speed):
+                    self.velocity = timedelta.mod(self.moving_speed)
+
+                if self.velocity > nextPosEase:
+                    self.velocity = nextPosEase
+
+
+                collision_types, coll_pos = self.map.checkcollision(
+                    self._pos,
+                    [
+                        math.cos(self.angle_rad) * self.moving_speed,
+                        self._pos[1] - math.sin(self.angle_rad) * self.moving_speed,
+                    ],
+                    self.size,
+                    self.map.size_converted,
+                    ignore_barricades=True,
+                )
+
+                if self._pos != coll_pos:
+                    self.back_up_ticks = 15
                     self.route = []
-                    self.target_move_pos = player_pos.copy()
-                else:
+                    if self.velocity < 0:
+                        self.back_up_dir = -1
+                    else:
+                        self.back_up_dir = 1
 
-                    for route in self.route:
-
-                        self.target_move_pos = route
-                        self.route.remove(route)
-
-                        if self._pos != self.target_move_pos:
-                            break
-
-                if last_pos == self._pos and not los.check_los(
-                    player_pos, self._pos, self.wall_ref
+                self._pos = coll_pos
+                if (
+                    los.get_dist_points(self._pos, self.target_move_pos) < 20
+                    or los.get_dist_points(self._pos, player_pos) < 50
                 ):
+                    self.target_move_pos = self._pos
 
-                    self.stationary += 1
-                    if self.stationary > 30:
-                        self.route = []
-                        self.stationary = -60
+            else:
 
+                # self._pos = func.minus(self._pos, self.velocity)
                 #
-                else:
-                    self.stationary = 0
+                # self.velocity = func.mult(self.velocity,0.9)
 
-            elif los.get_dist_points(self._pos, player_pos) > 120:
-                if los.check_los(player_pos, self._pos, self.wall_ref):
-                    self.target_move_pos = player_pos.copy()
-                else:
-                    self.get_route_to_target(player_pos)
+                if self.route != []:
+                    if los.check_los_jit(np.array(player_pos), np.array(self._pos), self.map.numpy_array_wall_los):
+                        self.route = []
+                        self.target_move_pos = player_pos.copy()
+                    else:
+
+                        for route in self.route:
+
+                            self.target_move_pos = route
+                            self.route.remove(route)
+
+                            if self._pos != self.target_move_pos:
+                                break
+
+                    if last_pos == self._pos and not los.check_los_jit(np.array(player_pos), np.array(self._pos), self.map.numpy_array_wall_los):
+                        self.stationary += 1
+                        if self.stationary > 30:
+                            self.route = []
+                            self.stationary = -60
+
+                    #
+                    else:
+                        self.stationary = 0
+
+                elif los.get_dist_points(self._pos, player_pos) > 120:
+                    if los.check_los_jit(np.array(player_pos), np.array(self._pos), self.map.numpy_array_wall_los):
+                        self.target_move_pos = player_pos.copy()
+                    else:
+                        self.get_route_to_target(player_pos.copy())
 
         self._pos = func.minus(
             self._pos,
@@ -344,16 +414,36 @@ class MovingTurret(Game_Object):
             ],
         )
 
+        if self.back_up_ticks > 0:
+            self.back_up_ticks -= timedelta.mod(1)
+
         self.velocity *= timedelta.exp(0.965)
 
     def tick(self, screen, camera_pos, enemy_list, tick, walls, player_pos):
         shoot, aim_at = self.handle_scanning(enemy_list, walls, los)
-        try:
-            self.move(player_pos)
-        except Exception as e:
-            print(e)
+        self.move(player_pos)
+
 
         shoot, angle2, turret2, turret_rect = self.draw_bead_on(aim_at, shoot)
         self.shoot(shoot, angle2)
         self.draw(screen, camera_pos, turret2, turret_rect)
         self.clean_up()
+
+        if self.app.phase == 6:
+            lpos = self._pos
+            for x in self.route:
+
+                pygame.draw.line(
+                    screen,
+                    [255,0,0],
+                    func.minus(lpos, camera_pos, op="-"),
+                    func.minus(x, camera_pos, op="-"),
+                )
+                lpos = x
+
+            pygame.draw.line(
+                screen,
+                [255,0,0],
+                func.minus(lpos, camera_pos, op="-"),
+                func.minus(self.target_move_pos, camera_pos, op="-"),
+            )

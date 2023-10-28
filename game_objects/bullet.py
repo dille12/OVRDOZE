@@ -22,6 +22,7 @@ class Bullet(Game_Object):
         daemon_bullet=False,
         id=-1,
         owner=None,
+        explosive=True,
     ):
         self.id = id
         self.owner = owner
@@ -65,6 +66,8 @@ class Bullet(Game_Object):
 
         self.actors_hit = []
 
+        self.explosive = explosive
+
         self.added_explosion = False
 
 
@@ -86,6 +89,10 @@ class Bullet(Game_Object):
     def kill_bullet(self, add_expl = True):
 
         self.kill_id()
+
+        if self.explosive:
+            append_explosions.append([self._pos, "small"])
+            self.added_explosion = True
 
         if self.rocket and add_expl and not self.added_explosion:
             append_explosions.append([self._pos, expl1])
