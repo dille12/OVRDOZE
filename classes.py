@@ -266,6 +266,15 @@ items = {
         drop_weight=1,
         drop_stack=99,
     ),
+    "Upgrade Token": Item(
+        "Upgrade Token",
+        "Vagabond will trade you these for upgrades.",
+        "upgradeToken.png",
+        max_stack = 3,
+        pick_up_sound=energy_cell_sound,
+        drop_weight = 0.6,
+        drop_stack = 1,
+    ),
 }
 
 

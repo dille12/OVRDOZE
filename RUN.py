@@ -230,7 +230,7 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 60
 
-    quick_load = True
+    quick_load = False
 
     if 'menu_animations' not in globals():
         print("Loading animations...")

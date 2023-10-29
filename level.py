@@ -246,7 +246,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     for x in turret_bro:
 
-        x.map_ref = map
+        x.map = map
         x._pos = player_pos.copy()
         x.navmesh_ref = NAV_MESH.copy()
         x.wall_ref = walls_filtered

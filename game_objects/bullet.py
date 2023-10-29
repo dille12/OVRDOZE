@@ -22,7 +22,7 @@ class Bullet(Game_Object):
         daemon_bullet=False,
         id=-1,
         owner=None,
-        explosive=True,
+        explosive=False,
     ):
         self.id = id
         self.owner = owner

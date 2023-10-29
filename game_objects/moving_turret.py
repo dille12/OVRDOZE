@@ -59,7 +59,8 @@ class MovingTurret(Game_Object):
 
         self.back_up_ticks = 0
         self.back_up_dir = 1
-
+        self.back_up_random_dir = 0
+        self.force_teleport = 0
     def get_string(self):
         return super().get_string("MOVINGTURRET")
 
@@ -224,7 +225,6 @@ class MovingTurret(Game_Object):
             super().clean_up(turret_bro)
 
     def get_route_to_target(self, target):
-        print("Getting route")
         if self.route_tick == 0:
             self.route_tick = 60
             self.route, a = func.calc_route(
@@ -245,12 +245,15 @@ class MovingTurret(Game_Object):
 
     def move(self, player_pos):
 
+        if self.force_teleport > 0:
+            self.force_teleport -= 0.01
+
         if self.route_tick != 0:
             self.route_tick -= 1
         last_pos = self._pos.copy()
 
         if self.back_up_ticks > 0:
-            self.velocity = 0
+            self.velocity = -self.back_up_ticks / 20 * self.back_up_dir
 
 
             collision_types, coll_pos = self.map.checkcollision(
@@ -271,7 +274,7 @@ class MovingTurret(Game_Object):
                     self._pos[1] - self.target_move_pos[1],
                     self._pos[0] - self.target_move_pos[0],
                 )
-            )
+            ) + self.back_up_random_dir
 
             if self.mov_angle != self.base_angle:
                 angle_diff = los.get_angle_diff(self.mov_angle, self.base_angle)
@@ -357,11 +360,17 @@ class MovingTurret(Game_Object):
 
                 if self._pos != coll_pos:
                     self.back_up_ticks = 15
-                    self.route = []
+                    self.force_teleport += 1
+                    self.back_up_random_dir = random.randint(-50, 50)
                     if self.velocity < 0:
                         self.back_up_dir = -1
                     else:
                         self.back_up_dir = 1
+
+                    if self.force_teleport > 10:
+                        self._pos = player_pos.copy()
+                        coll_pos = self._pos
+                        self.force_teleport = 0
 
                 self._pos = coll_pos
                 if (
@@ -390,16 +399,6 @@ class MovingTurret(Game_Object):
                             if self._pos != self.target_move_pos:
                                 break
 
-                    if last_pos == self._pos and not los.check_los_jit(np.array(player_pos), np.array(self._pos), self.map.numpy_array_wall_los):
-                        self.stationary += 1
-                        if self.stationary > 30:
-                            self.route = []
-                            self.stationary = -60
-
-                    #
-                    else:
-                        self.stationary = 0
-
                 elif los.get_dist_points(self._pos, player_pos) > 120:
                     if los.check_los_jit(np.array(player_pos), np.array(self._pos), self.map.numpy_array_wall_los):
                         self.target_move_pos = player_pos.copy()
@@ -417,7 +416,44 @@ class MovingTurret(Game_Object):
         if self.back_up_ticks > 0:
             self.back_up_ticks -= timedelta.mod(1)
 
+            if not self.back_up_ticks > 0:
+                if not los.check_los_jit(np.array(self.target_move_pos), np.array(self._pos), self.map.numpy_array_wall_los):
+                    self.route = []
+                    self.get_route_to_target(player_pos.copy())
+
+
         self.velocity *= timedelta.exp(0.965)
+
+
+    def move_fix(self, player_pos):
+
+        if self.route_tick != 0:
+            self.route_tick -= 1
+
+        if self.route:
+
+            self.target_move_pos = self.route[0]
+
+
+            self.mov_angle = 180 - math.degrees(
+                math.atan2(
+                    self._pos[1] - self.target_move_pos[1],
+                    self._pos[0] - self.target_move_pos[0],
+                )
+            )
+
+            if self.mov_angle != self.base_angle:
+                angle_diff = los.get_angle_diff(self.mov_angle, self.base_angle)
+                if abs(angle_diff) <= self.turning_speed:
+                    self.base_angle = self.mov_angle
+                else:
+
+                    self.base_angle += timedelta.mod(
+                        angle_diff / abs(angle_diff) * self.turning_speed
+                    )
+
+
+
 
     def tick(self, screen, camera_pos, enemy_list, tick, walls, player_pos):
         shoot, aim_at = self.handle_scanning(enemy_list, walls, los)
@@ -441,9 +477,11 @@ class MovingTurret(Game_Object):
                 )
                 lpos = x
 
-            pygame.draw.line(
-                screen,
-                [255,0,0],
-                func.minus(lpos, camera_pos, op="-"),
-                func.minus(self.target_move_pos, camera_pos, op="-"),
-            )
+            if self.target_move_pos:
+
+                pygame.draw.line(
+                    screen,
+                    [255,0,0],
+                    func.minus(lpos, camera_pos, op="-"),
+                    func.minus(self.target_move_pos, camera_pos, op="-"),
+                )
