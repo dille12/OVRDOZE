@@ -96,7 +96,7 @@ class weapon_button:
                 screen.blit(text, [size[0] / 3, 150])
 
 
-            elif self.weapon.piercing_bullets:
+            elif self.weapon.piercing_bullets > 1:
 
                 text = terminal.render(
                     f"Armor piercing bullets", False, [255, 255, 255]

@@ -230,7 +230,7 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 60
 
-    quick_load = True
+    quick_load = False
 
     if 'menu_animations' not in globals():
         print("Loading animations...")
@@ -619,8 +619,8 @@ def main(ms = "start"):
             cant_uncheck=True,
         )
 
-        if text == "NORMAL":
-            box.__dict__["checked"] = True
+        if text == "NORMAL":    
+            box.checked = True
         check_box_difficulties.append(box)
 
     background = app.pygame.Surface(

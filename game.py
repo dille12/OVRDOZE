@@ -675,6 +675,8 @@ def main(
         elif r_click == False:
             r_clicked = False
 
+        
+
         scroll = [False, False]
 
         last_gun = c_weapon.name
@@ -835,6 +837,18 @@ def main(
             f_press = True
         elif pressed[app.pygame.K_f] == False:
             f_pressed = False
+
+        f11 = False
+
+        if pressed[app.pygame.K_F11] and f11_pressed == False:
+            f11_pressed = True
+            f11 = True
+        elif pressed[app.pygame.K_F11] == False:
+            f11_pressed = False
+
+        if f11:
+            app.fs = not app.fs
+            screen, mouse_conversion = app.update_screen()
 
         q_press = False
         if pressed[app.pygame.K_q] and q_pressed == False and player_actor.get_hp() > 0:
