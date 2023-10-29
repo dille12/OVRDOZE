@@ -209,12 +209,10 @@ def main(ms = "start"):
 
     maps_dict = app.getMaps()
     clock = app.pygame.time.Clock()
-    print("run init")
 
     highscores.write_default_highscore()
     highscores.checkHighscores(app)
 
-    print("highscores imported")
 
     screen, mouse_conversion = app.update_screen()
     if not quick_load:
@@ -244,7 +242,7 @@ def main(ms = "start"):
 
 
 
-    if 'menu_animations' not in globals():
+    if not app.menu_animations:
         print("Loading animations...")
         intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading.")
@@ -265,9 +263,9 @@ def main(ms = "start"):
             func.load_screen(screen, "Loading Done")
             print("Done")
 
-            menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
+            app.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
-            menu_animations = [intro1]
+            app.menu_animations = [intro1]
     menu_i = 0
 
 
@@ -608,7 +606,7 @@ def main(ms = "start"):
     scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
-    app.pygame.mixer.music.load("sound/songs/menu_loop_new2.wav")
+    app.pygame.mixer.music.load("sound/songs/menu_loop_new.wav")
     app.pygame.mixer.music.play(-1)
 
 
@@ -987,14 +985,14 @@ def main(ms = "start"):
 
             last_beat = curr
 
-            if menu_i == len(menu_animations):
+            if menu_i == len(app.menu_animations):
                 menu_i = 0
 
         try:
 
-            im = menu_animations[menu_i][
+            im = app.menu_animations[menu_i][
                 round(
-                    (len(menu_animations[menu_i]) - 1)
+                    (len(app.menu_animations[menu_i]) - 1)
                     * (((curr - last_beat)) / beat_time) ** 1
                 )
             ]

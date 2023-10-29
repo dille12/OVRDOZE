@@ -52,9 +52,14 @@ class App:
         self.phase = 0
 
         self.start_game_with_mp = []
+        self.menu_animations = []
 
 
     def introScreen(self, screen, clock):
+
+        if IS.introPlayed:
+            return
+
         seq = func.load_animation("anim/vs", 1, 60, alpha=255, intro = False)
         introSound.play()
         for x in range(len(seq) + 30):
@@ -66,6 +71,8 @@ class App:
             if x < len(seq):
                 screen.blit(seq[x], [0,0])
             pygame.display.update()
+
+        IS.introPlayed = True
 
 
 
