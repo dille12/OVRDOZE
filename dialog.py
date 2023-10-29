@@ -45,7 +45,7 @@ def upgrade_weapon(arg):
     player_inventory, items, player_actor = arg
     for x in player_actor.upgradeButtons:
         if x.active:
-            
+
             w = x.weapon
             u = w.availableUpgrades[x.upgradeI]
 
@@ -63,9 +63,14 @@ def upgrade_weapon(arg):
 
             w.activatedUpgrades.append(x.upgradeI)
 
+            player_inventory.remove_amount("Upgrade Token", 1)
 
 
-            
+            break
+
+
+
+
 
 
 def advance(arg):
@@ -138,6 +143,16 @@ def open_upgrade_station(screen, click, mouse_pos, player_inventory, items, play
     screen.blit(text, [20, 20])
     dialogue[0].max_y_pos = len(player_actor.upgradeButtons)
     shop_quit_button.tick(screen, mouse_pos, click, None)
+
+    tokens = player_inventory.get_amount_of_type("Upgrade Token")
+
+    if tokens > 0:
+        shop_upgrade_button.locked = False
+    else:
+        shop_upgrade_button.locked = True
+
+    text = terminal.render(f"Tokens: {tokens}", False, [255, 255, 255])
+    screen.blit(text, [20, 45])
 
 
     pygame.draw.rect(screen, [255, 255, 255], [5, 100, 10, 267], 1)

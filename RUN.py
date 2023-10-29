@@ -39,6 +39,15 @@ terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 prompt = pygame.font.Font("texture/terminal.ttf", 14)
 
+from git import Repo
+
+repo = Repo(os.getcwd())  # Replace 'path_to_repo' with the actual path to your Git repository
+if repo.is_dirty():
+    print("There are local changes in the repository.")
+    VERSION += " (LOCAL CHANGES MADE! REMEMBER TO PUSH)"
+else:
+    print("No local changes found in the repository.")
+
 
 def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):
     rect_map = maps_dict[app.selected_map]["image"].get_rect()
@@ -193,20 +202,21 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
 
 
 def main(ms = "start"):
+    quick_load = False
 
     app = App(pygame)
 
 
     maps_dict = app.getMaps()
     clock = app.pygame.time.Clock()
-    print("run init")
 
     highscores.write_default_highscore()
     highscores.checkHighscores(app)
 
-    print("highscores imported")
 
     screen, mouse_conversion = app.update_screen()
+    if not quick_load:
+        app.introScreen(screen, clock)
 
     func.load_screen(screen, "Loading")
 
@@ -230,9 +240,9 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 60
 
-    quick_load = False
 
-    if 'menu_animations' not in globals():
+
+    if not app.menu_animations:
         print("Loading animations...")
         intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading.")
@@ -253,9 +263,9 @@ def main(ms = "start"):
             func.load_screen(screen, "Loading Done")
             print("Done")
 
-            menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
+            app.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
-            menu_animations = [intro1]
+            app.menu_animations = [intro1]
     menu_i = 0
 
 
@@ -975,14 +985,14 @@ def main(ms = "start"):
 
             last_beat = curr
 
-            if menu_i == len(menu_animations):
+            if menu_i == len(app.menu_animations):
                 menu_i = 0
 
         try:
 
-            im = menu_animations[menu_i][
+            im = app.menu_animations[menu_i][
                 round(
-                    (len(menu_animations[menu_i]) - 1)
+                    (len(app.menu_animations[menu_i]) - 1)
                     * (((curr - last_beat)) / beat_time) ** 1
                 )
             ]

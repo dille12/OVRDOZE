@@ -19,6 +19,12 @@ multi_kill = 0
 camera_pan = 0.03
 respawn_ticks = 0
 
+class introState():
+    def __init__(self):
+        self.introPlayed = False
+
+IS = introState()
+
 try:
     monitors = get_monitors()
     m = monitors[0]
@@ -460,6 +466,8 @@ door_sound = get_Sound("sound/door_sound.wav")
 phone_ring = get_Sound("sound/phone_ring.wav")
 
 scroll_bar_clicks = get_sound_Variants("sound/scrollbarclicks", "file", dont_bend = True)
+
+introSound = pygame.mixer.Sound("sound/sfx/introLighter.wav")
 
 kill_sounds = get_sound_Variants("sound", "kill")
 # kill_sound = get_Sound("sound/kill5.wav")

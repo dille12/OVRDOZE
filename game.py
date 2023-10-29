@@ -215,11 +215,8 @@ def main(
     player_inventory = classes.Inventory(app, interactables, player=True)
     turret_bro.clear()
 
-    turret_bro.append(
-        objects.MovingTurret.MovingTurret(
-            [100, 300], 4, 5, 500, 20, -1, NAV_MESH=None, walls=None, map=None
-        )
-    )
+    player_inventory.append_to_inv(items["Moving Turret"], 1)
+    player_inventory.append_to_inv(items["Upgrade Token"], 1)
 
     app.day = -1
 
@@ -239,7 +236,8 @@ def main(
             walls_filtered,
         ) = load_level(map, mouse_conversion, player_inventory, app, screen)
 
-    except:
+    except Exception as e:
+        print(e)
         RUN.main(ms = "beta")
 
     print("Level loaded")
@@ -300,7 +298,7 @@ def main(
         endless = False
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
-    
+
 
     gun_name_list = [
         "M1911",
@@ -428,14 +426,10 @@ def main(
 
     app.three_second_tick = 0
 
-
-
     app.camera_pos = camera_pos
 
-
-
     while 1:
-
+        app.phase = phase
         tick_time = time.time() - last_tick
         last_tick = time.time()
 
@@ -1062,8 +1056,8 @@ def main(
         for x in delete_list:
             interactables.remove(x)
 
-        # for x in turret_bro:
-        #     x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
+        for x in turret_bro:
+            x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
 
         for x in particle_list:
             x.tick(screen, camera_pos, map)
@@ -1458,7 +1452,10 @@ def main(
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
         for pos, type in append_explosions:
-            explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 300))
+            if type == "small":
+                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 100))
+            else:
+                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 300))
         append_explosions.clear()
 
         last_bullet_list = tuple(bullet_list)

@@ -49,8 +49,33 @@ class App:
         self.pos_sent = False
         self.levels = ["Requiem", "Manufactory", "Liberation", "Contamination"]
         self.day = -1
+        self.phase = 0
 
         self.start_game_with_mp = []
+        self.menu_animations = []
+
+
+    def introScreen(self, screen, clock):
+
+        if IS.introPlayed:
+            return
+
+        seq = func.load_animation("anim/vs", 1, 60, alpha=255, intro = False)
+        introSound.play()
+        for x in range(len(seq) + 30):
+            screen.fill([0,0,0])
+            clock.tick(45)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+            if x < len(seq):
+                screen.blit(seq[x], [0,0])
+            pygame.display.update()
+
+        IS.introPlayed = True
+
+
+
 
 
     def send_data(self, line):

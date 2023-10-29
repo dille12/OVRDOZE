@@ -60,4 +60,7 @@ class Game_Object(MP_Object):
         return string
 
     def clean_up(self, l):
-        l.remove(self)
+        try:
+            l.remove(self)
+        except:
+            print("Not in list")

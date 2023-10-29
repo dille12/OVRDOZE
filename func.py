@@ -664,7 +664,7 @@ def rot_center(image, angle, x, y):
 def load_screen(screen, text):
     screen.fill((0,0,0))
 
-    text = terminal2.render(text, False, [255, 255, 255])
+    text = terminal2.render(text, False, [155, 155, 155])
     x,y = text.get_rect().center
     screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
 
@@ -673,7 +673,7 @@ def load_screen(screen, text):
         hint.t = time.time()
 
 
-    text = terminal_hint.render(hint.hint, False, [255, 255, 255])
+    text = terminal_hint.render(hint.hint, False, [100, 100, 100])
     x,y = text.get_rect().center
     screen.blit(text, [size[0]/2 - x, size[1]/4 - y + 100])
 

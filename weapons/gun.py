@@ -50,6 +50,7 @@ class Gun(Weapon):
         ai_fire_rate_mod = 7,
         availableUpgrades = ["Paska", "Kulli", "Muna"],
         activatedUpgrades = [].copy(),
+        explosive = False,
     ):
         super().__init__(
             name,
@@ -104,6 +105,7 @@ class Gun(Weapon):
         self.availableUpgrades = availableUpgrades
 
         self.jammed = False
+        self.explosive = explosive
 
         if charge_up:
             self.charge_tick = GameTick(self.charge_time, oneshot=True)
@@ -146,6 +148,7 @@ class Gun(Weapon):
             ai_fire_rate_mod = self.ai_fire_rate_mod,
             availableUpgrades = self.availableUpgrades,
             activatedUpgrades = self.activatedUpgrades.copy(),
+            explosive = self.explosive,
         )
 
     def get_semi_auto(self):
@@ -230,6 +233,7 @@ class Gun(Weapon):
                     energy=self.energy_weapon,
                     rocket=self.rocket_launcher,
                     owner=self,
+                    explosive = self.explosive,
                 )
 
                 bullet_list.append(bullet_temp)  # BULLET
