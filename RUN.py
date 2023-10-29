@@ -39,6 +39,15 @@ terminal = pygame.font.Font("texture/terminal.ttf", 20)
 terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 prompt = pygame.font.Font("texture/terminal.ttf", 14)
 
+from git import Repo
+
+repo = Repo(os.getcwd())  # Replace 'path_to_repo' with the actual path to your Git repository
+if repo.is_dirty():
+    print("There are local changes in the repository.")
+    VERSION += " (LOCAL CHANGES MADE! REMEMBER TO PUSH)"
+else:
+    print("No local changes found in the repository.")
+
 
 def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):
     rect_map = maps_dict[app.selected_map]["image"].get_rect()
