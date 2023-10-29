@@ -202,6 +202,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
 
 
 def main(ms = "start"):
+    quick_load = False
 
     app = App(pygame)
 
@@ -216,6 +217,8 @@ def main(ms = "start"):
     print("highscores imported")
 
     screen, mouse_conversion = app.update_screen()
+    if not quick_load:
+        app.introScreen(screen, clock)
 
     func.load_screen(screen, "Loading")
 
@@ -239,7 +242,7 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 60
 
-    quick_load = False
+
 
     if 'menu_animations' not in globals():
         print("Loading animations...")
@@ -605,7 +608,7 @@ def main(ms = "start"):
     scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
-    app.pygame.mixer.music.load("sound/songs/menu_loop_new.wav")
+    app.pygame.mixer.music.load("sound/songs/menu_loop_new2.wav")
     app.pygame.mixer.music.play(-1)
 
 

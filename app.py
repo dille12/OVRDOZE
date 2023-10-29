@@ -54,6 +54,23 @@ class App:
         self.start_game_with_mp = []
 
 
+    def introScreen(self, screen, clock):
+        seq = func.load_animation("anim/vs", 1, 60, alpha=255, intro = False)
+        introSound.play()
+        for x in range(len(seq) + 30):
+            screen.fill([0,0,0])
+            clock.tick(45)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+            if x < len(seq):
+                screen.blit(seq[x], [0,0])
+            pygame.display.update()
+
+
+
+
+
     def send_data(self, line):
         if not self.multiplayer:
             return
