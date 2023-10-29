@@ -27,9 +27,9 @@ def bend_all():
         print("Samplerate:", sr)
         y_fast = librosa.effects.time_stretch(y, rate=0.5)
 
-        y_fast = librosa.effects.pitch_shift(y_fast, sr, n_steps=-12)
+        y_fast = librosa.effects.pitch_shift(y_fast, sr = sr, n_steps=-12)
 
-        sf.write(f"C:/Users/vilia/Documents/GitHub/2dshooter/bended/{file_name}_bended.wav", y_fast, sr, 'PCM_24')
+        sf.write(f"C:/Users/Reset/Documents/GitHub/OVRDOZE/bended/{file_name}_bended.wav", y_fast, sr, 'PCM_24')
         print(f"{x} done")
 
 

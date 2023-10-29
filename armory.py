@@ -115,6 +115,7 @@ guns = {
         piercing=3,
         view=0.03,
         handling=0.35,
+        availableUpgrades = ["Quickdraw Mag", "Explosive Ammo", "Improved Firerate"],
     ),
     "SCAR18": W.Gun(
         name="SCAR18",
@@ -365,12 +366,13 @@ grenades = {}
 __weapons_map = {"gun": guns, "melee": melees, "grenade": grenades}
 
 upgradeMap = {
-    "Full Auto" : {"Desc" : "Turns the weapon to fully automatic.", "stat": "semi_auto", "val" : False},
+    "Full Auto" : {"Desc" : "Turns the weapon to fully automatic.", "stat": "semi_auto", "set" : False},
     "Extended Mag" : {"Desc" : "Adds 10 bullets to the magazine.", "stat": "_clip_size", "addval" : 10},
     "Add Pierce" : {"Desc" : "Bullets pierce one enemy more.", "stat": "piercing_bullets", "addval" : 1},
-    "3 Round Burst" : {"Desc" : "The weapon shoots devastating 3 round bursts.", "stat": "burst", "val" : True},
-    "Explosive Ammo" : {"Desc" : "Bullets explode after expiring.", "stat": "explosive", "val" : True},
+    "3 Round Burst" : {"Desc" : "The weapon shoots devastating 3 round bursts.", "stat": "burst", "set" : True},
+    "Explosive Ammo" : {"Desc" : "Bullets explode after expiring.", "stat": "explosive", "set" : True},
     "Improved Firerate" : {"Desc" : "Weapon fires more rounds per minute.", "stat": "_bullet_per_min", "addval" : 200},
+    "Quickdraw Mag" : {"Desc" : "Weapon is reloaded twice as fast.", "stat" : "_reload_rate", "multval" : 0.5},
 
 
 }
@@ -382,4 +384,5 @@ statMap = {
     "burst" : "Burst fire",
     "explosive" : "Explosive ammo",
     "_bullet_per_min" : "Fire rate",
+    "_reload_rate" : "Reload rate",
 }

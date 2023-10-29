@@ -55,11 +55,14 @@ def upgrade_weapon(arg):
             if "addval" in upgradeInstructions:
                 w.__dict__[upgradeInstructions["stat"]] += upgradeInstructions["addval"]
 
-            if "val" in upgradeInstructions:
-                w.__dict__[upgradeInstructions["stat"]] = upgradeInstructions["val"]
+            if "set" in upgradeInstructions:
+                w.__dict__[upgradeInstructions["stat"]] = upgradeInstructions["set"]
 
-                if upgradeInstructions["stat"] == "burst" and upgradeInstructions["val"] == True:
+                if upgradeInstructions["stat"] == "burst" and upgradeInstructions["set"] == True:
                     w.semi_auto = False
+
+            if "multval" in upgradeInstructions:
+                w.__dict__[upgradeInstructions["stat"]] *= upgradeInstructions["multval"]
 
             w.activatedUpgrades.append(x.upgradeI)
 

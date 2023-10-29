@@ -109,8 +109,8 @@ class upgradeButton:
                         t = terminal.render(f"Stat: {v}", False, [155,155,155])
                     screen.blit(t, [350, 180])
 
-                    if "val" in upgradeMap[u]:
-                        v = upgradeMap[u]["val"]
+                    if "set" in upgradeMap[u]:
+                        v = upgradeMap[u]["set"]
                         t = terminal.render(f"Value: {self.weapon.__dict__[stat]} ] {v}", False, [155,155,155])
                         
 
@@ -118,6 +118,11 @@ class upgradeButton:
                         v = upgradeMap[u]["addval"]
 
                         t = terminal.render(f"Value: {self.weapon.__dict__[stat]} ] {self.weapon.__dict__[stat] + v}", False, [155,155,155])
+
+                    if "multval" in upgradeMap[u]:
+                        v = upgradeMap[u]["multval"]
+
+                        t = terminal.render(f"Value: {self.weapon.__dict__[stat]} ] {self.weapon.__dict__[stat] * v}", False, [155,155,155])
 
                     screen.blit(t, [350, 210])
                 else:

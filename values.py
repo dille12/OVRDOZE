@@ -22,6 +22,7 @@ respawn_ticks = 0
 class introState():
     def __init__(self):
         self.introPlayed = False
+        self.menu_animations = []
 
 IS = introState()
 
@@ -407,6 +408,8 @@ stains = [
     load("texture/stain2.png")
 ]
 explosion_sound = get_sound_Variants("sound", "explosion")
+sm_explosion_sound = get_sound_Variants("sound", "sm_explosion")
+
 explosion_blood_sound = get_Sound("sound/explosion_blood.wav")
 weapon_fire_Sounds = get_sound_Variants("sound", "weapon_fire")
 

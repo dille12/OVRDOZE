@@ -30,10 +30,12 @@ class App:
         self.route = None
         self.player_team = placeholder
         self.net = None
+        self.endless = False
         self.server_tick_rate = GameTick(1)
 
         pygame.joystick.init()
         self.joysticks = {}
+        self.detectJoysticks = False
 
         self.players = [self.name]
         self.nwobjects = {}
@@ -62,7 +64,7 @@ class App:
 
         seq = func.load_animation("anim/vs", 1, 60, alpha=255, intro = False)
         introSound.play()
-        for x in range(len(seq) + 30):
+        for x in range(len(seq) + 60):
             screen.fill([0,0,0])
             clock.tick(45)
             for event in pygame.event.get():
@@ -70,6 +72,7 @@ class App:
                     sys.exit()
             if x < len(seq):
                 screen.blit(seq[x], [0,0])
+
             pygame.display.update()
 
         IS.introPlayed = True
@@ -243,6 +246,7 @@ class App:
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
         app, name, arg, draw_los, dev, skip_intervals, map = arg
+        app.endless = True
         func.load_screen(screen, "Loading")
         game.main(
             app,

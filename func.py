@@ -409,7 +409,7 @@ def player_movement2(pressed, player_pos, x_vel, y_vel, app):
     global evading, evade_skip_tick
     sprinting = False
 
-    if pygame.joystick.get_count():
+    if pygame.joystick.get_count() and app.detectJoysticks:
         joystick = app.joysticks[0]
         return joystick_movement(joystick, player_pos, x_vel, y_vel, evading, evade_skip_tick, app)
 
@@ -737,7 +737,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
         else:
             click = True
     else:
-        if app.joysticks:
+        if app.joysticks and app.detectJoysticks:
             click = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
         else:
             click = pygame.mouse.get_pressed()[0]

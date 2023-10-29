@@ -221,7 +221,10 @@ class Explosion:
                 explosion_blood_sound.stop()
                 explosion_blood_sound.play()
             else:
-                func.list_play(explosion_sound)
+                if self.small:
+                    func.list_play(sm_explosion_sound)
+                else:
+                    func.list_play(explosion_sound)
 
             if not self.small:
 

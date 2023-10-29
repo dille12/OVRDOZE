@@ -215,9 +215,6 @@ def main(
     player_inventory = classes.Inventory(app, interactables, player=True)
     turret_bro.clear()
 
-    player_inventory.append_to_inv(items["Moving Turret"], 1)
-    player_inventory.append_to_inv(items["Upgrade Token"], 1)
-
     app.day = -1
 
     print("Loading level...")
@@ -255,7 +252,6 @@ def main(
     wave_length = 30
 
     player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
-    player_actor.money = 10000
     app.player_actor_ref = player_actor
 
     player_melee = armory.Melee.Melee(
@@ -298,6 +294,8 @@ def main(
         endless = False
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
+
+    
 
 
     gun_name_list = [
@@ -350,7 +348,9 @@ def main(
     for file in os.listdir(path):
         if (
             file.endswith(".wav")
-            and file not in ("menu_loop.wav", "overworld_loop.wav", "downtown.wav", "menu_loop_new.wav")
+            and "menu_loop" not in file
+            and "downtown" not in file
+            and "overworld_loop" not in file
         ):
             songs.append("sound/songs/" + file)
 
@@ -465,7 +465,8 @@ def main(
         t = time.time()
         time_stamps = {}
 
-        if pygame.joystick.get_count():
+
+        if app.joysticks and app.detectJoysticks:
             j = app.joysticks[0]
             x = j.get_axis(2)
             y = j.get_axis(3)
@@ -682,14 +683,14 @@ def main(
                 sys.exit()
 
             # Handle hotplugging
-            if event.type == pygame.JOYDEVICEADDED:
+            if event.type == pygame.JOYDEVICEADDED and app.detectJoysticks:
                 # This event will be generated when the program starts for every
                 # joystick, filling up the list without needing to create them manually.
                 joy = pygame.joystick.Joystick(event.device_index)
                 app.joysticks[joy.get_instance_id()] = joy
                 print(f"Joystick {joy.get_instance_id()} connencted")
 
-            if event.type == pygame.JOYDEVICEREMOVED:
+            if event.type == pygame.JOYDEVICEREMOVED and app.detectJoysticks:
                 del app.joysticks[event.instance_id]
                 print(f"Joystick {event.instance_id} disconnected")
 

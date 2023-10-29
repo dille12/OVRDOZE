@@ -238,11 +238,11 @@ def main(ms = "start"):
     textbox_ip.text = app.last_ip
     players = []
     port = 5555
-    menu_alpha = 60
+    menu_alpha = 30
 
 
 
-    if not app.menu_animations:
+    if not IS.menu_animations:
         print("Loading animations...")
         intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
         func.load_screen(screen, "Loading.")
@@ -263,9 +263,9 @@ def main(ms = "start"):
             func.load_screen(screen, "Loading Done")
             print("Done")
 
-            app.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
+            IS.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
-            app.menu_animations = [intro1]
+            IS.menu_animations = [intro1]
     menu_i = 0
 
 
@@ -606,7 +606,7 @@ def main(ms = "start"):
     scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
-    app.pygame.mixer.music.load("sound/songs/menu_loop_new.wav")
+    app.pygame.mixer.music.load("sound/songs/menu_loop_new2.wav")
     app.pygame.mixer.music.play(-1)
 
 
@@ -934,14 +934,14 @@ def main(ms = "start"):
                     )
 
             # Handle hotplugging
-            if event.type == pygame.JOYDEVICEADDED:
+            if event.type == pygame.JOYDEVICEADDED and app.detectJoysticks:
                 # This event will be generated when the program starts for every
                 # joystick, filling up the list without needing to create them manually.
                 joy = pygame.joystick.Joystick(event.device_index)
                 app.joysticks[joy.get_instance_id()] = joy
                 print(f"Joystick {joy.get_instance_id()} connencted")
 
-            if event.type == pygame.JOYDEVICEREMOVED:
+            if event.type == pygame.JOYDEVICEREMOVED and app.detectJoysticks:
                 del app.joysticks[event.instance_id]
                 print(f"Joystick {event.instance_id} disconnected")
 
@@ -985,14 +985,14 @@ def main(ms = "start"):
 
             last_beat = curr
 
-            if menu_i == len(app.menu_animations):
+            if menu_i == len(IS.menu_animations):
                 menu_i = 0
 
         try:
 
-            im = app.menu_animations[menu_i][
+            im = IS.menu_animations[menu_i][
                 round(
-                    (len(app.menu_animations[menu_i]) - 1)
+                    (len(IS.menu_animations[menu_i]) - 1)
                     * (((curr - last_beat)) / beat_time) ** 1
                 )
             ]
