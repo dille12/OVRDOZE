@@ -1,5 +1,4 @@
 import unittest
-from network_parser import *
 
 
 class TestNetworkParser(unittest.TestCase):

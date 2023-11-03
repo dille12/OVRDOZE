@@ -1302,7 +1302,7 @@ def main(
                     if endless:
                         player_pos = map.get_random_point(enemies=enemy_list)
                     else:
-                        player_actor.money = 0
+                        player_actor.money = round(player_actor.money/2)
                         money_tick.value = 0
                         player_actor.sanity = 100
                         enemy_count = round(enemy_count*0.75)
@@ -1933,7 +1933,7 @@ def main(
 
         else:
             if not endless:
-                text = terminal.render("Money lost. Going back to Overworld...", False, [255, 255, 255])
+                text = terminal.render(f"{round(player_actor.money/2)}$ lost. Going back to Overworld...", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 - 40]
                 screen.blit(
                     text,
