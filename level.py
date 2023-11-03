@@ -183,8 +183,10 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     print(mouse_conversion)
     if map.name == "Overworld":
         print("Loading overworld. Appending trashfires.")
-        if not death:
+        if not death and not app.dontIncreaseDay:
             app.day += 1
+            
+        app.dontIncreaseDay = False
         print([2362 * multiplier, 982 / multiplier])
         burn_list.append(
             classes.Burn(
@@ -236,8 +238,16 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
         elif map.name != "Overworld":
             x.re_init()
 
-        if map.name == "Downtown" and x.type == "door" and app.endless:
-            x.active = False
+        if map.name == "Downtown":
+            print("LOADING DOWN TOWN OBJECT")
+            print(app.endless)
+
+        if map.name == "Downtown" and x.type == "door":
+            if app.endless:
+                x.active = False
+            else:
+                x.active = True
+        
 
 
         interactables.append(x)

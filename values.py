@@ -424,6 +424,11 @@ footsteps = get_sound_Variants("sound/sfx", "footstep")
 
 evade_sound = get_Sound("sound/sfx/woosh.wav")
 
+loadSymbol = pygame.image.load("texture/kill.png").convert_alpha()
+sx, sy = loadSymbol.get_size()
+loadSymbol = pygame.transform.scale(loadSymbol, [sx * 6, sy * 6])
+loadSymbol.set_alpha(10)
+
 footstep_tick = GameTick(15)
 
 reload = get_Sound("sound/reload.wav")
@@ -542,4 +547,8 @@ hints = [
 "You can extract recources from crates by pressing shift faster.",
 "Move more slowly by pressing control.",
 "Zombies drop weapons from time to time.",
+"All upgrades are not created equal. Use your upgrade tokens wisely",
+"Reaching 100 multikills awards you 10% sanity",
+"Upgrade your backpack if you have trouble managing your inventory.",
+"Energy weapons do not jam.",
 ]

@@ -70,6 +70,9 @@ guns = {
         handling=0.35,
         piercing=3,
         ai_fire_rate_mod = 15,
+        availableUpgrades = ["Quickdraw Mag", "Recoil Recovery", "Armor Annihilating"],
+
+        
     ),
 
     "AR-15": W.Gun(
@@ -137,6 +140,7 @@ guns = {
         piercing=4,
         view=0.035,
         handling=0.45,
+        availableUpgrades = ["Quickdraw Mag", "Double Damage", "Double Firerate"],
     ),
     "M134-MINIGUN": W.Gun(
         name="M134-MINIGUN",
@@ -157,6 +161,7 @@ guns = {
         piercing=2,
         view=0.03,
         handling=0.1,
+        availableUpgrades = ["Infinite Ammo", "Double Damage", "Double Firerate"],
     ),
     "RPG-7": W.Gun(
         name="RPG-7",
@@ -168,7 +173,7 @@ guns = {
         bullet_speed=25,
         reload_r=75,
         damage=1000,
-        bullets_at_once=1,
+        bullets_at_once=3,
         shotgun=False,
         sounds=rocket_launcher_sounds,
         ammo_cap_lvlup=1,
@@ -179,6 +184,7 @@ guns = {
         rocket_launcher = True,
         semi_auto = True,
         extra_bullet = False,
+        availableUpgrades = ["Quickdraw Mag", "Tri-Shot", "Bigger Blasts"],
     ),
 
     "USAS-15": W.Gun(
@@ -228,6 +234,7 @@ guns = {
         energy_weapon=True,
         charge_up=True,
         charge_time=25,
+        availableUpgrades = ["Energy Efficiency", "Quickdraw Mag", "Improved Firerate"],
     ),
 
     "SPAS-12": W.Gun(
@@ -250,6 +257,8 @@ guns = {
         ammo="12 GAUGE",
         view=0.01,
         handling=0.2,
+        availableUpgrades = ["Double Damage", "Double Pellets", "Add Pierce"],
+
     ),
     "P90": W.Gun(
         name="P90",
@@ -268,6 +277,7 @@ guns = {
         ammo="9MM",
         view=0.02,
         handling=0.5,
+        availableUpgrades = ["Recoil Recovery", "Double Firerate", "Infinite Ammo"],
     ),
     "MP5": W.Gun(
         name="MP5",
@@ -290,6 +300,7 @@ guns = {
         burst=True,
         burst_bullets=4,
         burst_fire_rate=2,
+        availableUpgrades = ["Recoil Recovery", "Double Firerate", "Explosive Ammo"],
     ),
     "GLOCK": W.Gun(
         name="GLOCK",
@@ -311,6 +322,7 @@ guns = {
         burst=True,
         burst_bullets=3,
         burst_fire_rate=3,
+        availableUpgrades = ["Double Firerate", "Extended Mag", "Explosive Ammo"],
     ),
     "AWP": W.Gun(
         name="AWP",
@@ -322,18 +334,19 @@ guns = {
         spread_per_bullet=25,
         reload_r=80,
         damage=200,
-        bullets_at_once=1,
+        bullets_at_once=3,
         sounds=sniper_rifle_sounds,
         bullet_speed=55,
         shotgun=False,
         ammo_cap_lvlup=1,
         image="awp.png",
         ammo="50 CAL",
-        piercing=5,
+        piercing=10,
         view=0.045,
         handling=0.15,
         semi_auto=True,
         ai_fire_rate_mod = 40,
+        availableUpgrades = ["Recoil Recovery", "Extended Mag", "Tri-Shot"],
     ),
     "NRG-LMG.Mark1": W.Gun(
         name="NRG-LMG.Mark1",
@@ -345,7 +358,7 @@ guns = {
         spread_per_bullet=2.2,
         reload_r=80,
         damage=75,
-        bullets_at_once=1,
+        bullets_at_once=3,
         sounds=nrg_sounds,
         bullet_speed=45,
         shotgun=False,
@@ -359,6 +372,7 @@ guns = {
         energy_weapon=True,
         charge_up=True,
         charge_time=30,
+        availableUpgrades = ["Energy Efficiency", "Improved Firerate", "Tri-Shot"],
     ),
 }
 melees = {}
@@ -373,6 +387,15 @@ upgradeMap = {
     "Explosive Ammo" : {"Desc" : "Bullets explode after expiring.", "stat": "explosive", "set" : True},
     "Improved Firerate" : {"Desc" : "Weapon fires more rounds per minute.", "stat": "_bullet_per_min", "addval" : 200},
     "Quickdraw Mag" : {"Desc" : "Weapon is reloaded twice as fast.", "stat" : "_reload_rate", "multval" : 0.5},
+    "Double Firerate" : {"Desc" : "Weapon fires twice as fast.", "stat" : "_bullet_per_min", "multval" : 2},
+    "Recoil Recovery" : {"Desc" : "Recoil recovers faster.", "stat" : "_spread_recovery", "addval" : -0.03},
+    "Tri-Shot" : {"Desc" : "Shoots three devastiting bullets at once.", "stat" : "_shotgun", "set" : True},
+    "Double Pellets" : {"Desc" : "Shoots double shotgun pellets.", "stat" : "_bullets_at_once", "multval" : 2},
+    "Double Damage" : {"Desc" : "Bullets do double damage.", "stat" : "_damage", "multval" : 2},
+    "Infinite Ammo" : {"Desc" : "No need to pick any ammo anymore.", "stat" : "ammo", "set" : "INF"},
+    "Energy Efficiency" : {"Desc" : "Energy depletes half as fast.", "stat" : "ammo_per_shot", "set" : 0.5},
+    "Armor Annihilating" : {"Desc" : "The bullet wont stop for anything.", "stat" : "piercing_bullets", "set" : 50},
+    "Bigger Blasts" : {"Desc" : "Yeah be careful with this one.", "stat" : "rocket_explosion_range", "set" : 600},
 
 
 }
@@ -385,4 +408,11 @@ statMap = {
     "explosive" : "Explosive ammo",
     "_bullet_per_min" : "Fire rate",
     "_reload_rate" : "Reload rate",
+    "_spread_recovery" : "Spread recovery",
+    "rocket_explosion_range" : "Explosion range",
+    "ammo_per_shot" : "Ammo cost per shot",
+    "Tri-Shot" : "_shotgun",
+    "_bullets_at_once" : "Bullets per shot",
+    "_damage" : "Damage per shot",
+    "ammo" : "Ammo type",
 }

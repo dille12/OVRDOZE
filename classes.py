@@ -797,7 +797,8 @@ class Interactable:
         door_dest=None,
         active=True,
         angle = 0,
-        overrideSize = [119, 119]
+        overrideSize = [119, 119],
+        nonDayDoor = False
     ):
 
         self.init_values = [
@@ -817,6 +818,7 @@ class Interactable:
             active,
             angle,
             overrideSize,
+            nonDayDoor,
         ]
         self.app = app
 
@@ -827,6 +829,7 @@ class Interactable:
         self.button_prompt = ""
 
         self.alive = True
+        self.nonDayDoor = nonDayDoor
 
         self.active = active
         self.rarity = 10
@@ -941,7 +944,8 @@ class Interactable:
         door_dest,
         active,
         angle,
-        overrideSize) = self.init_values
+        overrideSize,
+        nonDayDoor) = self.init_values
 
         self.__init__(
             app,
@@ -959,7 +963,8 @@ class Interactable:
             door_dest = door_dest,
             active = active,
             angle = angle,
-            overrideSize = overrideSize
+            overrideSize = overrideSize,
+            nonDayDoor = nonDayDoor
         )
 
 
@@ -1062,6 +1067,9 @@ class Interactable:
 
         elif self.type == "door":
             loading_cue.append(self.door_dest)
+
+            if self.nonDayDoor:
+                self.app.dontIncreaseDay = True
 
             door_sound.play()
 
@@ -1226,7 +1234,7 @@ class kill_count_render:
                 func.rgb_render(
                     self.images, min([len(self.x_poses), 7]), [x, y], cam_delta, screen
                 )
-        self.lifetime += 1
+        self.lifetime += timedelta.mod(1)
         if self.lifetime >= self.max_lifetime:
             del kill_counter
 

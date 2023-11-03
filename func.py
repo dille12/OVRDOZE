@@ -17,7 +17,7 @@ terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
 terminal4 = pygame.font.Font("texture/terminal.ttf", 40)
 
-terminal_hint = pygame.font.Font("texture/terminal.ttf", round(16*multiplier2))
+terminal_hint = pygame.font.Font("texture/terminal.ttf", round(8*multiplier2))
 
 evade_skip_tick = 0
 acceleration = 200 / 1.875
@@ -664,18 +664,19 @@ def rot_center(image, angle, x, y):
 def load_screen(screen, text):
     screen.fill((0,0,0))
 
-    text = terminal2.render(text, False, [155, 155, 155])
-    x,y = text.get_rect().center
-    screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
+    screen.blit(loadSymbol, [size[0] / 2 - loadSymbol.get_size()[0]/2, size[1] / 2 - loadSymbol.get_size()[1]/2])
+
+    text = terminal3.render(text, False, [100, 100, 100])
+    screen.blit(text, [10, size[1]-40])
 
     if time.time() - hint.t > 3:
         hint.hint = pick_random_from_list(hints)
         hint.t = time.time()
 
 
-    text = terminal_hint.render(hint.hint, False, [100, 100, 100])
+    text = terminal_hint.render(hint.hint, False, [50, 50, 50])
     x,y = text.get_rect().center
-    screen.blit(text, [size[0]/2 - x, size[1]/4 - y + 100])
+    screen.blit(text, [10, size[1] - 20])
 
     pygame.display.update()
 
@@ -916,7 +917,7 @@ def draw_HUD(
     x_d += random.uniform(-hp_d, hp_d)
     y_d += random.uniform(-hp_d, hp_d)
     clip_size = weapon.get_clip_size()
-    clip = weapon.get_Ammo()
+    clip = round(weapon.get_Ammo())
     pl_pos = minus_list(player_actor.get_pos(), camera_pos)
     pl_angl = player_actor.__dict__["aim_angle"]
     pl_angl2 = player_actor.get_angle()

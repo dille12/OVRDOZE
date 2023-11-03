@@ -51,6 +51,8 @@ class Gun(Weapon):
         availableUpgrades = ["Paska", "Kulli", "Muna"],
         activatedUpgrades = [].copy(),
         explosive = False,
+        ammo_per_shot = 1,
+        rocket_explosion_range = 300,
     ):
         super().__init__(
             name,
@@ -98,6 +100,7 @@ class Gun(Weapon):
         self.burst_tick = 0
         self.current_burst_bullet = 0
         self.rocket_launcher = rocket_launcher
+        self.ammo_per_shot = ammo_per_shot
 
         self.charge_up = charge_up
         self.charge_time = charge_time
@@ -106,6 +109,8 @@ class Gun(Weapon):
 
         self.jammed = False
         self.explosive = explosive
+
+        self.rocket_explosion_range = rocket_explosion_range
 
         if charge_up:
             self.charge_tick = GameTick(self.charge_time, oneshot=True)
@@ -149,6 +154,8 @@ class Gun(Weapon):
             availableUpgrades = self.availableUpgrades,
             activatedUpgrades = self.activatedUpgrades.copy(),
             explosive = self.explosive,
+            ammo_per_shot = self.ammo_per_shot,
+            rocket_explosion_range = self.rocket_explosion_range,
         )
 
     def get_semi_auto(self):
@@ -194,7 +201,7 @@ class Gun(Weapon):
             index = (0.9 + 0.1*player_actor.sanity/100)**0.1
             if self.jammed:
                 return
-            if random.uniform(0, 1) > index:
+            if random.uniform(0, 1) > index and not self.energy_weapon:
                 self.jammed = True
                 UnitStatus(screen, player_actor, "GUN JAMMED!", [255,0,0])
                 return
@@ -217,7 +224,10 @@ class Gun(Weapon):
             self.app.send_data(f"self.game_ref.multiplayer_actors['{self.owner.name}'].equipped_gun.visual_and_audio_fire({bul_pos_apparent}, {angle}, self.game_ref.screen_copy)")
         multiplier = 2 if self.get_double_damage_time() > 0 else 1
         spread_cumulative = 0
-        for x in range(self._bullets_at_once):
+
+        bulletsAtOnce = self._bullets_at_once if self._shotgun else 1
+
+        for x in range(bulletsAtOnce):
 
             if self._bullets_in_clip > 0:
 
@@ -232,6 +242,7 @@ class Gun(Weapon):
                     piercing=self.piercing_bullets,
                     energy=self.energy_weapon,
                     rocket=self.rocket_launcher,
+                    rocket_explosion_range = self.rocket_explosion_range,
                     owner=self,
                     explosive = self.explosive,
                 )
@@ -242,14 +253,14 @@ class Gun(Weapon):
                     self.app.send_data(f"bullet_list.append(Bullet({bul_pos_apparent}, {shooting_angle}, {self._damage * multiplier}, speed={self.bullet_speed}, piercing={self.piercing_bullets}, energy={self.energy_weapon}, rocket={self.rocket_launcher}, daemon_bullet=True, id={bullet_temp.id}))")
 
                 if self._shotgun == False:
-                    self._bullets_in_clip -= 1
+                    self._bullets_in_clip -= self.ammo_per_shot
 
             spread_cumulative += self.spread_per_bullet
 
         self._c_bullet_spread += spread_cumulative
 
         if self._shotgun == True:
-            self._bullets_in_clip -= 1
+            self._bullets_in_clip -= self.ammo_per_shot
 
         if self.burst:
             self.burst_tick = timedelta.tick(self.burst_fire_rate)
@@ -298,7 +309,7 @@ class Gun(Weapon):
 
             ammo_to_reload = self._clip_size
         else:
-            ammo_to_reload = self._clip_size - self._bullets_in_clip + (1 if self.extra_bullet else 0)
+            ammo_to_reload = self._clip_size - round(self._bullets_in_clip) + (1 if self.extra_bullet else 0)
 
         if availabe_ammo == 0:
             return

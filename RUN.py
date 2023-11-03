@@ -240,28 +240,29 @@ def main(ms = "start"):
     port = 5555
     menu_alpha = 30
 
+    fade_tick.value = 45
+
 
 
     if not IS.menu_animations:
         print("Loading animations...")
         intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
-        func.load_screen(screen, "Loading.")
+        func.load_screen(screen, "Loading")
 
         if not quick_load:
             intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading..")
+            func.load_screen(screen, "Loading")
             intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading...")
+            func.load_screen(screen, "Loading")
             intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading....")
+            func.load_screen(screen, "Loading")
             intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading.....")
+            func.load_screen(screen, "Loading")
             intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
-            #func.load_screen(screen, "Loading......")
+            func.load_screen(screen, "Loading")
             intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True)
             intro8 = func.load_animation("anim/intro8", 30, 31, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading Done")
-            print("Done")
+            func.load_screen(screen, "Loading")
 
             IS.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
@@ -359,6 +360,8 @@ def main(ms = "start"):
 
     def start_sp_career(arg):
         print("SPa")
+
+        app.endless = False
 
         app.write_prefs()
         args = (
@@ -1284,6 +1287,17 @@ def main(ms = "start"):
 
         # print(thread.active_count())
         glitch.tick()
+
+        if not fade_tick.tick():
+            tick = fade_tick.rounded()
+            if 0 <= tick <= 9:
+                screen.blit(fade_to_black_screen[tick], [0, 0])
+
+            elif 51 <= tick <= 60:
+                screen.blit(fade_to_black_screen[60 - tick], [0, 0])
+
+            else:
+                screen.fill([0, 0, 0])
 
 
         if glitch.glitch_tick > 0:

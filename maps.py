@@ -285,7 +285,7 @@ def get_maps(app):
             GAMMA=[0.8, 0.9, 1.2],
             OBJECTS = [
                 classes.Interactable(
-                    app, [0, 505], None, name="Overworld", type="door", door_dest="Overworld", active = True, angle = 90
+                    app, [0, 505], None, name="Overworld", type="door", door_dest="Overworld", active = True, angle = 90, nonDayDoor=True
                 ),
             ],
             POLYGONS=[

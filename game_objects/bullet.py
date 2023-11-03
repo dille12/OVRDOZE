@@ -23,6 +23,7 @@ class Bullet(Game_Object):
         id=-1,
         owner=None,
         explosive=False,
+        rocket_explosion_range = 300
     ):
         self.id = id
         self.owner = owner
@@ -41,7 +42,7 @@ class Bullet(Game_Object):
         )
 
         self.daemon_bullet = daemon_bullet
-
+        self.rocket_explosion_range = rocket_explosion_range
         self.mp = mp
         self.speed = speed * random.uniform(0.9, 1.1)
         self.energy = energy
@@ -91,11 +92,11 @@ class Bullet(Game_Object):
         self.kill_id()
 
         if self.explosive:
-            append_explosions.append([self._pos, "small"])
+            append_explosions.append([self._pos, "small", 100])
             self.added_explosion = True
 
         if self.rocket and add_expl and not self.added_explosion:
-            append_explosions.append([self._pos, expl1])
+            append_explosions.append([self._pos, expl1, self.rocket_explosion_range])
             self.added_explosion = True
             #explosions.append(Explosion(self._pos, expl1))
         if self in bullet_list:
@@ -144,7 +145,7 @@ class Bullet(Game_Object):
             if not self.daemon_bullet:
                 colls = list(getcollisionspoint(map.block_vis_rects, self._pos))
                 if len(colls) != 0:
-                    append_explosions.append([last_pos, expl1])
+                    append_explosions.append([last_pos, expl1, self.rocket_explosion_range])
                     self.kill_bullet(add_expl=False)
                     return 0
 

@@ -30,7 +30,7 @@ class App:
         self.route = None
         self.player_team = placeholder
         self.net = None
-        self.endless = False
+        self.endless = True
         self.server_tick_rate = GameTick(1)
 
         pygame.joystick.init()
@@ -55,6 +55,8 @@ class App:
 
         self.start_game_with_mp = []
         self.menu_animations = []
+
+        self.dontIncreaseDay = False
 
 
     def introScreen(self, screen, clock):
@@ -246,7 +248,7 @@ class App:
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
         app, name, arg, draw_los, dev, skip_intervals, map = arg
-        app.endless = True
+        
         func.load_screen(screen, "Loading")
         game.main(
             app,

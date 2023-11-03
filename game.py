@@ -215,6 +215,8 @@ def main(
     player_inventory = classes.Inventory(app, interactables, player=True)
     turret_bro.clear()
 
+
+
     app.day = -1
 
     print("Loading level...")
@@ -253,6 +255,10 @@ def main(
 
     player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
     app.player_actor_ref = player_actor
+
+    if dev_tools:
+        player_actor.money = 100000
+        player_inventory.append_to_inv(items["Upgrade Token"], 50)
 
     player_melee = armory.Melee.Melee(
         strike_count=2, damage=35, hostile=False, owner_object=player_actor
@@ -1448,15 +1454,16 @@ def main(
 
                 if multi_kill > 99:
                     multi_kill = 1
+                    player_actor.set_sanity(10, add = True)
 
                 multi_kill_ticks = 45
                 kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
-        for pos, type in append_explosions:
+        for pos, type, blastSize in append_explosions:
             if type == "small":
                 explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 100))
             else:
-                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 300))
+                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = blastSize))
         append_explosions.clear()
 
         last_bullet_list = tuple(bullet_list)

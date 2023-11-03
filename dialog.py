@@ -66,6 +66,8 @@ def upgrade_weapon(arg):
 
             w.activatedUpgrades.append(x.upgradeI)
 
+            w._firerate = 60 / (w._bullet_per_min / 60)
+
             player_inventory.remove_amount("Upgrade Token", 1)
 
 
