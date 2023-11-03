@@ -44,9 +44,9 @@ from git import Repo
 repo = Repo(os.getcwd())  # Replace 'path_to_repo' with the actual path to your Git repository
 if repo.is_dirty():
     print("There are local changes in the repository.")
-    VERSION += " (LOCAL CHANGES MADE! REMEMBER TO PUSH)"
+    dirty = True
 else:
-    print("No local changes found in the repository.")
+    dirty = False
 
 
 def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):
@@ -394,6 +394,8 @@ def main(ms = "start"):
         app.start_sp(args)
 
     def start_mp(arg):
+        if not app.MULT_ACKNOWLEDGEMENT:
+            return "warningScreen"
         return "mp_start"
 
     def sp(arg):
@@ -480,6 +482,17 @@ def main(ms = "start"):
         gameInstance=app,
         glitchInstance=glitch,
     )
+
+    button_WarnContinue = Button(
+        [x_s, 320],
+        "Continue",
+        start_mp,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+    )
+
+
     button_settings = Button(
         [x_s, 320],
         "Settings",
@@ -609,7 +622,7 @@ def main(ms = "start"):
     scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
-    app.pygame.mixer.music.load("sound/songs/menu_loop_new2.wav")
+    app.pygame.mixer.music.load(f"sound/songs/menu_loop_new2.wav")
     app.pygame.mixer.music.play(-1)
 
 
@@ -817,6 +830,7 @@ def main(ms = "start"):
         button_sp_new_game,
         button_back_sp,
         button_map_creator,
+        button_WarnContinue,
     ]
     checkboxes = [
         check_box_difficulties,
@@ -1027,7 +1041,7 @@ def main(ms = "start"):
         #
         # screen.blit(background, (0,0))
 
-        text = terminal.render(f"Version {VERSION}", False, [255, 255, 255])
+        text = terminal.render(f"Version {VERSION}", False, [255, 255, 255] if not dirty else [255,0,0])
         screen.blit(text, [10, size[1]-30])
 
 
@@ -1269,6 +1283,34 @@ def main(ms = "start"):
             s8 = button_host_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
             if s8 != None:
                 menu_status = s8
+
+        if menu_status == "warningScreen":
+            y_pos = 40
+            for textStr in [
+                "Multiplayer is very much in a work in progress,",
+                "and only works in local networks.",
+                "Do you wish to continue?",
+            ]:
+
+                text = terminal.render(textStr, False, [255, 255, 255])
+                screen.blit(text, [size[0]/2 - text.get_size()[0]/2, y_pos])
+                y_pos += 40
+
+            s5 = button_WarnContinue.tick(screen, mouse_pos, mouse_single_tick, glitch)
+
+            s6 = button_back.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            if s6 != None:
+                menu_status = s6
+                mouse_single_tick = False
+            
+            if s5 != None:
+                
+                menu_status = "mp_start"
+                mouse_single_tick = False
+
+                app.MULT_ACKNOWLEDGEMENT = True
+                app.write_prefs()
+                
 
         if menu_status == "mp_start":
 

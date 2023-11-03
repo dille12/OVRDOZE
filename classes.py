@@ -18,7 +18,7 @@ from dialog import *
 import numpy as np
 from unit_status import UnitStatus
 
-a, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
+a, draw_los, a, a, ultraviolence, a, a, a, a, a, a, a = get_preferences.pref()
 
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)

@@ -9,7 +9,7 @@ def write_default_settings():
 
     with open(path, "w", encoding="UTF8") as file:
         file.write(
-            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]\nVOL=50\nMUSIC=50")
+            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]\nVOL=50\nMUSIC=50\nMULT_ACKNOWLEDGEMENT=False")
 
 
 def get_path(path):
@@ -70,12 +70,14 @@ def pref():
             vol = ast.literal_eval(value.strip("\n"))
         if attr == "MUSIC":
             music = ast.literal_eval(value.strip("\n"))
+        if attr == "MULT_ACKNOWLEDGEMENT":
+            MULT_ACKNOWLEDGEMENT = ast.literal_eval(value.strip("\n"))
 
 
-    return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music
+    return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music, MULT_ACKNOWLEDGEMENT
 
 
-def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music):
+def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music, MULT_ACKNOWLEDGEMENT):
 
     path = get_path("ovrdoze_data/settings.dat")
 
@@ -91,6 +93,7 @@ def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res
     file.write("RES=" + str(res) + "\n")
     file.write("VOL=" + str(vol) + "\n")
     file.write("MUSIC=" + str(music) + "\n")
+    file.write("MULT_ACKNOWLEDGEMENT=" + str(MULT_ACKNOWLEDGEMENT) + "\n")
     file.close()
 
 

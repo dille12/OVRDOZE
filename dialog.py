@@ -5,7 +5,7 @@ from button import Button
 from upgrade_button import upgradeButton
 from armory import upgradeMap, statMap
 
-player_name, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
+player_name, draw_los, a, a, ultraviolence, a, a, a, a, a, a, a = get_preferences.pref()
 
 surf_back = pygame.Surface(size)
 surf_back.fill([0, 0, 0])

@@ -8,7 +8,7 @@ from screeninfo import get_monitors
 import get_preferences
 from bendedsound import *
 
-a, a, a, a, a, a, a, a, size,a,a = get_preferences.pref()
+a, a, a, a, a, a, a, a, size,a,a, a = get_preferences.pref()
 
 
 print("VALUE INIT")

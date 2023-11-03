@@ -91,7 +91,7 @@ class App:
     def start_mp_list(self, list):
         self.start_game_with_mp = list
 
-    def damage_dummy(name, damage):
+    def damage_dummy(self, name, damage):
         if name == self.name:
             self.player_actor_ref.force_player_damage(damage)
         else:
@@ -150,13 +150,14 @@ class App:
             self.res,
             self.volume,
             self.music,
+            self.MULT_ACKNOWLEDGEMENT,
         ) = get_preferences.pref()
 
         #self.name = "Client" + str(random.randint(1,9999))
 
     def write_prefs(self):
         get_preferences.write_prefs(
-            self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.ip, self.fps, self.vsync, self.res, self.volume, self.music,
+            self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.ip, self.fps, self.vsync, self.res, self.volume, self.music, self.MULT_ACKNOWLEDGEMENT
         )
 
 
