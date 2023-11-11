@@ -265,7 +265,43 @@ player = load("texture/player.png", size = [180,119])
 
 player_pistol = load("texture/player_pistol.png", size = [180,119])
 
+soldierSprite = load("texture/soldier.png", size = [180,119])
+soldierPistolSprite = load("texture/soldierPistol.png", size = [180,119])
+
+
+
 zombie = load("texture/zombie.png", size = [119,119])
+zombie2 = load("texture/zombie2.png", size = [119,119])
+zombie3 = load("texture/zombie3.png", size = [119,119])
+zombie4 = load("texture/zombie4.png", size = [119,119])
+zombie5 = load("texture/zombie5.png", size = [119,119])
+
+shirts = []
+for i in range(1,6):
+    shirts.append(load(f"texture/shirt{i}.png", size = [119,119]))
+
+hairs = []
+for i in range(1,4):
+    hairs.append(load(f"texture/hair{i}.png", size = [119,119]))
+
+hands = []
+for i in range(1,5):
+    hands.append(load(f"texture/hands{i}.png", size = [119,119]))
+print("IMAGES:")
+print(shirts, hairs, hands)
+
+zombieImages = []
+for s in shirts:
+    for h in hairs:
+        for d in hands:
+            temp = s.copy()
+            temp.blit(h, [0,0])
+            temp.blit(d, [0,0])
+            zombieImages.append(temp)
+
+
+print("Zombie types:", len(zombieImages))
+
 
 bomber = load("texture/bomber.png", size = [150,150])
 

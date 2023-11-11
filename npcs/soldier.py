@@ -46,9 +46,9 @@ class Soldier:
             self.weapon = func.pick_random_from_list([guns["MP5"], guns["M1911"], guns["GLOCK"], guns["FN57-S"]]).copy()
 
         if self.weapon.name in ["GLOCK", "M1911", "FN57-S", "DESERTEAGLE"]:
-            self.im = player_pistol
+            self.im = soldierPistolSprite
         else:
-            self.im = player
+            self.im = soldierSprite
         self.targeting_angle = 90
         self.angle = 0
         self.target_angle = 0
@@ -78,6 +78,7 @@ class Soldier:
         self.killed = False
 
         self.quadrantType = 1
+        self.quadrant = 0
 
         self.semi_auto_fire_tick = 0
 
@@ -387,6 +388,7 @@ class Soldier:
     ):
 
         list.remove(self)
+        self.quadrant.enemies.remove(self)
         self.patrol.troops.remove(self)
         self.patrol.check_leader()
 
@@ -455,6 +457,14 @@ class Soldier:
 
 
     def tick(self, phase = 0):
+
+
+        if not self.quadrant:
+            self.map.setToQuadrant(self, self.pos)
+
+        if not self.quadrant.checkIfIn(self.pos):
+            self.quadrant.enemies.remove(self)
+            self.map.setToQuadrant(self, self.pos)
 
         times = {}
         t = time.perf_counter()

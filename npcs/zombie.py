@@ -65,7 +65,7 @@ class Zombie(pygame.sprite.Sprite):
 
         if type == "normal":
             self.size = 10 * multiplier2
-            self.image_template = zombie
+            self.image_template = random.choice(zombieImages)
             self.type = "normal"
             self.anglular_acceleration = 0.1
         elif type == "bomber":
@@ -84,6 +84,12 @@ class Zombie(pygame.sprite.Sprite):
             self.anglular_acceleration = 0.2
             self.moving_speed *= 1.75
             self.damage *= 0.75
+        elif type == "firestarter":
+            pass
+        elif type == "psycho":
+            pass
+        elif type == "acid":
+            pass
         else:
             self.size = 20 * multiplier2
             self.image_template = zombie_big
