@@ -8,3 +8,4 @@ scipy==1.10.0
 screeninfo==0.8.1
 SoundFile==0.10.3.post1
 UPnPy==1.1.8
+gitpython==3.1.40

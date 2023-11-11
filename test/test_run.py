@@ -1,5 +1,5 @@
 import unittest
-
+import RUN
 # what the what? from run import *
 class TestRun(unittest.TestCase):
     def test_lobby_host(self):
@@ -37,3 +37,7 @@ class TestRun(unittest.TestCase):
 
     def test_sp_lob(self):
         pass
+
+    def testGame(self):
+        print("Testing whole game!")
+        run.main(TEST = True)

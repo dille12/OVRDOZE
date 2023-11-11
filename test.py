@@ -19,7 +19,6 @@ from test_los import *
 from test_hud_elements import *
 from test_get_preferences import *
 from test_game import *
-from test_enemies import *
 from test_classes import *
 from test_armory import *
 from test_glitch import *
@@ -33,3 +32,5 @@ from test_game_object import *
 from test_turret import *
 from test_menu import *
 from test_render_los_image_jit import *
+
+from test_run import *

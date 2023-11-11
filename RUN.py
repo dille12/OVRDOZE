@@ -201,7 +201,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
 
 
 
-def main(ms = "start"):
+def main(ms = "start", TEST = False):
     quick_load = False
 
     app = App(pygame)
@@ -1358,6 +1358,9 @@ def main(ms = "start"):
             func.blit_glitch(screen, image_copy, [0,0], round(10*glitch.glitch_tick))
 
         app.pygame.display.update()
+
+        if TEST:
+            return
 
 
 if __name__ == "__main__":
