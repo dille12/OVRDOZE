@@ -48,7 +48,7 @@ class Grenade(Weapon):
                 self.pos[1] + math.sin(random_angle) * dist,
             ]
             if list(level.getcollisionspoint(map.rectangles, pos)) == []:
-                burn_list.append(classes.Burn(pos, 3, random.randint(500, 600)))
+                burn_list.append(classes.Burn(map, pos, 3, random.randint(500, 600)))
         molotov_explode_sound.play()
         try:
             grenade_list.remove(self)

@@ -16,7 +16,7 @@ import classes
 import traceback
 import render_los_image_jit
 from tools.image_transform import *
-
+from quadrant import Quadrant
 from tools.wall_gen import *
 
 from values import *
@@ -144,6 +144,14 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 
     map_conversion = 1920 / 854
 
+
+    func.load_screen(screen, f"Generating quadrants")
+
+    map.genQuadrants()
+
+    print(map.quadrants)
+
+
     func.load_screen(screen, f"Initializing LOS")
 
     walls_filtered += map.generate_wall_structure2()
@@ -190,6 +198,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
         print([2362 * multiplier, 982 / multiplier])
         burn_list.append(
             classes.Burn(
+                map,
                 [2362 / multiplier, 982 / multiplier],
                 2,
                 500,
@@ -199,6 +208,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
         )
         burn_list.append(
             classes.Burn(
+                map,
                 [2315 / multiplier, 967 / multiplier],
                 2,
                 500,
@@ -208,6 +218,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
         )
         burn_list.append(
             classes.Burn(
+                map,
                 [2335 / multiplier, 1000 / multiplier],
                 2,
                 500,
@@ -217,7 +228,8 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
         )
 
         burn_list.append(
-            classes.Burn([352 / multiplier, 2257 / multiplier], 2, 500, infinite=True, magnitude2=0.7)
+            
+            classes.Burn(map, [352 / multiplier, 2257 / multiplier], 2, 500, infinite=True, magnitude2=0.7)
         )
 
     interactables.clear()
@@ -293,6 +305,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
 class Map:
     def __init__(
         self,
+        app,
         name,
         dir,
         nav_mesh_name,
@@ -309,6 +322,7 @@ class Map:
         mult2 = multiplier2,
         mult = multiplier,
     ):
+        self.app = app
         self.name = name
         self.size = [map_size[0] * mult2, map_size[1] * mult2]
         self.polygons = []
@@ -401,6 +415,70 @@ class Map:
                 [(x + width) / self.conv, (y + height) / self.conv],
             ]
         )
+
+    def genQuadrants(self):
+        self.quadrants = []
+        for x in range(self.app.divisions):
+            self.quadrants.append([])
+            for y in range(self.app.divisions):
+                self.quadrants[x].append(Quadrant(self.app, self, x, y))
+
+    def setToQuadrant(self, obj, pos):
+
+        qX, qY =  [
+                    math.floor(self.app.divisions * (pos[0] / self.size_converted[0])),
+                    math.floor(self.app.divisions * (pos[1] / self.size_converted[1])),
+                ]
+        
+        qX = max([0,qX])
+        qX = min([self.app.divisions - 1, qX])
+
+        qY = max([0,qY])
+        qY = min([self.app.divisions - 1, qY])
+        
+        quadrant = self.quadrants[qX][qY]
+
+        if obj.quadrantType == 0:
+            quadrant.bullets.append(obj)
+
+        elif obj.quadrantType == 1:
+            quadrant.enemies.append(obj)
+
+        elif obj.quadrantType == 2:
+            quadrant.fires.append(obj)
+
+        obj.quadrant = quadrant
+
+    def getQuadrantObjects(self, quadrant, type):
+        x = quadrant.x - 1
+        y = quadrant.y - 1
+
+        objects = []
+
+        for xI in range(3):
+
+            if x + xI >= self.app.divisions:
+                break
+
+            for yI in range(3):
+                if y + yI >= self.app.divisions:
+                    break
+
+                if type == 0:
+                    objects += self.quadrants[x + xI][y + yI].bullets
+
+                if type == 1:
+                    objects += self.quadrants[x + xI][y + yI].enemies
+
+                if type == 2:
+                    objects += self.quadrants[x + xI][y + yI].fires
+
+        return objects
+
+
+    
+
+
 
     def generate_navmesh(self, NAV_MESH, level, loading_screen = True):
         i = 0

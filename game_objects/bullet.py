@@ -71,6 +71,9 @@ class Bullet(Game_Object):
 
         self.added_explosion = False
 
+        self.quadrantType = 0
+        self.quadrant = 0
+
 
     def get_string(self):
         return super().get_string("BULLET")
@@ -90,6 +93,8 @@ class Bullet(Game_Object):
     def kill_bullet(self, add_expl = True):
 
         self.kill_id()
+
+        self.quadrant.bullets.remove(self)
 
         if self.explosive:
             append_explosions.append([self._pos, "small", 100])
@@ -117,6 +122,13 @@ class Bullet(Game_Object):
         super().update_life(bullet_list)
         last_pos = self._pos.copy()
         self.move()
+
+        if not self.quadrant:
+            map.setToQuadrant(self, self._pos)
+
+        if not self.quadrant.checkIfIn(self._pos):
+            self.quadrant.bullets.remove(self)
+            map.setToQuadrant(self, self._pos)
 
         if self.energy:
             for i in range(random.randint(1,3)):
@@ -286,7 +298,10 @@ class Bullet(Game_Object):
                         return True
 
         dead = 0
-        for x in enemy_list:
+
+        quadrantEnemies = map.getQuadrantObjects(self.quadrant, 1)
+
+        for x in quadrantEnemies:
             if (
                 x.hit_detection(
                     camera_pos,

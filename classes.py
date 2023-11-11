@@ -134,34 +134,34 @@ items = {
     ),
     "Heroin": Item(
         "Heroin",
-        "Restores +40% sanity.",
+        "Restores +25% sanity.",
         "heroin.png",
         max_stack=1,
         pick_up_sound=needle_pickup,
         consumable=True,
-        sanity_buff=40,
-        drop_weight=0.2,
+        sanity_buff=25,
+        drop_weight=0.1,
     ),
     "Cocaine": Item(
         "Cocaine",
-        "Restores +20% sanity.",
+        "Restores +10% sanity.",
         "coca.png",
         max_stack=3,
         pick_up_sound=sniff_sound,
         consumable=True,
-        sanity_buff=20,
-        drop_weight=0.7,
+        sanity_buff=10,
+        drop_weight=0.5,
         drop_stack=1,
     ),
     "Diazepam": Item(
         "Diazepam",
-        "Restores +7.5% sanity.",
+        "Restores +2.5% sanity.",
         "pills.png",
         max_stack=5,
         pick_up_sound=pill_pickup,
         consumable=True,
-        sanity_buff=7.5,
-        drop_weight=1.8,
+        sanity_buff=2.5,
+        drop_weight=1.5,
         drop_stack=2,
     ),
     "45 ACP": Item(
@@ -189,7 +189,7 @@ items = {
         max_stack=9999,
         pick_up_sound=bullet_pickup,
         drop_weight=6,
-        drop_stack=150,
+        drop_stack=120,
     ),
     "12 GAUGE": Item(
         "12 GAUGE",
@@ -535,6 +535,8 @@ class Inventory:
                         turret_bro.append(
                             x
                         )
+
+                        turret_pickup.play()
 
                     elif content[slot]["item"].__dict__["name"] == "Barricade":
                         pos_player = player_actor.get_pos()
@@ -1645,18 +1647,21 @@ class Wall:
 
 
 class Burn:
-    def __init__(self, pos, magnitude, lifetime, infinite=False, magnitude2=1):
+    def __init__(self, map, pos, magnitude, lifetime, infinite=False, magnitude2=1):
         self.pos = pos
         self.magnitude = magnitude
         self.life_max = lifetime
         self.lifetime = lifetime
         self.infinite = infinite
         self.magnitude2 = magnitude2
+        self.quadrantType = 2
+        map.setToQuadrant(self, self.pos)
 
     def tick(self, screen, map_render=None):
 
         if self.lifetime <= 0:
             burn_list.remove(self)
+            self.quadrant.fires.remove(self)
             return
 
         for x in range(1):

@@ -121,6 +121,9 @@ class Zombie(pygame.sprite.Sprite):
         self.inventory = classes.Inventory(self.app, interctables)
         self.cached_route = False
 
+        self.quadrantType = 1
+        self.quadrant = 0
+
         #app.zombiegroup.add(self)
 
         for i in range(random.randint(1, 9)):
@@ -155,7 +158,9 @@ class Zombie(pygame.sprite.Sprite):
     ):
 
         self.kill()
+        self.quadrant.enemies.remove(self)
         list.remove(self)
+
 
         if not zevent:
             self.issue_event("terminate_1")
@@ -296,6 +301,13 @@ class Zombie(pygame.sprite.Sprite):
         phase=0,
         wall_points=None,
     ):
+        
+        if not self.quadrant:
+            map.setToQuadrant(self, self.pos)
+
+        if not self.quadrant.checkIfIn(self.pos):
+            self.quadrant.enemies.remove(self)
+            map.setToQuadrant(self, self.pos)
 
         if self.route_tick != 0:
             self.route_tick -= 1
@@ -357,7 +369,9 @@ class Zombie(pygame.sprite.Sprite):
 
         # pygame.draw.rect(screen, [255,255,255],[self.temp_pos[0], self.temp_pos[1], 20, 20])
 
-        for x in burn_list:
+        burnQuadrants = map.getQuadrantObjects(self.quadrant, 2)
+
+        for x in burnQuadrants:
             if los.get_dist_points(x.pos, self.pos) < 40*multiplier2:
                 self.hp -= timedelta.mod(1)
 

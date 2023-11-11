@@ -37,11 +37,13 @@ class App:
         self.joysticks = {}
         self.detectJoysticks = False
 
-        self.players = [self.name]
+        self.players = []
         self.nwobjects = {}
         self.selected_map = 0
         self.multiplayer = True
         self.ping = [0]
+
+        self.divisions = 10
 
         self.soldier_cache = {}
 

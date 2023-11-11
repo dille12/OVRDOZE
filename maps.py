@@ -17,6 +17,7 @@ def get_maps(app):
 
     maps = [
         Map(
+            app,
             "Overworld",
             "overworld.png",
             "nav_mesh_overworld.txt",
@@ -68,6 +69,7 @@ def get_maps(app):
             ],
         ),
         Map(
+            app,
             "Requiem",
             "map.png",
             "nav_mesh_requiem.txt",
@@ -108,6 +110,7 @@ def get_maps(app):
             SPAWNPOINT=[390, 40],
         ),
         Map(
+            app,
             "Manufactory",
             "map2.png",
             "nav_mesh_manufactory.txt",
@@ -155,6 +158,7 @@ def get_maps(app):
             SPAWNPOINT=[100, 100],
         ),
         Map(
+            app,
             "Liberation",
             "map3.png",
             "nav_mesh3.txt",
@@ -214,6 +218,7 @@ def get_maps(app):
         ),
 
         Map(
+            app,
             "Contamination",
             "map4.png",
             "nav_mesh4.txt",
@@ -275,6 +280,7 @@ def get_maps(app):
             ),
 
         Map(
+            app,
             "Downtown",
             "map5.png",
             "nav_mesh5.txt",

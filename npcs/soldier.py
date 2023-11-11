@@ -77,6 +77,8 @@ class Soldier:
         self.class_type = "SOLDIER"
         self.killed = False
 
+        self.quadrantType = 1
+
         self.semi_auto_fire_tick = 0
 
         self.collisions_with_walls = 0
@@ -181,6 +183,12 @@ class Soldier:
             self.state = "takingcover"
             self.movement_speed = 7
         elif self.sees_target:
+
+            if self.state != "attacking":
+                for x in self.patrol.troops:
+                    if x.state == "wander":
+                        x.investigating = True
+
             self.state = "attacking"
             self.movement_speed = 6.5
         elif self.investigating or self.investigate_route:
@@ -192,7 +200,7 @@ class Soldier:
             self.movement_speed = 2.5
 
             if self is not self.patrol.patrol_leader:
-                if func.get_dist_points(self.pos, self.patrol.patrol_leader.pos) > 700:
+                if func.get_dist_points(self.pos, self.patrol.patrol_leader.pos) > 450:
                     self.movement_speed = 5
 
 
@@ -210,10 +218,7 @@ class Soldier:
 
                 playing.play()
 
-            if self.state == "attacking":
-                for x in self.patrol.troops:
-                    if x.state == "wander":
-                        x.investigating = True
+            
 
     def wander_to_random_point(self):
         if self is self.patrol.patrol_leader:

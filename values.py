@@ -273,6 +273,13 @@ zombie_big = load("texture/zombie.png", size = [200,200])
 
 bullet_texture = load("texture/bullet.png", size = [15,4])
 
+cursorIm = pygame.image.load('texture/mouse.png')
+
+# Convert the image to a surface
+cursor = pygame.Surface((32, 32), pygame.SRCALPHA)
+cursor.blit(cursorIm, (0, 0))
+
+
 y_size = bullet_texture.get_size()[1]
 
 bullet_length = []
@@ -551,4 +558,5 @@ hints = [
 "Reaching 100 multikills awards you 10% sanity",
 "Upgrade your backpack if you have trouble managing your inventory.",
 "Energy weapons do not jam.",
+"You can tank one hit that would kill you."
 ]

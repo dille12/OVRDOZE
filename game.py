@@ -434,6 +434,8 @@ def main(
 
     app.camera_pos = camera_pos
 
+    killProtection = True
+
     while 1:
         app.phase = phase
         tick_time = time.time() - last_tick
@@ -458,6 +460,10 @@ def main(
             if player_actor.hp < 30 and not multiplayer:
 
                 timedelta.timedelta *= 0.5
+
+            else:
+                killProtection = True
+                
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
@@ -1260,7 +1266,15 @@ def main(
 
             player_alive = True
 
+        elif killProtection:
+            killProtection = False
+            player_actor.hp = 1
+            print("Kill protection used")
+        
+
         else:
+
+
 
             if player_alive:
                 func.list_play(death_sounds)
@@ -1931,7 +1945,7 @@ def main(
 
                     screen.blit(text, [pos[0], pos[1]])
 
-        else:
+        elif not killProtection:
             if not endless:
                 text = terminal.render(f"{round(player_actor.money/2)}$ lost. Going back to Overworld...", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 - 40]

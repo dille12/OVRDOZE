@@ -207,6 +207,7 @@ def main(ms = "start"):
     app = App(pygame)
 
 
+
     maps_dict = app.getMaps()
     clock = app.pygame.time.Clock()
 
@@ -219,6 +220,10 @@ def main(ms = "start"):
         app.introScreen(screen, clock)
 
     func.load_screen(screen, "Loading")
+
+    
+
+
 
     menu_status = ms
 
@@ -279,6 +284,8 @@ def main(ms = "start"):
         textbox_ip.__dict__["text"] = ip_address
         ip = ip_address
         try:
+            app.players.clear()
+            app.players.append(app.name)
             start_new_thread(app.lobby_host, ("1", ip))
             return join_game(ip, True)
         except:
@@ -299,6 +306,9 @@ def main(ms = "start"):
     def join_game(arg, host=False):
 
         print("JOINING TO:", arg)
+
+        app.players.clear()
+        app.players.append(app.name)
 
         try:
             app.net = Network(arg)
