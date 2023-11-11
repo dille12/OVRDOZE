@@ -73,8 +73,15 @@ def pref():
         if attr == "MULT_ACKNOWLEDGEMENT":
             MULT_ACKNOWLEDGEMENT = ast.literal_eval(value.strip("\n"))
 
+    try:
 
-    return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music, MULT_ACKNOWLEDGEMENT
+        return username, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music, MULT_ACKNOWLEDGEMENT
+
+    except:
+        print("Erranous settings. ")
+        write_default_settings()
+        return pref()
+
 
 
 def write_prefs(name, draw_los, dev, fs, ultraviolence, last_ip, fps, vsync, res, vol, music, MULT_ACKNOWLEDGEMENT):

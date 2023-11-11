@@ -153,6 +153,7 @@ def main(
 
 
     death_wave = -1
+    deathMoney = -1
 
 
     last_ping = 0
@@ -301,7 +302,7 @@ def main(
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
 
-    
+
 
 
     gun_name_list = [
@@ -463,7 +464,7 @@ def main(
 
             else:
                 killProtection = True
-                
+
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
@@ -682,7 +683,7 @@ def main(
         elif r_click == False:
             r_clicked = False
 
-        
+
 
         scroll = [False, False]
 
@@ -1270,7 +1271,7 @@ def main(
             killProtection = False
             player_actor.hp = 1
             print("Kill protection used")
-        
+
 
         else:
 
@@ -1285,6 +1286,7 @@ def main(
                 player_alive = False
                 respawn_ticks = 300 if not endless else 120
                 death_wave = wave_number
+                deathMoney = player_actor.money
 
                 if endless and not multiplayer:
                     app.pygame.mouse.set_visible(True)
@@ -1294,8 +1296,8 @@ def main(
                             highscores.saveHighscore(app)
                             newHigh[0] = True
 
-                        if app.highscore[map.name][difficulty][1] < player_actor.money:
-                            app.highscore[map.name][difficulty][1] = player_actor.money
+                        if app.highscore[map.name][difficulty][1] < deathMoney:
+                            app.highscore[map.name][difficulty][1] = deathMoney
                             highscores.saveHighscore(app)
                             newHigh[1] = True
 
@@ -1997,7 +1999,7 @@ def main(
                     )
 
 
-                text = terminal.render(f"Money gathered: {player_actor.money}$", False, [255, 255, 255])
+                text = terminal.render(f"Money gathered: {deathMoney}$", False, [255, 255, 255])
                 pos = [size[0] / 2, size[1] / 2 + 20]
                 screen.blit(
                     text,

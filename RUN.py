@@ -221,7 +221,7 @@ def main(ms = "start"):
 
     func.load_screen(screen, "Loading")
 
-    
+
 
 
 
@@ -655,7 +655,7 @@ def main(ms = "start"):
             cant_uncheck=True,
         )
 
-        if text == "NORMAL":    
+        if text == "NORMAL":
             box.checked = True
         check_box_difficulties.append(box)
 
@@ -1312,15 +1312,15 @@ def main(ms = "start"):
             if s6 != None:
                 menu_status = s6
                 mouse_single_tick = False
-            
+
             if s5 != None:
-                
+
                 menu_status = "mp_start"
                 mouse_single_tick = False
 
                 app.MULT_ACKNOWLEDGEMENT = True
                 app.write_prefs()
-                
+
 
         if menu_status == "mp_start":
 
