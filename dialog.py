@@ -426,7 +426,9 @@ class Dialogue:
 
                 self.letternumber += 1
 
-                func.list_play(typing)
+                if self.letternumber % 3 == 0:
+
+                    func.list_play(typing)
 
             if click:
                 advance(None)
