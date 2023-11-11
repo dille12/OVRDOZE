@@ -66,7 +66,6 @@ class Zombie(pygame.sprite.Sprite):
         if type == "normal":
             self.size = 10 * multiplier2
             self.image_template = random.choice(zombieImages)
-            self.type = "normal"
             self.anglular_acceleration = 0.1
         elif type == "bomber":
             self.size = 13 * multiplier2
@@ -74,20 +73,28 @@ class Zombie(pygame.sprite.Sprite):
             self.moving_speed *= 0.75
             self.hp *= 0.75
             self.explosion = expl_blood
-            self.type = "bomber"
             self.attack_speed = 60
             self.anglular_acceleration = 0.025
         elif type == "runner":
             self.size = 10 * multiplier2
             self.image_template = zombie
-            self.type = "runner"
             self.anglular_acceleration = 0.2
             self.moving_speed *= 1.75
             self.damage *= 0.75
         elif type == "firestarter":
-            pass
+            self.image_template = random.choice(zombieImages)
+            self.moving_speed *= 0.8
+            self.damage *= 0.8
+            self.hp *= 0.9
+            self.size = 10 * multiplier2
+            self.anglular_acceleration = 0.1
         elif type == "psycho":
-            pass
+            self.image_template = random.choice(zombieImages)
+            self.moving_speed *= 1.3
+            self.damage *= 1.1
+            self.size = 10 * multiplier2
+            self.hp *= 1.25
+            self.anglular_acceleration = 0.1
         elif type == "acid":
             pass
         else:
@@ -99,8 +106,7 @@ class Zombie(pygame.sprite.Sprite):
             self.knockback_resistance = 0.1
             self.anglular_acceleration = 0.05
 
-            self.type = "big"
-
+        self.type = type
 
 
         self.attack_tick = 0
@@ -191,6 +197,11 @@ class Zombie(pygame.sprite.Sprite):
                     )
                 )
 
+            if self.type == "firestarter":
+                for i in range(2):
+                    pos = [self.pos[0] + random.randint(-30, 30) * multiplier2, self.pos[1] + random.randint(-30, 30) * multiplier2]
+                    burn_list.append(classes.Burn(self.map, pos, 3, random.randint(300, 500)))
+
             self.inventory.drop_inventory(self.pos)
 
             if random.uniform(0,1) < 0.002:
@@ -265,6 +276,9 @@ class Zombie(pygame.sprite.Sprite):
     def hit_detection(
         self, camera_pos, pos, lastpos, damage, enemy_list, map_render, player_actor
     ):
+
+
+
         points_1 = [
             [self.pos[0], self.pos[1] - self.size * 2.5],
             [self.pos[0], self.pos[1] + self.size * 2.5],
@@ -277,6 +291,11 @@ class Zombie(pygame.sprite.Sprite):
         if los.intersect(pos, lastpos, points_1[0], points_1[1]) or los.intersect(
             pos, lastpos, points_2[0], points_2[1]
         ):
+
+            if self.type == "psycho":
+                if random.uniform(0,1) < 0.5:
+                    self.pos = self.map.get_random_point()
+                    return
 
             self.hp -= damage
             if self.hp < 0:
@@ -307,7 +326,7 @@ class Zombie(pygame.sprite.Sprite):
         phase=0,
         wall_points=None,
     ):
-        
+
         if not self.quadrant:
             map.setToQuadrant(self, self.pos)
 
@@ -320,6 +339,20 @@ class Zombie(pygame.sprite.Sprite):
 
         if phase == 6:
             t_1 = time.time()
+
+        if self.type == "firestarter":
+            particle_list.append(
+                classes.Particle(
+                    [
+                        self.pos[0] + random.randint(-4, 4) * 2 * multiplier2,
+                        self.pos[1] + random.randint(-4, 4) * 2 * multiplier2,
+                    ],
+                    type="fire",
+                    magnitude=(2 * (0.6) ** 0.7),
+                    screen=screen,
+                    fire_velocity_mod=1,
+                )
+            )
 
         if self.process_tick == self.tick_every:
             self.process_tick = 0

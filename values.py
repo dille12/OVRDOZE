@@ -596,3 +596,29 @@ hints = [
 "Energy weapons do not jam.",
 "You can tank one hit that would kill you."
 ]
+
+
+enemyDropRate = {"big" : 0.02, "bomber" : 0.03, "runner" : 0.05, "normal" : 0.9, "psycho" : 0.05, "firestarter" : 0.02}
+
+
+def weighted_random_choice(weighted_dict):
+    total_weight = sum(weighted_dict.values())
+    rand_num = random.uniform(0, total_weight)
+
+    cumulative_weight = 0
+    for item, weight in weighted_dict.items():
+        cumulative_weight += weight
+        if rand_num < cumulative_weight:
+            return item
+
+
+if __name__ == '__main__':
+    d = {}
+    for x in range(100000):
+        v = weighted_random_choice(enemyDropRate)
+        if v in d:
+            d[v] += 1
+        else:
+            d[v] = 1
+
+    print(d)

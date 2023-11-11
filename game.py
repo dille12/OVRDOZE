@@ -978,14 +978,8 @@ def main(
                         < (enemy_count / (player_actor.sanity / 100 + 0.25))
                         and wave
                     ):
-                        type = "normal"
-                        type_drop = random.uniform(0, 1)
-                        if type_drop < 0.02:
-                            type = "big"
-                        elif type_drop < 0.05:
-                            type = "bomber"
-                        elif type_drop < 0.1:
-                            type = "runner"
+                        type = weighted_random_choice(enemyDropRate)
+
                         zombo = Zombie(
                             app,
                             map.get_random_point(p_pos=player_pos),
@@ -1073,8 +1067,6 @@ def main(
         for x in turret_bro:
             x.tick(screen, camera_pos, enemy_list, 0, [walls_filtered, map.no_los_walls], player_pos)
 
-        for x in particle_list:
-            x.tick(screen, camera_pos, map)
 
 
 
@@ -1444,6 +1436,10 @@ def main(
         t = time.time()
 
         app.zombiegroup.draw(screen)
+
+        for x in particle_list:
+            x.tick(screen, camera_pos, map)
+
 
         time_stamps["zombie_Draw"] = time.time() - t
         t = time.time()
