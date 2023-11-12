@@ -17,7 +17,10 @@ import ast
 class App:
     def __init__(self, pygame):
         self.pygame = pygame
-        self.server = Server(self)
+        try:
+            self.server = Server(self)
+        except:
+            print("Could not create a server!")
         self.ip = None
         self.preferences()
         self.chat = Chat(self)
@@ -251,7 +254,7 @@ class App:
         print("SP")
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
         app, name, arg, draw_los, dev, skip_intervals, map = arg
-        
+
         func.load_screen(screen, "Loading")
         game.main(
             app,
