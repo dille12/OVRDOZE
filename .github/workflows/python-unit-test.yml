@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest,windows-latest,macos-latest]
-        python-version: ["3.9","3.10"]
+        python-version: ["3.9","3.10", "3.11"]
     runs-on: ${{matrix.os}}
     env:
       SDL_VIDEODRIVER: "dummy"
@@ -42,7 +42,7 @@ jobs:
           echo "is matrix.os"
           sudo apt-get update
           sudo apt-get install -y xserver-xorg
-          sudo apt-get install python-dev
+          sudo apt-get install python-dev-is-python3
           sudo apt-get install python-setuptools
           sudo apt-get install python-pygame
           sudo apt-get install python-opengl
