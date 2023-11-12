@@ -40,4 +40,4 @@ class TestRun(unittest.TestCase):
 
     def testGame(self):
         print("Testing whole game!")
-        run.main(TEST = True)
+        RUN.main(TEST = True)
