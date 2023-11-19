@@ -49,6 +49,10 @@ terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
 terminal_map_desc = pygame.font.Font("texture/terminal.ttf", 50)
 terminal_map_desc2 = pygame.font.Font("texture/terminal.ttf", 25)
 
+terminal_waveSecs = []
+for i in range(4):
+    terminal_waveSecs.append(pygame.font.Font("texture/terminal.ttf", 50 + i*10))
+
 
 def give_weapon(kind, name):
     return armory.__weapons_map[kind][name].copy()
@@ -87,7 +91,8 @@ songDrops = {
     "New colors.wav" : [[43.30, 72.18], [122.70, 151.57]],
     "Octane.wav" : [[46.45, 92.90]],
     "ovrdoz.wav" : [[43.82, 68.87], [102.26, 127.30]],
-    "Veins.wav" : [[32, 71.11], [109.33, 159.33]],
+    "Veins.wav" : [[32, 71.11], [110.22, 159.33]],
+    "Narcosis.wav" : [[28.02, 70.07], [105.10, 147.15]],
 }
 
 
@@ -266,8 +271,7 @@ def main(
     app.player_actor_ref = player_actor
 
     if dev_tools:
-        player_actor.money = 100000
-        player_inventory.append_to_inv(items["Upgrade Token"], 50)
+        player_inventory.append_to_inv(items["Barricade"], 3)
 
     player_melee = armory.Melee.Melee(
         strike_count=2, damage=35, hostile=False, owner_object=player_actor
@@ -619,6 +623,7 @@ def main(
                 app.pygame.mixer.music.load(up_next)
                 app.pygame.mixer.music.play()
 
+
                 with open(
                     f"{up_next}_timestamps.txt"
                 ) as file:  # Use file to refer to the file object
@@ -657,6 +662,8 @@ def main(
 
         except:
             pass
+
+
 
         if time.time() - drying_time > 0.1:
 
@@ -2191,16 +2198,34 @@ def main(
             x.tick(camera_pos)
 
         for dropBeat in dropIndices:
-            if dropBeat - 4 <= beat_index-1 < dropBeat:
-                text = terminal_map_desc.render(str(dropBeat - beat_index+1), False, [255, 255, 255])
+            if dropBeat - 4 <= beat_index-1 <= dropBeat:
+
+                i = 5 - (dropBeat - beat_index+1)
+
+                color = [
+                            round(min([255, (beat_red-1)*255])), 
+                            round((beat_red-1)*127.5), 
+                            round((beat_red-1)*127.5)
+                        ]
+                
+                #print(color)
+
+                if dropBeat == beat_index-1:
+
+                    text = terminal_waveSecs[-1].render(f"WAVE {wave_number + 1}", False, color)
+                else:
+
+                    text = terminal_waveSecs[4 - (dropBeat - beat_index+1)].render(str(dropBeat - beat_index+1), False, color)
+                                                                                      
                 text.set_alpha(round((beat_red-1)*127.5))
-                screen.blit(
-                    text,
-                    [
+
+                pos = [
                         size[0] / 2 - text.get_rect().center[0],
                         size[1] / 3 - text.get_rect().center[1],
-                    ],
-                )
+                    ]
+
+                func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - beat_index+1))))
+
 
 
 

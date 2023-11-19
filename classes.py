@@ -375,43 +375,38 @@ class Inventory:
             if self.contents[slot]["item"].get_name() == name
         )
 
-    def append_to_inv(self, type, amount, scan_only=False):
+    def append_to_inv(self, item_type, amount, scan_only=False):
         amount_in_start = amount
-        for slot in self.contents:
-            if self.contents[slot]["item"].get_name() == type.get_name():
-                if (
-                    self.contents[slot]["amount"] + amount
-                    <= self.contents[slot]["item"].__dict__["max_stack"]
-                ):
 
-                    if scan_only == False:
+        for slot, slot_data in self.contents.items():
+            if slot_data["item"].get_name() == item_type.get_name():
+                max_stack = slot_data["item"].max_stack
+                available_space = max_stack - slot_data["amount"]
 
-                        self.contents[slot]["amount"] += amount
-
+                if amount <= available_space:
+                    if not scan_only:
+                        slot_data["amount"] += amount
                         if self.player:
-                            type.sound().play()
-
+                            item_type.sound().play()
                     return 0
                 else:
-                    amount -= (
-                        self.contents[slot]["item"].__dict__["max_stack"]
-                        - self.contents[slot]["amount"]
-                    )
-                    if scan_only == False:
-                        self.contents[slot]["amount"] = self.contents[slot][
-                            "item"
-                        ].__dict__["max_stack"]
+                    amount -= available_space
+                    if not scan_only:
+                        slot_data["amount"] = max_stack
 
-        for slot in range(1, (1+self.columns*3)):
+        for slot in range(1, (1 + self.columns * 3)):
             if slot not in self.contents:
-                if scan_only == False:
-                    self.contents[slot] = {"item": type, "amount": amount}
+                if not scan_only:
+                    self.contents[slot] = {"item": item_type, "amount": amount}
                     if self.player:
-                        type.sound().play()
+                        item_type.sound().play()
                 return 0
-        if amount_in_start != amount and self.player and scan_only == False:
-            type.sound().play()
+
+        if amount_in_start != amount and self.player and not scan_only:
+            item_type.sound().play()
+
         return amount
+
 
     def remove_amount(self, name, amount2):
         amount = amount2
@@ -434,186 +429,138 @@ class Inventory:
 
     def get_inv(self):
         return self.inventory_open
-
-    def draw_contents(
-        self,
-        screen,
-        x_d,
-        y_d,
-        object,
-        default_pos,
-        mouse_pos,
-        clicked,
-        r_click_tick,
-        player_actor,
-        app,
-        inv_2=False,
-    ):
-        global barricade_in_hand, turret_bullets
+    
+    def draw_contents(self, screen, x_d, y_d, obj, default_pos, mouse_pos, clicked, r_click_tick, player_actor, app, inv_2=False):
         self.picked_up_slot = None
 
-        content = object.contents
-        auto_transfer = False
-        if inv_2 and 3 in app.joystickEvents:
-            auto_transfer = True
-            print("Transfering...")
+        content = obj.contents
+        auto_transfer = inv_2 and 3 in app.joystickEvents
 
-        for slot in content:
-
-            if self.item_in_hand == content[slot]:
+        for slot, slot_data in content.items():
+            if self.item_in_hand == slot_data:
                 continue
 
-            if slot <= object.columns:
-                y = 1
-            elif slot <= object.columns*2:
-                y = 2
-            else:
-                y = 3
-
-            x = (slot - 1) % object.columns + 1
-
+            y = 1 if slot <= obj.columns else (2 if slot <= obj.columns * 2 else 3)
+            x = (slot - 1) % obj.columns + 1
             pos = [default_pos[0] + x * 62 + x_d, default_pos[1] + y * 62 + y_d]
 
-            item_clicked, type = content[slot]["item"].render(
-                screen, pos, mouse_pos, clicked, r_click_tick, transfer = auto_transfer
-            )
-
+            item_clicked, item_type = slot_data["item"].render(screen, pos, mouse_pos, clicked, r_click_tick, transfer=auto_transfer)
             auto_transfer = False
 
             if item_clicked and self.hand_tick == 0:
-
-                if type == "append" and inv_2:
-                    amount = self.append_to_inv(
-                        content[slot]["item"], content[slot]["amount"]
-                    )
+                if item_type == "append" and inv_2:
+                    amount = self.append_to_inv(slot_data["item"], slot_data["amount"])
                     if amount == 0:
                         self.picked_up_slot = slot
                     else:
-                        content[slot]["amount"] = amount
-
-                elif self.item_in_hand == None and type == "pickup":
-                    self.item_in_hand = content[slot]
+                        slot_data["amount"] = amount
+                elif self.item_in_hand is None and item_type == "pickup":
+                    self.item_in_hand = slot_data
                     self.hand_tick = 3
                     self.picked_up_slot = slot
-
-                elif (
-                    self.item_in_hand == None
-                    and type == "consume"
-                    and content[slot]["item"].__dict__["consumable"]
-                ):
-                    content[slot]["amount"] -= 1
-
-                    if content[slot]["amount"] == 0:
-
+                elif self.item_in_hand is None and item_type == "consume" and slot_data["item"].consumable:
+                    slot_data["amount"] -= 1
+                    if slot_data["amount"] == 0:
                         self.picked_up_slot = slot
                     self.hand_tick = 3
-                    if content[slot]["item"].name == "Sentry Turret":
-                        pos_player = player_actor.get_pos()
-                        turret_bullets = player_actor.turret_bullets
-                        turr = objects.Turret.Turret(
-                            pos_player, 8, 10, 500, 20, 500 * turret_bullets
-                        )
-                        turret_list.append(turr)
-                        if "turrets" not in packet_dict:
-                            packet_dict["turrets"] = []
-                        packet_dict["turrets"].append(turr)
-                        turret_pickup.play()
+                    self.handle_consumable_item(slot_data["item"], player_actor, app)
 
-                    elif content[slot]["item"].name == "Moving Turret":
-                        pos_player = player_actor.get_pos()
+            self.display_stack_count(screen, slot_data["amount"], pos)
 
-                        map, NAV_MESH, walls_filtered = app.MovTurretData
-
-                        x = objects.MovingTurret.MovingTurret(
-                            pos_player, 4, 5, 500, 20, 1000, NAV_MESH=None, walls=None, map=None, app = app
-                        )
-                        x.map = map
-                        x._pos = pos_player.copy()
-                        x.navmesh_ref = NAV_MESH.copy()
-                        x.wall_ref = walls_filtered
-
-                        turret_bro.append(
-                            x
-                        )
-
-                        turret_pickup.play()
-
-                    elif content[slot]["item"].__dict__["name"] == "Barricade":
-                        pos_player = player_actor.get_pos()
-                        player_actor.__dict__[
-                            "barricade_in_hand"
-                        ] = objects.Barricade.Barricade(pos_player, pygame)
-                        turret_pickup.play()
-                    else:
-                        player_actor.set_sanity(
-                            content[slot]["item"].__dict__["sanity_buff"], add=True
-                        )
-                        drug_use.play()
-
-            else:
-                if content[slot]["item"].__dict__["max_stack"] != 1:
-                    text = prompt.render(
-                        str(content[slot]["amount"]), False, [255, 255, 255]
-                    )
-                    t_s = text.get_rect().size
-                    alpha_surf = pygame.Surface(t_s).convert()
-                    alpha_surf.fill((0, 0, 0))
-                    alpha_surf.set_alpha(200)
-                    screen.blit(
-                        alpha_surf, [pos[0] + 25 - t_s[0], pos[1] + 25 - t_s[1]]
-                    )
-
-                    screen.blit(text, [pos[0] + 25 - t_s[0], pos[1] + 25 - t_s[1]])
-
-
-        if self.picked_up_slot != None:
+        if self.picked_up_slot is not None:
             del content[self.picked_up_slot]
 
-    def draw_inventory(
-        self,
-        screen,
-        x_d,
-        y_d,
-        mouse_pos,
-        clicked,
-        player_pos,
-        r_click_tick,
-        player_actor,
-        app,
-    ):
+    def handle_consumable_item(self, item, player_actor, app):
+        if item.name == "Sentry Turret":
+            self.handle_turret_pickup(player_actor)
+        elif item.name == "Moving Turret":
+            self.handle_moving_turret_pickup(player_actor, app.MovTurretData, app)
+        elif item.name == "Barricade":
+            self.handle_barricade_pickup(player_actor)
+        else:
+            player_actor.set_sanity(item.sanity_buff, add=True)
+            drug_use.play()
 
-        if clicked and self.click == False and self.inventory_open:
-            inv_click.play()
-            self.click = True
-        elif clicked == False:
-            self.click = False
+    def handle_turret_pickup(self, player_actor):
+        pos_player = player_actor.get_pos()
+        turret_bullets = player_actor.turret_bullets
+        turr = objects.Turret.Turret(pos_player, 8, 10, 500, 20, 500 * turret_bullets)
+        turret_list.append(turr)
+        packet_dict.setdefault("turrets", []).append(turr)
+        turret_pickup.play()
+
+    def handle_moving_turret_pickup(self, player_actor, turret_data, app):
+        pos_player = player_actor.get_pos()
+        map, NAV_MESH, walls_filtered = turret_data
+        turret = objects.MovingTurret.MovingTurret(pos_player, 4, 5, 500, 20, 1000, NAV_MESH=NAV_MESH, walls=walls_filtered, map=map, app=app)
+        turret._pos = pos_player.copy()
+        turret.navmesh_ref = NAV_MESH.copy()
+        turret.wall_ref = walls_filtered
+        turret_bro.append(turret)
+        turret_pickup.play()
+
+    def handle_barricade_pickup(self, player_actor):
+        pos_player = player_actor.get_pos()
+        player_actor.barricade_in_hand = objects.Barricade.Barricade(pos_player, pygame)
+        turret_pickup.play()
+
+    def display_stack_count(self, screen, amount, pos):
+        text = prompt.render(str(amount), False, [255, 255, 255])
+        t_s = text.get_rect().size
+        alpha_surf = pygame.Surface(t_s).convert()
+        alpha_surf.fill((0, 0, 0))
+        alpha_surf.set_alpha(200)
+        screen.blit(alpha_surf, [pos[0] + 25 - t_s[0], pos[1] + 25 - t_s[1]])
+        screen.blit(text, [pos[0] + 25 - t_s[0], pos[1] + 25 - t_s[1]])
+
+    def draw_inventory(self, screen, x_d, y_d, mouse_pos, clicked, player_pos, r_click_tick, player_actor, app):
+        self.handle_inventory_click(clicked)
 
         if self.inventory_open:
+            self.draw_inventory_info(screen, x_d, y_d, player_actor)
+            self.draw_inventory_contents(screen, x_d, y_d, mouse_pos, clicked, r_click_tick, player_actor, app)
 
-            text = terminal.render(
-                f"Money : {player_actor.money}$", False, [255, 255, 255]
-            )
-            screen.blit(text, (15 + x_d, 130 + y_d))  #
-            if self.columns == 3:
-                screen.blit(inv_image, [15 + x_d, 150 + y_d])
-            elif self.columns == 4:
-                screen.blit(inv4_image, [15 + x_d, 150 + y_d])
-            elif self.columns == 5:
-                screen.blit(inv5_image, [15 + x_d, 150 + y_d])
-            text = terminal2.render("INVENTORY", False, [255, 255, 255])
-            screen.blit(text, (32 + x_d, 161 + y_d))  #
+    def handle_inventory_click(self, clicked):
+        if clicked and not self.click and self.inventory_open:
+            inv_click.play()
+            self.click = True
+        elif not clicked:
+            self.click = False
 
-            default_pos = [-10, 160]
+    def draw_inventory_info(self, screen, x_d, y_d, player_actor):
+        text = terminal.render(f"Money : {player_actor.money}$", False, [255, 255, 255])
+        screen.blit(text, (15 + x_d, 130 + y_d))
 
-            if self.hand_tick != 0 and clicked == False:
-                self.hand_tick -= 1
+        inv_images = {3: inv_image, 4: inv4_image, 5: inv5_image}
+        screen.blit(inv_images.get(self.columns, inv_image), [15 + x_d, 150 + y_d])
 
-            self.draw_contents(
+        text = terminal2.render("INVENTORY", False, [255, 255, 255])
+        screen.blit(text, (32 + x_d, 161 + y_d))
+
+    def draw_inventory_contents(self, screen, x_d, y_d, mouse_pos, clicked, r_click_tick, player_actor, app):
+        default_pos = [-10, 160]
+
+        if self.hand_tick != 0 and not clicked:
+            self.hand_tick -= 1
+
+        self.draw_contents(
+            screen,
+            x_d,
+            y_d,
+            self,
+            [-10, 160],
+            mouse_pos,
+            clicked,
+            r_click_tick,
+            player_actor,
+            app,
+        )
+
+        if self.search_obj:
+            self.draw_search_obj_contents(
                 screen,
                 x_d,
                 y_d,
-                self,
-                [-10, 160],
                 mouse_pos,
                 clicked,
                 r_click_tick,
@@ -621,164 +568,122 @@ class Inventory:
                 app,
             )
 
-            if self.search_obj != None:
-                screen.blit(inv_image, [size[0] - 254 + x_d, 150 + y_d])
-                text = terminal2.render(
-                    self.search_obj.get_name(), False, [255, 255, 255]
+        if self.item_in_hand:
+            self.draw_item_in_hand(screen, mouse_pos, clicked, r_click_tick, x_d, y_d)
+
+    def draw_search_obj_contents(self, screen, x_d, y_d, mouse_pos, clicked, r_click_tick, player_actor, app):
+        screen.blit(inv_image, [size[0] - 254 + x_d, 150 + y_d])
+        text = terminal2.render(self.search_obj.get_name(), False, [255, 255, 255])
+        screen.blit(text, (size[0] - 237 + x_d, 161 + y_d))
+
+        self.draw_contents(
+            screen,
+            x_d,
+            y_d,
+            self.search_obj,
+            [size[0] - 284, 160],
+            mouse_pos,
+            clicked,
+            r_click_tick,
+            player_actor,
+            app,
+            inv_2=True,
+        )
+
+    def draw_item_in_hand(self, screen, mouse_pos, clicked, r_click_tick, x_d, y_d):
+        if clicked and self.hand_tick == 0:
+            self.handle_item_placement(mouse_pos, x_d, y_d)
+        else:
+            self.item_in_hand["item"].render(
+                screen, mouse_pos, mouse_pos, clicked, r_click_tick
+            )
+            self.display_stack_count(screen, self.item_in_hand["amount"], mouse_pos)
+
+    def handle_item_placement(self, mouse_pos, x_d, y_d):
+        inserted = False
+        positions = [[24 - 62, 133], [542, 133]] if self.search_obj is None else [[24 - 62, 133], [size[0] - 254, 133]]
+        columns = self.columns if self.search_obj is None else self.search_obj.columns
+
+        for def_pos in positions:
+            for slot in range(1, (1 + columns * 3)):
+                y = 1 if slot <= columns else (2 if slot <= columns * 2 else 3)
+                x = (slot - 1) % columns + 1
+                pos = [def_pos[0] + x * 62 + x_d, def_pos[1] + y * 62 + y_d]
+
+                if pos[0] < mouse_pos[0] < pos[0] + 62 and pos[1] < mouse_pos[1] < pos[1] + 62:
+                    inserted = self.handle_item_insertion(def_pos, slot, columns)
+                    break
+
+        if not inserted:
+            self.handle_item_interactable_creation()
+
+    def handle_item_insertion(self, def_pos, slot, columns):
+        if def_pos == [24 - 62, 133]:
+            if slot in self.contents:
+                self.handle_item_insertion_within_inventory(slot)
+            else:
+                self.handle_item_insertion_outside_inventory(slot)
+            return True
+        elif self.search_obj:
+            self.handle_item_insertion_within_search_obj(slot)
+            return True
+        return False
+
+    def handle_item_insertion_within_inventory(self, slot):
+        if (
+            self.contents[slot]["item"].get_name()
+            == self.item_in_hand["item"].get_name()
+        ):
+            if (
+                self.contents[slot]["amount"] + self.item_in_hand["amount"]
+                <= self.item_in_hand["item"].max_stack
+            ):
+                self.contents[slot]["amount"] += self.item_in_hand["amount"]
+                self.item_in_hand["item"].sound().play()
+                self.item_in_hand = None
+            else:
+                self.item_in_hand["amount"] -= (
+                    self.item_in_hand["item"].max_stack
+                    - self.contents[slot]["amount"]
                 )
-                screen.blit(text, (size[0] - 237 + x_d, 161 + y_d))  #
+                self.contents[slot]["amount"] = self.item_in_hand["item"].max_stack
+                self.item_in_hand["item"].sound().play()
+        else:
+            item_1 = self.contents[slot]
+            self.contents[slot] = self.item_in_hand
+            self.item_in_hand = item_1
 
-                self.draw_contents(
-                    screen,
-                    x_d,
-                    y_d,
-                    self.search_obj,
-                    [size[0] - 284, 160],
-                    mouse_pos,
-                    clicked,
-                    r_click_tick,
-                    player_actor,
-                    app,
-                    inv_2=True,
-                )
+    def handle_item_insertion_outside_inventory(self, slot):
+        self.contents[slot] = self.item_in_hand
+        self.item_in_hand["item"].sound().play()
+        self.item_in_hand = None
 
-            if self.item_in_hand != None:
-                if clicked and self.hand_tick == 0:
-                    inserted = False
-                    for def_pos in [[24 - 62, 133], [542, 133]]:
-                        if def_pos == [24 - 62, 133]:
-                            col = self.columns
-                        elif self.search_obj:
-                            col = self.search_obj.columns
-                        else:
-                            col = 3
-                        for slot in range(1, (1+col*3)):
-                            if slot <= col:
-                                y = 1
-                            elif slot <= col*2:
-                                y = 2
-                            else:
-                                y = 3
+    def handle_item_insertion_within_search_obj(self, slot):
+        if (
+            self.item_in_hand["item"].get_name()
+            == self.search_obj.__dict__["contents"][slot]["item"].get_name()
+        ):
+            self.search_obj.__dict__["contents"][slot]["amount"] += self.item_in_hand["amount"]
+            self.item_in_hand["item"].sound().play()
+            self.item_in_hand = None
+        else:
+            item_1 = self.search_obj.__dict__["contents"][slot]
+            self.search_obj.__dict__["contents"][slot] = self.item_in_hand
+            self.item_in_hand = item_1
 
-                            x = (slot - 1) % col + 1
+    def handle_item_interactable_creation(self):
+        self.interctables_reference.append(
+            Interactable(
+                self.app,
+                player_pos,
+                self,
+                type="item",
+                item=items[self.item_in_hand["item"].__dict__["name"]].copy(),
+                amount=self.item_in_hand["amount"],
+            )
+        )
+        self.item_in_hand = None
 
-                            pos = [def_pos[0] + x * 62 + x_d, def_pos[1] + y * 62 + y_d]
-
-                            # pygame.draw.rect(screen,[255,0,0],[pos[0], pos[1], 62, 62],2)
-
-                            if (
-                                pos[0] < mouse_pos[0] < pos[0] + 62
-                                and pos[1] < mouse_pos[1] < pos[1] + 62
-                            ):
-                                inserted = True
-                                self.hand_tick = 3
-                                if def_pos == [24 - 62, 133]:
-                                    if slot in self.contents:
-                                        if (
-                                            self.item_in_hand["item"].get_name()
-                                            == self.contents[slot]["item"].get_name()
-                                        ):
-                                            if (
-                                                self.contents[slot]["amount"]
-                                                + self.item_in_hand["amount"]
-                                                <= self.item_in_hand["item"].__dict__[
-                                                    "max_stack"
-                                                ]
-                                            ):
-                                                self.contents[slot][
-                                                    "amount"
-                                                ] += self.item_in_hand["amount"]
-                                                self.item_in_hand["item"].sound().play()
-                                                self.item_in_hand = None
-                                            else:
-                                                self.item_in_hand["amount"] -= (
-                                                    self.item_in_hand["item"].__dict__[
-                                                        "max_stack"
-                                                    ]
-                                                    - self.contents[slot]["amount"]
-                                                )
-                                                self.contents[slot][
-                                                    "amount"
-                                                ] = self.item_in_hand["item"].__dict__[
-                                                    "max_stack"
-                                                ]
-                                                self.item_in_hand["item"].sound().play()
-
-
-                                        else:
-
-                                            item_1 = self.contents[slot]
-                                            self.contents[slot] = self.item_in_hand
-                                            self.item_in_hand = item_1
-                                    else:
-
-                                        self.contents[slot] = self.item_in_hand
-                                        self.item_in_hand["item"].sound().play()
-                                        self.item_in_hand = None
-
-                                elif self.search_obj != None:
-                                    if slot in self.search_obj.__dict__["contents"]:
-                                        if (
-                                            self.item_in_hand["item"].get_name()
-                                            == self.search_obj.__dict__["contents"][
-                                                slot
-                                            ]["item"].get_name()
-                                        ):
-                                            self.search_obj.__dict__["contents"][slot][
-                                                "amount"
-                                            ] += self.item_in_hand["amount"]
-                                            self.item_in_hand["item"].sound().play()
-                                            self.item_in_hand = None
-                                        else:
-                                            item_1 = self.search_obj.__dict__[
-                                                "contents"
-                                            ][slot]
-                                            self.search_obj.__dict__["contents"][
-                                                slot
-                                            ] = self.item_in_hand["amount"]
-                                            self.item_in_hand = item_1
-                                    else:
-                                        self.search_obj.__dict__["contents"][
-                                            slot
-                                        ] = self.item_in_hand
-                                        self.item_in_hand["item"].sound().play()
-                                        self.item_in_hand = None
-
-                    if inserted == False:
-                        self.interctables_reference.append(
-                            Interactable(
-                                self.app,
-                                player_pos,
-                                self,
-                                type="item",
-                                item=items[
-                                    self.item_in_hand["item"].__dict__["name"]
-                                ].copy(),
-                                amount=self.item_in_hand["amount"],
-                            )
-                        )
-                        self.item_in_hand = None
-
-                else:
-
-                    self.item_in_hand["item"].render(
-                        screen, mouse_pos, mouse_pos, clicked, r_click_tick
-                    )
-                    text = prompt.render(
-                        str(self.item_in_hand["amount"]), False, [255, 255, 255]
-                    )
-                    t_s = text.get_rect().size
-                    alpha_surf = pygame.Surface(t_s).convert()
-                    alpha_surf.fill((0, 0, 0))
-                    alpha_surf.set_alpha(200)
-                    screen.blit(
-                        alpha_surf,
-                        [mouse_pos[0] + 25 - t_s[0], mouse_pos[1] + 25 - t_s[1]],
-                    )
-
-                    screen.blit(
-                        text, [mouse_pos[0] + 25 - t_s[0], mouse_pos[1] + 25 - t_s[1]]
-                    )
 
 
 class Interactable:

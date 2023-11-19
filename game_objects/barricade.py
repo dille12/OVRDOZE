@@ -2,8 +2,14 @@
 from game_objects.game_object import Game_Object
 import level
 from values import *
+import numpy as np
+import jit_tools
+import func
+import los
 
 tolerance = 10
+
+defaultBarricadeHealth = 2500
 
 class Barricade(Game_Object):
     def __init__(self, origin, pygame):
@@ -12,10 +18,40 @@ class Barricade(Game_Object):
         )
         self.pos = origin
         self.ref = pygame
-        self.hp = 1000
+        self.hp = defaultBarricadeHealth
         self.blink_tick = 1
 
+        self.maxLength = 100 * multiplier2
+
         self.stage = "building_1"
+
+    def build(self, x, y, w, h, map):
+        self.width = w
+        self.height = h
+        self.stage = "built"
+        self.pos = [x + camera_pos[0], y + camera_pos[1]]
+        self.rect = self.ref.Rect(
+            self.pos[0], self.pos[1], self.width, self.height
+        )
+
+        self.surf = self.ref.Surface([w, h]).convert()
+
+        for x in range(round(w / 100 + 0.49)):
+            for y in range(round(h / 100 + 0.49)):
+                self.surf.blit(
+                    barricade_texture,
+                    [x * 100, y * 100],
+                    area=[0, 0, self.width, self.height],
+                )
+                print("BLITTED IN:", x, y)
+
+        map.rectangles.append(self.rect)
+        map.barricade_rects.append([self.rect, self])
+
+        print(map.barricade_rects)
+
+        return True
+
 
     def tick(self, screen, camera_pos, mouse_pos=[0, 0], clicked=False, map=None):
         self.blink_tick += timedelta.mod(0.25)
@@ -27,15 +63,80 @@ class Barricade(Game_Object):
             return "KILL"
 
         if self.stage == "building_1":
-            x = round((mouse_pos[0] + camera_pos[0])/tolerance)*tolerance
-            y = round((mouse_pos[1] + camera_pos[1])/tolerance)*tolerance
+            x = mouse_pos[0] + camera_pos[0]
+            y = mouse_pos[1] + camera_pos[1]
+            
+            detectPoints = []
+            for x1 in [-1, 1]:
+                detectPoints.append([x + x1*self.maxLength, y])
+
+            for y1 in [-1, 1]:
+                detectPoints.append([x, y + y1*self.maxLength])
+
+            detectPoints = np.array(detectPoints)
+            xy = np.array([x, y])
+            closestWalls = [False, False, False, False]
+            for i in range(detectPoints.shape[0]):
+                print(i)
+                xy2 = detectPoints[i]
+
+                minDist = self.maxLength
+                
+                for i2, w in enumerate(map.numpy_array_wall_los):
+
+                    if not los.intersect_jit(xy, xy2, w[0:2], w[2:4]):
+                        continue
+
+                    point = jit_tools.line_intersection(xy, xy2, w[0:2], w[2:4])
+                    if point != (False, False):
+                        
+                        d = func.get_dist_points([x, y], point)
+
+                        if d < minDist:
+
+                            closestWalls[i] = point
+                            minDist = d
+
+            if closestWalls[0] and closestWalls[1]:
+                self.ref.draw.line(
+                    screen, [255, 204, 0], [closestWalls[0][0] - camera_pos[0], closestWalls[0][1] - camera_pos[1]-5], [closestWalls[1][0] - camera_pos[0], closestWalls[1][1] - camera_pos[1]-5], 3
+                )
+                self.ref.draw.line(
+                    screen, [255, 204, 0], [closestWalls[0][0] - camera_pos[0], closestWalls[0][1] - camera_pos[1]+5], [closestWalls[1][0] - camera_pos[0], closestWalls[1][1] - camera_pos[1]+5], 3
+                )
+
+                canBuild = True
+
+                pos = [closestWalls[0][0], closestWalls[0][1]-10, closestWalls[1][0] - closestWalls[0][0], 20]
+                
+            elif closestWalls[2] and closestWalls[3]:
+                self.ref.draw.line(
+                    screen, [255, 204, 0], [closestWalls[2][0] - camera_pos[0], closestWalls[2][1] - camera_pos[1]-5], [closestWalls[3][0] - camera_pos[0], closestWalls[3][1] - camera_pos[1]-5], 3
+                )
+                self.ref.draw.line(
+                    screen, [255, 204, 0], [closestWalls[2][0] - camera_pos[0], closestWalls[2][1] - camera_pos[1]+5], [closestWalls[3][0] - camera_pos[0], closestWalls[3][1] - camera_pos[1]+5], 3
+                )
+                canBuild = True
+
+                pos = [closestWalls[2][0]-10, closestWalls[2][1], 20, closestWalls[3][1] - closestWalls[2][1]]
+
+            else:
+                canBuild = False
+                        
+
+
+
+
             self.ref.draw.circle(
-                screen, [0, 204, 0], [x - camera_pos[0], y - camera_pos[1]], 5
+                screen, [0, 204, 0], [x - camera_pos[0], y - camera_pos[1]], 2
             )
 
-            if clicked:
-                self.pos = [x, y]
-                self.stage = "building_2"
+            if clicked and canBuild:
+                self.pos = pos
+                x,y,w,h = pos
+                return self.build(x, y, w, h, map)
+            else:
+                return "revert" if clicked else False
 
         elif self.stage == "building_2":
 
@@ -76,31 +177,8 @@ class Barricade(Game_Object):
             self.ref.draw.rect(screen, color, rect_1, 3)
 
             if clicked and clear:
-                self.width = w
-                self.height = h
-                self.stage = "built"
-                self.pos = [x + camera_pos[0], y + camera_pos[1]]
-                self.rect = self.ref.Rect(
-                    self.pos[0], self.pos[1], self.width, self.height
-                )
+                return self.build(x, y, w, h, map)
 
-                self.surf = self.ref.Surface([w, h]).convert()
-
-                for x in range(round(w / 100 + 0.49)):
-                    for y in range(round(h / 100 + 0.49)):
-                        self.surf.blit(
-                            barricade_texture,
-                            [x * 100, y * 100],
-                            area=[0, 0, self.width, self.height],
-                        )
-                        print("BLITTED IN:", x, y)
-
-                map.__dict__["rectangles"].append(self.rect)
-                map.__dict__["barricade_rects"].append([self.rect, self])
-
-                print(map.__dict__["barricade_rects"])
-
-                return True
             else:
                 return "revert" if clicked else False
 
@@ -112,8 +190,8 @@ class Barricade(Game_Object):
             pygame.draw.rect(
                 screen,
                 [
-                    round(((1000 - self.hp) / 1000) * 255),
-                    round((self.hp / 1000) * 255),
+                    round(((defaultBarricadeHealth - self.hp) / defaultBarricadeHealth) * 255),
+                    round((self.hp / defaultBarricadeHealth) * 255),
                     0,
                 ],
                 pygame.Rect(
