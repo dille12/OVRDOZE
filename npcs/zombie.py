@@ -35,9 +35,13 @@ class Zombie(pygame.sprite.Sprite):
         player_ref=None,
         identificator=random.randint(0, 4096),
         power=random.uniform(1.5, 2.75),
+        powerMult = 1,
         map = None
     ):
         super().__init__()
+
+        power *= powerMult
+
         self.app = app
         self.identificator = identificator
         self.power = power
@@ -52,7 +56,7 @@ class Zombie(pygame.sprite.Sprite):
         self.killed = False
         self.damage = round(3 * power * dam_diff)
         self.knockback_resistance = 1
-        self.hp = 100 * hp_diff
+        self.hp = 100 * hp_diff * math.sqrt(power)
         self.attack_speed = 30
         self.target = target_actor
         self.navmesh_ref = NAV_MESH.copy()
@@ -90,11 +94,11 @@ class Zombie(pygame.sprite.Sprite):
             self.anglular_acceleration = 0.1
         elif type == "psycho":
             self.image_template = random.choice(zombieImages)
-            self.moving_speed *= 1.3
+            self.moving_speed *= 1.6
             self.damage *= 1.1
             self.size = 10 * multiplier2
-            self.hp *= 1.25
-            self.anglular_acceleration = 0.1
+            self.hp *= 0.5
+            self.anglular_acceleration = 0.2
         elif type == "acid":
             pass
         else:
@@ -204,7 +208,7 @@ class Zombie(pygame.sprite.Sprite):
 
             self.inventory.drop_inventory(self.pos)
 
-            if random.uniform(0,1) < 0.002:
+            if random.uniform(0,1) < 0.002 if self.app.endless else 0.01:
                 weapon = func.pick_random_from_dict(armory.guns, key = True)
                 interactables.append(classes.Interactable(self.app, self.pos, self.target.inv, player_weapons = player_weapons, type = "gun_drop", item = armory.guns[weapon]))
 
@@ -294,7 +298,38 @@ class Zombie(pygame.sprite.Sprite):
 
             if self.type == "psycho":
                 if random.uniform(0,1) < 0.5:
-                    self.pos = self.map.get_random_point()
+
+                    telePos = self.map.get_random_point()
+
+                    angle = math.degrees(math.atan2(self.pos[1] - telePos[1], self.pos[0] - telePos[0]))
+
+                    for i in range(5):
+                        particle_list.append(
+                            classes.Particle(
+                                self.pos,
+                                type="energy",
+                                magnitude=3,
+                                angle= angle+90,
+                                screen=self.app.screen_copy,
+                                pre_defined_angle = True,
+                            )
+                        )
+
+                        particle_list.append(
+                            classes.Particle(
+                                telePos,
+                                type="energy",
+                                magnitude=3,
+                                angle=270-angle,
+                                screen=self.app.screen_copy,
+                                pre_defined_angle = True,
+                            )
+                        )
+
+
+
+                    self.pos = telePos
+                    self.get_route_to_target()
                     return
 
             self.hp -= damage

@@ -2,6 +2,9 @@ import os, sys
 
 if getattr(sys, 'frozen', False):
     os.chdir(sys._MEIPASS)
+    FROZEN = True
+else:
+    FROZEN = False
 
 import pygame
 import math
@@ -30,9 +33,11 @@ import scipy
 import highscores
 
 VERSION = "0.9"
-
-with open("commit_message.txt", "r") as f:
-    subversion = f.readline().strip("\n")
+if FROZEN:
+    subversion = "40"
+else:
+    with open("commit_message.txt", "r") as f:
+        subversion = f.readline().strip("\n")
 VERSION = VERSION + "." + subversion
 
 terminal = pygame.font.Font("texture/terminal.ttf", 20)

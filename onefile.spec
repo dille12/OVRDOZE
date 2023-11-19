@@ -23,13 +23,14 @@ added_data = [
 	( 'anim/intro6', 'anim/intro6' ), 
 	( 'anim/intro7', 'anim/intro7' ), 
 	( 'anim/intro8', 'anim/intro8' ), 
+	( 'anim/vs', 'anim/vs' ), 
 ]
 
 block_cipher = None
 
 
 a = Analysis(
-    ['C:\\Users\\vilia\\Documents\\GitHub\\2dshooter\\RUN.py'],
+    ['C:\\Users\\Reset\\Documents\\GitHub\\OVRDOZE\\RUN.py'],
     pathex=[],
     binaries=[],
     datas=added_data,

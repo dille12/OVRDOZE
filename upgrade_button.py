@@ -61,7 +61,7 @@ class upgradeButton:
                 
 
                 LRect = pygame.Rect([350,120], arrowLeft.get_size())
-                RRect = pygame.Rect([550,120], arrowRight.get_size())
+                RRect = pygame.Rect([600,120], arrowRight.get_size())
 
                 if LRect.collidepoint(mouse_pos):
                     screen.blit(arrowLeftRed, [350,120])
@@ -72,12 +72,12 @@ class upgradeButton:
                     screen.blit(arrowLeft, [350,120])
 
                 if RRect.collidepoint(mouse_pos):
-                    screen.blit(arrowRightRed, [550,120])
+                    screen.blit(arrowRightRed, [600,120])
                     if click:
                         self.upgradeI += 1
                         menu_click.play()
                 else:
-                    screen.blit(arrowRight, [550,120])
+                    screen.blit(arrowRight, [600,120])
 
                 if self.upgradeI < 0:
                     self.upgradeI = len(self.weapon.availableUpgrades) - 1
@@ -86,7 +86,7 @@ class upgradeButton:
 
                 t = terminal.render(self.weapon.availableUpgrades[self.upgradeI], False, [255,255,255])
 
-                screen.blit(t, [462 - t.get_size()[0]/2, 120])
+                screen.blit(t, [487 - t.get_size()[0]/2, 120])
 
                 t = terminal.render(f"{self.upgradeI + 1}/{len(self.weapon.availableUpgrades)}", False, [155,155,155])
 

@@ -341,6 +341,14 @@ dialogues = {
 
     ],
 
+    "Upgrade Station" : [
+        [
+            refresh_player_buttons,
+            open_upgrade_station,
+        ],
+
+    ],
+
 
     "Rupert": [
         [

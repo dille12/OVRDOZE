@@ -98,6 +98,9 @@ def get_maps(app):
                 classes.Interactable(app, [845, 585], None, name="Box"),
                 classes.Interactable(app, [281, 295], None, name="Box"),
                 classes.Interactable(app, [2, 622], None, name="Box"),
+                classes.Interactable(
+                    app, [5, 100], None, name="Upgrade Station", type="NPC", image="energywell.png", endlessOnly=True
+                ),
                 classes.Interactable(app,
                     [390, 0],
                     None,
@@ -145,6 +148,9 @@ def get_maps(app):
                 classes.Interactable(app, [830, 700], None, name="Box"),
                 classes.Interactable(app, [770, 530], None, name="Box"),
                 classes.Interactable(app, [970, 5], None, name="Box"),
+                classes.Interactable(
+                    app, [210, 350], None, name="Upgrade Station", type="NPC", image="energywell.png", endlessOnly=True
+                ),
                 classes.Interactable(app, [5, 980], None, name="Box"),
                 classes.Interactable(app,
                     [400, 0],
@@ -264,9 +270,13 @@ def get_maps(app):
                 classes.Interactable(app, [560, 210], None, name="Box"),
                 classes.Interactable(app, [210, 605], None, name="Box"),
                 classes.Interactable(app, [830, 700], None, name="Box"),
-                classes.Interactable(app, [770, 530], None, name="Box"),
-                classes.Interactable(app, [970, 5], None, name="Box"),
+                classes.Interactable(app, [745, 555], None, name="Box"),
+                classes.Interactable(app, [1005, 5], None, name="Box"),
+                classes.Interactable(app, [340, 805], None, name="Box"),
                 classes.Interactable(app, [5, 980], None, name="Box"),
+                classes.Interactable(
+                    app, [890, 550], None, name="Upgrade Station", type="NPC", image="energywell.png", endlessOnly=True
+                ),
                 classes.Interactable(app,
                     [400, 0],
                     None,

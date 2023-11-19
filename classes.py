@@ -800,7 +800,8 @@ class Interactable:
         active=True,
         angle = 0,
         overrideSize = [119, 119],
-        nonDayDoor = False
+        nonDayDoor = False,
+        endlessOnly = False,
     ):
 
         self.init_values = [
@@ -821,8 +822,10 @@ class Interactable:
             angle,
             overrideSize,
             nonDayDoor,
+            endlessOnly,
         ]
         self.app = app
+        self.endlessOnly = endlessOnly
 
         if type not in ("item", "gun_drop"):
             self.pos = func.mult(pos,multiplier2)
@@ -947,7 +950,8 @@ class Interactable:
         active,
         angle,
         overrideSize,
-        nonDayDoor) = self.init_values
+        nonDayDoor,
+        endlessOnly) = self.init_values
 
         self.__init__(
             app,
@@ -966,7 +970,8 @@ class Interactable:
             active = active,
             angle = angle,
             overrideSize = overrideSize,
-            nonDayDoor = nonDayDoor
+            nonDayDoor = nonDayDoor,
+            endlessOnly = endlessOnly,
         )
 
 

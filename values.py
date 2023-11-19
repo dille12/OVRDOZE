@@ -598,7 +598,7 @@ hints = [
 ]
 
 
-enemyDropRate = {"big" : 0.02, "bomber" : 0.03, "runner" : 0.05, "normal" : 0.9, "psycho" : 0.05, "firestarter" : 0.02}
+enemyDropRate = {"big" : 0.02, "bomber" : 0.03, "runner" : 0.05, "normal" : 0.9, "psycho" : 0.02, "firestarter" : 0.02}
 
 
 def weighted_random_choice(weighted_dict):

@@ -7,7 +7,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['C:\\Users\\vilia\\Documents\\GitHub\\2dshooter\\RUN.py'],
+    ['C:\\Users\\Reset\\Documents\\GitHub\\OVRDOZE\\RUN.py'],
     pathex=[],
     binaries=[],
     datas=[],

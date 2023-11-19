@@ -680,6 +680,22 @@ def load_screen(screen, text):
 
     pygame.display.update()
 
+def closest_value(target, lst):
+    return min(lst, key=lambda x: abs(x - target))
+
+def songBetweenDrop(song, dropTable):
+
+    song = song.split("/")[-1]
+    if song in dropTable:
+        drops = dropTable[song]
+    else:
+        return False
+    between = False
+    for s, e in drops:
+        if s < pygame.mixer.music.get_pos() / 1000 < e:
+            return True
+    return False
+
 
 def camera_aling(camera_pos, target_pos):
     camera_pos = [camera_pos[0] + camera_offset[0], camera_pos[1] + camera_offset[1]]

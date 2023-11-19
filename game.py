@@ -80,7 +80,15 @@ def quit(app):
 def cont_game(arg):
     return True
 
-
+songDrops = {
+    "Palpitations.wav" : [[29.0, 72.72], [120, 163.63]],
+    "Take Me High.wav" : [[48.38, 79.35], [129.67, 160.64]],
+    "FullAuto.wav" : [[36.09, 79.39], [126.31, 169.62]],
+    "New colors.wav" : [[43.30, 72.18], [122.70, 151.57]],
+    "Octane.wav" : [[46.45, 92.90]],
+    "ovrdoz.wav" : [[43.82, 68.87], [102.26, 127.30]],
+    "Veins.wav" : [[32, 71.11], [109.33, 159.33]],
+}
 
 
 
@@ -274,33 +282,22 @@ def main(
 
     # [classes.Barricade([100,300], [200,400], map)]
     player_weapons.clear()
-    player_weapons.append(give_weapon("gun", "M1911"))
+    
 
     if map.name != "Overworld":
         endless = True
-        for x in [
-            give_weapon("gun", "GLOCK"),
-            give_weapon("gun", "FN57-S"),
-            give_weapon("gun", "DESERTEAGLE"),
-            give_weapon("gun", "P90"),
-            give_weapon("gun", "MP5"),
-            give_weapon("gun", "SPAS-12"),
-            give_weapon("gun", "SCAR18"),
-            give_weapon("gun", "AR-15"),
-            give_weapon("gun", "AK47"),
-            give_weapon("gun", "AWP"),
-            give_weapon("gun", "RPG-7"),
-            give_weapon("gun", "M134-MINIGUN"),
-            give_weapon("gun", "NRG-LMG.Mark1"),
-            give_weapon("gun", "USAS-15"),
-            give_weapon("gun", "NRG-SHLL"),
-        ]:
-            player_weapons.append(x)
+        fn = armory.__weapons_map["gun"]["FN57-S"].copy()
+        fn.ammo = "INF"
+        player_weapons.append(fn)
 
     else:
+        player_weapons.append(give_weapon("gun", "M1911"))
         endless = False
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
+
+
+    app.endless = endless
 
 
 
@@ -367,6 +364,8 @@ def main(
     background_surf.set_alpha(100)
 
     glitch = Glitch(screen)
+
+    dropIndices = []
 
     resume_button = Button(
         [size[0] / 2, 100],
@@ -437,6 +436,8 @@ def main(
 
     killProtection = True
 
+    powerMult = 1
+
     while 1:
         app.phase = phase
         tick_time = time.time() - last_tick
@@ -477,6 +478,10 @@ def main(
 
         t = time.time()
         time_stamps = {}
+
+        
+        
+        
 
 
         if app.joysticks and app.detectJoysticks:
@@ -551,6 +556,9 @@ def main(
 
             pressed = app.pygame.key.get_pressed()
             if (pressed[app.pygame.K_ESCAPE] or s1) and not pause_tick:
+
+                
+
                 menu_click2.play()
                 pause = False
                 pause_tick = True
@@ -618,6 +626,21 @@ def main(
 
                 song_start_t = time.time()
                 beat_index = 0
+
+                dropIndices = []
+
+                song = up_next.split("/")[-1]
+
+                if song in songDrops:
+                    drops = songDrops[song]
+
+                    for s, e in drops:
+                        dropIndices.append(beat_map.index(func.closest_value(s, beat_map)))
+
+                print(dropIndices)
+
+
+
 
         beat_red = (beat_red - 1) * 0.85 + 1
         try:
@@ -763,11 +786,16 @@ def main(
 
         pressed = app.pygame.key.get_pressed()
         if pressed[app.pygame.K_ESCAPE] and not pause_tick:
-            glitch.glitch_tick = 5
-            pause = True
-            pause_tick = True
-            menu_click2.play()
-            app.pygame.mixer.music.pause()
+
+            if endless and dialogue:
+                dialogue.clear()
+                pause_tick = True
+            else:
+                glitch.glitch_tick = 5
+                pause = True
+                pause_tick = True
+                menu_click2.play()
+                app.pygame.mixer.music.pause()
 
         elif not pressed[app.pygame.K_ESCAPE]:
             pause_tick = False
@@ -878,7 +906,7 @@ def main(
             camera_pan * (mouse_pos[1] - size[1] / 2),
         ]
 
-        if player_inventory.get_inv() == False:
+        if not player_inventory.get_inv() and not dialogue:
 
             camera_pos = [
                 camera_pos[0] + mouse_pos_var[0],
@@ -902,11 +930,12 @@ def main(
         t = time.time()
 
         pvp = overworld
+        SyncSongs = True
 
         if not pvp:
 
             if wave:
-                if time.time() - wave_change_timer > wave_length:
+                if ((time.time() - wave_change_timer > wave_length) and not SyncSongs) or not func.songBetweenDrop(up_next, songDrops):
 
                     if wave_number >= 5:
                         if not endless:
@@ -929,7 +958,7 @@ def main(
 
                     if len(enemy_list) != 0:
                         rand_enemy = func.pick_random_from_list(enemy_list)
-                        if random.uniform(0, 1) < 1 and not los.check_los(
+                        if not los.check_los(
                             player_actor.pos, rand_enemy.pos, walls_filtered
                         ):
                             rand_enemy.kill_actor(
@@ -940,12 +969,14 @@ def main(
                                 silent=True,
                             )
 
-                if time.time() - wave_change_timer > wave_interval and map.enemy_type == "zombie":
+                if (((time.time() - wave_change_timer > wave_interval) and not SyncSongs) or func.songBetweenDrop(up_next, songDrops)) and map.enemy_type == "zombie":
                     wave_length += 3
                     # wave_interval += 1
                     wave = True
                     #pygame.display.set_gamma(1.2, 0.9, 0.9)
                     wave_number += 1
+
+                    powerMult += 0.005
 
                     wave_text_tick = -20
 
@@ -989,6 +1020,7 @@ def main(
                             [walls_filtered, map.no_los_walls],
                             hp_diff=zombie_hp,
                             dam_diff=zombie_damage,
+                            powerMult = powerMult,
                             type=type,
                             wall_points=wall_points,
                             player_ref=player_actor,
@@ -1235,7 +1267,7 @@ def main(
                     player_actor.__dict__["barricade_in_hand"] = None
             else:
 
-                if player_inventory.get_inv() == False and not overworld:
+                if player_inventory.get_inv() == False and not overworld and not dialogue:
 
                     firing_tick = func.weapon_fire(
                         app,
@@ -1274,6 +1306,8 @@ def main(
 
                 if multiplayer:
                     app.send_data("")
+
+                dialogue.clear()
 
                 player_alive = False
                 respawn_ticks = 300 if not endless else 120
@@ -2061,6 +2095,8 @@ def main(
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
 
+            func.print_s(screen, f"POWER: {round(powerMult,4)}", 3)
+
             time_elapsed = round(time.time() - start_time)
 
             minutes = round((time_elapsed - 29.9) / 60)
@@ -2153,6 +2189,19 @@ def main(
 
         for x in unitstatuses:
             x.tick(camera_pos)
+
+        for dropBeat in dropIndices:
+            if dropBeat - 4 <= beat_index-1 < dropBeat:
+                text = terminal_map_desc.render(str(dropBeat - beat_index+1), False, [255, 255, 255])
+                text.set_alpha(round((beat_red-1)*127.5))
+                screen.blit(
+                    text,
+                    [
+                        size[0] / 2 - text.get_rect().center[0],
+                        size[1] / 3 - text.get_rect().center[1],
+                    ],
+                )
+
 
 
 
