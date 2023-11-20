@@ -208,7 +208,7 @@ def main(ms = "start", TEST = False):
 
 
     maps_dict = app.getMaps()
-    clock = app.pygame.time.Clock()
+    app.clock = app.pygame.time.Clock()
 
     highscores.write_default_highscore()
     highscores.checkHighscores(app)
@@ -216,9 +216,9 @@ def main(ms = "start", TEST = False):
 
     screen, mouse_conversion = app.update_screen()
     if not quick_load:
-        app.introScreen(screen, clock)
+        app.introScreen(screen, app.clock)
 
-    func.load_screen(screen, "Loading")
+    func.load_screen(app, screen, "Loading")
 
 
 
@@ -251,22 +251,15 @@ def main(ms = "start", TEST = False):
     if not IS.menu_animations:
         print("Loading animations...")
         intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
-        func.load_screen(screen, "Loading")
 
         if not quick_load:
             intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading")
             intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading")
             intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading")
             intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading")
             intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading")
             intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True)
             intro8 = func.load_animation("anim/intro8", 30, 31, alpha=menu_alpha, intro = True)
-            func.load_screen(screen, "Loading")
 
             IS.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
@@ -888,7 +881,7 @@ def main(ms = "start", TEST = False):
     app.map_tick = 0
 
     last_beat = time.perf_counter()
-
+    app.loading = False
     while 1:
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -
@@ -915,7 +908,7 @@ def main(ms = "start", TEST = False):
             print("RESET")
             background_tick = 52
 
-        clock.tick(60)
+        app.clock.tick(60)
 
         app.name = textbox_name.text
         app.ip = textbox_ip.text

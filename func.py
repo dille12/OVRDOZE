@@ -7,6 +7,8 @@ from values import *
 import classes
 import los
 from pathfind import find_shortest_path
+from _thread import start_new_thread
+
 
 pygame.init()
 pygame.font.init()
@@ -661,24 +663,36 @@ def rot_center(image, angle, x, y):
 
     return rotated_image, new_rect
 
-def load_screen(screen, text):
-    screen.fill((0,0,0))
+def load_loop(app, screen, text):
+    while app.loading:
 
-    screen.blit(loadSymbol, [size[0] / 2 - loadSymbol.get_size()[0]/2, size[1] / 2 - loadSymbol.get_size()[1]/2])
+        app.clock.tick(30)
 
-    text = terminal3.render(text, False, [100, 100, 100])
-    screen.blit(text, [10, size[1]-40])
+        screen.fill((0,0,0))
 
-    if time.time() - hint.t > 3:
-        hint.hint = pick_random_from_list(hints)
-        hint.t = time.time()
+        rgb_render(loadSymbolRGB, 5, [size[0] / 2 - loadSymbol.get_size()[0]/2, size[1] / 2 - loadSymbol.get_size()[1]/2], [0,0], screen)
+
+        textSurf = terminal3.render(text, False, [100, 100, 100])
+        screen.blit(textSurf, [10, size[1]-40])
+
+        if time.time() - hint.t > 3:
+            hint.hint = pick_random_from_list(hints)
+            hint.t = time.time()
 
 
-    text = terminal_hint.render(hint.hint, False, [50, 50, 50])
-    x,y = text.get_rect().center
-    screen.blit(text, [10, size[1] - 20])
+        hintSurf = terminal_hint.render(hint.hint, False, [50, 50, 50])
+        x,y = hintSurf.get_rect().center
+        screen.blit(hintSurf, [10, size[1] - 20])
 
-    pygame.display.update()
+        pygame.display.update()
+
+
+def load_screen(app, screen, text):
+
+    app.loading = True
+    start_new_thread(load_loop, (app, screen, text))
+
+    
 
 def closest_value(target, lst):
     return min(lst, key=lambda x: abs(x - target))

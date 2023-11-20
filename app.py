@@ -45,6 +45,7 @@ class App:
         self.selected_map = 0
         self.multiplayer = True
         self.ping = [0]
+        self.loading = False
 
         self.divisions = 10
 
@@ -255,7 +256,6 @@ class App:
         # get_preferences.write_prefs(name, draw_los, dev, ultraviolence, ip)
         app, name, arg, draw_los, dev, skip_intervals, map = arg
 
-        func.load_screen(screen, "Loading")
         game.main(
             app,
             self_name=name,
@@ -275,7 +275,6 @@ class App:
 
     def start_multiplayer_client(self, players, selected_map):
         self.write_prefs()
-        func.load_screen(screen, "Loading")
         game.main(
             self,
             multiplayer=True,

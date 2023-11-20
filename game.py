@@ -442,6 +442,8 @@ def main(
 
     powerMult = 1
 
+    app.loading = False
+
     while 1:
         app.phase = phase
         tick_time = time.time() - last_tick
@@ -473,7 +475,7 @@ def main(
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
-        clock.tick(app.clocktick if not pause else 60)
+        app.clock.tick(app.clocktick if not pause else 60)
 
         app.three_second_tick += timedelta.mod(1)
         if app.three_second_tick > 180:
@@ -647,7 +649,7 @@ def main(
 
 
 
-        beat_red = (beat_red - 1) * 0.85 + 1
+        beat_red = (beat_red - 1) * timedelta.exp(0.85) + 1
         try:
             if time.time() - song_start_t > beat_map[beat_index] > 0:
                 beat_red = 3
@@ -983,7 +985,7 @@ def main(
                     #pygame.display.set_gamma(1.2, 0.9, 0.9)
                     wave_number += 1
 
-                    powerMult += 0.005
+                    powerMult += 0.01
 
                     wave_text_tick = -20
 

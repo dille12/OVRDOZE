@@ -104,7 +104,7 @@ def getcollisionspoint_condition(tiles, point, condition):
 
 
 def load_level(map, mouse_conversion, player_inventory, app, screen, death = False):
-    func.load_screen(screen, f"Loading {map.name}")
+    func.load_screen(app, screen, f"Loading {map.name}")
     app.pygame.mixer.music.fadeout(750)
 
     fade_tick.value = 15
@@ -145,14 +145,10 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     map_conversion = 1920 / 854
 
 
-    func.load_screen(screen, f"Generating quadrants")
-
     map.genQuadrants()
 
     print(map.quadrants)
 
-
-    func.load_screen(screen, f"Initializing LOS")
 
     walls_filtered += map.generate_wall_structure2()
 
@@ -173,13 +169,9 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     player_pos = map.spawn_point.copy()
     camera_pos = [0, 0]
 
-    func.load_screen(screen, f"Loading Navmesh")
-
     map.compile_navmesh(multiplier)
 
     NAV_MESH = map.read_navmesh(walls_filtered)
-
-    func.load_screen(screen, f"Cleaning")
 
     if map.name == "Downtown":
         map.enemy_type = "soldier"
@@ -290,7 +282,6 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     #pygame.display.set_gamma(map.GAMMA[0], map.GAMMA[1], map.GAMMA[2])
 
 
-    func.load_screen(screen, f"Initializing JIT")
     init_jit()
 
     return (
@@ -489,8 +480,6 @@ class Map:
         for ref_point in NAV_MESH:
 
             i += 1
-            if loading_screen:
-                func.load_screen(screen, f"Compiling Navmesh ({i}/{len(NAV_MESH)})")
 
             for point_dict in NAV_MESH:
                 point = point_dict["point"]

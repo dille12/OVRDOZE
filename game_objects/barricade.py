@@ -111,10 +111,10 @@ class Barricade(Game_Object):
                 
             elif closestWalls[2] and closestWalls[3]:
                 self.ref.draw.line(
-                    screen, [255, 204, 0], [closestWalls[2][0] - camera_pos[0], closestWalls[2][1] - camera_pos[1]-5], [closestWalls[3][0] - camera_pos[0], closestWalls[3][1] - camera_pos[1]-5], 3
+                    screen, [255, 204, 0], [closestWalls[2][0] - camera_pos[0]-5, closestWalls[2][1] - camera_pos[1]], [closestWalls[3][0] - camera_pos[0]-5, closestWalls[3][1] - camera_pos[1]], 3
                 )
                 self.ref.draw.line(
-                    screen, [255, 204, 0], [closestWalls[2][0] - camera_pos[0], closestWalls[2][1] - camera_pos[1]+5], [closestWalls[3][0] - camera_pos[0], closestWalls[3][1] - camera_pos[1]+5], 3
+                    screen, [255, 204, 0], [closestWalls[2][0] - camera_pos[0]+5, closestWalls[2][1] - camera_pos[1]], [closestWalls[3][0] - camera_pos[0]+5, closestWalls[3][1] - camera_pos[1]], 3
                 )
                 canBuild = True
 

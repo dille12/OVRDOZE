@@ -467,6 +467,12 @@ footsteps = get_sound_Variants("sound/sfx", "footstep")
 
 evade_sound = get_Sound("sound/sfx/woosh.wav")
 
+loadSymbolRGB = rgb_image_load("texture/kill.png")
+for i, x in enumerate(loadSymbolRGB):
+    sx, sy = x.get_size()
+    loadSymbolRGB[i] = pygame.transform.scale(x, [sx * 6, sy * 6])
+
+
 loadSymbol = pygame.image.load("texture/kill.png").convert_alpha()
 sx, sy = loadSymbol.get_size()
 loadSymbol = pygame.transform.scale(loadSymbol, [sx * 6, sy * 6])

@@ -56,7 +56,7 @@ class Zombie(pygame.sprite.Sprite):
         self.killed = False
         self.damage = round(3 * power * dam_diff)
         self.knockback_resistance = 1
-        self.hp = 100 * hp_diff * (1 + power/25)
+        self.hp = 100 * hp_diff * (1 + power/10)
         self.attack_speed = 30
         self.target = target_actor
         self.navmesh_ref = NAV_MESH.copy()
