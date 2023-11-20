@@ -33,6 +33,7 @@ import highscores
 import armory
 import objects
 from npcs.mp_dummy import Player_Multi
+from utilities.storyTeller import storyTeller
 
 
 import RUN
@@ -92,7 +93,7 @@ songDrops = {
     "Octane.wav" : [[46.45, 92.90]],
     "ovrdoz.wav" : [[43.82, 68.87], [102.26, 127.30]],
     "Veins.wav" : [[32, 71.11], [110.22, 159.33]],
-    "Narcosis.wav" : [[28.02, 70.07], [105.10, 147.15]],
+    "Narcosis.wav" : [[28.02, 70.07], [108.61, 130.65]],
 }
 
 
@@ -229,7 +230,7 @@ def main(
     player_inventory = classes.Inventory(app, interactables, player=True)
     turret_bro.clear()
 
-
+    
 
     app.day = -1
 
@@ -269,6 +270,9 @@ def main(
 
     player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
     app.player_actor_ref = player_actor
+
+
+    app.storyTeller = storyTeller(app, player_inventory)
 
     if dev_tools:
         player_inventory.append_to_inv(items["Barricade"], 3)
@@ -433,6 +437,7 @@ def main(
 
     last_joy_pos = [0,0]
 
+    decorationWaveNum = 1
 
     app.three_second_tick = 0
 
@@ -450,6 +455,7 @@ def main(
         last_tick = time.time()
 
         tick_delta = tick_time / (1 / 60)
+
 
         timedelta.timedelta = min([tick_delta, 3])
 
@@ -562,9 +568,6 @@ def main(
 
             pressed = app.pygame.key.get_pressed()
             if (pressed[app.pygame.K_ESCAPE] or s1) and not pause_tick:
-
-                
-
                 menu_click2.play()
                 pause = False
                 pause_tick = True
@@ -689,7 +692,6 @@ def main(
         if m_click == True and m_clicked == False and dev_tools:
             m_clicked = True
 
-            print("CLICK")
 
             phase += 1
 
@@ -710,7 +712,6 @@ def main(
         if r_click == True and r_clicked == False:
             r_clicked = True
             r_click_tick = True
-            print("CLICK")
 
         elif r_click == False:
             r_clicked = False
@@ -956,6 +957,8 @@ def main(
                     #pygame.display.set_gamma(1, 1.1, 1.1)
                     wave_change_timer = time.time()
 
+                    decorationWaveNum += 1
+
                     wave_anim_ticks = [120, 0]
                 wave_text_tick += timedelta.mod(beat_red*multiplier2)
 
@@ -984,6 +987,7 @@ def main(
                     wave = True
                     #pygame.display.set_gamma(1.2, 0.9, 0.9)
                     wave_number += 1
+                    app.storyTeller.gunDropped = False
 
                     powerMult += 0.01
 
@@ -2104,7 +2108,7 @@ def main(
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
 
-            func.print_s(screen, f"POWER: {round(powerMult,4)}", 3)
+            func.print_s(screen, f"PERF: {round(app.storyTeller.playerPerformace,4)}", 3)
 
             time_elapsed = round(time.time() - start_time)
 
@@ -2199,6 +2203,18 @@ def main(
         for x in unitstatuses:
             x.tick(camera_pos)
 
+        if wave:
+            if app.storyTeller.playerPerformanceTick.tick():
+                if player_actor.hp < 80:
+                    app.storyTeller.playerPerformanceLowHealth += 1
+                else:
+                    app.storyTeller.playerPerformanceHighHealth += 1
+                
+                app.storyTeller.playerPerformanceLowHealth *= 0.99
+                app.storyTeller.playerPerformanceHighHealth *= 0.99
+                app.storyTeller.playerPerformace = app.storyTeller.playerPerformanceHighHealth / (app.storyTeller.playerPerformanceHighHealth + app.storyTeller.playerPerformanceLowHealth)
+
+
         for dropBeat in dropIndices:
             if dropBeat - 4 <= beat_index-1 <= dropBeat:
 
@@ -2214,7 +2230,7 @@ def main(
 
                 if dropBeat == beat_index-1:
 
-                    text = terminal_waveSecs[-1].render(f"WAVE {wave_number + 1}", False, color)
+                    text = terminal_waveSecs[-1].render(f"WAVE {decorationWaveNum}", False, color)
                 else:
 
                     text = terminal_waveSecs[4 - (dropBeat - beat_index+1)].render(str(dropBeat - beat_index+1), False, color)

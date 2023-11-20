@@ -537,7 +537,6 @@ def player_movement(pressed, player_pos, x_vel, y_vel, angle):
 
         y_vel += y_vel_target
 
-        print("EVADE SPEED:", x_vel, y_vel)
 
     speed, vert_speed, hor_speed = 0, 0, 0
     if evading == False:
@@ -608,8 +607,6 @@ def player_movement(pressed, player_pos, x_vel, y_vel, angle):
         y_vel = 0
 
     if evading == True and math.sqrt(x_vel**2 + y_vel**2) < walking_speed:
-        print("")
-        pass
         evading = False
         evade_skip_tick = 30
 
@@ -736,12 +733,10 @@ def keypress_manager(key_r_click, c_weapon, player_inventory, player_actor):
                 abs(c_weapon.reload_tick() - c_weapon.__dict__["random_reload_tick"])
                 <= 7
             ):
-                print("Successful quick reload")
                 q_r_success.play()
                 c_weapon.__dict__["_reload_tick"] = 0
 
             elif c_weapon.__dict__["random_reload_tick"] != -1:
-                print("Reload failed")
                 q_r_fail.play()
                 c_weapon.__dict__["random_reload_tick"] = -1
                 c_weapon.__dict__["_reload_tick"] = c_weapon.__dict__["_reload_rate"]
@@ -1365,7 +1360,6 @@ def draw_HUD(
         if tick >= 60:
 
             bars_s = round((sanity - (amount * (tick - 60) / 30)) / 10)
-            print(bars_s)
 
         text = terminal3.render(str(amount) + "% SANITY REGAINED", False, hud_color)
         if 1 < tick <= 10:

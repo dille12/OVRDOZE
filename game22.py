@@ -582,7 +582,6 @@ def main(
         if m_click == True and m_clicked == False and dev_tools:
             m_clicked = True
 
-            print("CLICK")
 
             phase += 1
 
@@ -603,7 +602,6 @@ def main(
         if r_click == True and r_clicked == False:
             r_clicked = True
             r_click_tick = True
-            print("CLICK")
 
         elif r_click == False:
             r_clicked = False

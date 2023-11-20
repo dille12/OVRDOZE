@@ -13,7 +13,6 @@ from values import *
 import func
 import ast
 
-
 class App:
     def __init__(self, pygame):
         self.pygame = pygame
@@ -63,6 +62,7 @@ class App:
         self.menu_animations = []
 
         self.dontIncreaseDay = False
+        
 
 
     def introScreen(self, screen, clock):

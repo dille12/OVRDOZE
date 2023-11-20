@@ -143,7 +143,7 @@ class Zombie(pygame.sprite.Sprite):
         #app.zombiegroup.add(self)
 
         for i in range(random.randint(1, 9)):
-            if random.uniform(0, 1) < 0.02:
+            if random.uniform(0, 1) < 0.05:
                 # item_to_pick = func.pick_random_from_dict(items, key = True)
                 #
 
@@ -208,9 +208,12 @@ class Zombie(pygame.sprite.Sprite):
 
             self.inventory.drop_inventory(self.pos)
 
-            if random.uniform(0,1) < 0.002 if self.app.endless else 0.01:
+            if random.uniform(0,1) < (0.002 if not self.app.endless else self.app.storyTeller.getGunDropRate()):
                 weapon = func.pick_random_from_dict(armory.guns, key = True)
-                interactables.append(classes.Interactable(self.app, self.pos, self.target.inv, player_weapons = player_weapons, type = "gun_drop", item = armory.guns[weapon]))
+                if self.app.storyTeller.checkGun(weapon):
+                    interactables.append(classes.Interactable(self.app, self.pos, self.target.inv, player_weapons = player_weapons, type = "gun_drop", item = armory.guns[weapon]))
+                    self.app.storyTeller.gunDropped = True          
+
 
             for i in range(5):
                 particle_list.append(
