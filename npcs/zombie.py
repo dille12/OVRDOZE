@@ -143,7 +143,7 @@ class Zombie(pygame.sprite.Sprite):
         #app.zombiegroup.add(self)
 
         for i in range(random.randint(1, 9)):
-            if random.uniform(0, 1) < 0.05:
+            if random.uniform(0, 1) < 0.015:
                 # item_to_pick = func.pick_random_from_dict(items, key = True)
                 #
 

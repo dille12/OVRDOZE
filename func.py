@@ -667,6 +667,8 @@ def load_loop(app, screen, text):
 
         screen.fill((0,0,0))
 
+        screen.blit(load_screen_splash, [0,0])
+
         rgb_render(loadSymbolRGB, 5, [size[0] / 2 - loadSymbol.get_size()[0]/2, size[1] / 2 - loadSymbol.get_size()[1]/2], [0,0], screen)
 
         textSurf = terminal3.render(text, False, [100, 100, 100])
@@ -779,11 +781,11 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
     if c_weapon.get_semi_auto():
         if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0:
             reload.stop()
-            c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
+            c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
             firing_tick = True
         elif c_weapon.get_Ammo() == 0 and (
-            player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"])
-            or c_weapon.__dict__["ammo"] == "INF"
+            player_inventory.get_amount_of_type(c_weapon.ammo)
+            or c_weapon.ammo == "INF"
         ):
 
             reload_tick = c_weapon.reload(player_inventory, player_actor, screen)
@@ -791,10 +793,10 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
             for x in weapon_fire_Sounds:
                 x.stop()
 
-    elif c_weapon.__dict__["burst"]:
+    elif c_weapon.burst:
 
-        if c_weapon.__dict__["burst_tick"] != 0:
-            c_weapon.__dict__["burst_tick"] -= 1
+        if c_weapon.burst_tick != 0:
+            c_weapon.burst_tick -= 1
 
         if (
             c_weapon.check_for_Fire(click) == True
@@ -802,27 +804,27 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
             and c_weapon.weapon_fire_Tick() <= 0
         ):
 
-            c_weapon.__dict__["current_burst_bullet"] = min(
-                c_weapon.__dict__["burst_bullets"], c_weapon.get_Ammo()
+            c_weapon.current_burst_bullet = min(
+                c_weapon.burst_bullets, c_weapon.get_Ammo()
             )
 
             reload.stop()
-            c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
+            c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
             firing_tick = True
 
         else:
 
             if (
-                c_weapon.__dict__["burst_tick"] == 0
-                and c_weapon.__dict__["current_burst_bullet"] != 0
+                c_weapon.burst_tick == 0
+                and c_weapon.current_burst_bullet != 0
             ):
 
-                c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
+                c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
                 firing_tick = True
 
             elif c_weapon.get_Ammo() == 0 and (
                 player_inventory.get_amount_of_type(c_weapon.__dict__["ammo"]) > 0
-                or c_weapon.__dict__["ammo"] == "INF"
+                or c_weapon.ammo == "INF"
             ):
                 reload_tick = c_weapon.reload(player_inventory, player_actor, screen)
 
@@ -841,7 +843,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
                 and not c_weapon.jammed
             ):
                 reload.stop()
-                c_weapon.fire(player_pos, angle, screen, player_actor, ai = ai)
+                c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
                 firing_tick = True
 
         elif c_weapon.get_Ammo() == 0 and (

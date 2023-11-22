@@ -447,6 +447,8 @@ def main(
 
     powerMult = 1
 
+    
+
     app.loading = False
 
     while 1:
@@ -989,7 +991,7 @@ def main(
                     wave_number += 1
                     app.storyTeller.gunDropped = False
 
-                    powerMult += 0.01
+                    powerMult += 0.1
 
                     wave_text_tick = -20
 
@@ -2244,6 +2246,14 @@ def main(
 
                 func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - beat_index+1))))
 
+                mult = 4 - (dropBeat - beat_index+1)
+
+                beatPump = [size[0] + round(size[0]*(beat_red-1) * 0.01 * mult), size[1] + round(size[1]*(beat_red-1) * 0.01 * mult)]
+            
+                image_copy = screen.copy()
+                image_copy = pygame.transform.scale(image_copy, beatPump)
+                screen.blit(image_copy, [size[0] / 2 - beatPump[0] / 2, size[1] / 2 - beatPump[1] / 2])
+
 
 
 
@@ -2260,6 +2270,9 @@ def main(
             screen.fill((0,0,0))
             func.blit_glitch(screen, image_copy, [0,0], round(2*app.screen_glitch), black_bar_chance = 15)
             app.screen_glitch -= timedelta.mod(1)
+
+
+            
 
         app.pygame.display.update()
 

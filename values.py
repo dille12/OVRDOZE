@@ -129,7 +129,7 @@ tab_pressed = False
 
 
 
-
+load_screen_splash = pygame.image.load("texture/loadScreen.png")
 
 
 

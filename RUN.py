@@ -691,14 +691,6 @@ def main(ms = "start", TEST = False):
     if app.draw_los:
         check_box_fov.__dict__["checked"] = True
 
-    check_box_ultra = hud_elements.Checkbox(
-        screen,
-        20,
-        380,
-        caption="Ultraviolence",
-        font_color=[255, 0, 0],
-        text_offset=[40, 5],
-    )
 
     check_box_fs = hud_elements.Checkbox(
         screen,
@@ -795,8 +787,7 @@ def main(ms = "start", TEST = False):
 
     if app.fs:
         check_box_fs.__dict__["checked"] = True
-    if app.ultraviolence:
-        check_box_ultra.__dict__["checked"] = True
+
     if app.vsync:
         check_box_vsync.checked = True
 
@@ -839,7 +830,6 @@ def main(ms = "start", TEST = False):
         check_box_dev_commands,
         check_box_inter,
         check_box_fov,
-        check_box_ultra,
         check_box_fs,
         check_box_fps1,
         check_box_fps2,
@@ -917,7 +907,6 @@ def main(ms = "start", TEST = False):
         full_screen_mode = check_box_fs.checked
 
         app.dev = check_box_dev_commands.checked
-        app.ultraviolence = check_box_ultra.checked
         app.draw_los = check_box_fov.checked
         app.fs = check_box_fs.checked
         app.vsync = check_box_vsync.checked
@@ -930,7 +919,6 @@ def main(ms = "start", TEST = False):
             if menu_status == "settings":
                 check_box_fov.update_checkbox(event, mouse_pos)
                 check_box_dev_commands.update_checkbox(event, mouse_pos)
-                check_box_ultra.update_checkbox(event, mouse_pos)
                 check_box_fs.update_checkbox(event, mouse_pos)
                 check_box_vsync.update_checkbox(event, mouse_pos)
 
@@ -1122,7 +1110,6 @@ def main(ms = "start", TEST = False):
 
             check_box_dev_commands.render_checkbox()
 
-            check_box_ultra.render_checkbox()
 
             check_box_fs.render_checkbox()
 

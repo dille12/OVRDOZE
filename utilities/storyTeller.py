@@ -14,6 +14,15 @@ class storyTeller:
             "Cocaine" : 3,
             "Diazepam" : 8,
         }
+        self.ammoShot = {
+            "45 ACP" : 0,
+            "9MM" : 0,
+            "50 CAL" : 0, 
+            "12 GAUGE" : 0, 
+            "7.62x39MM" : 0, 
+            "5.56x45MM NATO" : 0, 
+            "Energy Cell" : 0
+        }
 
     def getGunDropRate(self):
         d = 0.01 * min([((4 - 3 * self.playerPerformace) ** 5), 100]) if not self.gunDropped else 0
@@ -31,6 +40,19 @@ class storyTeller:
                 if x.type == "item" and x.item.name == item.name:
                     ammoAmountInWorld += x.amount
         return ammoAmountInWorld
+    
+
+    def ammoUpdate(self, type):
+        if type not in self.ammoShot:
+            return
+        self.ammoShot[type] += 0.01
+        self.ammoShot[type] = min([1, self.ammoShot[type]])
+        for i in self.ammoShot:
+            self.ammoShot[i] *= 0.995
+
+
+    def getChanceToDropAmmo(self, type):
+        return random.uniform(0, 1) > self.ammoShot[type]
         
 
     def determineItemDropping(self, item, amount):
@@ -40,6 +62,10 @@ class storyTeller:
 
             if item.name == "5.56x45MM NATO" and self.playerPerformace > 0.8:
                 return False
+            
+            if item.name in self.ammoShot:
+                if not self.getChanceToDropAmmo(item.name):
+                    return False
             
 
             if ammoAmountInWorld + amount > item.max_stack:
@@ -75,3 +101,4 @@ class storyTeller:
 
 
         return True
+

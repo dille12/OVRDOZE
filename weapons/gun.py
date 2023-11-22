@@ -196,7 +196,7 @@ class Gun(Weapon):
 
 
 
-    def fire(self, bullet_pos, angle, screen, player_actor, ai = False):
+    def fire(self, app, bullet_pos, angle, screen, player_actor, ai = False):
         if not ai:
             index = (0.9 + 0.1*player_actor.sanity/100)**0.1
             if self.jammed:
@@ -205,6 +205,9 @@ class Gun(Weapon):
                 self.jammed = True
                 UnitStatus(screen, player_actor, "GUN JAMMED!", [255,0,0])
                 return
+            
+            app.storyTeller.ammoUpdate(self.ammo)
+
 
         radian_angle = math.radians(angle) - 0.16184 + math.pi / 2
 
