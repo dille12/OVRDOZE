@@ -29,7 +29,7 @@ Multiplayer works currently within local network right now. You can play against
 
 # CONTROLS
 
-![alt text](https://github.com/dille12/2dshooter/blob/main/texture/splash.png "splash")
+![alt text](https://github.com/dille12/2dshooter/blob/main/texture/image.png "splash")
 
 
 ## WASD MOVEMENT.
