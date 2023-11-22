@@ -1,6 +1,6 @@
 # OVRDOZE: 2d-shooter project
 
-![alt text](https://github.com/dille12/2dshooter/blob/main/texture/image.png "Overdoze")
+![alt text](https://github.com/dille12/2dshooter/blob/main/texture/coverArt.png "OVRDOZE")
 
 A single/multiplayer co-op survival small space zombie shooter.
 
@@ -28,6 +28,9 @@ Multiplayer works currently within local network right now. You can play against
 7. Start the game.
 
 # CONTROLS
+
+![alt text](https://github.com/dille12/2dshooter/blob/main/texture/splash.png "splash")
+
 
 ## WASD MOVEMENT.
 Shift to run. Space to dash. Control to sneak.
