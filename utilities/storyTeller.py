@@ -43,10 +43,10 @@ class storyTeller:
     
 
     def ammoUpdate(self, type):
-        if type not in self.ammoShot:
-            return
-        self.ammoShot[type] += 0.01
-        self.ammoShot[type] = min([1, self.ammoShot[type]])
+        if type in self.ammoShot:
+            self.ammoShot[type] += 0.01
+            self.ammoShot[type] = min([1, self.ammoShot[type]])
+            
         for i in self.ammoShot:
             self.ammoShot[i] *= 0.995
 

@@ -206,11 +206,14 @@ def get_maps(app):
             OBJECTS=[
                 classes.Interactable(app, [5, 5], None, name="Box"),
                 classes.Interactable(app, [560, 210], None, name="Box"),
-                classes.Interactable(app, [210, 605], None, name="Box"),
+                classes.Interactable(app, [455, 570], None, name="Box"),
                 classes.Interactable(app, [830, 700], None, name="Box"),
                 classes.Interactable(app, [770, 530], None, name="Box"),
                 classes.Interactable(app, [970, 5], None, name="Box"),
                 classes.Interactable(app, [5, 980], None, name="Box"),
+                classes.Interactable(
+                    app, [507, 253], None, name="Upgrade Station", type="NPC", image="energywell.png", endlessOnly=True
+                ),
                 classes.Interactable(app,
                     [400, 0],
                     None,

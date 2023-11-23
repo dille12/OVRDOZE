@@ -447,11 +447,8 @@ def main(
 
     powerMult = 1
 
-    
-
-    app.loading = False
-
     while 1:
+        app.loading = False
         app.phase = phase
         tick_time = time.time() - last_tick
         last_tick = time.time()
@@ -991,7 +988,7 @@ def main(
                     wave_number += 1
                     app.storyTeller.gunDropped = False
 
-                    powerMult += 0.1
+                    powerMult += 0.05
 
                     wave_text_tick = -20
 
