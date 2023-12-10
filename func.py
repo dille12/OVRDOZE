@@ -8,7 +8,7 @@ import classes
 import los
 from pathfind import find_shortest_path
 from _thread import start_new_thread
-
+from tools.video_to_frames import getFrames
 
 pygame.init()
 pygame.font.init()
@@ -96,20 +96,35 @@ def render_text_glitch(
             lower_pos = text_size[1]
 
 
-def load_animation(directory, start_frame, frame_count, alpha=255, intro = False):
+def load_animation(directory, start_frame, frame_count, alpha=255, intro = False, loadCompressed = False, size = [854,480]):
     list_anim = []
 
+    if loadCompressed:
+        print("Loading animation as a video!")
+
+        dirReal = directory.split("/")[-1]
+
+        videoImages = getFrames(f"anim_compressed/{dirReal}/video.mp4", size)
+        start_frame = 0
+        frame_count = len(videoImages)
 
     for x in range(frame_count):
-        x = x + start_frame
-        im_dir = directory + "/" + (4 - len(str(x))) * "0" + str(x) + ".png"
+        if not loadCompressed:
+            x = x + start_frame
+            im_dir = directory + "/" + (4 - len(str(x))) * "0" + str(x) + ".png"
 
-        im = load(im_dir, double=True)
+            im = load(im_dir, double=True)
+        elif x < len(videoImages):
+            im = videoImages[x]
+        else:
+            return list_anim
+        
+        introZoomFactor = 15
 
         if intro:
-            if x - start_frame > frame_count-10:
-                i = (x - start_frame) - (frame_count-10)
-                i = (i/10) ** 3 + 1
+            if x - start_frame > frame_count-introZoomFactor:
+                i = (x - start_frame) - (frame_count-introZoomFactor)
+                i = (0.5 * (i/introZoomFactor) ** 4) + 1
                 size = list(im.get_size())
                 size[0] *= i
                 size[1] *= i
@@ -481,11 +496,11 @@ def player_movement2(pressed, player_pos, x_vel, y_vel, app):
     if abs(y_vel) < velocity_cap:
         y_vel += timedelta.mod(y_acc / tick_count)
 
-    if abs(x_vel) > 0.1:
+    if abs(x_vel) > 0.01:
         x_vel *= timedelta.exp(breaking)
     else:
         x_vel = 0
-    if abs(y_vel) > 0.1:
+    if abs(y_vel) > 0.01:
         y_vel *= timedelta.exp(breaking)
     else:
         y_vel = 0
@@ -669,7 +684,7 @@ def load_loop(app, screen, text):
 
         screen.blit(load_screen_splash, [0,0])
 
-        rgb_render(loadSymbolRGB, 5, [size[0] / 2 - loadSymbol.get_size()[0]/2, size[1] / 2 - loadSymbol.get_size()[1]/2], [0,0], screen)
+        rgb_render(loadSymbolRGB, 5, [size[0] / 2 - loadSymbolRGB[0].get_size()[0]/2 - 20, size[1] / 2 - loadSymbolRGB[0].get_size()[1]/2], [0,0], screen)
 
         textSurf = terminal3.render(text, False, [100, 100, 100])
         screen.blit(textSurf, [10, size[1]-40])
@@ -1151,6 +1166,24 @@ def draw_HUD(
         wave_end_tick, wave_start_tick = wave_anim_ticks
 
 
+        if wave_start_tick > 90:
+
+            ind = player_indicator[120 - round(wave_start_tick)]
+
+        elif not wave and wave_end_tick < 30:
+            ind = player_indicator[round(wave_end_tick)]
+
+        else:
+            ind = player_indicator[round(30 + beat_red*4)]
+
+        indTemp = pygame.transform.rotate(ind.copy(), wave_text_tick)
+
+        x_i = player_actor.get_pos()[0] - camera_pos[0] - indTemp.get_size()[0]/2
+        y_i = player_actor.get_pos()[1] - camera_pos[1] - indTemp.get_size()[1]/2
+
+        screen.blit(indTemp, [x_i,y_i])
+
+
         inverted = wave_text_color
         # if beat_blink.value%(beat_blink.max_value/2) < (beat_blink.max_value/4) and beat_blink.value < beat_blink.max_value:
         #     inverted = not inverted
@@ -1409,3 +1442,32 @@ def draw_HUD(
     )
 
     last_hp = hp
+
+
+    if not app.weaponChangeTick.tick():
+
+        x = player_actor.get_pos()[0] - camera_pos[0] - weapon.change_to_image.get_size()[0]/2
+        y = player_actor.get_pos()[1] - camera_pos[1] - weapon.change_to_image.get_size()[1]/2 - (app.weaponChangeTick.value/9)**2 - 40
+
+        if app.weaponChangeTick.value < 5:
+            screen.blit(weapon.change_to_image_set[round(app.weaponChangeTick.value)], [x,y])
+
+            text_alpha = app.weaponChangeTick.value/6 * 255
+
+        elif app.weaponChangeTick.value > 25:
+            screen.blit(weapon.change_to_image_set[round(30 - app.weaponChangeTick.value)], [x,y])
+
+            text_alpha = (20 - app.weaponChangeTick.value)/6 * 255
+
+        else:
+            screen.blit(weapon.change_to_image_set[-1], [x,y])
+
+            text_alpha = 255
+
+        text = terminal2.render(str(weapon.name), False, hud_color)
+        x = player_actor.get_pos()[0] - camera_pos[0] - text.get_size()[0]/2
+        y = player_actor.get_pos()[1] - camera_pos[1] - text.get_size()[1]/2 - (app.weaponChangeTick.value/8)**2 - 40
+
+        text.set_alpha(text_alpha)
+
+        screen.blit(text, [x,y])

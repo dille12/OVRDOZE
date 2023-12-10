@@ -48,7 +48,7 @@ class storyTeller:
             self.ammoShot[type] = min([1, self.ammoShot[type]])
             
         for i in self.ammoShot:
-            self.ammoShot[i] *= 0.995
+            self.ammoShot[i] *= (0.995 ** min([1, 4-len(player_weapons)]))
 
 
     def getChanceToDropAmmo(self, type):
@@ -90,6 +90,7 @@ class storyTeller:
             if random.uniform(0.95, 1.02) > self.playerPerformace and self.getAmountInWorld(item) + inWorld + amount <= item.max_stack:
                 return True
             else:
+                print("NOT DROPPING", item)
                 return False
             
         else:

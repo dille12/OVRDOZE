@@ -3,7 +3,7 @@ import func
 import pygame
 
 class Button:
-    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False, controller = -1):
+    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False, controller = -1, click_sound = menu_click2):
         self.glitch = glitchInstance
         self.app = gameInstance
         self.pos = pos
@@ -32,6 +32,8 @@ class Button:
         self.anim_tick = 0
         self.target_tick = 0
         self.locked = locked
+    
+        self.click_sound = click_sound
 
     def tick(self, screen, mouse_pos, click, glitch, arg=None):
         text = self.terminal_button.render(self.text, False, [255, 255-155*(self.red_tick/10), 255-155*(self.red_tick/10)] if not self.locked else [100,100,100])
@@ -121,7 +123,8 @@ class Button:
                 self.target_tick = 10
 
             if click or CI:
-                menu_click2.play()
+                self.click_sound.stop()
+                self.click_sound.play()
                 if self.app:
                     for x in self.app.buttons:
                         x.pos_tick = 9

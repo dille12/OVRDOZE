@@ -250,16 +250,16 @@ def main(ms = "start", TEST = False):
 
     if not IS.menu_animations:
         print("Loading animations...")
-        intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True)
+        intro1 = func.load_animation("anim/intro1", 0, 30, alpha=menu_alpha, intro = True, loadCompressed=True, size = [854,480])
 
         if not quick_load:
-            intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True)
-            intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True)
-            intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True)
-            intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True)
-            intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True)
-            intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True)
-            intro8 = func.load_animation("anim/intro8", 30, 31, alpha=menu_alpha, intro = True)
+            intro2 = func.load_animation("anim/intro2", 0, 30, alpha=menu_alpha, intro = True, loadCompressed=True, size = [854,480])
+            intro3 = func.load_animation("anim/intro3", 60, 31, alpha=menu_alpha, intro = True, loadCompressed=True, size = [854,480])
+            intro4 = func.load_animation("anim/intro4", 1, 30, alpha=menu_alpha, intro = True, loadCompressed=True, size = [856,480])
+            intro5 = func.load_animation("anim/intro5", 1825, 32, alpha=menu_alpha, intro = True, loadCompressed=True, size = [854,480])
+            intro6 = func.load_animation("anim/intro6", 1, 30, alpha=menu_alpha, intro = True, loadCompressed=True, size = [856,480])
+            intro7 = func.load_animation("anim/intro7", 1, 30, alpha=menu_alpha, intro = True, loadCompressed=True, size = [854,480])
+            intro8 = func.load_animation("anim/intro8", 30, 31, alpha=menu_alpha, intro = True, loadCompressed=True, size = [854,480])
 
             IS.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
@@ -524,7 +524,6 @@ def main(ms = "start", TEST = False):
     button_restart_game = Button(
         [x_s, 380], "Restart", restart, None, gameInstance=app, glitchInstance=glitch
     )
-
 
     button_host_game = Button(
         [x_s, 100],

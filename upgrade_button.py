@@ -67,7 +67,7 @@ class upgradeButton:
                     screen.blit(arrowLeftRed, [350,120])
                     if click:
                         self.upgradeI -= 1
-                        menu_click.play()
+                        menu_click2.play()
                 else:
                     screen.blit(arrowLeft, [350,120])
 
@@ -75,7 +75,7 @@ class upgradeButton:
                     screen.blit(arrowRightRed, [600,120])
                     if click:
                         self.upgradeI += 1
-                        menu_click.play()
+                        menu_click2.play()
                 else:
                     screen.blit(arrowRight, [600,120])
 

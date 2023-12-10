@@ -158,6 +158,8 @@ def get_Sound(file):
 
     file_name = file.split("/")[-1]
 
+
+
     bended_file_name = "bended/" + file_name.removesuffix(".wav") + "_bended.wav"
 
     sound2 = pygame.mixer.Sound(bended_file_name)
@@ -264,6 +266,15 @@ packet_dict = {}
 player = load("texture/player.png", size = [180,119])
 
 player_pistol = load("texture/player_pistol.png", size = [180,119])
+
+
+player_indicator = []
+for x in range(45):
+    t = load("texture/playerIndicator.png", size = [130 * x/30, 130 * x/30])
+    t.set_alpha(x*255/45)
+    player_indicator.append(t)
+
+
 
 soldierSprite = load("texture/soldier.png", size = [180,119])
 soldierPistolSprite = load("texture/soldierPistol.png", size = [180,119])
@@ -481,6 +492,9 @@ loadSymbol.set_alpha(10)
 footstep_tick = GameTick(15)
 
 reload = get_Sound("sound/reload.wav")
+
+upgradeSound = get_Sound("sound/sfx/upgrade.wav")
+
 no_ammo_sound = get_Sound("sound/no_ammo.wav")
 inv_image = pygame.image.load("texture/inv.png").convert_alpha()
 inv4_image = pygame.image.load("texture/inv4.png").convert_alpha()

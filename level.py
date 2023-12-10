@@ -18,7 +18,8 @@ import render_los_image_jit
 from tools.image_transform import *
 from quadrant import Quadrant
 from tools.wall_gen import *
-
+from los import check_los_jit, intersect_jit
+from jit_tools import line_intersection
 from values import *
 
 def render_center(image, pos):
@@ -1530,6 +1531,10 @@ def init_jit():
         l = pygame.Surface((854, 480))
 
         l, t, t = render_los_image_jit.draw(l, 1, camera_pos, player_pos, None, walls, size)
+
+        check_los_jit(np.array([10,10]), np.array([100,10]), walls)
+        line_intersection(np.array([10,10]), np.array([20,10]), np.array([10,20]), np.array([20,20]))
+        intersect_jit(np.array([10,10]), np.array([20,10]), np.array([10,20]), np.array([20,20]))
 
 
 map = (

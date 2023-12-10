@@ -93,7 +93,7 @@ songDrops = {
     "Octane.wav" : [[46.45, 92.90]],
     "ovrdoz.wav" : [[43.82, 68.87], [102.26, 127.30]],
     "Veins.wav" : [[32, 71.11], [110.22, 159.33]],
-    "Narcosis.wav" : [[28.02, 70.07], [108.61, 130.65]],
+    "Narcosis.wav" : [[28.02, 70.07], [108.61, 150.65]],
 }
 
 
@@ -275,7 +275,9 @@ def main(
     app.storyTeller = storyTeller(app, player_inventory)
 
     if dev_tools:
-        player_inventory.append_to_inv(items["Barricade"], 3)
+        player_inventory.append_to_inv(items["Upgrade Token"], 3)
+        player_inventory.append_to_inv(items["Barricade"], 1)
+        player_inventory.append_to_inv(items["Moving Turret"], 1)
 
     player_melee = armory.Melee.Melee(
         strike_count=2, damage=35, hostile=False, owner_object=player_actor
@@ -456,7 +458,11 @@ def main(
         tick_delta = tick_time / (1 / 60)
 
 
-        timedelta.timedelta = min([tick_delta, 3])
+        tick_delta = min([tick_delta, 2])
+
+        tick_delta = max([tick_delta, 0.25])
+
+        
 
         if multiplayer:
             if app.server_tick_rate.tick():
@@ -479,6 +485,8 @@ def main(
 
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
+
+        timedelta.timedelta = timedelta.timedelta * 0.75 + tick_delta * 0.25
 
         app.clock.tick(app.clocktick if not pause else 60)
 
@@ -745,9 +753,13 @@ def main(
 
             if event.type == app.pygame.MOUSEBUTTONDOWN or event.type == pygame.JOYBUTTONDOWN:
                 if event.button == 4:
+
                     if block_movement:
                         scroll[0] = True
                         continue
+                    
+                    
+
                     searching = True
                     while searching:
                         weapon_scroll -= 1
@@ -755,6 +767,8 @@ def main(
                             weapon_scroll = len(player_weapons) - 1
 
                         c_weapon = player_weapons[weapon_scroll]
+
+                        app.weaponChangeTick.value = 0
 
                         if (
                             c_weapon.get_Ammo() != 0
@@ -767,14 +781,20 @@ def main(
                             searching = False
 
                 elif event.button == 5:
+
                     if block_movement:
                         scroll[1] = True
                         continue
+
+                    
+
                     searching = True
                     while searching:
                         weapon_scroll += 1
                         if weapon_scroll == len(player_weapons):
                             weapon_scroll = 0
+
+                        app.weaponChangeTick.value = 0
 
                         c_weapon = player_weapons[weapon_scroll]
 
@@ -988,7 +1008,7 @@ def main(
                     wave_number += 1
                     app.storyTeller.gunDropped = False
 
-                    powerMult += 0.05
+                    powerMult += 0.015
 
                     wave_text_tick = -20
 
@@ -1048,6 +1068,7 @@ def main(
             if time.time() - enemy_up_time > 20 and enemy_count != -1:
                 enemy_up_time = time.time()
                 enemy_count += 1
+
         for x in barricade_list:
             if x.tick(screen, camera_pos, map=map) == "KILL":
                 barricade_list.remove(x)
@@ -1408,38 +1429,7 @@ def main(
         time_stamps["player"] = time.time() - t
         t = time.time()
 
-        closest = 1000
-        closest_prompt = None
-        closest_available_prompt = None
-        for x in interactables:
 
-            dist = x.prompt_dist(player_pos)
-            if dist:
-                if dist < closest:
-                    closest_prompt = x
-                    closest = dist
-
-                    if closest_prompt.type == "item":
-
-                        if (
-                            player_inventory.append_to_inv(
-                                closest_prompt.item,
-                                closest_prompt.amount,
-                                scan_only=True,
-                            )
-                            != closest_prompt.amount
-                        ):
-                            closest_available_prompt = closest_prompt
-
-        if closest_available_prompt != None:
-            closest_available_prompt.tick_prompt(
-                screen, player_pos, camera_pos, f_press= f_press or 2 in app.joystickEvents
-            )
-        else:
-            if closest_prompt != None:
-                closest_prompt.tick_prompt(
-                    screen, player_pos, camera_pos, f_press= f_press or 2 in app.joystickEvents
-                )
 
         # for x in interactables:
         #     x.tick_prompt(
@@ -1459,6 +1449,16 @@ def main(
             app.multiplayer_actors[x].tick(
                 screen, player_pos, camera_pos, walls_filtered, player_actor, map_render,
             )
+
+        time_stamps["prompts"] = time.time() - t
+        t = time.time()
+
+        for quadrantRow in map.quadrants:
+            for quadrant in quadrantRow:
+                quadrant.collisionCheck(player_actor)
+
+        time_stamps["collisions"] = time.time() - t
+        t = time.time()
 
         for enemy in enemy_list:
             if enemy.class_type == "SOLDIER":
@@ -1613,6 +1613,40 @@ def main(
             draw_time += time.time() - start
 
         # func.print_s(screen, f"TIME TILL WAVE: {round(wave_interval - (time.time() - wave_change_timer))}", 4)
+
+
+        closest = 1000
+        closest_prompt = None
+        closest_available_prompt = None
+        for x in interactables:
+
+            dist = x.prompt_dist(player_pos)
+            if dist:
+                if dist < closest:
+                    closest_prompt = x
+                    closest = dist
+
+                    if closest_prompt.type == "item":
+
+                        if (
+                            player_inventory.append_to_inv(
+                                closest_prompt.item,
+                                closest_prompt.amount,
+                                scan_only=True,
+                            )
+                            != closest_prompt.amount
+                        ):
+                            closest_available_prompt = closest_prompt
+
+        if closest_available_prompt != None:
+            closest_available_prompt.tick_prompt(
+                screen, player_pos, camera_pos, f_press= f_press or 2 in app.joystickEvents
+            )
+        else:
+            if closest_prompt != None:
+                closest_prompt.tick_prompt(
+                    screen, player_pos, camera_pos, f_press= f_press or 2 in app.joystickEvents
+                )
 
         try:
             if multiplayer:
@@ -2243,13 +2277,13 @@ def main(
 
                 func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - beat_index+1))))
 
-                mult = 4 - (dropBeat - beat_index+1)
+                #mult = 4 - (dropBeat - beat_index+1)
 
-                beatPump = [size[0] + round(size[0]*(beat_red-1) * 0.01 * mult), size[1] + round(size[1]*(beat_red-1) * 0.01 * mult)]
+                #beatPump = [size[0] + round(size[0]*(beat_red-1) * 0.01 * mult), size[1] + round(size[1]*(beat_red-1) * 0.01 * mult)]
             
-                image_copy = screen.copy()
-                image_copy = pygame.transform.scale(image_copy, beatPump)
-                screen.blit(image_copy, [size[0] / 2 - beatPump[0] / 2, size[1] / 2 - beatPump[1] / 2])
+                #image_copy = screen.copy()
+                #image_copy = pygame.transform.scale(image_copy, beatPump)
+                #screen.blit(image_copy, [size[0] / 2 - beatPump[0] / 2, size[1] / 2 - beatPump[1] / 2])
 
 
 

@@ -71,6 +71,18 @@ class Weapon:
             self.icon_no_ammo = func.colorize(temp, pygame.Color(255, 0, 0))
             self.icon_no_ammo.set_alpha(100)
 
+            self.change_to_image = pygame.transform.scale(
+                pygame.image.load(f"texture/{self.kind}/{image}"), [135, 45]
+            ).convert_alpha()
+
+            self.change_to_image = func.colorize(
+                self.change_to_image, pygame.Color(hud_color[0], hud_color[1], hud_color[2])
+            ).convert_alpha()
+            self.change_to_image_set = []
+            for i in range(6):
+                self.change_to_image.set_alpha((i+1)*100/6)
+                self.change_to_image_set.append(self.change_to_image.copy())
+
     def set_hostile(self):
         self.team = "hostile"
 

@@ -62,15 +62,19 @@ class App:
         self.menu_animations = []
 
         self.dontIncreaseDay = False
+
+        self.reloadOnQuit = True
+
+        self.weaponChangeTick = GameTick(30, oneshot=True)
         
 
 
     def introScreen(self, screen, clock):
 
-        if IS.introPlayed:
+        if IS.introPlayed and not self.reloadOnQuit:
             return
 
-        seq = func.load_animation("anim/vs", 1, 60, alpha=255, intro = False)
+        seq = func.load_animation("anim/vs", 1, 60, alpha=255, intro = False, loadCompressed=True, size = [854,480])
         introSound.play()
         for x in range(len(seq) + 60):
             screen.fill([0,0,0])
@@ -129,7 +133,7 @@ class App:
         elif self.fps == "144":
             self.clocktick = 144
         elif self.fps == "Unlimited":
-            self.clocktick = 500
+            self.clocktick = 240
 
     def set_map(self, id):
         self.selected_map = id

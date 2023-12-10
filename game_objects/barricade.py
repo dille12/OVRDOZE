@@ -50,6 +50,9 @@ class Barricade(Game_Object):
 
         print(map.barricade_rects)
 
+        turret_pickup.stop()
+        turret_pickup.play()
+
         return True
 
 

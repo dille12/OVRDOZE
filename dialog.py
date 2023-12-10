@@ -108,6 +108,7 @@ shop_upgrade_button = Button(
     None,
     gameInstance=None,
     glitchInstance=None,
+    click_sound = upgradeSound,
 )
 
 
