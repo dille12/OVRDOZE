@@ -30,8 +30,13 @@ class storyTeller:
     
     def checkGun(self, gun):
         for x in player_weapons:
-            if gun == x.name:
+            if gun.name == x.name:
                 return False
+            
+        if gun.ammo == "INF" and random.uniform() > 0.1:
+            return False
+            
+
         return True
     
     def getAmountInWorld(self, item):
@@ -48,7 +53,7 @@ class storyTeller:
             self.ammoShot[type] = min([1, self.ammoShot[type]])
             
         for i in self.ammoShot:
-            self.ammoShot[i] *= (0.995 ** min([1, 4-len(player_weapons)]))
+            self.ammoShot[i] *= (0.955 ** min([1, 4-len(player_weapons)]))
 
 
     def getChanceToDropAmmo(self, type):

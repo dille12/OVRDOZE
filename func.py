@@ -787,7 +787,14 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
 
     if c_weapon.charge_up:
 
+        if not click and c_weapon.charge_tick.value != 0:
+            chargeSound.stop()
+            chargeCancelSound.play()
+
         if click and c_weapon.reload_tick() == 0:
+            if c_weapon.charge_tick.value == 0:
+                chargeSound.play()
+                chargeCancelSound.stop()
             if not c_weapon.charge_tick.tick():
                 return
         else:
@@ -1174,7 +1181,7 @@ def draw_HUD(
             ind = player_indicator[round(wave_end_tick)]
 
         else:
-            ind = player_indicator[round(30 + beat_red*4)]
+            ind = player_indicator[round(30 + beat_red*3)]
 
         indTemp = pygame.transform.rotate(ind.copy(), wave_text_tick)
 

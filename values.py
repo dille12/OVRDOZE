@@ -271,7 +271,7 @@ player_pistol = load("texture/player_pistol.png", size = [180,119])
 player_indicator = []
 for x in range(45):
     t = load("texture/playerIndicator.png", size = [130 * x/30, 130 * x/30])
-    t.set_alpha(x*255/45)
+    t.set_alpha(x*155/45)
     player_indicator.append(t)
 
 
@@ -364,6 +364,10 @@ molotov_ico =  colorize(load("texture/items/molotov.png", size = [50,50]), pygam
 molotov_explode_sound = get_Sound("sound/molotov.wav")
 molotov_pickup = get_Sound("sound/molotov_pickup.wav")
 drug_use = get_Sound("sound/drug_use.wav")
+
+chargeSound = get_Sound("sound/sfx/chargeup.wav")
+chargeCancelSound = get_Sound("sound/sfx/charge_cancel.wav")
+
 
 melee_sound = get_Sound("sound/sfx/melee.wav")
 melee_hit_sound = get_Sound("sound/sfx/melee_hit.wav")

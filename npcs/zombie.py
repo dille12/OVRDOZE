@@ -210,7 +210,7 @@ class Zombie(pygame.sprite.Sprite):
 
             if random.uniform(0,1) < (0.002 if not self.app.endless else self.app.storyTeller.getGunDropRate()):
                 weapon = func.pick_random_from_dict(armory.guns, key = True)
-                if self.app.storyTeller.checkGun(weapon):
+                if self.app.storyTeller.checkGun(armory.guns[weapon]):
                     interactables.append(classes.Interactable(self.app, self.pos, self.target.inv, player_weapons = player_weapons, type = "gun_drop", item = armory.guns[weapon]))
                     self.app.storyTeller.gunDropped = True          
 

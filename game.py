@@ -279,6 +279,10 @@ def main(
         player_inventory.append_to_inv(items["Barricade"], 1)
         player_inventory.append_to_inv(items["Moving Turret"], 1)
 
+        
+        
+
+
     player_melee = armory.Melee.Melee(
         strike_count=2, damage=35, hostile=False, owner_object=player_actor
     )
@@ -299,6 +303,10 @@ def main(
         fn = armory.__weapons_map["gun"]["FN57-S"].copy()
         fn.ammo = "INF"
         player_weapons.append(fn)
+
+        player_weapons.append(give_weapon("gun", "NRG-SHLL"))
+        player_weapons.append(give_weapon("gun", "NRG-LMG.Mark1"))
+
 
     else:
         player_weapons.append(give_weapon("gun", "M1911"))
@@ -462,6 +470,9 @@ def main(
 
         tick_delta = max([tick_delta, 0.25])
 
+        capslock = pygame.key.get_mods() & pygame.KMOD_CAPS
+        capslock = capslock != 0
+
         
 
         if multiplayer:
@@ -476,7 +487,7 @@ def main(
 
             # hp_time_dilation = 0.1 + (player_actor.hp/100)**0.4 * 0.9
 
-            if player_actor.hp < 30 and not multiplayer:
+            if (player_actor.hp < 30 or (capslock and dev_tools)) and not multiplayer:
 
                 timedelta.timedelta *= 0.5
 

@@ -417,10 +417,7 @@ def main(ms = "start", TEST = False):
     background_tick = 1
 
 
-    bpm = 120
-    beat_time = 1 / (bpm / 60)
-
-    t = time.perf_counter()
+    
     glitch = Glitch(screen)
 
     x_s = size[0] / 2
@@ -623,10 +620,17 @@ def main(ms = "start", TEST = False):
     scroll_bar_volume.on_change_function(globals(), scroll_bar_volume.value/100)
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
-    app.pygame.mixer.music.load(f"sound/songs/menu_loop_new2.wav")
+    i_song = random.randint(0, 2)
+    i_song = 2
+    song = ["sound/songs/menu_loop.wav", "sound/songs/menu_loop_new.wav", "sound/songs/menu_loop_new2.wav"][i_song]
+
+    app.pygame.mixer.music.load(song)
     app.pygame.mixer.music.play(-1)
 
+    bpm = [70, 120, 115][i_song]
+    beat_time = 1 / (bpm / 60)
 
+    t = time.perf_counter()
 
     check_box_difficulties = []
 
@@ -872,6 +876,9 @@ def main(ms = "start", TEST = False):
     last_beat = time.perf_counter()
     app.loading = False
     while 1:
+
+        
+
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -
 
@@ -893,8 +900,6 @@ def main(ms = "start", TEST = False):
             background_tick -= 1
             background_vel += 0.2
         else:
-
-            print("RESET")
             background_tick = 52
 
         app.clock.tick(60)
