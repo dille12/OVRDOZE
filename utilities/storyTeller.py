@@ -33,7 +33,7 @@ class storyTeller:
             if gun.name == x.name:
                 return False
             
-        if gun.ammo == "INF" and random.uniform() > 0.1:
+        if gun.ammo == "INF" and random.uniform(0, 1) > 0.1:
             return False
             
 

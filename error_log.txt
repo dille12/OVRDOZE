@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1350, in <module>
+    main()
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1242, in main
+    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
+    return self.action(arg) if arg != None else self.action(self.args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 395, in start_sp
+    app.start_sp(args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 263, in start_sp
+    game.main(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1510, in main
+    kills_bullet = x.move_and_draw_Bullet(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game_objects\bullet.py", line 306, in move_and_draw_Bullet
+    x.hit_detection(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\npcs\zombie.py", line 340, in hit_detection
+    self.kill_actor(camera_pos, enemy_list, map_render, player_actor)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\npcs\zombie.py", line 213, in kill_actor
+    if self.app.storyTeller.checkGun(armory.guns[weapon]):
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\utilities\storyTeller.py", line 36, in checkGun
+    if gun.ammo == "INF" and random.uniform() > 0.1:
+TypeError: Random.uniform() missing 2 required positional arguments: 'a' and 'b'

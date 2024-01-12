@@ -31,6 +31,7 @@ from menu import Menu
 import map_creator
 import scipy
 import highscores
+import traceback
 
 VERSION = "0.9"
 if FROZEN:
@@ -62,8 +63,6 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
             app.selected_map += 1
             menu_click2.play()
             app.map_tick = 5
-
-
 
             if app.selected_map == len(maps_dict):
                 app.selected_map = 0
@@ -265,8 +264,6 @@ def main(ms = "start", TEST = False):
         else:
             IS.menu_animations = [intro1]
     menu_i = 0
-
-
 
     def start_map_creator(arg):
         map_creator.main(app)
@@ -1347,4 +1344,14 @@ def main(ms = "start", TEST = False):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        # If main() completes without any errors, write a blank txt file
+        with open("error_log.txt", "w") as file:
+            file.write("")
+    except Exception as e:
+        # If an exception occurs, write the full traceback into a txt file
+        with open("error_log.txt", "w") as file:
+            traceback.print_exc(file=file)
+
+        print(traceback.format_exc())
