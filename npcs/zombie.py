@@ -486,6 +486,8 @@ class Zombie(pygame.sprite.Sprite):
 
             dist = los.get_dist_points(self.pos, player_pos)
 
+            
+
             if dist < self.detection_range and self.target.hp > 0:
 
                 if (
@@ -504,6 +506,10 @@ class Zombie(pygame.sprite.Sprite):
 
         if self.detected:
             # self.target_angle = 180 - math.degrees(math.atan2(self.pos[1] - player_pos[1], self.pos[0] - player_pos[0]))
+
+            if dist < 200 * multiplier2:
+                self.app.enemies_within_range += 1
+
             if dist > 50 * multiplier2:
 
                 self.target_pos = player_pos

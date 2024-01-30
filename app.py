@@ -63,10 +63,17 @@ class App:
 
         self.dontIncreaseDay = False
 
-        self.reloadOnQuit = True
+        self.reloadOnQuit = False
 
         self.weaponChangeTick = GameTick(30, oneshot=True)
-        
+
+        self.jamTick = GameTick(5)
+
+        self.musicDisplayTick = GameTick(180, oneshot=True)
+
+        self.jamIm = False
+
+        self.enemies_within_range = 0
 
 
     def introScreen(self, screen, clock):

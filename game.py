@@ -95,6 +95,7 @@ songDrops = {
     "Veins.wav" : [[32, 71.11], [110.22, 159.33]],
     "Narcosis.wav" : [[28.02, 70.07], [108.61, 150.65]],
     "Thorn in my heart.wav" : [[28.44, 71.11], [97.77, 140.44]],
+    "Lucid.wav" : [[27.82, 69.56], [111.30, 153.04]],
 }
 
 
@@ -187,7 +188,7 @@ def main(
     app.pygame.font.init()
     app.pygame.mixer.init()
 
-
+    app.musicDisplayTick.value = 190
 
     level_order = ["Requiem", "Manufactory", "Liberation"]
 
@@ -646,6 +647,9 @@ def main(
                 print("Playing:", up_next)
                 app.pygame.mixer.music.load(up_next)
                 app.pygame.mixer.music.play()
+                app.musicDisplayTick.value = 0
+
+                songName = up_next.split("/")[-1].split(".")[0]
 
 
                 with open(
@@ -1472,6 +1476,8 @@ def main(
         time_stamps["collisions"] = time.time() - t
         t = time.time()
 
+        app.enemies_within_range = 0
+
         for enemy in enemy_list:
             if enemy.class_type == "SOLDIER":
                 enemy.tick(phase)
@@ -1774,7 +1780,7 @@ def main(
                     player_weapons,
                     player_actor,
                     mouse_pos,
-                    clicked,
+                    click_single_tick,
                     r_click_tick,
                     wave,
                     wave_anim_ticks,
@@ -2153,7 +2159,13 @@ def main(
 
             func.print_s(screen, "KILLS: " + str(kills), 2)
 
-            func.print_s(screen, f"PERF: {round(app.storyTeller.playerPerformace,4)}", 3)
+            #func.print_s(screen, f"PERF: {round(app.storyTeller.playerPerformace,4)}", 3)
+
+            #func.print_s(screen, f"POWER: {round(powerMult,4)}", 4)
+
+            #func.print_s(screen, f"ENEMIES: {enemy_count}", 5)
+
+            #func.print_s(screen, f"CLOSE: {app.enemies_within_range}", 6)
 
             time_elapsed = round(time.time() - start_time)
 
@@ -2257,48 +2269,59 @@ def main(
                 
                 app.storyTeller.playerPerformanceLowHealth *= 0.99
                 app.storyTeller.playerPerformanceHighHealth *= 0.99
-                app.storyTeller.playerPerformace = app.storyTeller.playerPerformanceHighHealth / (app.storyTeller.playerPerformanceHighHealth + app.storyTeller.playerPerformanceLowHealth)
+                app.storyTeller.playerPerformace = (1 - min(1,app.enemies_within_range/30)) * app.storyTeller.playerPerformanceHighHealth / (app.storyTeller.playerPerformanceHighHealth + app.storyTeller.playerPerformanceLowHealth)
 
+        if map.name != "Downtown":
+            for dropBeat in dropIndices:
+                if dropBeat - 4 <= beat_index-1 <= dropBeat:
 
-        for dropBeat in dropIndices:
-            if dropBeat - 4 <= beat_index-1 <= dropBeat:
+                    i = 5 - (dropBeat - beat_index+1)
 
-                i = 5 - (dropBeat - beat_index+1)
+                    color = [
+                                round(min([255, (beat_red-1)*255])), 
+                                round((beat_red-1)*127.5), 
+                                round((beat_red-1)*127.5)
+                            ]
+                    
+                    #print(color)
 
-                color = [
-                            round(min([255, (beat_red-1)*255])), 
-                            round((beat_red-1)*127.5), 
-                            round((beat_red-1)*127.5)
+                    if dropBeat == beat_index-1:
+
+                        text = terminal_waveSecs[-1].render(f"WAVE {decorationWaveNum}", False, color)
+                    else:
+
+                        text = terminal_waveSecs[4 - (dropBeat - beat_index+1)].render(str(dropBeat - beat_index+1), False, color)
+                                                                                        
+                    text.set_alpha(round((beat_red-1)*127.5))
+
+                    pos = [
+                            size[0] / 2 - text.get_rect().center[0],
+                            size[1] / 3 - text.get_rect().center[1],
                         ]
+
+                    func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - beat_index+1))))
+
+                    #mult = 4 - (dropBeat - beat_index+1)
+
+                    #beatPump = [size[0] + round(size[0]*(beat_red-1) * 0.01 * mult), size[1] + round(size[1]*(beat_red-1) * 0.01 * mult)]
                 
-                #print(color)
+                    #image_copy = screen.copy()
+                    #image_copy = pygame.transform.scale(image_copy, beatPump)
+                    #screen.blit(image_copy, [size[0] / 2 - beatPump[0] / 2, size[1] / 2 - beatPump[1] / 2])
 
-                if dropBeat == beat_index-1:
 
-                    text = terminal_waveSecs[-1].render(f"WAVE {decorationWaveNum}", False, color)
-                else:
+        if not app.musicDisplayTick.tick():
+            text = terminal.render(f"Playing: {songName}", False, [255,255,255])
 
-                    text = terminal_waveSecs[4 - (dropBeat - beat_index+1)].render(str(dropBeat - beat_index+1), False, color)
-                                                                                      
-                text.set_alpha(round((beat_red-1)*127.5))
+            alpha = 1
 
-                pos = [
-                        size[0] / 2 - text.get_rect().center[0],
-                        size[1] / 3 - text.get_rect().center[1],
-                    ]
-
-                func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - beat_index+1))))
-
-                #mult = 4 - (dropBeat - beat_index+1)
-
-                #beatPump = [size[0] + round(size[0]*(beat_red-1) * 0.01 * mult), size[1] + round(size[1]*(beat_red-1) * 0.01 * mult)]
+            if app.musicDisplayTick.value < 30:
+                alpha = app.musicDisplayTick.value/30
+            elif app.musicDisplayTick.value > 150:
+                alpha = (180 - app.musicDisplayTick.value) / 30
             
-                #image_copy = screen.copy()
-                #image_copy = pygame.transform.scale(image_copy, beatPump)
-                #screen.blit(image_copy, [size[0] / 2 - beatPump[0] / 2, size[1] / 2 - beatPump[1] / 2])
-
-
-
+            text.set_alpha(alpha*255)
+            screen.blit(text, [size[0] - text.get_size()[0] - 10, 5])
 
 
         if pause:

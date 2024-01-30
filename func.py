@@ -1002,7 +1002,7 @@ def draw_HUD(
 
     spread = weapon.__dict__["_c_bullet_spread"] + weapon.__dict__["_spread"]
 
-    if not pygame.mouse.get_visible():
+    if not pygame.mouse.get_visible() and not weapon.jammed:
 
         if weapon.__dict__["_reload_tick"] == 0:
 
@@ -1167,6 +1167,13 @@ def draw_HUD(
                 if weapon.__dict__["random_reload_tick"] != -1:
                     pygame.draw.rect(screen, [0, 255, 0], rect3)
 
+    elif weapon.jammed:
+        if app.jamTick.tick():
+            app.jamIm = not app.jamIm
+        im = jam1 if app.jamIm else jam2
+        pos = [mouse_pos[0] - im.get_size()[0]/2, mouse_pos[1] - im.get_size()[1]/2]
+        screen.blit(im, pos)
+    
     wave_surf = pygame.Surface((size[0], 30), pygame.SRCALPHA, 32).convert_alpha()
     wave_surf.set_colorkey([255, 255, 255])
     if wave or wave_anim_ticks[0] > 0:

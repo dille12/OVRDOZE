@@ -479,6 +479,8 @@ class Soldier:
         self.aim()
         state_tick = False
 
+        self.visible = los.check_los_jit(np.array(self.pos), np.array(self.target_actor.pos), self.walls, self.map.numpy_array_wall_no_los)
+
         times["aim"] = time.perf_counter() - t
         t = time.perf_counter()
 

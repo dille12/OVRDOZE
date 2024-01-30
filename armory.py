@@ -106,7 +106,7 @@ guns = {
         fire_r=520,
         spread=3,
         spread_r=0.94,
-        bullet_speed=25,
+        bullet_speed=40,
         reload_r=60,
         damage=34,
         bullets_at_once=1,
@@ -299,7 +299,7 @@ guns = {
         handling=0.5,
         burst=True,
         burst_bullets=4,
-        burst_fire_rate=2,
+        burst_fire_rate=1,
         availableUpgrades = ["Recoil Recovery", "Double Firerate", "Explosive Ammo"],
     ),
     "GLOCK": W.Gun(

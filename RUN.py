@@ -58,7 +58,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
     screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-80])
 
     if rect_map.collidepoint(func.minus(mouse_pos, map_pos, "-")) and host:
-
+ 
         if mouse_single_tick:
             app.selected_map += 1
             menu_click2.play()
@@ -618,7 +618,7 @@ def main(ms = "start", TEST = False):
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
     i_song = random.randint(0, 2)
-    i_song = 2
+    i_song = 1
     song = ["sound/songs/menu_loop.wav", "sound/songs/menu_loop_new.wav", "sound/songs/menu_loop_new2.wav"][i_song]
 
     app.pygame.mixer.music.load(song)

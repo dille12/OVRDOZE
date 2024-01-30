@@ -574,7 +574,7 @@ class Inventory:
             )
 
         if self.item_in_hand:
-            self.draw_item_in_hand(screen, mouse_pos, clicked, r_click_tick, x_d, y_d)
+            self.draw_item_in_hand(screen, mouse_pos, clicked, r_click_tick, x_d, y_d, player_actor)
 
     def draw_search_obj_contents(self, screen, x_d, y_d, mouse_pos, clicked, r_click_tick, player_actor, app):
         screen.blit(inv_image, [size[0] - 254 + x_d, 150 + y_d])
@@ -595,18 +595,18 @@ class Inventory:
             inv_2=True,
         )
 
-    def draw_item_in_hand(self, screen, mouse_pos, clicked, r_click_tick, x_d, y_d):
+    def draw_item_in_hand(self, screen, mouse_pos, clicked, r_click_tick, x_d, y_d, player_actor):
         if clicked and self.hand_tick == 0:
-            self.handle_item_placement(mouse_pos, x_d, y_d)
+            self.handle_item_placement(mouse_pos, x_d, y_d, player_actor)
         else:
             self.item_in_hand["item"].render(
                 screen, mouse_pos, mouse_pos, clicked, r_click_tick
             )
             self.display_stack_count(screen, self.item_in_hand["amount"], mouse_pos)
 
-    def handle_item_placement(self, mouse_pos, x_d, y_d):
+    def handle_item_placement(self, mouse_pos, x_d, y_d, player_actor):
         inserted = False
-        positions = [[24 - 62, 133], [542, 133]] if self.search_obj is None else [[24 - 62, 133], [size[0] - 254, 133]]
+        positions = [[24 - 62, 133], [542, 133]] if self.search_obj is None else [[24 - 62, 133], [size[0] - 316, 133]]
         columns = self.columns if self.search_obj is None else self.search_obj.columns
 
         for def_pos in positions:
@@ -620,7 +620,7 @@ class Inventory:
                     break
 
         if not inserted:
-            self.handle_item_interactable_creation()
+            self.handle_item_interactable_creation(player_actor)
 
     def handle_item_insertion(self, def_pos, slot, columns):
         if def_pos == [24 - 62, 133]:
@@ -664,23 +664,30 @@ class Inventory:
         self.item_in_hand = None
 
     def handle_item_insertion_within_search_obj(self, slot):
-        if (
+
+        if slot not in self.search_obj.contents:
+            self.search_obj.contents[slot] = self.item_in_hand
+            self.item_in_hand["item"].sound().play()
+            self.item_in_hand = None
+            
+        elif (
             self.item_in_hand["item"].get_name()
-            == self.search_obj.__dict__["contents"][slot]["item"].get_name()
+            == self.search_obj.contents[slot]["item"].get_name()
         ):
             self.search_obj.__dict__["contents"][slot]["amount"] += self.item_in_hand["amount"]
             self.item_in_hand["item"].sound().play()
             self.item_in_hand = None
         else:
-            item_1 = self.search_obj.__dict__["contents"][slot]
-            self.search_obj.__dict__["contents"][slot] = self.item_in_hand
+            item_1 = self.search_obj.contents[slot]
+            self.search_obj.contents[slot] = self.item_in_hand
             self.item_in_hand = item_1
+            self.item_in_hand["item"].sound().play()
 
-    def handle_item_interactable_creation(self):
+    def handle_item_interactable_creation(self, player_actor):
         self.interctables_reference.append(
             Interactable(
                 self.app,
-                player_pos,
+                player_actor.pos,
                 self,
                 type="item",
                 item=items[self.item_in_hand["item"].__dict__["name"]].copy(),

@@ -199,6 +199,7 @@ class Gun(Weapon):
     def fire(self, app, bullet_pos, angle, screen, player_actor, ai = False):
         if not ai:
             index = (0.9 + 0.1*player_actor.sanity/100)**0.1
+
             if self.jammed:
                 return
             if random.uniform(0, 1) > index and not self.energy_weapon:

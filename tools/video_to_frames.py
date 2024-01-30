@@ -7,6 +7,7 @@ def getFrames(video, size):
 
     frames = [pygame.image.fromstring(frame.tobytes(), size, "RGB") for frame in video_clip.iter_frames()]
     video_clip.close()
+    pygame.display.set_caption("OVRDOZE")
     return frames
 
 
