@@ -43,4 +43,4 @@ for x in range(100):
     t = time.perf_counter()
     update_positions(entities)
 
-    print(entities[0].pos, time.perf_counter() - t)
+    print(entities[0].pos)
