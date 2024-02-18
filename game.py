@@ -275,13 +275,7 @@ def main(
 
 
     app.storyTeller = storyTeller(app, player_inventory)
-
-    if dev_tools:
-        player_inventory.append_to_inv(items["Upgrade Token"], 3)
-        player_inventory.append_to_inv(items["Barricade"], 1)
-        player_inventory.append_to_inv(items["Moving Turret"], 1)
-
-        
+    
         
 
 
@@ -305,10 +299,6 @@ def main(
         fn = armory.__weapons_map["gun"]["FN57-S"].copy()
         fn.ammo = "INF"
         player_weapons.append(fn)
-
-        player_weapons.append(give_weapon("gun", "NRG-SHLL"))
-        player_weapons.append(give_weapon("gun", "NRG-LMG.Mark1"))
-
 
     else:
         player_weapons.append(give_weapon("gun", "M1911"))
