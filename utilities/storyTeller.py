@@ -53,7 +53,7 @@ class storyTeller:
             self.ammoShot[type] = min([1, self.ammoShot[type]])
             
         for i in self.ammoShot:
-            self.ammoShot[i] *= (0.955 ** min([1, 4-len(player_weapons)]))
+            self.ammoShot[i] *= (0.955 ** max([1, 4-len(player_weapons)]))
 
 
     def getChanceToDropAmmo(self, type):

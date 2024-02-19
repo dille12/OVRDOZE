@@ -9,20 +9,8 @@ Traceback (most recent call last):
     app.start_sp(args)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 270, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 580, in main
-    quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=app)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 82, in quit
-    RUN.main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1240, in main
-    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 393, in start_sp
-    app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 270, in start_sp
-    game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 2313, in main
-    text = terminal.render(f"Playing: {songName}", False, [255,255,255])
-UnboundLocalError: local variable 'songName' referenced before assignment
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 303, in main
+    player_weapons.append(give_weapon("gun", "SPAS12"))
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 59, in give_weapon
+    return armory.__weapons_map[kind][name].copy()
+KeyError: 'SPAS12'

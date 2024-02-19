@@ -24,6 +24,7 @@ added_data = [
 	( 'anim/intro7', 'anim/intro7' ), 
 	( 'anim/intro8', 'anim/intro8' ), 
 	( 'anim/vs', 'anim/vs' ), 
+	( 'anim_compressed', 'anim_compressed' ), 
 ]
 
 block_cipher = None

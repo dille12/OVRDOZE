@@ -300,6 +300,11 @@ def main(
         fn.ammo = "INF"
         player_weapons.append(fn)
 
+        player_weapons.append(give_weapon("gun", "SPAS-12"))
+        player_weapons.append(give_weapon("gun", "AK47"))
+        player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
+        player_weapons.append(give_weapon("gun", "P90"))
+
     else:
         player_weapons.append(give_weapon("gun", "M1911"))
         endless = False
@@ -712,7 +717,7 @@ def main(
                 app.pygame.mouse.set_visible(True)
             else:
                 app.pygame.mouse.set_visible(False)
-            if phase == 8:
+            if phase == 9:
                 phase = 0
 
         elif m_click == False:
@@ -1754,6 +1759,9 @@ def main(
                 except Exception as e:
                     pass
 
+            elif phase == 8:
+                t = "STORY TELLER"
+
 
             text = terminal3.render("DEVSCREEN: " + t, False, [255, 255, 255])
             screen.blit(text, [200, 20])
@@ -1963,6 +1971,11 @@ def main(
                 except Exception as e:
                     print(e)
 
+            elif phase == 8:
+                for i, x in enumerate(app.storyTeller.ammoShot):
+                    func.print_s(screen, f"{x}:{(1-app.storyTeller.ammoShot[x])*100:.1f}%", i)
+
+
             if dialogue != []:
                 text_str = dialogue[0].main(
                     screen,
@@ -2140,7 +2153,7 @@ def main(
         else:
             zombie_events.clear()
 
-        if phase != 5:
+        if phase != 5 and phase != 8:
             try:
                 func.print_s(screen, "FPS: " + str(round(1 / (sum(fps) / 60))), 1)
                 pass
@@ -2168,7 +2181,7 @@ def main(
 
             #func.print_s(screen, f"{minutes}:{seconds}", 3)
 
-        else:
+        elif phase == 5:
             obje = enumerate(time_stamps, 1)
             total = 0
             try:
