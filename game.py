@@ -37,7 +37,7 @@ from utilities.storyTeller import storyTeller
 
 
 import RUN
-
+from testmusic import MixInfo
 import enem_obs
 
 print("IMPORTS COMPLETE")
@@ -96,6 +96,7 @@ songDrops = {
     "Narcosis.wav" : [[28.02, 70.07], [108.61, 150.65]],
     "Thorn in my heart.wav" : [[28.44, 71.11], [97.77, 140.44]],
     "Lucid.wav" : [[27.82, 69.56], [111.30, 153.04]],
+    "Call It Love.wav" : [[45.45, 74.54], [105.45, 149.09]],
 }
 
 
@@ -454,6 +455,10 @@ def main(
 
     powerMult = 1
 
+    if endless:
+        MInfo = MixInfo(app)
+        MInfo.startPlaying()
+
     while 1:
         app.loading = False
         app.phase = phase
@@ -571,6 +576,8 @@ def main(
 
             wave_change_timer  += tick_time
             song_start_t  += tick_time
+            if MInfo.trackTimer:
+                MInfo.trackTimer += tick_time
 
             s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
             quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=app)
@@ -625,9 +632,13 @@ def main(
             # app.pygame.mouse.set_visible(False)
             block_movement = False
 
+        if endless:
+            MInfo.handleLoop()
+            beat_map = MInfo.beat_map
+            dropIndices = MInfo.dropIndices
+            MInfo.trackSpeedUp = 1 + 0.02*wave_number
 
-
-        if app.pygame.mixer.music.get_busy() == False:
+        elif app.pygame.mixer.music.get_busy() == False:
 
             if overworld:
                 app.pygame.mixer.music.load("sound/songs/overworld_loop.wav")
@@ -636,45 +647,50 @@ def main(
             #     app.pygame.mixer.music.load("sound/songs/Palpitations.wav")
             #     app.pygame.mixer.music.play(-1)
             else:
-                last_played = up_next
-                while up_next == last_played:
-                    up_next = func.pick_random_from_list(songs)
-                print("Playing:", up_next)
-                app.pygame.mixer.music.load(up_next)
-                app.pygame.mixer.music.play()
-                app.musicDisplayTick.value = 0
 
-                songName = up_next.split("/")[-1].split(".")[0]
+                
 
 
-                with open(
-                    f"{up_next}_timestamps.txt"
-                ) as file:  # Use file to refer to the file object
-                    beat_map = ast.literal_eval(file.read())
+                if False:
+                    last_played = up_next
+                    while up_next == last_played:
+                        up_next = func.pick_random_from_list(songs)
+                    print("Playing:", up_next)
+                    app.pygame.mixer.music.load(up_next)
+                    app.pygame.mixer.music.play()
+                    app.musicDisplayTick.value = 0
 
-                song_start_t = time.time()
-                beat_index = 0
+                    songName = up_next.split("/")[-1].split(".")[0]
 
-                dropIndices = []
 
-                song = up_next.split("/")[-1]
+                    with open(
+                        f"{up_next}_timestamps.txt"
+                    ) as file:  # Use file to refer to the file object
+                        beat_map = ast.literal_eval(file.read())
 
-                if song in songDrops:
-                    drops = songDrops[song]
+                    song_start_t = time.time()
+                    beat_index = 0
 
-                    for s, e in drops:
-                        dropIndices.append(beat_map.index(func.closest_value(s, beat_map)))
+                    dropIndices = []
 
-                print(dropIndices)
+                    song = up_next.split("/")[-1]
+
+                    if song in songDrops:
+                        drops = songDrops[song]
+
+                        for s, e in drops:
+                            dropIndices.append(beat_map.index(func.closest_value(s, beat_map)))
+
+                    print(dropIndices)
 
 
 
 
         beat_red = (beat_red - 1) * timedelta.exp(0.85) + 1
         try:
-            if time.time() - song_start_t > beat_map[beat_index] > 0:
+            if MInfo.timeIntoTrack > beat_map[MInfo.beat_index] > 0:
                 beat_red = 3
-                beat_index += 1
+                MInfo.beat_index += 1
 
                 beat_blink.value = 0
 
@@ -975,7 +991,7 @@ def main(
         if not pvp:
 
             if wave:
-                if ((time.time() - wave_change_timer > wave_length) and not SyncSongs) or not func.songBetweenDrop(up_next, songDrops):
+                if ((time.time() - wave_change_timer > wave_length) and not SyncSongs) or not MInfo.DROP:
 
                     if wave_number >= 5:
                         if not endless:
@@ -1011,7 +1027,7 @@ def main(
                                 silent=True,
                             )
 
-                if (((time.time() - wave_change_timer > wave_interval) and not SyncSongs) or func.songBetweenDrop(up_next, songDrops)) and map.enemy_type == "zombie":
+                if (((time.time() - wave_change_timer > wave_interval) and not SyncSongs) or MInfo.DROP) and map.enemy_type == "zombie":
                     wave_length += 3
                     # wave_interval += 1
                     wave = True
@@ -1429,7 +1445,7 @@ def main(
             free_tick += timedelta.mod(1)
             if free_tick > 90 and player_actor.get_hp() < 100:
                 player_actor.set_hp(timedelta.mod(-1), reduce=True)
-                player_actor.set_sanity(timedelta.mod(0.2 * sanity_drain))
+                player_actor.set_sanity(timedelta.mod(0.1 * sanity_drain))
                 if player_actor.get_hp() >= 100:
                     player_actor.hp = 100
 
@@ -2276,9 +2292,9 @@ def main(
 
         if map.name != "Downtown":
             for dropBeat in dropIndices:
-                if dropBeat - 4 <= beat_index-1 <= dropBeat:
+                if dropBeat - 4 <= MInfo.beat_index-1 <= dropBeat:
 
-                    i = 5 - (dropBeat - beat_index+1)
+                    i = 5 - (dropBeat - MInfo.beat_index+1)
 
                     color = [
                                 round(min([255, (beat_red-1)*255])), 
@@ -2288,12 +2304,12 @@ def main(
                     
                     #print(color)
 
-                    if dropBeat == beat_index-1:
+                    if dropBeat == MInfo.beat_index-1:
 
                         text = terminal_waveSecs[-1].render(f"WAVE {decorationWaveNum}", False, color)
                     else:
 
-                        text = terminal_waveSecs[4 - (dropBeat - beat_index+1)].render(str(dropBeat - beat_index+1), False, color)
+                        text = terminal_waveSecs[4 - (dropBeat - MInfo.beat_index+1)].render(str(dropBeat - MInfo.beat_index+1), False, color)
                                                                                         
                     text.set_alpha(round((beat_red-1)*127.5))
 
@@ -2302,9 +2318,9 @@ def main(
                             size[1] / 3 - text.get_rect().center[1],
                         ]
 
-                    func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - beat_index+1))))
+                    func.blit_glitch(screen, text, pos, round((beat_red - 1) * (5 - (dropBeat - MInfo.beat_index+1))))
 
-                    #mult = 4 - (dropBeat - beat_index+1)
+                    #mult = 4 - (dropBeat - MInfo.beat_index+1)
 
                     #beatPump = [size[0] + round(size[0]*(beat_red-1) * 0.01 * mult), size[1] + round(size[1]*(beat_red-1) * 0.01 * mult)]
                 
@@ -2314,7 +2330,8 @@ def main(
 
 
         if not app.musicDisplayTick.tick():
-            text = terminal.render(f"Playing: {songName}", False, [255,255,255])
+            songname = MInfo.currentlyPlaing.split("/")[-1].split(".")[0]
+            text = terminal.render(f"Playing: {songname}", False, [255,255,255])
 
             alpha = 1
 

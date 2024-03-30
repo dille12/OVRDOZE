@@ -33,9 +33,11 @@ import scipy
 import highscores
 import traceback
 
+from utilities.version import frozenVersion
+
 VERSION = "0.9"
 if FROZEN:
-    subversion = "40"
+    subversion = str(frozenVersion)
 else:
     with open("commit_message.txt", "r") as f:
         subversion = f.readline().strip("\n")
@@ -46,7 +48,7 @@ terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
 prompt = pygame.font.Font("texture/terminal.ttf", 14)
 
 
-dirty = True
+dirty = False
 
 
 def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):

@@ -4,3 +4,4 @@ settings.dat
 *.cnv
 build/*
 dist/*
+error_log.txt
