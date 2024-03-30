@@ -16,7 +16,7 @@ echo %number%>commit_message.txt
 git add .
 
 REM Commit the changes with the custom summary and the new number as the message
-git commit -m "Commit #%number% - %custom_summary%"
+git commit -m "Version 0.9.%number% - %custom_summary%"
 
 git push
 

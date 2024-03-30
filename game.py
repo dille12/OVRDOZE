@@ -301,10 +301,10 @@ def main(
         fn.ammo = "INF"
         player_weapons.append(fn)
 
-        player_weapons.append(give_weapon("gun", "SPAS-12"))
-        player_weapons.append(give_weapon("gun", "AK47"))
-        player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
-        player_weapons.append(give_weapon("gun", "P90"))
+        #player_weapons.append(give_weapon("gun", "SPAS-12"))
+        #player_weapons.append(give_weapon("gun", "AK47"))
+        #player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
+        #player_weapons.append(give_weapon("gun", "P90"))
 
     else:
         player_weapons.append(give_weapon("gun", "M1911"))
@@ -354,7 +354,7 @@ def main(
     for weapon_1 in player_weapons:
         not_used_weapons.append(weapon_1.name)
 
-    c_weapon = player_weapons[0]
+    app.c_weapon = player_weapons[0]
     weapon_scroll = 0
     newHigh = [False, False]
     if endless:
@@ -459,6 +459,10 @@ def main(
         MInfo = MixInfo(app)
         MInfo.startPlaying()
 
+    gunKeys = [0,0,0,0,0]
+
+    interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
+
     while 1:
         app.loading = False
         app.phase = phase
@@ -480,8 +484,8 @@ def main(
         if multiplayer:
             if app.server_tick_rate.tick():
                 app.collect_data()
-                c_weapon.owner = player_actor
-                c_weapon.app = app
+                app.c_weapon.owner = player_actor
+                app.c_weapon.app = app
 
 
 
@@ -610,9 +614,9 @@ def main(
 
             continue
 
-        if c_weapon.jammed and click_single_tick:
+        if app.c_weapon.jammed and click_single_tick:
             if random.uniform(0, 1) < 0.3:
-                c_weapon.jammed = False
+                app.c_weapon.jammed = False
                 gun_jam_clear.play()
                 UnitStatus(screen, player_actor, "CLEARED!", [0,255,0])
             else:
@@ -636,7 +640,8 @@ def main(
             MInfo.handleLoop()
             beat_map = MInfo.beat_map
             dropIndices = MInfo.dropIndices
-            MInfo.trackSpeedUp = 1 + 0.02*wave_number
+            MInfo.trackSpeedUp = 1 + 0.01*wave_number
+            MInfo.trackSpeedUp = min([MInfo.trackSpeedUp, 1.2])
 
         elif app.pygame.mixer.music.get_busy() == False:
 
@@ -717,7 +722,7 @@ def main(
         t = time.time()
 
         if phase != 4:
-            camera_pan = c_weapon.__dict__["view"]
+            camera_pan = app.c_weapon.__dict__["view"]
         else:
             camera_pan = 0.2
 
@@ -754,9 +759,29 @@ def main(
 
         scroll = [False, False]
 
-        last_gun = c_weapon.name
+        
+
+
+        last_gun = app.c_weapon.name
 
         app.joystickEvents = []
+
+        pressed = app.pygame.key.get_pressed()
+
+        for i in range(1,len(player_weapons) + 1):
+            if pressed[pygame.key.key_code(str(i))] and not pause:
+                print(gunKeys[i-1])
+                if not gunKeys[i-1]:
+                    app.c_weapon = player_weapons[i-1]
+                    app.weaponChangeTick.value = 0
+                    weapon_scroll = i-1
+                
+                gunKeys[i-1] = 1
+                break
+
+            else:
+                gunKeys[i-1] = 0
+
 
         for event in app.pygame.event.get():
             if event.type == app.pygame.QUIT:
@@ -779,7 +804,7 @@ def main(
 
 
             if event.type == app.pygame.MOUSEBUTTONDOWN or event.type == pygame.JOYBUTTONDOWN:
-                if event.button == 4:
+                if event.button == 5:
 
                     if block_movement:
                         scroll[0] = True
@@ -793,21 +818,21 @@ def main(
                         if weapon_scroll == -1:
                             weapon_scroll = len(player_weapons) - 1
 
-                        c_weapon = player_weapons[weapon_scroll]
+                        app.c_weapon = player_weapons[weapon_scroll]
 
                         app.weaponChangeTick.value = 0
 
                         if (
-                            c_weapon.get_Ammo() != 0
+                            app.c_weapon.get_Ammo() != 0
                             or player_inventory.get_amount_of_type(
-                                c_weapon.__dict__["ammo"]
+                                app.c_weapon.__dict__["ammo"]
                             )
                             != 0
-                            or c_weapon.__dict__["ammo"] == "INF"
-                        ):
+                            or app.c_weapon.__dict__["ammo"] == "INF"
+                        ) or True:
                             searching = False
 
-                elif event.button == 5:
+                elif event.button == 4:
 
                     if block_movement:
                         scroll[1] = True
@@ -823,24 +848,21 @@ def main(
 
                         app.weaponChangeTick.value = 0
 
-                        c_weapon = player_weapons[weapon_scroll]
+                        app.c_weapon = player_weapons[weapon_scroll]
 
                         if (
-                            c_weapon.get_Ammo() != 0
+                            app.c_weapon.get_Ammo() != 0
                             or player_inventory.get_amount_of_type(
-                                c_weapon.__dict__["ammo"]
+                                app.c_weapon.ammo
                             )
                             != 0
-                            or c_weapon.__dict__["ammo"] == "INF"
-                        ):
+                            or app.c_weapon.ammo == "INF"
+                        ) or True:
                             searching = False
 
-        if last_gun != c_weapon.name:
-            app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_gun({time.perf_counter()}, '{c_weapon.name}')")
-
-
-
-        pressed = app.pygame.key.get_pressed()
+        if last_gun != app.c_weapon.name:
+            app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_gun({time.perf_counter()}, '{app.c_weapon.name}')")
+        
         if pressed[app.pygame.K_ESCAPE] and not pause_tick:
 
             if endless and dialogue:
@@ -875,7 +897,7 @@ def main(
         except Exception as e:
             print("EXCEPTION", e)
         fps_counter = time.time()
-        func.keypress_manager(key_r_click, c_weapon, player_inventory, player_actor)
+        func.keypress_manager(key_r_click, app.c_weapon, player_inventory, player_actor)
 
         last_camera_pos = camera_pos.copy()
 
@@ -1234,7 +1256,7 @@ def main(
 
             player_actor.set_aim_at(angle)
 
-            weapon_pan_rate = c_weapon.__dict__["handling"]
+            weapon_pan_rate = app.c_weapon.__dict__["handling"]
 
             player_angle = player_actor.get_angle()
 
@@ -1247,7 +1269,7 @@ def main(
 
             player_actor.set_angle(player_angle)
 
-            if c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "DESERTEAGLE"]:
+            if app.c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "DESERTEAGLE"]:
                 pl = player_pistol
             else:
                 pl = player
@@ -1331,7 +1353,7 @@ def main(
 
                     firing_tick = func.weapon_fire(
                         app,
-                        c_weapon,
+                        app.c_weapon,
                         player_inventory,
                         player_actor.get_angle(),
                         player_pos,
@@ -1341,13 +1363,13 @@ def main(
                     player_melee.tick(screen, r_click_tick)
 
 
-                    if c_weapon._bullets_in_clip == 0 and click_single_tick:
+                    if app.c_weapon._bullets_in_clip == 0 and click_single_tick:
                         gun_jam.play()
                         UnitStatus(screen, player_actor, "NO AMMO!", [255,0,0])
 
                 else:
-                    c_weapon.spread_recoverial()
-                    c_weapon.weapon_tick()
+                    app.c_weapon.spread_recoverial()
+                    app.c_weapon.weapon_tick()
 
             player_alive = True
 
@@ -1437,9 +1459,9 @@ def main(
                                 wave_length = 30
 
 
-                    # c_weapon = give_weapon(player_we[weapon_scroll])
+                    # app.c_weapon = give_weapon(player_we[weapon_scroll])
 
-        c_weapon.add_to_spread(math.sqrt(x_vel**2 + y_vel**2) / 10)
+        app.c_weapon.add_to_spread(math.sqrt(x_vel**2 + y_vel**2) / 10)
 
         if last_hp == player_actor.get_hp() and player_alive == True:
             free_tick += timedelta.mod(1)
@@ -1790,7 +1812,7 @@ def main(
                     player_inventory,
                     cam_delta,
                     camera_pos,
-                    c_weapon,
+                    app.c_weapon,
                     player_weapons,
                     player_actor,
                     mouse_pos,
@@ -1990,6 +2012,9 @@ def main(
             elif phase == 8:
                 for i, x in enumerate(app.storyTeller.ammoShot):
                     func.print_s(screen, f"{x}:{(1-app.storyTeller.ammoShot[x])*100:.1f}%", i)
+
+                func.print_s(screen, f"Perf:{(app.storyTeller.playerPerformace)*100:.1f}%", i+1)
+                func.print_s(screen, f"{(app.enemies_within_range)} enemies", i+2)
 
 
             if dialogue != []:
@@ -2288,7 +2313,7 @@ def main(
                 
                 app.storyTeller.playerPerformanceLowHealth *= 0.99
                 app.storyTeller.playerPerformanceHighHealth *= 0.99
-                app.storyTeller.playerPerformace = (1 - min(1,app.enemies_within_range/30)) * app.storyTeller.playerPerformanceHighHealth / (app.storyTeller.playerPerformanceHighHealth + app.storyTeller.playerPerformanceLowHealth)
+                app.storyTeller.playerPerformace = (1 - min([1, app.enemies_within_range/30])) * app.storyTeller.playerPerformanceHighHealth / (app.storyTeller.playerPerformanceHighHealth + app.storyTeller.playerPerformanceLowHealth)
 
         if map.name != "Downtown":
             for dropBeat in dropIndices:

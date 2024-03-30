@@ -49,11 +49,11 @@ class storyTeller:
 
     def ammoUpdate(self, type):
         if type in self.ammoShot:
-            self.ammoShot[type] += 0.01
+            self.ammoShot[type] += 0.04
             self.ammoShot[type] = min([1, self.ammoShot[type]])
             
         for i in self.ammoShot:
-            self.ammoShot[i] *= (0.955 ** max([1, 4-len(player_weapons)]))
+            self.ammoShot[i] *= (0.995 ** max([1, 4-len(player_weapons)]))
 
 
     def getChanceToDropAmmo(self, type):

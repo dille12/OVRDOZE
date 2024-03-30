@@ -980,7 +980,20 @@ class Interactable:
                 if i.name == self.name:
                     able_to_append = False
             if able_to_append:
-                self.gun_save.append(self.item.copy())
+
+                if len(self.gun_save) < 5:
+                    self.gun_save.append(self.item.copy())
+                else:
+                    for i, x1 in enumerate(self.gun_save):
+                        if x1.name == self.app.c_weapon.name:
+
+                            interactables.append(Interactable(self.app, self.pos, self.inv_save, player_weapons = self.gun_save, type = "gun_drop", item = self.app.c_weapon.copy()))
+
+
+                            self.gun_save[i] = self.item.copy()
+                            self.app.c_weapon = self.gun_save[i]
+                            break
+
                 self.alive = False
                 self.item.reload_sound.play()
 
@@ -1056,7 +1069,10 @@ class button_prompt:
                     able_to_append = False
             if able_to_append:
 
-                self.text_render = prompt.render("F to pick up", False, [255, 255, 255])
+                if len(self.object.gun_save) < 5:
+                    self.text_render = prompt.render("F to pick up", False, [255, 255, 255])
+                else:
+                    self.text_render = prompt.render("F to switch with current weapon", False, [255, 255, 255])
 
             else:
                 self.text_render = prompt.render(

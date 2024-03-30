@@ -1376,22 +1376,22 @@ def draw_HUD(
         screen.blit(text, [240 + x_d + x - x1, 5 + y_d + y - y1])  #
 
 
-    y_pos = 80
+    x_pos = 20
 
     for w_1 in player_weapons:
         if w_1 == weapon:
-            screen.blit(w_1.icon_active, [20 + x_d, y_pos + y_d])
-            pygame.draw.rect(screen, [0, 255, 0], [20 + x_d, y_pos + y_d, 30, 10], 1)
+            screen.blit(w_1.icon_active, [x_pos + x_d, 80 + y_d])
+            pygame.draw.rect(screen, [0, 255, 0], [x_pos + x_d, 80 + y_d, 30, 10], 1)
         elif (
             player_inventory.get_amount_of_type(w_1.ammo) != 0
             or w_1.ammo == "INF"
             or w_1.get_Ammo() != 0
         ):
-            screen.blit(w_1.icon, [20 + x_d, y_pos + y_d])
+            screen.blit(w_1.icon, [x_pos + x_d, 80 + y_d])
 
         else:
-            screen.blit(w_1.icon_no_ammo, [20 + x_d, y_pos + y_d])
-        y_pos += 15
+            screen.blit(w_1.icon_no_ammo, [x_pos + x_d, 80 + y_d])
+        x_pos += 35
 
     bars = round((hp - 5) / 10)
 
@@ -1460,25 +1460,42 @@ def draw_HUD(
 
     if not app.weaponChangeTick.tick():
 
+
+        ammoAvailable = (
+            app.c_weapon.get_Ammo() != 0
+            or player_inventory.get_amount_of_type(
+                app.c_weapon.__dict__["ammo"]
+            )
+            != 0
+            or app.c_weapon.__dict__["ammo"] == "INF"
+        )
+
+
+
         x = player_actor.get_pos()[0] - camera_pos[0] - weapon.change_to_image.get_size()[0]/2
         y = player_actor.get_pos()[1] - camera_pos[1] - weapon.change_to_image.get_size()[1]/2 - (app.weaponChangeTick.value/9)**2 - 40
 
+        if ammoAvailable:
+            weaponSet = weapon.change_to_image_set
+        else:
+            weaponSet = weapon.change_to_image_set_no_ammo
+
         if app.weaponChangeTick.value < 5:
-            screen.blit(weapon.change_to_image_set[round(app.weaponChangeTick.value)], [x,y])
+            screen.blit(weaponSet[round(app.weaponChangeTick.value)], [x,y])
 
             text_alpha = app.weaponChangeTick.value/6 * 255
 
         elif app.weaponChangeTick.value > 25:
-            screen.blit(weapon.change_to_image_set[round(30 - app.weaponChangeTick.value)], [x,y])
+            screen.blit(weaponSet[round(30 - app.weaponChangeTick.value)], [x,y])
 
             text_alpha = (20 - app.weaponChangeTick.value)/6 * 255
 
         else:
-            screen.blit(weapon.change_to_image_set[-1], [x,y])
+            screen.blit(weaponSet[-1], [x,y])
 
             text_alpha = 255
 
-        text = terminal2.render(str(weapon.name), False, hud_color)
+        text = terminal2.render(str(weapon.name), False, [255,255,255] if ammoAvailable else [200,0,0])
         x = player_actor.get_pos()[0] - camera_pos[0] - text.get_size()[0]/2
         y = player_actor.get_pos()[1] - camera_pos[1] - text.get_size()[1]/2 - (app.weaponChangeTick.value/8)**2 - 40
 

@@ -53,6 +53,7 @@ class Gun(Weapon):
         explosive = False,
         ammo_per_shot = 1,
         rocket_explosion_range = 300,
+        bullets_in_clip = -1,
     ):
         super().__init__(
             name,
@@ -67,7 +68,10 @@ class Gun(Weapon):
         )
         self.extra_bullet = extra_bullet
         self._clip_size = clip_s
-        self._bullets_in_clip = clip_s + (1 if self.extra_bullet else 0)
+        if bullets_in_clip == -1:
+            self._bullets_in_clip = clip_s + (1 if self.extra_bullet else 0)
+        else:
+            self._bullets_in_clip = bullets_in_clip
         self._bullet_per_min = fire_r
         self._firerate = tick_count / (fire_r / 60)
 
@@ -156,6 +160,7 @@ class Gun(Weapon):
             explosive = self.explosive,
             ammo_per_shot = self.ammo_per_shot,
             rocket_explosion_range = self.rocket_explosion_range,
+            bullets_in_clip = self._bullets_in_clip,
         )
 
     def get_semi_auto(self):

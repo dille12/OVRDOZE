@@ -78,10 +78,19 @@ class Weapon:
             self.change_to_image = func.colorize(
                 self.change_to_image, pygame.Color(hud_color[0], hud_color[1], hud_color[2])
             ).convert_alpha()
+
+            self.change_to_image_no_ammo = func.colorize(
+                self.change_to_image, pygame.Color(200,0,0)
+            ).convert_alpha()
+
             self.change_to_image_set = []
+            self.change_to_image_set_no_ammo = []
             for i in range(6):
                 self.change_to_image.set_alpha((i+1)*100/6)
                 self.change_to_image_set.append(self.change_to_image.copy())
+
+                self.change_to_image_no_ammo.set_alpha((i+1)*100/6)
+                self.change_to_image_set_no_ammo.append(self.change_to_image_no_ammo.copy())
 
     def set_hostile(self):
         self.team = "hostile"
