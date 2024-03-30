@@ -60,7 +60,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
     screen.blit(text, [size[0]/2 - text.get_rect().size[0] / 2, map_pos[1]-80])
 
     if rect_map.collidepoint(func.minus(mouse_pos, map_pos, "-")) and host:
- 
+
         if mouse_single_tick:
             app.selected_map += 1
             menu_click2.play()
@@ -416,7 +416,7 @@ def main(ms = "start", TEST = False):
     background_tick = 1
 
 
-    
+
     glitch = Glitch(screen)
 
     x_s = size[0] / 2
@@ -876,7 +876,7 @@ def main(ms = "start", TEST = False):
     app.loading = False
     while 1:
 
-        
+
 
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -
