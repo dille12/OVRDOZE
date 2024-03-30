@@ -5,3 +5,4 @@ settings.dat
 build/*
 dist/*
 error_log.txt
+ovrdoze_data/*
