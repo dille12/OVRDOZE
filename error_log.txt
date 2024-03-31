@@ -1,14 +1,10 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1350, in <module>
+  File "c:\Users\vilia\Documents\GitHub\2dshooter\RUN.py", line 1350, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1242, in main
-    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 395, in start_sp
-    app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 270, in start_sp
-    game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 775, in main
-    app.c_weapon = player_weapons[i-1]
-IndexError: list index out of range
+  File "c:\Users\vilia\Documents\GitHub\2dshooter\RUN.py", line 218, in main
+    screen, mouse_conversion = app.update_screen()
+                               ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\vilia\Documents\GitHub\2dshooter\app.py", line 223, in update_screen
+    screen = pygame.display.set_mode(size, pygame.SCALED | pygame.FULLSCREEN, vsync=vs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pygame.error: failed to create renderer

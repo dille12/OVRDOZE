@@ -12,6 +12,7 @@ import game
 from values import *
 import func
 import ast
+import pygame
 
 class App:
     def __init__(self, pygame):
@@ -219,7 +220,7 @@ class App:
             vs = 0
 
         if self.fs:
-            screen = pygame.display.set_mode(size, pygame.FULLSCREEN | pygame.SCALED , vsync=vs)
+            screen = pygame.display.set_mode(size, pygame.SCALED | pygame.FULLSCREEN, vsync=vs)
             mouse_conversion = 1
         else:
             print("Setting to windowed")
