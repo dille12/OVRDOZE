@@ -1279,7 +1279,7 @@ def main(ms = "start", TEST = False):
         if menu_status == "warningScreen":
             y_pos = 40
             for textStr in [
-                "Multiplayer is very much in a work in progress,",
+                "Multiplayer is barely functional,",
                 "and only works in local networks.",
                 "Do you wish to continue?",
             ]:

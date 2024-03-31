@@ -63,6 +63,22 @@ def main(file_path, tempo, start = True):
 def applyFilter(y, sr):
     return np.array([librosa.effects.hpss(y[channel])[0] for channel in range(y.shape[0])])
 
+@jit(nopython=True)
+def mix_audio_files2(y1, y2, exponent=5, exponent2=1):
+    len_y1 = y1.shape[1]
+    len_y2 = y2.shape[1]
+    shorter_length = min(len_y1, len_y2)
+
+    y1_cut = y1[:, :shorter_length]
+    y2_cut = y2[:, :shorter_length]
+
+    ratios = np.linspace(0, 1, shorter_length) ** exponent
+    ratios = (1 - ratios ** exponent2, ratios)
+
+    mixed_audio = y1_cut * ratios[0] + y2_cut * ratios[1]
+    
+    return mixed_audio
+
 
 @jit(nopython=True)
 def mix_audio_files(y1, y2, exponent=5, exponent2 = 1):

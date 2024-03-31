@@ -12,7 +12,7 @@ import ast
 from _thread import start_new_thread
 import func
 
-def createMix(song1, tempo1, song2, tempo2, MInfo, output):
+def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
 
     #song1 = f"sound/songs/{song1}.wav"
     #song2 = f"sound/songs/{song2}.wav"
@@ -32,42 +32,61 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output):
 
     if speedUp != 1:
         yOctOrig = utilities.highpassfilter.stretch_audio(yOctOrig, 1/speedUp)
-
+    time.sleep(easeCalc)
     print("Chopping next song...")
     y2 = utilities.highpassfilter.getChunkOfAudio(yOctOrig, sr, tempo2, 0, bars)
+    time.sleep(easeCalc)
     print("Stretching next song...")
     y_Octane = utilities.highpassfilter.gradual_stretch_audio(y2, tempo2/tempo1, 1)
     timestamp = int(bars * 4 * 60 * sr / tempo2)
+    
+    time.sleep(easeCalc)
     print("Applying next song...")
     yOctOrig = yOctOrig[:, timestamp:]
     yOctOrig = yOctOrig[:, :-timestamp]
+    
+    
+    time.sleep(easeCalc)
     print("Applying highpass to next song...")
     y_Octane2 = utilities.highpassfilter.butter_highpass_filter(y_Octane, 300, sr)
 
+    time.sleep(easeCalc)
     print("Loading current song...")
     y, sr = librosa.load(song1, sr=None, mono=False)
 
     if lastSpeedUp != 1:
         y = utilities.highpassfilter.stretch_audio(y, 1/lastSpeedUp)
 
+    time.sleep(easeCalc)
     print("Chopping current song...")
     y_Narcosis = utilities.highpassfilter.getChunkOfAudio(y, sr, tempo1, 0, bars, fromEnd=True)
 
     
-
+    time.sleep(easeCalc)
     y_Narcosis = utilities.highpassfilter.gradual_stretch_audio(y_Narcosis, 1, tempo1/tempo2)
 
+    time.sleep(easeCalc)
     print("Applying lowpass to current song...")
     y_Narcosis2 = utilities.highpassfilter.butter_highpass_filter(y_Narcosis, 6000, sr, type = "low")
+    
+    time.sleep(easeCalc)
     print("Mixing current song...")
-    y_Narcosis = utilities.highpassfilter.mix_audio_files(y_Narcosis, y_Narcosis2, exponent = 1)
+    y_Narcosis = utilities.highpassfilter.mix_audio_files2(y_Narcosis, y_Narcosis2, exponent = 1)
+    
+    time.sleep(easeCalc)
     print("Mixing next song...")
-    y_Octane = utilities.highpassfilter.mix_audio_files(y_Octane2, y_Octane, exponent = 1)
+    y_Octane = utilities.highpassfilter.mix_audio_files2(y_Octane2, y_Octane, exponent = 1)
+    
+    time.sleep(easeCalc)
     print("Mixing songs together...")
-    yTotal = utilities.highpassfilter.mix_audio_files(y_Narcosis, y_Octane, exponent = 2, exponent2 = 5)
+    yTotal = utilities.highpassfilter.mix_audio_files2(y_Narcosis, y_Octane, exponent = 2, exponent2 = 5)
     #yTotal = y_Narcosis
+    
+    time.sleep(easeCalc)
     print("Concatenating...")
     yTotal = np.concatenate((yTotal, yOctOrig), axis=1)
+   
+    time.sleep(easeCalc)
     print("Writing to disk...")
     soundfile.write("ovrdoze_data/track1.wav" if output else "ovrdoze_data/track2.wav", yTotal.T, sr)
     print("Mix", "ovrdoze_data/track1.wav" if output else "ovrdoze_data/track2.wav", "created")
@@ -243,7 +262,7 @@ def threadedMixCreation(MInfo):
 
     MInfo.output = not MInfo.output
 
-    MInfo.timeUntilSwitch, MInfo.timeOnSwitch = createMix(MInfo.lastSong, tempoLookUp[MInfo.lastSong], MInfo.nextup, tempoLookUp[MInfo.nextup], MInfo, MInfo.output)
+    MInfo.timeUntilSwitch, MInfo.timeOnSwitch = createMix(MInfo.lastSong, tempoLookUp[MInfo.lastSong], MInfo.nextup, tempoLookUp[MInfo.nextup], MInfo, MInfo.output, easeCalc = 0.5)
     
     MInfo.lastSong = MInfo.nextup
     

@@ -770,7 +770,6 @@ def main(
 
         for i in range(1,len(player_weapons) + 1):
             if pressed[pygame.key.key_code(str(i))] and not pause:
-                print(gunKeys[i-1])
                 if not gunKeys[i-1]:
                     app.c_weapon = player_weapons[i-1]
                     app.weaponChangeTick.value = 0
