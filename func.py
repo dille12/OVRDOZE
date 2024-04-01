@@ -968,7 +968,7 @@ def draw_HUD(
     clip_size = weapon.get_clip_size()
     clip = round(weapon.get_Ammo())
     pl_pos = minus_list(player_actor.get_pos(), camera_pos)
-    pl_angl = player_actor.__dict__["aim_angle"]
+    pl_angl = player_actor.aim_angle
     pl_angl2 = player_actor.get_angle()
 
     positive = player_actor.money - player_actor.money_last_tick >= 0

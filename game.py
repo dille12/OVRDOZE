@@ -454,9 +454,10 @@ def main(
     killProtection = True
 
     powerMult = 1
-
+    MInfo = MixInfo(app)
+    app.MInfo = MInfo
     if endless:
-        MInfo = MixInfo(app)
+        
         MInfo.startPlaying()
 
     gunKeys = [0,0,0,0,0]
@@ -806,7 +807,7 @@ def main(
                 if event.button == 5:
 
                     if block_movement:
-                        scroll[0] = True
+                        scroll[1] = True
                         continue
                     
                     
@@ -834,7 +835,7 @@ def main(
                 elif event.button == 4:
 
                     if block_movement:
-                        scroll[1] = True
+                        scroll[0] = True
                         continue
 
                     
@@ -1056,7 +1057,7 @@ def main(
                     wave_number += 1
                     app.storyTeller.gunDropped = False
 
-                    powerMult += 0.015
+                    powerMult += 0.1
 
                     wave_text_tick = -20
 

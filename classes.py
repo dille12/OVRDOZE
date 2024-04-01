@@ -988,7 +988,7 @@ class Interactable:
                         if x1.name == self.app.c_weapon.name:
 
                             interactables.append(Interactable(self.app, self.pos, self.inv_save, player_weapons = self.gun_save, type = "gun_drop", item = self.app.c_weapon.copy()))
-
+                            self.app.weaponChangeTick.value = 0
 
                             self.gun_save[i] = self.item.copy()
                             self.app.c_weapon = self.gun_save[i]

@@ -901,7 +901,25 @@ def main(ms = "start", TEST = False):
         else:
             background_tick = 52
 
+        pressed = pygame.key.get_pressed()
+
+        f11 = False
+
+        if pressed[app.pygame.K_F11] and f11_pressed == False:
+            f11_pressed = True
+            f11 = True
+        elif pressed[app.pygame.K_F11] == False:
+            f11_pressed = False
+
+        if f11:
+            app.fs = not app.fs
+            screen, mouse_conversion = app.update_screen()
+            check_box_fs.checked = app.fs
+
+
+
         app.clock.tick(60)
+        
 
         app.name = textbox_name.text
         app.ip = textbox_ip.text
