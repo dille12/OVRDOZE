@@ -12,6 +12,9 @@ import ast
 from _thread import start_new_thread
 import func
 
+import get_preferences
+
+
 def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
 
     #song1 = f"sound/songs/{song1}.wav"
@@ -88,7 +91,7 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
    
     time.sleep(easeCalc)
     print("Writing to disk...")
-    soundfile.write("ovrdoze_data/track1.wav" if output else "ovrdoze_data/track2.wav", yTotal.T, sr)
+    soundfile.write(get_preferences.get_path("ovrdoze_data/track1.wav") if output else get_preferences.get_path("ovrdoze_data/track2.wav"), yTotal.T, sr)
     print("Mix", "ovrdoze_data/track1.wav" if output else "ovrdoze_data/track2.wav", "created")
 
     timeUntilFullSwitch = y_Narcosis.shape[1] / sr
@@ -172,7 +175,7 @@ class MixInfo:
         self.timeUntilSwitch, self.timeOnSwitch = createMix(self.lastSong, tempoLookUp[self.lastSong], self.nextup, tempoLookUp[self.nextup], self, self.output)
         self.lastSong = self.nextup
 
-        pygame.mixer.music.load("ovrdoze_data/track1.wav" if self.output else "ovrdoze_data/track2.wav")
+        pygame.mixer.music.load(get_preferences.get_path("ovrdoze_data/track1.wav") if self.output else get_preferences.get_path("ovrdoze_data/track2.wav"))
         pygame.mixer.music.play()
 
         self.i = 600

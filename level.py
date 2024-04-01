@@ -225,8 +225,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
             classes.Burn(map, [352 / multiplier, 2257 / multiplier], 2, 500, infinite=True, magnitude2=0.7)
         )
 
-    else:
-        app.MInfo.startPlaying()
+
 
     interactables.clear()
 

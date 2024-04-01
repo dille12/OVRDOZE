@@ -876,7 +876,7 @@ def main(ms = "start", TEST = False):
     app.loading = False
     while 1:
 
-
+        app.loading = False
 
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -

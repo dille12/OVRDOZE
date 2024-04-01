@@ -10,6 +10,8 @@ from bendedsound import *
 
 a, a, a, a, a, a, a, a, size,a,a, a = get_preferences.pref()
 
+def fp(file_name):
+    return os.path.join(os.getcwd(), file_name)
 
 print("VALUE INIT")
 pygame.init()
@@ -52,7 +54,7 @@ multiplier2 /= zoom
 
 pygame.init()
 screen = pygame.display.set_mode(size)
-icon = pygame.image.load("texture/icon.png")
+icon = pygame.image.load(fp("texture/icon.png"))
 pygame.display.set_caption("OVRDOZE")
 pygame.display.set_icon(icon)
 pygame.display.update()
@@ -129,7 +131,7 @@ tab_pressed = False
 
 
 
-load_screen_splash = pygame.image.load("texture/loadScreen.png")
+load_screen_splash = pygame.image.load(fp("texture/loadScreen.png"))
 
 
 
@@ -148,7 +150,7 @@ def get_sound_Variants(folder, name2, dont_bend = False):
             return list
 
 def make_sound(sound, file, dont_bend = False):
-    path = file + "/" + sound + ".wav"
+    path = fp(file + "/" + sound + ".wav")
     return get_Sound(path) if not dont_bend else pygame.mixer.Sound(path)
 
 
@@ -168,7 +170,7 @@ def get_Sound(file):
 
 
 def rgb_image_load(image_dir):
-    list = [pygame.image.load(image_dir)]
+    list = [pygame.image.load(fp(image_dir))]
     for color in [
         pygame.Color(255, 0, 0),
         pygame.Color(0, 255, 0),
@@ -216,7 +218,7 @@ def colorize(image, newColor):
 
 
 def load(image, size = None, alpha = True, double = False):
-    temp = pygame.image.load(image)
+    temp = pygame.image.load(fp(image))
     if size:
         x,y = size
     else:
@@ -234,7 +236,7 @@ def load(image, size = None, alpha = True, double = False):
 
 def load_alpha(image):
 
-    temp = pygame.image.load(image)
+    temp = pygame.image.load(fp(image))
 
     x,y = temp.get_size()
 
@@ -248,9 +250,9 @@ def load_alpha(image):
 multikill_fonts = []
 for i in range(5):
     font_s = 50 + i * 15
-    multikill_fonts.append(pygame.font.Font("texture/agencyb.ttf", round(font_s)))
+    multikill_fonts.append(pygame.font.Font(fp("texture/agencyb.ttf"), round(font_s)))
 
-terminal_kill_counter = pygame.font.Font("texture/terminal.ttf", 40)
+terminal_kill_counter = pygame.font.Font(fp("texture/terminal.ttf"), 40)
 kill_counter_texts = {}
 for x in range(10, 101):
     image_list = []
@@ -324,7 +326,7 @@ zombie_big = load("texture/zombie.png", size = [200,200])
 
 bullet_texture = load("texture/bullet.png", size = [15,4])
 
-cursorIm = pygame.image.load('texture/mouse.png')
+cursorIm = pygame.image.load(fp('texture/mouse.png'))
 
 # Convert the image to a surface
 cursor = pygame.Surface((32, 32), pygame.SRCALPHA)
@@ -338,7 +340,7 @@ for x in range(100):
     x += 5
     bullet_length.append(
         pygame.transform.scale(
-            pygame.image.load("texture/bullet.png"), (round(x * multiplier2), round(4*multiplier2))
+            pygame.image.load(fp("texture/bullet.png")), (round(x * multiplier2), round(4*multiplier2))
         ).convert_alpha()
     )
 
@@ -352,7 +354,7 @@ for x in range(100):
     x += 5
     energy_bullet_length.append(
         pygame.transform.scale(
-            pygame.image.load("texture/lazer.png"), (round(x * multiplier2), round(8*multiplier2))
+            pygame.image.load(fp("texture/lazer.png")), (round(x * multiplier2), round(8*multiplier2))
         ).convert_alpha()
     )
 
@@ -382,7 +384,7 @@ needle_pickup = get_Sound("sound/needle_pickup.wav")
 pill_pickup = get_Sound("sound/pill_pickup.wav")
 turret_pickup = get_Sound("sound/turret_pickup.wav")
 sniff_sound = get_Sound("sound/sinff.wav")
-info = pygame.image.load("texture/info.png").convert_alpha()
+info = pygame.image.load(fp("texture/info.png")).convert_alpha()
 
 arrowRight = load("texture/arrow.png", size = [50,50])
 arrowRightRed = colorize(arrowRight.copy(), pygame.Color((255,0,0)))
@@ -492,7 +494,7 @@ for i, x in enumerate(loadSymbolRGB):
     loadSymbolRGB[i] = pygame.transform.scale(x, [sx * 6, sy * 6])
 
 
-loadSymbol = pygame.image.load("texture/kill.png").convert_alpha()
+loadSymbol = pygame.image.load(fp("texture/kill.png")).convert_alpha()
 sx, sy = loadSymbol.get_size()
 loadSymbol = pygame.transform.scale(loadSymbol, [sx * 6, sy * 6])
 loadSymbol.set_alpha(10)
@@ -504,11 +506,11 @@ reload = get_Sound("sound/reload.wav")
 upgradeSound = get_Sound("sound/sfx/upgrade.wav")
 
 no_ammo_sound = get_Sound("sound/no_ammo.wav")
-inv_image = pygame.image.load("texture/inv.png").convert_alpha()
-inv4_image = pygame.image.load("texture/inv4.png").convert_alpha()
-inv5_image = pygame.image.load("texture/inv5.png").convert_alpha()
+inv_image = pygame.image.load(fp("texture/inv.png")).convert_alpha()
+inv4_image = pygame.image.load(fp("texture/inv4.png")).convert_alpha()
+inv5_image = pygame.image.load(fp("texture/inv5.png")).convert_alpha()
 huuto = pygame.transform.scale(
-    pygame.image.load("texture/huutomerkki.png"), [12, 33]
+    pygame.image.load(fp("texture/huutomerkki.png")), [12, 33]
 ).convert_alpha()
 huuto.set_alpha(100)
 thuds = get_sound_Variants("sound", "thud")
@@ -522,7 +524,7 @@ energy_cell_sound = get_Sound("sound/item_sounds/energy_ammo.wav")
 gun_jam = get_Sound("sound/sfx/gun_jam.wav")
 gun_jam_clear = get_Sound("sound/sfx/gun_jam_clear.wav")
 
-barricade_texture = pygame.image.load("texture/barricade.png").convert()
+barricade_texture = pygame.image.load(fp("texture/barricade.png")).convert()
 barricade_list = []
 
 heartbeat_tick = GameTick(max_value=10)
@@ -546,7 +548,7 @@ phone_ring = get_Sound("sound/phone_ring.wav")
 
 scroll_bar_clicks = get_sound_Variants("sound/scrollbarclicks", "file", dont_bend = True)
 
-introSound = pygame.mixer.Sound("sound/sfx/introLighter.wav")
+introSound = pygame.mixer.Sound(fp("sound/sfx/introLighter.wav"))
 
 kill_sounds = get_sound_Variants("sound", "kill")
 # kill_sound = get_Sound("sound/kill5.wav")

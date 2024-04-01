@@ -255,6 +255,10 @@ def main(
 
     except Exception as e:
         print(e)
+
+        with open("error_log.txt", "w") as file:
+            traceback.print_exc(file=file)
+
         RUN.main(ms = "beta")
 
     print("Level loaded")

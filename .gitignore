@@ -2,7 +2,7 @@
 *.dat
 settings.dat
 *.cnv
-build/*
-dist/*
+*build/*
+*dist/*
 error_log.txt
 ovrdoze_data/*
