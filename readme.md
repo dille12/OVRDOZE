@@ -1,6 +1,6 @@
 # OVRDOZE: 2d-shooter project
 
-![alt text](https://github.com/dille12/OVRDOZE/tree/main/assets/texture/coverArt.png "OVRDOZE")
+![alt text](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/coverArt.png "OVRDOZE")
 
 A single/multiplayer co-op survival small space zombie shooter.
 
@@ -12,7 +12,7 @@ A single/multiplayer co-op survival small space zombie shooter.
 4. Type in "pip install -r requirements.txt"
 5. Run RUN.py
 
-![](https://github.com/dille12/OVRDOZE/tree/main/assets/texture/output2.gif)
+![](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/output2.gif)
 
 # SET-UP.
 ## MULTIPLAYER
@@ -28,7 +28,7 @@ Multiplayer works currently within local network right now. You can play against
 
 # CONTROLS
 
-![alt text](https://github.com/dille12/OVRDOZE/tree/main/assets/texture/image.png "splash")
+![alt text](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/image.png "splash")
 
 
 ## WASD MOVEMENT.
@@ -57,7 +57,7 @@ Given enough time barricades will fall under the horde.
 ## MIND YOUR SANITY
 Consume narcotics to regain sanity and survive.
 
-![](https://github.com/dille12/OVRDOZE/tree/main/assets/texture/output.gif)
+![](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/output.gif)
 
 # TODO
 [current list of todos](/todos.md)
