@@ -13,14 +13,16 @@ set /a number+=1
 REM Update the text file with the new number
 echo %number%>commit_message.txt
 
+REM Write the commit message to a separate file
+echo Version 0.9.%number% - %custom_summary%>>versiontracker.md
+
 git add .
 
 REM Commit the changes with the custom summary and the new number as the message
 git commit -m "Version 0.9.%number% - %custom_summary%"
 
 
-REM Write the commit message to a separate file
-echo Version 0.9.%number% - %custom_summary%>>versiontracker.md
+
 
 
 git push
