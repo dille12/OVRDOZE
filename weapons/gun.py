@@ -114,6 +114,8 @@ class Gun(Weapon):
         self.jammed = False
         self.explosive = explosive
 
+        self.DPS = self.calcDPS()
+
         self.rocket_explosion_range = rocket_explosion_range
 
         if charge_up:
@@ -165,6 +167,28 @@ class Gun(Weapon):
 
     def get_semi_auto(self):
         return self.semi_auto
+    
+    def calcDPS(self):
+
+        damage = self._damage
+        if self.rocket_launcher:
+            damage = 200
+
+        shots_per_second = self._bullet_per_min/60
+        if self.semi_auto:
+            shots_per_second = 5
+
+        if self._shotgun:
+            shots_per_second *= self._bullets_at_once
+
+        magazineEmptyTime = self._clip_size/shots_per_second
+        reloadTime = self._reload_rate/60
+
+        damage_per_second_firing = damage * shots_per_second * (min(self.piercing_bullets, 2)**0.2)
+
+        average_dps = damage_per_second_firing * magazineEmptyTime/(magazineEmptyTime + reloadTime)
+        average_dps = average_dps**0.5
+        return average_dps
 
     def visual_and_audio_fire(self, bul_pos, angle, screen):
 

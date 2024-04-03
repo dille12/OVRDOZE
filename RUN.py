@@ -202,7 +202,7 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
 
 
 def main(ms = "start", TEST = False):
-    quick_load = False
+    quick_load = True
 
     app = App(pygame)
 

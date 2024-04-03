@@ -71,6 +71,8 @@ class Weapon:
             self.icon_no_ammo = func.colorize(temp, pygame.Color(255, 0, 0))
             self.icon_no_ammo.set_alpha(100)
 
+            self.comparisonImage = func.colorize(load(self.image_directory, size = [135, 45]), pygame.Color(200,200,200))
+
             self.change_to_image = pygame.transform.scale(
                 pygame.image.load(self.image_directory), [135, 45]
             ).convert_alpha()

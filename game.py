@@ -305,9 +305,9 @@ def main(
         fn.ammo = "INF"
         player_weapons.append(fn)
 
-        #player_weapons.append(give_weapon("gun", "SPAS-12"))
-        #player_weapons.append(give_weapon("gun", "AK47"))
-        #player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
+        player_weapons.append(give_weapon("gun", "SPAS-12"))
+        player_weapons.append(give_weapon("gun", "AK47"))
+        player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
         #player_weapons.append(give_weapon("gun", "P90"))
 
     else:
@@ -320,7 +320,7 @@ def main(
     app.endless = endless
 
 
-
+    app.MAXDPS = 1
 
     gun_name_list = [
         "M1911",
@@ -342,10 +342,13 @@ def main(
     ]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
-        ruperts_shop_selections.append(weapon_button(give_weapon("gun", x), i))
-
+        g = give_weapon("gun", x)
+        ruperts_shop_selections.append(weapon_button(g, i))
+        if app.MAXDPS < g.DPS:
+            app.MAXDPS = g.DPS
+            print(g.name)
     a = sorted(ruperts_shop_selections, key=lambda x: x.weapon.price)
-
+    print("MAX DPS:", app.MAXDPS)
     ruperts_shop_selections.clear()
 
     for i, x in enumerate(a):

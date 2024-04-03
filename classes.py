@@ -17,7 +17,7 @@ import get_preferences
 from dialog import *
 import numpy as np
 from unit_status import UnitStatus
-
+from utilities.compareGuns import compareGuns
 a, draw_los, a, a, ultraviolence, a, a, a, a, a, a, a = get_preferences.pref()
 
 
@@ -847,7 +847,19 @@ class Interactable:
 
     def tick_prompt(self, screen, player_pos, camera_pos, f_press=False):
         if self.button_prompt:
-            self.button_prompt.tick(screen, player_pos, camera_pos, f_press)
+
+            if self.type == "gun_drop":
+                if len(self.gun_save) == 5:
+                    compareGuns(self.app, screen, self.app.c_weapon, self.item, player_pos, camera_pos, self.inv_save)
+                else:
+                    compareGuns(self.app, screen, False, self.item, player_pos, camera_pos, self.inv_save)
+      
+                self.button_prompt.tick(screen, player_pos, camera_pos, f_press)
+            else:
+                self.button_prompt.tick(screen, player_pos, camera_pos, f_press)
+
+            
+                
 
 
     def re_init(self):
@@ -1073,6 +1085,7 @@ class button_prompt:
                     self.text_render = prompt.render("F to pick up", False, [255, 255, 255])
                 else:
                     self.text_render = prompt.render("F to switch with current weapon", False, [255, 255, 255])
+                    
 
             else:
                 self.text_render = prompt.render(
@@ -1100,16 +1113,17 @@ class button_prompt:
 
         pos = [(self.pos[0] + player_pos[0]) / 2, (self.pos[1] + player_pos[1]) / 2]
 
-        screen.blit(
-            self.text_render2,
-            func.minus_list(func.minus_list(pos, self.rect2), camera_pos),
-        )
-        screen.blit(
-            self.text_render,
-            func.minus(
-                func.minus_list(func.minus_list(pos, self.rect), camera_pos), [0, 20]
-            ),
-        )
+        if self.object.type != "gun_drop":
+            screen.blit(
+                self.text_render2,
+                func.minus_list(func.minus_list(pos, self.rect2), camera_pos),
+            )
+            screen.blit(
+                self.text_render,
+                func.minus(
+                    func.minus_list(func.minus_list(pos, self.rect), camera_pos), [0, 20]
+                ),
+            )
         pressed = pygame.key.get_pressed()
 
         if f_press:

@@ -162,7 +162,7 @@ class MixInfo:
         self.currentSpeedUp = 1
 
     def startPlaying(self):
-
+        pygame.mixer.music.unload()
         self.lastSong = random.choice(songs)
         #MInfo.lastSong = "sound/songs/Octane.wav"
         self.lastSong = fp("sound/sfx/gamebegin.wav")

@@ -1,7 +1,7 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1368, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1369, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1260, in main
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1261, in main
     s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
     return self.action(arg) if arg != None else self.action(self.args)
@@ -9,10 +9,12 @@ Traceback (most recent call last):
     app.start_sp(args)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 271, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 469, in main
-    interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\classes.py", line 775, in __init__
-    self.image = func.colorize(load(self.item.image_directory, size = [100, 34]), pygame.Color(200,200,200))
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\values.py", line 222, in load
-    temp = pygame.image.load(fp(image))
-FileNotFoundError: No such file or directory: 'C:\Users\Reset\Documents\GitHub\OVRDOZE\EVERYTHING/C:\Users\Reset\Documents\GitHub\OVRDOZE\EVERYTHING/texture/guns/awp.png'.
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1705, in main
+    closest_prompt.tick_prompt(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\classes.py", line 852, in tick_prompt
+    compareGuns(self.app, screen, self.app.c_weapon, self.item, player_pos, camera_pos, self.inv_save)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\utilities\compareGuns.py", line 16, in compareGuns
+    renderGunDetail(app, screen, gun1, gun2, minus_list(renderPos, (100 + xD/2, 20 + yD/2)), player_inventory)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\utilities\compareGuns.py", line 75, in renderGunDetail
+    t = terminal3.render(f"AMMO: {AMMO} ({ammoAvailable} R)", False, getColor(better))
+UnboundLocalError: local variable 'ammoAvailable' referenced before assignment
