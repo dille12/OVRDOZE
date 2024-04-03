@@ -59,5 +59,8 @@ Consume narcotics to regain sanity and survive.
 
 ![](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/output.gif)
 
+# UPDATES
+[List of updates added](/versiontracker.md)
+
 # TODO
 [current list of todos](/todos.md)
