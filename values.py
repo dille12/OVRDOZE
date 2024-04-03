@@ -12,9 +12,9 @@ a, a, a, a, a, a, a, a, size,a,a, a = get_preferences.pref()
 
 def fp(file_name):
 
-    file_name = file_name.split("EVERYTHING/")[-1]
+    file_name = file_name.split("assets/")[-1]
 
-    file_name = f"EVERYTHING/{file_name}"
+    file_name = f"assets/{file_name}"
     return os.path.join(os.getcwd(), file_name)
 
 print("VALUE INIT")
