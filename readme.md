@@ -4,8 +4,6 @@
 
 A single/multiplayer co-op survival small space zombie shooter.
 
-If you'd like to contribute, feel free to join the [discord](https://discord.gg/vG5vrAgxx5)!
-
 # INSTALL
 
 1. Clone repo and extract the zip
@@ -14,6 +12,7 @@ If you'd like to contribute, feel free to join the [discord](https://discord.gg/
 4. Type in "pip install -r requirements.txt"
 5. Run RUN.py
 
+![](https://github.com/dille12/OVRDOZE/blob/frontpage/texture/output2.gif)
 
 # SET-UP.
 ## MULTIPLAYER
@@ -58,6 +57,7 @@ Given enough time barricades will fall under the horde.
 ## MIND YOUR SANITY
 Consume narcotics to regain sanity and survive.
 
+![](https://github.com/dille12/OVRDOZE/blob/frontpage/texture/output.gif)
 
 # TODO
 [current list of todos](/todos.md)
