@@ -265,7 +265,7 @@ def threadedMixCreation(MInfo):
 
     MInfo.output = not MInfo.output
 
-    MInfo.timeUntilSwitch, MInfo.timeOnSwitch = createMix(MInfo.lastSong, tempoLookUp[MInfo.lastSong], MInfo.nextup, tempoLookUp[MInfo.nextup], MInfo, MInfo.output, easeCalc = 0.5)
+    MInfo.timeUntilSwitch, MInfo.timeOnSwitch = createMix(MInfo.lastSong, tempoLookUp[MInfo.lastSong.split("/")[-1]], MInfo.nextup, tempoLookUp[MInfo.nextup.split("/")[-1]], MInfo, MInfo.output, easeCalc = 0.5)
     
     MInfo.lastSong = MInfo.nextup
     
