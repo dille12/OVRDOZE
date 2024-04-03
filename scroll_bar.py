@@ -1,8 +1,8 @@
 import pygame
-from values import scroll_bar_clicks, menu_click2
+from values import scroll_bar_clicks, menu_click2, fp
 import mixer
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 
 class ScrollBar:
     def __init__(self, name, pos, width, on_change_function, max_value=100, init_value = 75, app = None):

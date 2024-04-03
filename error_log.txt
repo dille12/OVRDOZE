@@ -1,14 +1,18 @@
 Traceback (most recent call last):
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1368, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1228, in main
-    s2 = button_sp_new_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1260, in main
+    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
     return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 378, in start_sp_career
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 395, in start_sp
     app.start_sp(args)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 271, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1051, in main
-    if (((time.time() - wave_change_timer > wave_interval) and not SyncSongs) or MInfo.DROP) and map.enemy_type == "zombie":
-AttributeError: 'MixInfo' object has no attribute 'DROP'
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 469, in main
+    interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\classes.py", line 775, in __init__
+    self.image = func.colorize(load(self.item.image_directory, size = [100, 34]), pygame.Color(200,200,200))
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\values.py", line 222, in load
+    temp = pygame.image.load(fp(image))
+FileNotFoundError: No such file or directory: 'C:\Users\Reset\Documents\GitHub\OVRDOZE\EVERYTHING/C:\Users\Reset\Documents\GitHub\OVRDOZE\EVERYTHING/texture/guns/awp.png'.

@@ -30,9 +30,9 @@ import RUN
 print("IMPORTS COMPLETE")
 
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
 
 weapons = {

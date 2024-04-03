@@ -16,7 +16,7 @@ from armory import guns
 from _thread import *
 import numpy as np
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 
 class Soldier:
     def __init__(

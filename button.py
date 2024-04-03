@@ -8,7 +8,7 @@ class Button:
         self.app = gameInstance
         self.pos = pos
         self.text = text
-        self.terminal_button = pygame.font.Font("texture/terminal.ttf", 40)
+        self.terminal_button = pygame.font.Font(fp("texture/terminal.ttf"), 40)
         text_s = (
             self.terminal_button.render(self.text, False, [255, 255, 255])
             .get_rect()

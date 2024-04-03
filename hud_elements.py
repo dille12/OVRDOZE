@@ -2,7 +2,7 @@ import pygame
 from values import *
 
 pygame.init()
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 
 
 class text_box:
@@ -93,7 +93,7 @@ class Checkbox:
         self.fs = font_size
         self.fc = font_color
         self.to = text_offset
-        self.font = pygame.font.Font("texture/terminal.ttf", 22)
+        self.font = pygame.font.Font(fp("texture/terminal.ttf"), 22)
         # checkbox object
         self.checkbox_obj = pygame.Rect(self.x, self.y, 30, 30)
         self.inner_rect = pygame.Rect(self.x + 8, self.y + 8, 14, 14)

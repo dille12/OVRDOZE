@@ -9,9 +9,9 @@ from networking.server_object import MP_Object
 import los
 import classes
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-prompt = pygame.font.Font("texture/terminal.ttf", 14)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+prompt = pygame.font.Font(fp("texture/terminal.ttf"), 14)
 
 class Player_Multi(MP_Object):
     def __init__(self, username, app, weapons = None):

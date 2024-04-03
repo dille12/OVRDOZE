@@ -4,7 +4,7 @@ import random
 import func
 from values import *
 
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
 
 class UnitStatus:
     def __init__(self, screen, parent, text, color):

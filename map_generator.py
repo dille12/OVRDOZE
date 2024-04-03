@@ -9,7 +9,7 @@ map_size = 30000, 20000
 x_division = 10
 screen = pygame.display.set_mode((900, 600))
 clock = pygame.time.Clock()
-terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
+terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
 
 scale = 900 / 30000

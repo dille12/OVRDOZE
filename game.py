@@ -43,16 +43,16 @@ import enem_obs
 print("IMPORTS COMPLETE")
 
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
-terminal_map_desc = pygame.font.Font("texture/terminal.ttf", 50)
-terminal_map_desc2 = pygame.font.Font("texture/terminal.ttf", 25)
+terminal_map_desc = pygame.font.Font(fp("texture/terminal.ttf"), 50)
+terminal_map_desc2 = pygame.font.Font(fp("texture/terminal.ttf"), 25)
 
 terminal_waveSecs = []
 for i in range(4):
-    terminal_waveSecs.append(pygame.font.Font("texture/terminal.ttf", 50 + i*10))
+    terminal_waveSecs.append(pygame.font.Font(fp("texture/terminal.ttf"), 50 + i*10))
 
 
 def give_weapon(kind, name):
@@ -367,7 +367,7 @@ def main(
     # pygame.mixer.music.set_volume(0.75)
 
     app.pygame.mouse.set_visible(False)
-    path = os.path.abspath(os.getcwd()) + "/sound/songs/"
+    path = fp("sound/songs/")
     songs = []
     for file in os.listdir(path):
         if (
@@ -376,7 +376,7 @@ def main(
             and "downtown" not in file
             and "overworld_loop" not in file
         ):
-            songs.append("sound/songs/" + file)
+            songs.append(fp("sound/songs/" + file))
 
     pause_tick = False
 

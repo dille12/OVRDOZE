@@ -38,29 +38,29 @@ class Weapon:
 
         self.image_file_name = image
         self.view = view
-        self.image_directory = f"texture/{self.kind}/{image}"
+        self.image_directory = fp(f"texture/{self.kind}/{image}")
         if image != "":
             self.image = func.colorize(
-                pygame.image.load(f"texture/{self.kind}/{image}"),
+                pygame.image.load(self.image_directory),
                 pygame.Color(hud_color[0], hud_color[1], hud_color[2]),
             )
 
             self.image.set_alpha(100)
 
             self.image_non_alpha = func.colorize(
-                pygame.image.load(f"texture/{self.kind}/{image}"),
+                pygame.image.load(self.image_directory),
                 pygame.Color(255, 155, 155),
             )
 
             self.image_red = func.colorize(
-                pygame.image.load(f"texture/{self.kind}/{image}"),
+                pygame.image.load(self.image_directory),
                 pygame.Color(255, 0, 0),
             )
 
             self.image.set_alpha(200)
 
             temp = pygame.transform.scale(
-                pygame.image.load(f"texture/{self.kind}/{image}"), [30, 10]
+                pygame.image.load(self.image_directory), [30, 10]
             ).convert_alpha()
             self.icon = func.colorize(
                 temp, pygame.Color(hud_color[0], hud_color[1], hud_color[2])
@@ -72,7 +72,7 @@ class Weapon:
             self.icon_no_ammo.set_alpha(100)
 
             self.change_to_image = pygame.transform.scale(
-                pygame.image.load(f"texture/{self.kind}/{image}"), [135, 45]
+                pygame.image.load(self.image_directory), [135, 45]
             ).convert_alpha()
 
             self.change_to_image = func.colorize(

@@ -13,13 +13,13 @@ from tools.video_to_frames import getFrames
 pygame.init()
 pygame.font.init()
 
-agency = pygame.font.Font("texture/agencyb.ttf", round(70))
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
-terminal4 = pygame.font.Font("texture/terminal.ttf", 40)
+agency = pygame.font.Font(fp("texture/agencyb.ttf"), round(70))
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
+terminal4 = pygame.font.Font(fp("texture/terminal.ttf"), 40)
 
-terminal_hint = pygame.font.Font("texture/terminal.ttf", round(8*multiplier2))
+terminal_hint = pygame.font.Font(fp("texture/terminal.ttf"), round(8*multiplier2))
 
 evade_skip_tick = 0
 acceleration = 200 / 1.875
@@ -98,13 +98,12 @@ def render_text_glitch(
 
 def load_animation(directory, start_frame, frame_count, alpha=255, intro = False, loadCompressed = False, size = [854,480]):
     list_anim = []
-
     if loadCompressed:
         print("Loading animation as a video!")
 
         dirReal = directory.split("/")[-1]
 
-        videoImages = getFrames(f"anim_compressed/{dirReal}/video.mp4", size)
+        videoImages = getFrames(fp(f"anim_compressed/{dirReal}/video.mp4"), size)
         start_frame = 0
         frame_count = len(videoImages)
 

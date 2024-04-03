@@ -22,9 +22,9 @@ a, draw_los, a, a, ultraviolence, a, a, a, a, a, a = get_preferences.pref()
 from _thread import *
 
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-prompt = pygame.font.Font("texture/terminal.ttf", 14)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+prompt = pygame.font.Font(fp("texture/terminal.ttf"), 14)
 
 
 

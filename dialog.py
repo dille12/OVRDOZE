@@ -11,9 +11,9 @@ surf_back = pygame.Surface(size)
 surf_back.fill([0, 0, 0])
 surf_back.set_alpha(180)
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-terminal3 = pygame.font.Font("texture/terminal.ttf", 10)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
 def upgrade_backpack(arg):
     player_inventory, items, player_actor = arg

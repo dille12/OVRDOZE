@@ -18,7 +18,7 @@ draw_distance = 1200 * multiplier2
 
 vecEdges = []
 
-debug_text = pygame.font.Font("texture/terminal.ttf", 10)
+debug_text = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
 
 
@@ -65,7 +65,7 @@ def intersect(A, B, C, D):
     return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 
-agency = pygame.font.Font("texture/agencyb.ttf", round(70))
+agency = pygame.font.Font(fp("texture/agencyb.ttf"), round(70))
 
 
 def debug_render(text_str):

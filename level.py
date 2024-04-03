@@ -385,7 +385,7 @@ class Map:
             )
         if dir:
             self.background = pygame.transform.scale(
-                pygame.image.load("texture/maps/" + dir),
+                pygame.image.load(fp("texture/maps/" + dir)),
                 [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
             ).convert()
 
@@ -393,7 +393,7 @@ class Map:
             self.top_layer = None
         else:
             self.top_layer = pygame.transform.scale(
-                pygame.image.load("texture/maps/" + TOP_LAYER),
+                pygame.image.load(fp("texture/maps/" + TOP_LAYER)),
                 [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
             ).convert_alpha()
 
@@ -1440,7 +1440,7 @@ class Map:
         self.map_rendered.fill([255, 255, 255])
 
         self.textures = {
-            "floor_tile_1": pygame.image.load("texture/floor.png").convert_alpha()
+            "floor_tile_1": pygame.image.load(fp("texture/floor.png")).convert_alpha()
         }
 
         self.map_rendered.blit(self.background, (0, 0))

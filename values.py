@@ -11,6 +11,10 @@ from bendedsound import *
 a, a, a, a, a, a, a, a, size,a,a, a = get_preferences.pref()
 
 def fp(file_name):
+
+    file_name = file_name.split("EVERYTHING/")[-1]
+
+    file_name = f"EVERYTHING/{file_name}"
     return os.path.join(os.getcwd(), file_name)
 
 print("VALUE INIT")
@@ -151,12 +155,12 @@ def get_sound_Variants(folder, name2, dont_bend = False):
 
 def make_sound(sound, file, dont_bend = False):
     path = fp(file + "/" + sound + ".wav")
-    return get_Sound(path) if not dont_bend else pygame.mixer.Sound(path)
+    return get_Sound(path) if not dont_bend else pygame.mixer.Sound(fp(path))
 
 
 def get_Sound(file):
 
-    sound = pygame.mixer.Sound(file)
+    sound = pygame.mixer.Sound(fp(file))
 
     file_name = file.split("/")[-1]
 
@@ -164,7 +168,7 @@ def get_Sound(file):
 
     bended_file_name = "bended/" + file_name.removesuffix(".wav") + "_bended.wav"
 
-    sound2 = pygame.mixer.Sound(bended_file_name)
+    sound2 = pygame.mixer.Sound(fp(bended_file_name))
 
     return bendedSound(sound, sound2)
 

@@ -2,6 +2,12 @@ import ast
 import os
 import sys
 
+
+def fp(file_name):
+    file_name = f"EVERYTHING/{file_name}"
+    return os.path.join(os.getcwd(), file_name)
+
+
 def write_default_settings():
 
     path = get_path("ovrdoze_data/settings.dat")
@@ -18,7 +24,7 @@ def get_path(path):
         path_sub = os.path.dirname(sys.executable)
 
     else:
-        path_sub = ""
+        return fp(path)
 
     return os.path.join(path_sub, path)
 

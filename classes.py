@@ -21,9 +21,9 @@ from unit_status import UnitStatus
 a, draw_los, a, a, ultraviolence, a, a, a, a, a, a, a = get_preferences.pref()
 
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-prompt = pygame.font.Font("texture/terminal.ttf", 14)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+prompt = pygame.font.Font(fp("texture/terminal.ttf"), 14)
 
 
 class Item:
@@ -43,7 +43,7 @@ class Item:
         self.desc = desc
         self.im = im
         self.image = pygame.transform.scale(
-            pygame.image.load("texture/items/" + im), (45, 45)
+            pygame.image.load(fp("texture/items/" + im)), (45, 45)
         ).convert_alpha()
         self.center = self.image.get_rect().center
         self.rect = self.image.get_rect().size
@@ -791,7 +791,7 @@ class Interactable:
         elif self.type == "NPC":
             self.name = name
             self.image = pygame.transform.scale(
-                pygame.image.load("texture/" + image),
+                pygame.image.load(fp("texture/" + image)),
                 [round(overrideSize[0] / multiplier), round(overrideSize[1] / multiplier)],
             ).convert_alpha()
             self.npc_active = False

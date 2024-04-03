@@ -43,9 +43,9 @@ else:
         subversion = f.readline().strip("\n")
 VERSION = VERSION + "." + subversion
 
-terminal = pygame.font.Font("texture/terminal.ttf", 20)
-terminal2 = pygame.font.Font("texture/terminal.ttf", 30)
-prompt = pygame.font.Font("texture/terminal.ttf", 14)
+terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+prompt = pygame.font.Font(fp("texture/terminal.ttf"), 14)
 
 
 dirty = False
@@ -229,8 +229,8 @@ def main(ms = "start", TEST = False):
 
     app.pygame.mouse.set_visible(True)
 
-    terminal = app.pygame.font.Font("texture/terminal.ttf", 20)
-    terminal2 = app.pygame.font.Font("texture/terminal.ttf", 10)
+    terminal = app.pygame.font.Font(fp("texture/terminal.ttf"), 20)
+    terminal2 = app.pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
@@ -450,6 +450,7 @@ def main(ms = "start", TEST = False):
         None,
         gameInstance=app,
         glitchInstance=glitch,
+        locked = True,
     )
 
     button_sp_continue_game = Button(
@@ -623,7 +624,7 @@ def main(ms = "start", TEST = False):
     i_song = 1
     song = ["sound/songs/menu_loop.wav", "sound/songs/menu_loop_new.wav", "sound/songs/menu_loop_new2.wav"][i_song]
 
-    app.pygame.mixer.music.load(song)
+    app.pygame.mixer.music.load(fp(song))
     app.pygame.mixer.music.play(-1)
 
     bpm = [70, 120, 115][i_song]

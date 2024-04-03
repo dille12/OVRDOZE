@@ -36,7 +36,7 @@ class Map_Editor:
         self.camera_pos = [0,0]
         self.level_images = []
         self.zoom = 0
-        self.terminal = pygame.font.Font("texture/terminal.ttf", 20)
+        self.terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
         self.file = ""
         self.textbox_x = hud_elements.text_box((20, 120), "10")
         self.textbox_y = hud_elements.text_box((20, 80), "10")

@@ -11,7 +11,7 @@ import time
 import ast
 from _thread import start_new_thread
 import func
-
+from values import fp
 import get_preferences
 
 
@@ -108,7 +108,7 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
 pygame.mixer.init()
 clock = pygame.time.Clock()
 
-path = os.path.abspath(os.getcwd()) + "/sound/songs/"
+path = fp("sound/songs/")
 songs = []
 for file in os.listdir(path):
     if (
@@ -117,20 +117,20 @@ for file in os.listdir(path):
         and "downtown" not in file
         and "overworld_loop" not in file
     ):
-        songs.append("sound/songs/" + file)
+        songs.append(fp("sound/songs/" + file))
 
 print(songs)
 
 tempoLookUp = {
-    'sound/songs/Lucid.wav' : 138, 
-    'sound/songs/Narcosis.wav' : 137, 
-    'sound/songs/Octane.wav' : 124, 
-    'sound/songs/Palpitations.wav' : 132, 
-    'sound/songs/Take Me High.wav' : 124, 
-    'sound/songs/Thorn in my heart.wav' : 135, 
-    'sound/songs/Veins.wav' : 135,
-    "sound/sfx/gamebegin.wav" : 130,
-    "sound/songs/Call It Love.wav" : 132,
+    'Lucid.wav' : 138, 
+    'Narcosis.wav' : 137, 
+    'Octane.wav' : 124, 
+    'Palpitations.wav' : 132, 
+    'Take Me High.wav' : 124, 
+    'Thorn in my heart.wav' : 135, 
+    'Veins.wav' : 135,
+    "gamebegin.wav" : 130,
+    "Call It Love.wav" : 132,
 }
 
 songDrops = {
@@ -165,14 +165,14 @@ class MixInfo:
 
         self.lastSong = random.choice(songs)
         #MInfo.lastSong = "sound/songs/Octane.wav"
-        self.lastSong = "sound/sfx/gamebegin.wav"
+        self.lastSong = fp("sound/sfx/gamebegin.wav")
         self.nextup = self.lastSong
         #MInfo.nextup = "sound/songs/Narcosis.wav"
 
         while self.lastSong == self.nextup:
             self.nextup = random.choice(songs)
         self.output = True
-        self.timeUntilSwitch, self.timeOnSwitch = createMix(self.lastSong, tempoLookUp[self.lastSong], self.nextup, tempoLookUp[self.nextup], self, self.output)
+        self.timeUntilSwitch, self.timeOnSwitch = createMix(self.lastSong, tempoLookUp[self.lastSong.split("/")[-1]], self.nextup, tempoLookUp[self.nextup.split("/")[-1]], self, self.output)
         self.lastSong = self.nextup
 
         pygame.mixer.music.load(get_preferences.get_path("ovrdoze_data/track1.wav") if self.output else get_preferences.get_path("ovrdoze_data/track2.wav"))
