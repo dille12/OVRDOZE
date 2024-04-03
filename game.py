@@ -305,9 +305,9 @@ def main(
         fn.ammo = "INF"
         player_weapons.append(fn)
 
-        player_weapons.append(give_weapon("gun", "SPAS-12"))
-        player_weapons.append(give_weapon("gun", "AK47"))
-        player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
+        #player_weapons.append(give_weapon("gun", "SPAS-12"))
+        #player_weapons.append(give_weapon("gun", "AK47"))
+        #player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
         #player_weapons.append(give_weapon("gun", "P90"))
 
     else:
