@@ -319,8 +319,10 @@ class Map:
         NO_LOS_POLYGONS=[],
         mult2 = multiplier2,
         mult = multiplier,
+        CUSTOM = False,
     ):
         self.app = app
+        self.CUSTOM = CUSTOM
         self.name = name
         self.size = [map_size[0] * mult2, map_size[1] * mult2]
         self.polygons = []
@@ -344,10 +346,14 @@ class Map:
         self.nav_mesh_name = nav_mesh_name
 
 
+        if self.CUSTOM:
+            self.compiled_file = get_preferences.get_path(f"ovrdoze_data/{self.name}_compiled.cnv")
 
-        if self.nav_mesh_name:
-            name2 = self.nav_mesh_name.removesuffix(".txt")
-            self.compiled_file = get_preferences.get_path(f"ovrdoze_data/{name2}_compiled.cnv")
+        else:
+
+            if self.nav_mesh_name:
+                name2 = self.nav_mesh_name.removesuffix(".txt")
+                self.compiled_file = get_preferences.get_path(f"ovrdoze_data/{name2}_compiled.cnv")
 
         self.barricade_rects = []
 

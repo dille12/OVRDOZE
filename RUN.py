@@ -502,7 +502,7 @@ def main(ms = "start", TEST = False):
     )
 
     button_map_creator = Button(
-        [x_s, 380],
+        [x_s, 440],
         "Map Editor",
         launch_map_editor,
         None,
@@ -1097,7 +1097,7 @@ def main(ms = "start", TEST = False):
             s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            #button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             if s1 != None:
                 menu_status = s1

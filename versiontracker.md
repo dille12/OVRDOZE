@@ -6,3 +6,5 @@ Version 0.9.69 - another test
 
 Version 0.9.70 - testing
 
+Version 0.9.71 - WIP map creator
+

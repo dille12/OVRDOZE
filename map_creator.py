@@ -16,6 +16,8 @@ import os
 from os import listdir
 from os.path import isfile, join
 import hud_elements
+import get_preferences
+import shutil
 
 class Wall_Rect:
     def __init__(self, rect):
@@ -32,7 +34,7 @@ class Map_Editor:
         self.clock = pygame.time.Clock()
         self.clicked = False
         self.button_import = Button([160,30], "IMPORT IMAGE", self.import_file, None, None)
-        self.button_new_map = Button([160,120], "NEW MAP", self.new_map, None, None)
+        self.button_new_map = Button([160,120], "NEW MAP", self.new_map, None, None, locked=True)
         self.camera_pos = [0,0]
         self.level_images = []
         self.zoom = 0
@@ -47,7 +49,10 @@ class Map_Editor:
         self.navtool = Button([160,260], "NAVPOINTS", self.set_mode, "NAV", None)
         self.viewwalls = Button([160,320], "VIEW WALLS", self.set_mode, "WALLS", None)
         self.walls = []
-        self.compilewalls = Button([160,460], "COMPILE", self.build_level, None, None)
+
+        self.exportNameT = hud_elements.text_box((20, 630), "MyLevel")
+
+        self.exportButton = Button([160,700], "EXPORT LEVEL", self.exportLevel, None, None)
         self.level = None
         self.print_walls_button = Button([160,400], "PRINT RECTS", self.print_walls, None, None)
         self.rects = []
@@ -79,7 +84,7 @@ class Map_Editor:
         return coverage/len(self.level.nav_mesh_available_spots)
 
     def load_textures(self):
-        mypath = os.path.abspath(os.getcwd()) + "/map_creator_textures/"
+        mypath = os.path.abspath(os.getcwd()) + "/assets/map_creator_textures/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         for x in onlyfiles:
             self.tile_textures[x] = pygame.image.load(mypath + x)
@@ -98,8 +103,40 @@ class Map_Editor:
         self.navmesh = self.level.generate_navmesh(NAV_MESH, self.level, loading_screen = False)
         self.coverage = self.get_navpoint_coverage()
 
+    def exportLevel(self, arg):
+
+        print(os.getcwd())
+
+        levelFolder = os.getcwd() + "/ovrdoze_data/levels"
+
+        if not os.path.exists(levelFolder):
+            os.mkdir(levelFolder)
+
+        pLevel = levelFolder + f"/{self.exportNameT.text}"
+        if not os.path.exists(pLevel):
+            os.mkdir(pLevel)
+
+        print("Folder located")
+        print(pLevel)
+        with open(pLevel + f"/navmesh.txt", "w") as f:
+            f.write(str(self.nav_points))
+
+        with open(pLevel + f"/walls.txt", "w") as f:
+            f.write(str(self.rects))
+
+        source_path = self.file
+
+        tempIm = pygame.image.load(source_path)
+
+        destination_path = pLevel + "/map.png"
+
+        pygame.image.save(tempIm, destination_path)
+        
+        print("data stored!")
+        
+
     def print_walls(self,arg):
-        self.print_nav(None)
+        #self.print_nav(None)
         self.cancel_tick = True
         i = "["
         for r in self.rects:
@@ -123,11 +160,12 @@ class Map_Editor:
             pygame.draw.line(self.screen, [255,0,0], self.zoom_pos(p1), self.zoom_pos(p2), 3)
 
     def build_level(self, arg):
-        pols = self.print_walls(None)
-        if pols == "[]":
+        #pols = self.print_walls(None)
+        pols = self.rects
+        if not pols:
             return
         if pols:
-            self.level = level.Map("test", None, None, [0,0], 1, self.map_size, POLYGONS = ast.literal_eval(pols), mult2 = 1, mult = 1)
+            self.level = level.Map(None, "test", None, None, [0,0], 1, self.map_size, POLYGONS = pols, mult2 = 1, mult = 1)
             self.walls = self.level.generate_wall_structure2()
 
         self.level.compile_navmesh(1)
@@ -159,7 +197,7 @@ class Map_Editor:
             else:
                 pygame.draw.circle(self.screen, [100,255,0], self.zoom_pos(x["point"]), 5)
 
-        if self.mouse_single_tick:
+        if self.mouse_single_tick and not self.blockClick:
             self.nav_points.append(mouse_real_pos)
             self.build_nav_mesh()
 
@@ -188,9 +226,20 @@ class Map_Editor:
             self.camera_pos[1] += screen_size_start[1] - screen_size[1]
 
     def import_file(self, arg):
+
+        #path = os.path.dirname(os.path.realpath(__file__))
+
         root = tk.Tk()
         root.withdraw()
+
+
+
         file_path = filedialog.askopenfilename()
+
+        #os.chdir(path)
+
+
+
         self.file = file_path
         self.level_images.clear()
         if file_path:
@@ -225,6 +274,9 @@ class Map_Editor:
 
     def set_mode(self, mode):
         self.cancel_tick = True
+
+        self.build_level(None)
+
         if self.mode == mode:
             self.mode = "None"
         else:
@@ -251,14 +303,22 @@ class Map_Editor:
         x = mouse_real_pos[0]//(self.map_size[0]/self.x_divisions)
         y = mouse_real_pos[1]//(self.map_size[1]/self.y_divisions)
 
+        xConstraint = 0 <= x <= self.x_divisions
+        yConstraint = 0 <= y <= self.y_divisions
+
+        if self.blockClick:
+            xConstraint = False
+
         pos = [x * self.map_size[0]/self.x_divisions * 1, y * self.map_size[1]/self.y_divisions * 1]
-        pygame.draw.circle(self.screen, [255,255,0], self.zoom_pos(pos), 10)
+
+        if xConstraint and yConstraint:
+            pygame.draw.circle(self.screen, [255,255,0], self.zoom_pos(pos), 10)
 
         for r in self.rects:
             x,y,w,h = r
 
             draw_rect = pygame.Rect((x-self.camera_pos[0]) * self.zoom_scalar(), (y-self.camera_pos[1]) * self.zoom_scalar(), w * self.zoom_scalar(), h * self.zoom_scalar())
-            if draw_rect.collidepoint(self.mouse_pos) and self.mouse_single_tick and not self.draw_rect:
+            if draw_rect.collidepoint(self.mouse_pos) and self.mouse_single_tick and not self.draw_rect and xConstraint and yConstraint:
                 self.draw_rect = (x,y)
                 self.rects.remove(r)
                 menu_click2.play()
@@ -266,7 +326,7 @@ class Map_Editor:
                 break
             pygame.draw.rect(self.screen, [150,0,20], draw_rect, 4)
 
-        if self.mouse_single_tick and not self.draw_rect:
+        if self.mouse_single_tick and not self.draw_rect and xConstraint and yConstraint:
             self.draw_rect = pos
             self.mouse_single_tick = False
             menu_click2.play()
@@ -292,7 +352,7 @@ class Map_Editor:
 
             pygame.draw.rect(self.screen, [255,0,255], rect, 3)
 
-            if self.mouse_single_tick:
+            if self.mouse_single_tick and xConstraint and yConstraint:
                 menu_click2.play()
                 if round(rect[2]) == 0 or round(rect[3]) == 0:
                     self.draw_rect = None
@@ -312,6 +372,7 @@ class Map_Editor:
         self.textbox_x.tick(self.screen, self.mouse_single_tick, self.mouse_pos, self.events)
         self.textbox_size_x.tick(self.screen, self.mouse_single_tick, self.mouse_pos, self.events)
         self.textbox_size_y.tick(self.screen, self.mouse_single_tick, self.mouse_pos, self.events)
+        
         if True:
             if self.textbox_size_x.text.isdigit():
                 self.map_size[0] = int(self.textbox_size_x.text)
@@ -390,23 +451,23 @@ class Map_Editor:
 
 
     def tick_editor(self):
+        self.blockClick = False
+        for x in [self.walltool, self.viewwalls, self.navtool, self.exportButton, self.print_walls_button]:
+            if x.targeted:
+                self.blockClick = True
+                break
+
+
 
         if self.level_images:
             self.screen.blit(self.level_images[self.zoom], self.zoom_pos((0,0)))
 
-            self.walltool.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
-            self.navtool.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
-            self.viewwalls.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
-            self.print_walls_button.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
-            self.compilewalls.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
-
-
-
             if self.mode == "RECTS":
                 a = self.textbox_x.active
                 text = self.terminal.render(f"Subdivisions:", False, [255,255,255])
-                self.screen.blit(text, (20,80))
+                self.screen.blit(text, (20,50))
                 self.textbox_x.tick(self.screen, self.mouse_single_tick, self.mouse_pos, self.events)
+                self.textbox_y.tick(self.screen, self.mouse_single_tick, self.mouse_pos, self.events)
                 if a != self.textbox_x.active:
                     self.mouse_single_tick = False
 
@@ -424,8 +485,8 @@ class Map_Editor:
 
                 #self.textbox_y.tick(self.screen, self.mouse_single_tick, self.mouse_pos, )
 
-                if self.textbox_x.text.isdigit():
-                    self.y_divisions = int(self.textbox_x.text)
+                if self.textbox_y.text.isdigit():
+                    self.y_divisions = int(self.textbox_y.text)
                 else:
                     self.y_divisions = 25
 
@@ -438,6 +499,8 @@ class Map_Editor:
                     pygame.draw.line(self.screen, [100,100,100], self.zoom_pos((0,y_pos)), self.zoom_pos((x_pos,y_pos)))
 
             #for y in range(self.y_divisions):
+
+        
 
         if self.cancel_tick:
             self.cancel_tick = False
@@ -460,6 +523,15 @@ class Map_Editor:
 
             text = self.terminal.render("MODE:" + self.mode, False, [255,255,255])
             self.screen.blit(text, (0,350))
+
+        self.walltool.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
+        self.navtool.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
+        self.viewwalls.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
+        self.print_walls_button.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
+
+        self.exportNameT.tick(self.screen, self.mouse_single_tick, self.mouse_pos, self.events)
+
+        self.exportButton.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
 
     def tick(self):
         self.clock.tick(60)

@@ -1064,7 +1064,7 @@ def main(
                     wave_number += 1
                     app.storyTeller.gunDropped = False
 
-                    powerMult += 0.1
+                    powerMult += 0.05
 
                     wave_text_tick = -20
 

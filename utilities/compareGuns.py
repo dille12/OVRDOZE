@@ -1,27 +1,33 @@
 import pygame
-from func import minus_list
 from values import fp
 
 terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 15)
 terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
+def minus_list(list1, list2):
+    list3 = list1.copy()
+    for i in range(len(list1)):
+        list3[i] = list1[i] - list2[i]
 
-def compareGuns(app, screen, gun1, gun2, playerPos, cameraPos, player_inventory):
+    return list3
+
+def compareGuns(app, screen, gun1, gun2, playerPos, cameraPos, player_inventory, text = True):
     
     renderPos = minus_list(playerPos, cameraPos)
 
     xD, yD = gun2.comparisonImage.get_size()
 
     if gun1 != False:
-        renderGunDetail(app, screen, gun1, gun2, minus_list(renderPos, (100 + xD/2, 20 + yD/2)), player_inventory, "CURRENT")
+        renderGunDetail(app, screen, gun1, gun2, minus_list(renderPos, (100 + xD/2, 20 + yD/2)), player_inventory, "CURRENT", text)
 
-    renderGunDetail(app, screen, gun2, gun1, minus_list(renderPos, (-100 + xD/2, 20 + yD/2)), player_inventory, "F TO SWITCH" if gun1 != False else "F TO PICK UP")
+    renderGunDetail(app, screen, gun2, gun1, minus_list(renderPos, (-100 + xD/2, 20 + yD/2)), player_inventory, "F TO SWITCH" if gun1 != False else "F TO PICK UP", text)
 
-def renderGunDetail(app, screen, gun, comparisonG, origin, player_inventory, writeBelow = ""):
+def renderGunDetail(app, screen, gun, comparisonG, origin, player_inventory, writeBelow = "", text = True):
     screen.blit(gun.comparisonImage, origin)
-    t = terminal.render(writeBelow, False, [255,255,255])
-    screen.blit(t, minus_list(origin, [0, 25]))
+    if text:
+        t = terminal.render(writeBelow, False, [255,255,255])
+        screen.blit(t, minus_list(origin, [0, 25]))
 
     t = terminal2.render(gun.name, False, [255,255,255])
 

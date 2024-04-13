@@ -1,6 +1,7 @@
 from level import *
 from values import *
 import classes
+import os
 
 mouse_conversion = fs_size[0] / size[0]
 
@@ -11,6 +12,51 @@ mouse_conversion = fs_size[0] / size[0]
 ## 2.25^2/2.99
 
 # 854x480
+
+
+def getCustomLevels(app, maps):
+    folder_path = 'ovrdoze_data/levels'
+
+    # Get a list of all entries (files and directories) in the folder
+    entries = os.listdir(folder_path)
+
+    # Filter out only the directories
+    folders = [entry for entry in entries if os.path.isdir(os.path.join(folder_path, entry))]
+
+    # Print each folder name
+    for mapName in folders:
+        print(mapName)
+
+        mapFolder = folder_path + "/mapName"
+
+        mapFile = mapFolder + "/map.png"
+        temp = pygame.image.load(mapFile)
+        sizeMap = temp.get_size()
+
+        with open(mapFolder + "/walls.txt", "r") as f:
+            rects = f.read()
+
+        rects = ast.literal_eval(rects)
+
+        with open(mapFolder + "/navmesh.txt", "r") as f:
+            navmesh = f.read()
+
+        navmesh = ast.literal_eval(navmesh)
+
+        maps.append(Map(
+            app,
+            mapName,
+            mapFile,
+            navmesh,
+            [0,0],
+            mouse_conversion,
+            sizeMap,
+            POLYGONS=rects,
+            CUSTOM=True,
+        ))
+
+    return maps
+
 
 def get_maps(app):
 
@@ -459,7 +505,7 @@ def get_maps(app):
 
     ]
 
-
+    maps = getCustomLevels(app, maps)
 
 
 

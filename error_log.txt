@@ -1,20 +1,20 @@
 Traceback (most recent call last):
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1369, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1261, in main
-    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1100, in main
+    button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
     return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 395, in start_sp
-    app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 271, in start_sp
-    game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1705, in main
-    closest_prompt.tick_prompt(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\classes.py", line 852, in tick_prompt
-    compareGuns(self.app, screen, self.app.c_weapon, self.item, player_pos, camera_pos, self.inv_save)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\utilities\compareGuns.py", line 16, in compareGuns
-    renderGunDetail(app, screen, gun1, gun2, minus_list(renderPos, (100 + xD/2, 20 + yD/2)), player_inventory)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\utilities\compareGuns.py", line 75, in renderGunDetail
-    t = terminal3.render(f"AMMO: {AMMO} ({ammoAvailable} R)", False, getColor(better))
-UnboundLocalError: local variable 'ammoAvailable' referenced before assignment
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 352, in launch_map_editor
+    map_creator.launch()
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 570, in launch
+    me.tick()
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 559, in tick
+    self.tick_editor()
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 525, in tick_editor
+    self.exportButton.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
+    return self.action(arg) if arg != None else self.action(self.args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 123, in exportLevel
+    with open(open(pLevel + f"/walls.txt"), "w") as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Reset\\Documents\\GitHub\\OVRDOZE/ovrdoze_data/levels/MyLevel/walls.txt'

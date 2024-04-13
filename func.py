@@ -9,6 +9,7 @@ import los
 from pathfind import find_shortest_path
 from _thread import start_new_thread
 from tools.video_to_frames import getFrames
+from utilities.compareGuns import compareGuns
 
 pygame.init()
 pygame.font.init()
@@ -1376,11 +1377,11 @@ def draw_HUD(
 
 
     x_pos = 20
-
+    ignoreInv = False
     for w_1 in player_weapons:
         if w_1 == weapon:
             screen.blit(w_1.icon_active, [x_pos + x_d, 80 + y_d])
-            pygame.draw.rect(screen, [0, 255, 0], [x_pos + x_d, 80 + y_d, 30, 10], 1)
+            
         elif (
             player_inventory.get_amount_of_type(w_1.ammo) != 0
             or w_1.ammo == "INF"
@@ -1390,7 +1391,26 @@ def draw_HUD(
 
         else:
             screen.blit(w_1.icon_no_ammo, [x_pos + x_d, 80 + y_d])
+
+        if player_inventory.inventory_open or w_1 == weapon:
+            if w_1 == weapon:
+                c = [0,255,0]
+            else:
+                c = [255,255,255]
+            pygame.draw.rect(screen, c, [x_pos + x_d, 80 + y_d, 30, 10], 1)
+
+        r = w_1.icon.get_rect()
+        r.x = x_pos + x_d
+        r.y = 80 + y_d
+
+        if player_inventory.inventory_open:
+            if r.collidepoint(mouse_pos):
+                compareGuns(app, screen, False, w_1, mouse_pos, [-10,-50], player_inventory, text=False)
+                
         x_pos += 35
+
+    if mouse_pos[0] < 420 and mouse_pos[1] < 110:
+        ignoreInv = True
 
     bars = round((hp - 5) / 10)
 
@@ -1441,18 +1461,18 @@ def draw_HUD(
 
     text = terminal2.render(str(weapon.__dict__["name"]), False, hud_color)
     screen.blit(text, (15 + x_d, 15 + y_d))  #
-
-    player_inventory.draw_inventory(
-        screen,
-        x_d,
-        y_d,
-        mouse_pos,
-        clicked,
-        player_actor.get_pos(),
-        r_click_tick,
-        player_actor,
-        app
-    )
+    if not ignoreInv:
+        player_inventory.draw_inventory(
+            screen,
+            x_d,
+            y_d,
+            mouse_pos,
+            clicked,
+            player_actor.get_pos(),
+            r_click_tick,
+            player_actor,
+            app
+        )
 
     last_hp = hp
 
