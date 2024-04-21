@@ -27,7 +27,7 @@ def getCustomLevels(app, maps):
     for mapName in folders:
         print(mapName)
 
-        mapFolder = folder_path + "/mapName"
+        mapFolder = folder_path + f"/{mapName}"
 
         mapFile = mapFolder + "/map.png"
         temp = pygame.image.load(mapFile)
@@ -505,7 +505,7 @@ def get_maps(app):
 
     ]
 
-    maps = getCustomLevels(app, maps)
+    #maps = getCustomLevels(app, maps)
 
 
 

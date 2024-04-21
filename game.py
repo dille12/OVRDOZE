@@ -1182,6 +1182,9 @@ def main(
         time_stamps["interactables"] = time.time() - t
         t = time.time()
 
+        for x in app.casings:
+            x.tick(map_render, camera_pos)
+
         for x in delete_list:
             interactables.remove(x)
 

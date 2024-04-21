@@ -12,7 +12,7 @@ import classes
 
 from weapons.weapon import Weapon
 from unit_status import UnitStatus
-
+from game_objects.casing import Casing
 
 
 class Gun(Weapon):
@@ -194,6 +194,8 @@ class Gun(Weapon):
 
         super().use()
 
+        
+
         bul_pos = [bul_pos[0] * multiplier2, bul_pos[1] * multiplier2]
 
         for x in range(self._bullets_at_once):
@@ -250,6 +252,8 @@ class Gun(Weapon):
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
 
         bul_pos_apparent = [bul_pos[0] / multiplier2, bul_pos[1] / multiplier2]
+
+        app.casings.append(Casing(app, screen, bul_pos, angle))
 
         self.visual_and_audio_fire(bul_pos_apparent, angle, screen)
 

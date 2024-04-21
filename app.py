@@ -76,6 +76,8 @@ class App:
 
         self.enemies_within_range = 0
 
+        self.casings = []
+
 
     def introScreen(self, screen, clock):
 

@@ -1,20 +1,18 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1369, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1371, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1100, in main
-    button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1263, in main
+    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
     return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 352, in launch_map_editor
-    map_creator.launch()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 570, in launch
-    me.tick()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 559, in tick
-    self.tick_editor()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 525, in tick_editor
-    self.exportButton.tick(self.screen, self.mouse_pos, self.mouse_single_tick, None)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 134, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\map_creator.py", line 123, in exportLevel
-    with open(open(pLevel + f"/walls.txt"), "w") as f:
-FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Reset\\Documents\\GitHub\\OVRDOZE/ovrdoze_data/levels/MyLevel/walls.txt'
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 395, in start_sp
+    app.start_sp(args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 273, in start_sp
+    game.main(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1186, in main
+    x.tick(map_render, camera_pos)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game_objects\casing.py", line 19, in tick
+    s.blit(casingIm, minus(self.pos, camera_pos))
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\func.py", line 275, in minus
+    list_1[x] += list_2[x]
+TypeError: 'pygame.Surface' object is not subscriptable

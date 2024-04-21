@@ -1056,6 +1056,8 @@ def main(ms = "start", TEST = False):
         text = terminal.render(f"Version {VERSION}", False, [255, 255, 255] if not dirty else [255,0,0])
         screen.blit(text, [10, size[1]-30])
 
+        
+
 
         for x in particle_list:
             x.tick(screen, [0, 0])

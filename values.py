@@ -456,6 +456,7 @@ money_tick = GameTick(35, oneshot=True)
 
 beat_blink = GameTick(12, oneshot = True)
 
+casing_list = []
 
 last_hp = 0
 damage_ticks = 0
@@ -513,6 +514,10 @@ no_ammo_sound = get_Sound("sound/no_ammo.wav")
 inv_image = pygame.image.load(fp("texture/inv.png")).convert_alpha()
 inv4_image = pygame.image.load(fp("texture/inv4.png")).convert_alpha()
 inv5_image = pygame.image.load(fp("texture/inv5.png")).convert_alpha()
+
+
+casingIm = pygame.image.load(fp("texture/casing.png")).convert_alpha()
+
 huuto = pygame.transform.scale(
     pygame.image.load(fp("texture/huutomerkki.png")), [12, 33]
 ).convert_alpha()

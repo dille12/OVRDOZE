@@ -8,3 +8,5 @@ Version 0.9.70 - testing
 
 Version 0.9.71 - WIP map creator
 
+Version 0.9.72 - Casings, took out the custom level loading, since it crashes
+
