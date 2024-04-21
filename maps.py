@@ -30,24 +30,33 @@ def getCustomLevels(app, maps):
         mapFolder = folder_path + f"/{mapName}"
 
         mapFile = mapFolder + "/map.png"
-        temp = pygame.image.load(mapFile)
+        temp = pygame.image.load(mapFile).convert()
         sizeMap = temp.get_size()
 
         with open(mapFolder + "/walls.txt", "r") as f:
             rects = f.read()
 
         rects = ast.literal_eval(rects)
-
+        NAV_MESH = []
         with open(mapFolder + "/navmesh.txt", "r") as f:
-            navmesh = f.read()
+            lines = f.readlines()
+            lines = ''.join(lines)
 
-        navmesh = ast.literal_eval(navmesh)
+            lines = ast.literal_eval(lines)
+
+            for line in lines:
+                ref_point = {"point": list(line), "connected": []}
+                print(ref_point)
+                ref_point["point"][0] *= multiplier2 / mouse_conversion
+                ref_point["point"][1] *= multiplier2 / mouse_conversion
+                NAV_MESH.append(ref_point)
+
 
         maps.append(Map(
             app,
             mapName,
-            mapFile,
-            navmesh,
+            temp,
+            NAV_MESH,
             [0,0],
             mouse_conversion,
             sizeMap,
@@ -505,7 +514,7 @@ def get_maps(app):
 
     ]
 
-    #maps = getCustomLevels(app, maps)
+    maps = getCustomLevels(app, maps)
 
 
 

@@ -250,10 +250,11 @@ class Gun(Weapon):
         x_offset = math.sin(radian_angle) * c
         y_offset = math.cos(radian_angle) * c
         bul_pos = [bullet_pos[0] + x_offset, bullet_pos[1] + y_offset]
+        casing_pos = [bullet_pos[0] + x_offset*0.8, bullet_pos[1] + y_offset*0.8]
 
         bul_pos_apparent = [bul_pos[0] / multiplier2, bul_pos[1] / multiplier2]
 
-        app.casings.append(Casing(app, screen, bul_pos, angle))
+        app.casings.append(Casing(app, screen, casing_pos, angle))
 
         self.visual_and_audio_fire(bul_pos_apparent, angle, screen)
 

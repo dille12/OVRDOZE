@@ -390,10 +390,19 @@ class Map:
                 ]
             )
         if dir:
-            self.background = pygame.transform.scale(
-                pygame.image.load(fp("texture/maps/" + dir)),
-                [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
-            ).convert()
+
+            if CUSTOM:
+                self.background = pygame.transform.scale(
+                    dir,
+                    [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
+                ).convert()
+            else:
+
+
+                self.background = pygame.transform.scale(
+                    pygame.image.load(fp("texture/maps/" + dir)),
+                    [round(map_size[0] / self.conv), round(map_size[1] / self.conv)],
+                ).convert()
 
         if TOP_LAYER == None:
             self.top_layer = None
@@ -537,7 +546,16 @@ class Map:
     def read_navmesh(self, walls_filtered):
         NAV_MESH = []
 
+        if self.CUSTOM:
+            try:
+                NAV_MESH = self.nav_mesh_name
 
+                NAV_MESH = self.generate_navmesh(NAV_MESH, self)
+                return NAV_MESH
+            except Exception as e:
+                print(e)
+                traceback.print_exc()
+                return []
 
         if os.path.isfile(self.compiled_file):
             with open(self.compiled_file) as file:
