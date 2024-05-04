@@ -12,3 +12,5 @@ Version 0.9.72 - Casings, took out the custom level loading, since it crashes
 
 Version 0.9.73 - Custom levels now load properly
 
+Version 0.9.74 - Maps will load if no custom maps are present
+
