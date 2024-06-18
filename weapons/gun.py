@@ -54,6 +54,7 @@ class Gun(Weapon):
         ammo_per_shot = 1,
         rocket_explosion_range = 300,
         bullets_in_clip = -1,
+        fragRounds = False,
     ):
         super().__init__(
             name,
@@ -121,6 +122,8 @@ class Gun(Weapon):
         if charge_up:
             self.charge_tick = GameTick(self.charge_time, oneshot=True)
 
+        self.fragRounds = fragRounds
+
     def add_to_spread(self, amount):
         self._c_bullet_spread += amount
 
@@ -163,6 +166,7 @@ class Gun(Weapon):
             ammo_per_shot = self.ammo_per_shot,
             rocket_explosion_range = self.rocket_explosion_range,
             bullets_in_clip = self._bullets_in_clip,
+            fragRounds = self.fragRounds,
         )
 
     def get_semi_auto(self):
@@ -283,6 +287,7 @@ class Gun(Weapon):
                     rocket_explosion_range = self.rocket_explosion_range,
                     owner=self,
                     explosive = self.explosive,
+                    fragRounds = self.fragRounds,
                 )
 
                 bullet_list.append(bullet_temp)  # BULLET

@@ -1096,7 +1096,7 @@ class button_prompt:
             self.text_render2 = prompt.render(
                 self.object.__dict__["name"], False, [255, 255, 255]
             )
-            self.text_render = prompt.render("F to talk", False, [255, 255, 255])
+            self.text_render = prompt.render("Hold F to talk", False, [255, 255, 255])
 
         elif self.object.type == "door":
             self.text_render2 = prompt.render(
@@ -1124,9 +1124,13 @@ class button_prompt:
                     func.minus_list(func.minus_list(pos, self.rect), camera_pos), [0, 20]
                 ),
             )
-        pressed = pygame.key.get_pressed()
 
-        if f_press:
+        if self.object.type in ["gun_drop", "NPC"]:
+            initiator = self.object.app.f_press_cont
+        else:
+            initiator = f_press
+
+        if initiator:
             self.object.interact()
             self.object.kill_bp()
 

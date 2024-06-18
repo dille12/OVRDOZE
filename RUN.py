@@ -875,6 +875,12 @@ def main(ms = "start", TEST = False):
 
     last_beat = time.perf_counter()
     app.loading = False
+
+    if quick_load:
+        time.sleep(0.5)
+        start_sp("NORMAL")
+
+
     while 1:
 
         app.loading = False

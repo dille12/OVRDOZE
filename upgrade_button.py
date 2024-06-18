@@ -15,6 +15,20 @@ class upgradeButton:
         self.upgradeI = 0
         self.owned = False
 
+
+    def convValue(self, value):
+        
+        if isinstance(value, float):
+            value = f"{value:.2f}"
+
+        if isinstance(value, bool):
+            if value:
+                value = "On"
+            else:
+                value = "Off"
+
+        return value
+
     def tick(self, screen, y_pos, mouse_pos, click, player_actor):
         visible = True
         if self.slot < y_pos - 0.5 or self.slot > y_pos + 2.5:
@@ -101,6 +115,10 @@ class upgradeButton:
 
                     stat = upgradeMap[u]["stat"]
 
+                    value = self.weapon.__dict__[stat]
+
+                    
+
                     if upgradeMap[u]["stat"] in statMap:
                         v = statMap[stat]
                         t = terminal.render(f"Stat: {v}", False, [155,155,155])
@@ -109,20 +127,23 @@ class upgradeButton:
                         t = terminal.render(f"Stat: {v}", False, [155,155,155])
                     screen.blit(t, [350, 180])
 
+
+                    origVal = self.weapon.__dict__[stat]
+                    origVal = self.convValue(origVal)
                     if "set" in upgradeMap[u]:
                         v = upgradeMap[u]["set"]
-                        t = terminal.render(f"Value: {self.weapon.__dict__[stat]} ] {v}", False, [155,155,155])
+                        t = terminal.render(f"Value: {origVal} ] {self.convValue(v)}", False, [155,155,155])
                         
 
                     if "addval" in upgradeMap[u]:
                         v = upgradeMap[u]["addval"]
 
-                        t = terminal.render(f"Value: {self.weapon.__dict__[stat]} ] {self.weapon.__dict__[stat] + v}", False, [155,155,155])
+                        t = terminal.render(f"Value: {origVal} ] {self.convValue(self.weapon.__dict__[stat] + v)}", False, [155,155,155])
 
                     if "multval" in upgradeMap[u]:
                         v = upgradeMap[u]["multval"]
 
-                        t = terminal.render(f"Value: {self.weapon.__dict__[stat]} ] {self.weapon.__dict__[stat] * v}", False, [155,155,155])
+                        t = terminal.render(f"Value: {origVal} ] {self.convValue(self.weapon.__dict__[stat] * v)}", False, [155,155,155])
 
                     screen.blit(t, [350, 210])
                 else:

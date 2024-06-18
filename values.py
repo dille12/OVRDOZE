@@ -25,6 +25,12 @@ multi_kill = 0
 camera_pan = 0.03
 respawn_ticks = 0
 
+class GlobalVars():
+    def __init__(self):
+        self.blockClick = False
+
+GV = GlobalVars()
+
 class introState():
     def __init__(self):
         self.introPlayed = False
@@ -340,7 +346,7 @@ cursor.blit(cursorIm, (0, 0))
 y_size = bullet_texture.get_size()[1]
 
 bullet_length = []
-for x in range(100):
+for x in range(200):
     x += 5
     bullet_length.append(
         pygame.transform.scale(
@@ -354,7 +360,7 @@ y_size = lazer_texture.get_size()[1]
 rocket_texture = load("texture/rocket.png", size = [60,32])
 
 energy_bullet_length = []
-for x in range(100):
+for x in range(200):
     x += 5
     energy_bullet_length.append(
         pygame.transform.scale(

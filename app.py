@@ -78,6 +78,8 @@ class App:
 
         self.casings = []
 
+        self.fPressTick = GameTick(15, oneshot=True)
+        self.f_press_cont_monitor = False
 
     def introScreen(self, screen, clock):
 

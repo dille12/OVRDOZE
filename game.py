@@ -560,8 +560,6 @@ def main(
             mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
 
 
-
-
         click_single_tick = False
         if app.joysticks:
             firingButton = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
@@ -569,10 +567,13 @@ def main(
             firingButton = pygame.mouse.get_pressed()[0]
 
         if firingButton and clicked == False:
-            clicked = True
-            click_single_tick = True
+            if not GV.blockClick:
+                click_single_tick = True
+                clicked = True
+
         elif firingButton == False:
             clicked = False
+            GV.blockClick = False
 
         if pause:
 
@@ -875,6 +876,7 @@ def main(
             if endless and dialogue:
                 dialogue.clear()
                 pause_tick = True
+                pygame.mouse.set_visible(True)
             else:
                 glitch.glitch_tick = 5
                 pause = True
@@ -952,6 +954,19 @@ def main(
             tab_pressed = False
 
         f_press = False
+        app.f_press_cont = False
+
+        if pressed[app.pygame.K_f] and not app.f_press_cont_monitor and player_actor.get_hp() > 0:
+            if app.fPressTick.tick():
+                app.f_press_cont = True
+                app.f_press_cont_monitor = True
+
+
+        elif not pressed[app.pygame.K_f]:
+            
+            app.fPressTick.value = 0
+            app.f_press_cont_monitor = False
+
 
         if pressed[app.pygame.K_f] and f_pressed == False and player_actor.get_hp() > 0:
             f_pressed = True
@@ -1247,6 +1262,10 @@ def main(
 
         last_bullet_list = tuple(bullet_list)
 
+        if GV.blockClick:
+            click_single_tick = False
+            clicked = False
+
         if player_actor.get_hp() > 0:
 
             x_diff = (mouse_pos[0] + camera_pos[0]) - player_pos[0]
@@ -1369,6 +1388,7 @@ def main(
                         player_pos,
                         player_actor,
                         screen,
+                        mClick = clicked,
                     )
                     player_melee.tick(screen, r_click_tick)
 

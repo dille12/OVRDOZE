@@ -23,7 +23,8 @@ class Bullet(Game_Object):
         id=-1,
         owner=None,
         explosive=False,
-        rocket_explosion_range = 300
+        rocket_explosion_range = 300,
+        fragRounds = False
     ):
         self.id = id
         self.owner = owner
@@ -44,7 +45,7 @@ class Bullet(Game_Object):
         self.daemon_bullet = daemon_bullet
         self.rocket_explosion_range = rocket_explosion_range
         self.mp = mp
-        self.speed = speed * random.uniform(0.9, 1.1)
+        self.speed = speed * random.uniform(0.9, 1.1) * 2
         self.energy = energy
         self.rocket = rocket
         if type != "shrapnel":
@@ -64,7 +65,7 @@ class Bullet(Game_Object):
             self.piercing = 1
 
 
-
+        self.fragRounds = fragRounds
         self.actors_hit = []
 
         self.explosive = explosive
@@ -74,6 +75,8 @@ class Bullet(Game_Object):
         self.quadrantType = 0
         self.quadrant = 0
 
+        self.lastPoses = []
+
 
     def get_string(self):
         return super().get_string("BULLET")
@@ -82,6 +85,9 @@ class Bullet(Game_Object):
         self._last_pos = self._pos.copy()
         self._pos[0] += math.sin(self._angle_radians) * self.speed * timedelta.timedelta * multiplier2
         self._pos[1] += math.cos(self._angle_radians) * self.speed * timedelta.timedelta * multiplier2
+
+        
+
         pass
 
     def draw(self):
@@ -106,7 +112,25 @@ class Bullet(Game_Object):
             #explosions.append(Explosion(self._pos, expl1))
         if self in bullet_list:
             bullet_list.remove(self)
+    
+    def drawTrail(self, camera_pos):
 
+
+        self.lastPoses.append(self._pos.copy())
+        if len(self.lastPoses) > round(3 / timedelta.timedelta):
+            self.lastPoses.remove(self.lastPoses[0])
+
+        LP = None
+        for i in range(len(self.lastPoses)):
+            pos = self.lastPoses[i]
+
+            DP = func.draw_pos(pos.copy(), camera_pos)
+
+            if LP:
+                pygame.draw.aaline(screen, [255,255,0], DP, LP)
+            LP = DP.copy()
+
+        
 
     def move_and_draw_Bullet(
         self,
@@ -122,6 +146,10 @@ class Bullet(Game_Object):
         super().update_life(bullet_list)
         last_pos = self._pos.copy()
         self.move()
+
+        
+
+
 
         if not self.quadrant:
             map.setToQuadrant(self, self._pos)
@@ -180,7 +208,7 @@ class Bullet(Game_Object):
                 "bottom": False,
             }:
                 func.list_play(rico_sounds)
-
+                self.lastPoses.append(pos)
 
                 if coll_types["left"] or coll_types["right"]:
                     ang = 270 - self._angle
@@ -227,6 +255,11 @@ class Bullet(Game_Object):
 
         else:
             pygame.draw.circle(screen, [255, 153, 0], draw_pos, 3)
+
+
+        self.drawTrail(camera_pos)
+        
+
 
         if self.daemon_bullet:
             return 0
@@ -319,6 +352,19 @@ class Bullet(Game_Object):
                         rad = 2*math.pi - math.radians(self._angle + 180)
                         x.aim_at = [math.cos(rad) * 100 + x.pos[0], math.sin(rad) * 100 + x.pos[1]]
                         x.random_aim_tick = 120
+
+
+                if self.fragRounds:
+                    bullet_list.append(Bullet(self._pos, self._angle + 30, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                    bullet_list.append(Bullet(self._pos, self._angle + 15, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                    bullet_list.append(Bullet(self._pos, self._angle - 15, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                    bullet_list.append(Bullet(self._pos, self._angle - 30, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                    
+                    self.fragRounds = False
 
 
                 x.knockback(

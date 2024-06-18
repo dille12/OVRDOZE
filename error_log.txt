@@ -1,19 +1,12 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1371, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1376, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 211, in main
-    maps_dict = app.getMaps()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 248, in getMaps
-    self.maps = get_maps(self)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\maps.py", line 515, in get_maps
-    maps = getCustomLevels(app, maps)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\maps.py", line 46, in getCustomLevels
-    ref_point = {"point": ast.literal_eval(line), "connected": []}
-  File "C:\Users\Reset\AppData\Local\Programs\Python\Python310\lib\ast.py", line 64, in literal_eval
-    node_or_string = parse(node_or_string.lstrip(" \t"), mode='eval')
-  File "C:\Users\Reset\AppData\Local\Programs\Python\Python310\lib\ast.py", line 50, in parse
-    return compile(source, filename, mode, flags,
-  File "<unknown>", line 1
-    [(265.8266601562493
-     ^
-SyntaxError: '(' was never closed
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 880, in main
+    start_sp(0)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 395, in start_sp
+    app.start_sp(args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 273, in start_sp
+    game.main(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 129, in main
+    sanity_drain, zombie_hp, zombie_damage, turret_bullets, enemy_count = diff_rates[
+KeyError: 0

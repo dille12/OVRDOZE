@@ -21,7 +21,7 @@ def compareGuns(app, screen, gun1, gun2, playerPos, cameraPos, player_inventory,
     if gun1 != False:
         renderGunDetail(app, screen, gun1, gun2, minus_list(renderPos, (100 + xD/2, 20 + yD/2)), player_inventory, "CURRENT", text)
 
-    renderGunDetail(app, screen, gun2, gun1, minus_list(renderPos, (-100 + xD/2, 20 + yD/2)), player_inventory, "F TO SWITCH" if gun1 != False else "F TO PICK UP", text)
+    renderGunDetail(app, screen, gun2, gun1, minus_list(renderPos, (-100 + xD/2, 20 + yD/2)), player_inventory, "HOLD F TO SWITCH" if gun1 != False else "HOLD F TO PICK UP", text)
 
 def renderGunDetail(app, screen, gun, comparisonG, origin, player_inventory, writeBelow = "", text = True):
     screen.blit(gun.comparisonImage, origin)

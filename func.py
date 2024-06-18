@@ -759,7 +759,7 @@ def keypress_manager(key_r_click, c_weapon, player_inventory, player_actor):
                 c_weapon.__dict__["_reload_tick"] = c_weapon.__dict__["_reload_rate"]
 
 
-def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, ai=False):
+def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, mClick = False, ai=False):
     firing_tick = False
 
     c_weapon.spread_recoverial()
@@ -781,9 +781,9 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
             click = True
     else:
         if app.joysticks and app.detectJoysticks:
-            click = app.joysticks[0].get_axis(5) > -0.5 or pygame.mouse.get_pressed()[0]
+            click = app.joysticks[0].get_axis(5) > -0.5 or mClick
         else:
-            click = pygame.mouse.get_pressed()[0]
+            click = mClick
 
     if c_weapon.charge_up:
 

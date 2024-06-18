@@ -131,6 +131,7 @@ tempoLookUp = {
     'Veins.wav' : 135,
     "gamebegin.wav" : 130,
     "Call It Love.wav" : 132,
+    "Fly With Me.wav" : 140,
 }
 
 songDrops = {
@@ -145,6 +146,7 @@ songDrops = {
     "Thorn in my heart.wav" : [[28.44, 71.11], [97.77, 140.44]],
     "Lucid.wav" : [[27.82, 69.56], [111.30, 153.04]],
     "Call It Love.wav" : [[45.45, 74.54], [105.45, 149.09]],
+    "Fly With Me.wav" : [[27.42, 68.57], [101.14, 142.28]],
 }
 
 class MixInfo:
