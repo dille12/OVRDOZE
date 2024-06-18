@@ -17,6 +17,9 @@ mouse_conversion = fs_size[0] / size[0]
 def getCustomLevels(app, maps):
     folder_path = 'ovrdoze_data/levels'
 
+    if not os.path.isdir(folder_path):
+        return maps
+
     # Get a list of all entries (files and directories) in the folder
     entries = os.listdir(folder_path)
 
