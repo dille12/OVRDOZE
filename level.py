@@ -225,7 +225,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
             classes.Burn(map, [352 / multiplier, 2257 / multiplier], 2, 500, infinite=True, magnitude2=0.7)
         )
 
-
+    map.initBlood()
 
     interactables.clear()
 
@@ -337,6 +337,8 @@ class Map:
 
         self.conv = mult
 
+        
+
         self.size_converted = func.mult(self.size, 1 / self.conv)
 
         # self.conv = conv
@@ -414,6 +416,11 @@ class Map:
 
     def get_polygons(self):
         return self.polygons
+    
+    def initBlood(self):
+        self.bloodPoints = np.zeros([round(self.size[0] / BLOODSINK_TILESIZE), round(self.size[1] / BLOODSINK_TILESIZE)], dtype=np.float16)
+        print("BLOOD")
+        print(self.bloodPoints)
 
     def get_size(self):
         return self.size
@@ -1488,6 +1495,9 @@ class Map:
 
         self.map_rendered_alpha = self.map_rendered.copy()
         self.map_rendered_alpha.set_alpha(3)
+
+        self.map_rendered_alpha_PW = self.map_rendered.copy()
+        self.map_rendered_alpha_PW.set_alpha(30)
 
         return self.map_rendered
 

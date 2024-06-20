@@ -172,6 +172,7 @@ def main(
     death_wave = -1
     deathMoney = -1
 
+    app.powerWasher = give_weapon("powerwasher", "POWERWASHER")
 
     last_ping = 0
 
@@ -262,6 +263,8 @@ def main(
         RUN.main(ms = "beta")
 
     print("Level loaded")
+
+    app.map_render = map_render
 
     wave = False
     wave_number = 0
@@ -505,8 +508,15 @@ def main(
 
                 timedelta.timedelta *= 0.5
 
+                app.vignetteCounter += 1
+                app.vignetteCounter = min(app.vignetteCounter, 9)
+
+
             else:
                 killProtection = True
+
+                app.vignetteCounter -= 1
+                app.vignetteCounter = max(app.vignetteCounter, 0)
 
 
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
@@ -724,8 +734,12 @@ def main(
 
             x = random.randint(0, round(map.map_rendered_alpha.get_size()[0]/s1) - 1)
             y = random.randint(0, round(map.map_rendered_alpha.get_size()[1]/s1) - 1)
-            map_render.blit(map.__dict__["map_rendered_alpha"], (x*s1, y*s1), area = [x*s1, y*s1, s1, s1])
+            map_render.blit(map.map_rendered_alpha, (x*s1, y*s1), area = [x*s1, y*s1, s1, s1])
             drying_time = time.time()
+
+            for x1 in range(round(x*s1/BLOODSINK_TILESIZE), round(x*s1/BLOODSINK_TILESIZE + s1/BLOODSINK_TILESIZE)):
+                for y1 in range(round(y*s1/BLOODSINK_TILESIZE), round(y*s1/BLOODSINK_TILESIZE + s1/BLOODSINK_TILESIZE)):
+                    map.bloodPoints[x1, y1] *= 0.98
 
         time_stamps["blood_drying"] = time.time() - t
         t = time.time()
@@ -747,7 +761,7 @@ def main(
                 app.pygame.mouse.set_visible(True)
             else:
                 app.pygame.mouse.set_visible(False)
-            if phase == 9:
+            if phase == 10:
                 phase = 0
 
         elif m_click == False:
@@ -789,6 +803,12 @@ def main(
 
             else:
                 gunKeys[i-1] = 0
+
+        
+        if app.c_weapon != app.powerWasher:
+            if app.weaponInvToggle:
+                app.weaponChangeTick.value = 0
+            app.weaponInvToggle = False
 
 
         for event in app.pygame.event.get():
@@ -986,6 +1006,24 @@ def main(
             app.fs = not app.fs
             screen, mouse_conversion = app.update_screen()
 
+
+        tPress = False
+
+        if pressed[app.pygame.K_t] and tPressed == False:
+            tPressed = True
+            tPress = True
+        elif pressed[app.pygame.K_t] == False:
+            tPressed = False
+
+        if tPress:
+            app.weaponInvToggle = not app.weaponInvToggle
+            app.weaponChangeTick.value = 0
+
+            if app.weaponInvToggle:
+                app.c_weapon = app.powerWasher
+            else:
+                app.c_weapon = player_weapons[weapon_scroll]
+
         q_press = False
         if pressed[app.pygame.K_q] and q_pressed == False and player_actor.get_hp() > 0:
             q_pressed = True
@@ -1013,16 +1051,36 @@ def main(
                 camera_pos[1] + mouse_pos_var[1],
             ]
 
-        for active_map in active_maps:
-            # active_map.__dict__["map_rendered"]
+        if phase != 9:
 
+            for active_map in active_maps:
+                # active_map.__dict__["map_rendered"]
+
+                screen.blit(
+                    map_render,
+                    [
+                        -camera_pos[0] + active_map.__dict__["pos"][0],
+                        -camera_pos[1] + active_map.__dict__["pos"][1],
+                    ],
+                )
+
+        else:
+            bgBlood = pygame.Surface(map_render.get_size())
+            for x in range(map.bloodPoints.shape[0]):
+                for y in range(map.bloodPoints.shape[1]):
+                    value = map.bloodPoints[x, y]
+                    s = pygame.Surface((BLOODSINK_TILESIZE, BLOODSINK_TILESIZE))
+                    s.fill((round(50 + value*100), 50, 50))
+                    bgBlood.blit(s, (x*BLOODSINK_TILESIZE, y*BLOODSINK_TILESIZE))
+            
             screen.blit(
-                map_render,
-                [
-                    -camera_pos[0] + active_map.__dict__["pos"][0],
-                    -camera_pos[1] + active_map.__dict__["pos"][1],
-                ],
-            )
+                    bgBlood,
+                    [
+                        -camera_pos[0] + active_map.__dict__["pos"][0],
+                        -camera_pos[1] + active_map.__dict__["pos"][1],
+                    ],
+                )
+
 
         #los_walls = los.walls_generate(walls_filtered, camera_pos)
 
@@ -1271,6 +1329,8 @@ def main(
             x_diff = (mouse_pos[0] + camera_pos[0]) - player_pos[0]
             y_diff = (mouse_pos[1] + camera_pos[1]) - player_pos[1]
 
+            AIMLENGTH = math.sqrt(x_diff**2 + y_diff**2)
+
             if not block_movement:
 
                 try:
@@ -1313,7 +1373,7 @@ def main(
 
                 player_pos2 = player_pos.copy()
                 player_pos, x_vel, y_vel = func.player_movement2(
-                    pressed, player_pos, x_vel, y_vel, app
+                    pressed, player_pos, x_vel, y_vel, app, player_actor
                 )
 
 
@@ -1389,6 +1449,7 @@ def main(
                         player_actor,
                         screen,
                         mClick = clicked,
+                        distanceMP = AIMLENGTH,
                     )
                     player_melee.tick(screen, r_click_tick)
 
@@ -1532,9 +1593,9 @@ def main(
         time_stamps["prompts"] = time.time() - t
         t = time.time()
 
-        for quadrantRow in map.quadrants:
-            for quadrant in quadrantRow:
-                quadrant.collisionCheck(player_actor)
+        #for quadrantRow in map.quadrants:
+        #    for quadrant in quadrantRow:
+        #        quadrant.collisionCheck(player_actor)
 
         time_stamps["collisions"] = time.time() - t
         t = time.time()
@@ -1830,9 +1891,30 @@ def main(
             elif phase == 8:
                 t = "STORY TELLER"
 
+            elif phase == 9:
+                t = "BLOOD SINK"
+                func.print_s(screen, "BLOODSINK: " + str(round(player_actor.bloodSink * 100)) + "%", 3)
+
 
             text = terminal3.render("DEVSCREEN: " + t, False, [255, 255, 255])
             screen.blit(text, [200, 20])
+
+
+        bloodVal = map.bloodPoints[round(player_actor.pos[0]/BLOODSINK_TILESIZE), round(player_actor.pos[1]/BLOODSINK_TILESIZE)]
+        player_actor.sinking = False
+        if bloodVal > 0.25:
+            player_actor.sinking = True
+
+        if bloodVal > player_actor.bloodSink:
+            player_actor.bloodSink += 0.01 * bloodVal * timedelta.timedelta
+            
+        else:
+            player_actor.bloodSink -= 0.0025 * timedelta.timedelta
+            
+            
+        player_actor.bloodSink = min(player_actor.bloodSink, 1)
+        player_actor.bloodSink = max(player_actor.bloodSink, 0)
+
 
         if player_actor.get_hp() > 0:
 
@@ -2411,6 +2493,10 @@ def main(
             screen.fill((0,0,0))
             func.blit_glitch(screen, image_copy, [0,0], round(2*app.screen_glitch), black_bar_chance = 15)
             app.screen_glitch -= timedelta.mod(1)
+
+
+        
+
 
 
             

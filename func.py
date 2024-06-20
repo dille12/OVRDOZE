@@ -422,9 +422,11 @@ def joystick_movement(joystick, player_pos, x_vel, y_vel, evading, evade_skip_ti
     return player_pos, x_vel, y_vel
 
 
-def player_movement2(pressed, player_pos, x_vel, y_vel, app):
+def player_movement2(pressed, player_pos, x_vel, y_vel, app, player_actor):
     global evading, evade_skip_tick
     sprinting = False
+
+    movement_modifier = 1-player_actor.bloodSink/2
 
     if pygame.joystick.get_count() and app.detectJoysticks:
         joystick = app.joysticks[0]
@@ -433,15 +435,15 @@ def player_movement2(pressed, player_pos, x_vel, y_vel, app):
 
     if pressed[pygame.K_SPACE] and evading == False and evade_skip_tick <= 0:
         if pressed[pygame.K_w]:
-            y_vel = timedelta.mod(-evade_speed)
+            y_vel = timedelta.mod(-evade_speed * movement_modifier)
         elif pressed[pygame.K_s]:
-            y_vel = timedelta.mod(evade_speed)
+            y_vel = timedelta.mod(evade_speed * movement_modifier)
         else:
             y_vel = 0
         if pressed[pygame.K_d]:
-            x_vel = timedelta.mod(evade_speed)
+            x_vel = timedelta.mod(evade_speed * movement_modifier)
         elif pressed[pygame.K_a]:
-            x_vel = timedelta.mod(-evade_speed)
+            x_vel = timedelta.mod(-evade_speed * movement_modifier)
         else:
             x_vel = 0
 
@@ -455,28 +457,28 @@ def player_movement2(pressed, player_pos, x_vel, y_vel, app):
 
         if pressed[pygame.K_LSHIFT]:
             sprinting = True
-            velocity_cap = timedelta.mod(9 / 1.875)
+            velocity_cap = timedelta.mod(movement_modifier * 9 / 1.875)
         elif pressed[pygame.K_LCTRL]:
             crouching = True
-            velocity_cap = timedelta.mod(2.75 / 1.875)
+            velocity_cap = timedelta.mod(movement_modifier * 2.75 / 1.875)
         else:
             sprinting = False
-            velocity_cap = timedelta.mod(5 / 1.875)
+            velocity_cap = timedelta.mod(movement_modifier * 5 / 1.875)
         if pressed[pygame.K_w]:
-            y_acc = timedelta.mod(-acceleration)
+            y_acc = timedelta.mod(-acceleration * movement_modifier)
         elif pressed[pygame.K_s]:
-            y_acc = timedelta.mod(acceleration)
+            y_acc = timedelta.mod(acceleration * movement_modifier)
         else:
             y_acc = 0
         if pressed[pygame.K_d]:
-            x_acc = timedelta.mod(acceleration)
+            x_acc = timedelta.mod(acceleration * movement_modifier)
         elif pressed[pygame.K_a]:
-            x_acc = timedelta.mod(-acceleration)
+            x_acc = timedelta.mod(-acceleration * movement_modifier)
         else:
             x_acc = 0
 
     else:
-        velocity_cap = timedelta.mod(5 / 1.875)
+        velocity_cap = timedelta.mod(5 * movement_modifier / 1.875)
         x_acc, y_acc = 0, 0
 
         if math.sqrt(x_vel**2 + y_vel**2) < velocity_cap:
@@ -759,7 +761,7 @@ def keypress_manager(key_r_click, c_weapon, player_inventory, player_actor):
                 c_weapon.__dict__["_reload_tick"] = c_weapon.__dict__["_reload_rate"]
 
 
-def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, mClick = False, ai=False):
+def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor, screen=screen, mClick = False, ai=False, distanceMP = None):
     firing_tick = False
 
     c_weapon.spread_recoverial()
@@ -786,15 +788,14 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
             click = mClick
 
     if c_weapon.charge_up:
-
         if not click and c_weapon.charge_tick.value != 0:
-            chargeSound.stop()
-            chargeCancelSound.play()
+            c_weapon.soundBank["chargeSound"].stop()
+            c_weapon.soundBank["chargeCancelSound"].play()
 
         if click and c_weapon.reload_tick() == 0:
             if c_weapon.charge_tick.value == 0:
-                chargeSound.play()
-                chargeCancelSound.stop()
+                c_weapon.soundBank["chargeSound"].play()
+                c_weapon.soundBank["chargeCancelSound"].stop()
             if not c_weapon.charge_tick.tick():
                 return
         else:
@@ -803,7 +804,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
     if c_weapon.get_semi_auto():
         if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0:
             reload.stop()
-            c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
+            c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai, distanceMP = distanceMP)
             firing_tick = True
         elif c_weapon.get_Ammo() == 0 and (
             player_inventory.get_amount_of_type(c_weapon.ammo)
@@ -831,7 +832,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
             )
 
             reload.stop()
-            c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
+            c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai, distanceMP = distanceMP)
             firing_tick = True
 
         else:
@@ -841,7 +842,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
                 and c_weapon.current_burst_bullet != 0
             ):
 
-                c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
+                c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai, distanceMP = distanceMP)
                 firing_tick = True
 
             elif c_weapon.get_Ammo() == 0 and (
@@ -865,7 +866,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
                 and not c_weapon.jammed
             ):
                 reload.stop()
-                c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai)
+                c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai, distanceMP = distanceMP)
                 firing_tick = True
 
         elif c_weapon.get_Ammo() == 0 and (
@@ -928,26 +929,40 @@ def draw_HUD(
 ):
     global last_hp, damage_ticks
 
+    x_d, y_d = cam_delta
+    x_d = -x_d
+    y_d = -y_d
+
+    bloodSingIndex = round(player_actor.bloodSink * (len(app.bloodvignette)-1))
+    
+
+    maxValue = (bloodSingIndex // 4) * 4
+
+    if abs(app.bloodCounter - maxValue) < 0.5:
+        app.bloodCounter = maxValue
+        
+    if app.bloodCounter < maxValue:
+        app.bloodCounter += 0.25 * timedelta.timedelta
+    elif app.bloodCounter > maxValue:
+        app.bloodCounter -= 0.25 * timedelta.timedelta
+
+    
+
+
+    screen.blit(app.vignette[app.vignetteCounter], [0,0])
+
     hp = min([round(player_actor.__dict__["hp"]), 100])
 
     heartbeat_tick.tick()
     heartbeat_value = (1 - heartbeat_tick.value / 30 * (100 - hp) / 100) ** 2
-    if wave:
-        pygame.draw.rect(
-            screen,
-            [255, 0, 0],
-            [-1, -1, size[0] + 2, size[1] + 2],
-            round((beat_red - 0.8) * 5*multiplier2),
-        )
+    
 
     hud_color = [
         20 + round(200 * heartbeat_value) + round(35 * player_actor.hp / 100),
         round(255 * player_actor.hp / 100),
         round(255 * player_actor.hp / 100),
     ]
-    x_d, y_d = cam_delta
-    x_d = -x_d
-    y_d = -y_d
+    
 
     try:
         if hp < last_hp:
@@ -970,6 +985,19 @@ def draw_HUD(
     pl_pos = minus_list(player_actor.get_pos(), camera_pos)
     pl_angl = player_actor.aim_angle
     pl_angl2 = player_actor.get_angle()
+
+    if app.bloodCounter > 0:
+        screen.blit(app.bloodvignette[round(app.bloodCounter)], [-42.5+x_d,-24+y_d])
+
+
+    if wave:
+        pygame.draw.rect(
+            screen,
+            [255, 0, 0],
+            [-1, -1, size[0] + 2, size[1] + 2],
+            round((beat_red - 0.8) * 5*multiplier2),
+        )
+
 
     positive = player_actor.money - player_actor.money_last_tick >= 0
 
@@ -1420,7 +1448,12 @@ def draw_HUD(
     if sanity < 40 and app.three_second_tick%20 > 10:
 
         text = terminal3.render("CONSUME NARCOTICS TO REGAIN CONTROL", False, hud_color)
-        screen.blit(text, (size[0] - 217 + x_d, size[1] - 100 + y_d))
+        screen.blit(text, (size[0] - 20 - text.get_size()[0] + x_d, size[1] - 100 + y_d))
+
+    if player_actor.sinking and app.three_second_tick%20 > 10:
+
+        text = terminal3.render("YOU ARE SINKING IN BLOOD", False, hud_color)
+        screen.blit(text, (size[0] - 20 - text.get_size()[0] + x_d, size[1] - 120 + y_d))
 
     amount, tick = player_actor.get_sanity_change()
     if amount != False:

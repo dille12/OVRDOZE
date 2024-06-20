@@ -13,7 +13,7 @@ import classes
 from weapons.weapon import Weapon
 from unit_status import UnitStatus
 from game_objects.casing import Casing
-
+from utilities.powerWashParticle import powerWashParticle
 
 class Gun(Weapon):
     def __init__(
@@ -55,6 +55,7 @@ class Gun(Weapon):
         rocket_explosion_range = 300,
         bullets_in_clip = -1,
         fragRounds = False,
+        powerwasher = False,
     ):
         super().__init__(
             name,
@@ -106,7 +107,7 @@ class Gun(Weapon):
         self.current_burst_bullet = 0
         self.rocket_launcher = rocket_launcher
         self.ammo_per_shot = ammo_per_shot
-
+        self.powerwasher = powerwasher
         self.charge_up = charge_up
         self.charge_time = charge_time
 
@@ -140,7 +141,7 @@ class Gun(Weapon):
             reload_r=self._reload_rate,
             damage=self._damage,
             bullets_at_once=self._bullets_at_once,
-            sounds={"fire": self.sounds, "reload": self.reload_sound},
+            sounds=self.soundBank,
             bullet_speed=self.bullet_speed,
             shotgun=self._shotgun,
             ammo_cap_lvlup=self._ammo_cap_lvlup,
@@ -167,6 +168,7 @@ class Gun(Weapon):
             rocket_explosion_range = self.rocket_explosion_range,
             bullets_in_clip = self._bullets_in_clip,
             fragRounds = self.fragRounds,
+            powerwasher = self.powerwasher
         )
 
     def get_semi_auto(self):
@@ -229,10 +231,14 @@ class Gun(Weapon):
                     )
 
 
+    def powerwasherFire(self, app, bullet_pos, angle, screen, player_actor, velocity):
+        super().use()
+        particle_list.append(powerWashParticle(app, bullet_pos, angle, velocity))
 
 
-    def fire(self, app, bullet_pos, angle, screen, player_actor, ai = False):
-        if not ai:
+    def fire(self, app, bullet_pos, angle, screen, player_actor, ai = False, distanceMP = None):
+
+        if not ai and not self.powerwasher:
             index = (0.9 + 0.1*player_actor.sanity/100)**0.1
 
             if self.jammed:
@@ -257,10 +263,11 @@ class Gun(Weapon):
         casing_pos = [bullet_pos[0] + x_offset*0.8, bullet_pos[1] + y_offset*0.8]
 
         bul_pos_apparent = [bul_pos[0] / multiplier2, bul_pos[1] / multiplier2]
+        if not self.powerwasher:
+            app.casings.append(Casing(app, screen, casing_pos, angle))
 
-        app.casings.append(Casing(app, screen, casing_pos, angle))
-
-        self.visual_and_audio_fire(bul_pos_apparent, angle, screen)
+        if not self.powerwasher:
+            self.visual_and_audio_fire(bul_pos_apparent, angle, screen)
 
         if self.owner:
             self.app.send_data(f"self.game_ref.multiplayer_actors['{self.owner.name}'].equipped_gun.visual_and_audio_fire({bul_pos_apparent}, {angle}, self.game_ref.screen_copy)")
@@ -275,25 +282,28 @@ class Gun(Weapon):
 
                 shooting_angle = angle + random.uniform(-self._spread - self._c_bullet_spread, self._spread + self._c_bullet_spread)
 
-                bullet_temp = Bullet.Bullet(
-                    bul_pos_apparent,
-                    shooting_angle,
-                    self._damage * multiplier,
-                    hostile=self.hostile,
-                    speed=self.bullet_speed,
-                    piercing=self.piercing_bullets,
-                    energy=self.energy_weapon,
-                    rocket=self.rocket_launcher,
-                    rocket_explosion_range = self.rocket_explosion_range,
-                    owner=self,
-                    explosive = self.explosive,
-                    fragRounds = self.fragRounds,
-                )
+                if self.powerwasher:
+                    self.powerwasherFire(app, bul_pos_apparent, shooting_angle, screen, player_actor, distanceMP/15)
+                else:
+                    bullet_temp = Bullet.Bullet(
+                        bul_pos_apparent,
+                        shooting_angle,
+                        self._damage * multiplier,
+                        hostile=self.hostile,
+                        speed=self.bullet_speed,
+                        piercing=self.piercing_bullets,
+                        energy=self.energy_weapon,
+                        rocket=self.rocket_launcher,
+                        rocket_explosion_range = self.rocket_explosion_range,
+                        owner=self,
+                        explosive = self.explosive,
+                        fragRounds = self.fragRounds,
+                    )
 
-                bullet_list.append(bullet_temp)  # BULLET
+                    bullet_list.append(bullet_temp)  # BULLET
 
-                if self.owner:
-                    self.app.send_data(f"bullet_list.append(Bullet({bul_pos_apparent}, {shooting_angle}, {self._damage * multiplier}, speed={self.bullet_speed}, piercing={self.piercing_bullets}, energy={self.energy_weapon}, rocket={self.rocket_launcher}, daemon_bullet=True, id={bullet_temp.id}))")
+                    if self.owner:
+                        self.app.send_data(f"bullet_list.append(Bullet({bul_pos_apparent}, {shooting_angle}, {self._damage * multiplier}, speed={self.bullet_speed}, piercing={self.piercing_bullets}, energy={self.energy_weapon}, rocket={self.rocket_launcher}, daemon_bullet=True, id={bullet_temp.id}))")
 
                 if self._shotgun == False:
                     self._bullets_in_clip -= self.ammo_per_shot

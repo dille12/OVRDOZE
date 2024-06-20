@@ -33,6 +33,8 @@ class Weapon:
         self.sounds = sounds["fire"] if sounds["fire"] else "-"
         self.reload_sound = sounds["reload"]
 
+        self.soundBank = sounds
+
         self._reload_tick = 0
         self._weapon_fire_Tick = 0
 
@@ -142,4 +144,8 @@ class Weapon:
         return self._weapon_fire_Tick
 
     def use(self):
-        func.list_play(self.sounds)
+        if isinstance(self.sounds, list):
+            func.list_play(self.sounds)
+        else:
+            self.sounds.stop()
+            self.sounds.play()

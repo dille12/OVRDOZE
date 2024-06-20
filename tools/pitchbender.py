@@ -29,7 +29,7 @@ def bend_all():
 
         y_fast = librosa.effects.pitch_shift(y_fast, sr = sr, n_steps=-12)
 
-        sf.write(f"C:/Users/Reset/Documents/GitHub/OVRDOZE/bended/{file_name}_bended.wav", y_fast, sr, 'PCM_24')
+        sf.write(f"C:/Users/Reset/Documents/GitHub/OVRDOZE/assets/bended/{file_name}_bended.wav", y_fast, sr, 'PCM_24')
         print(f"{x} done")
 
 

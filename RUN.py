@@ -265,6 +265,10 @@ def main(ms = "start", TEST = False):
             IS.menu_animations = [intro1, intro2, intro3, intro4, intro5, intro6, intro7, intro8] #
         else:
             IS.menu_animations = [intro1]
+
+        app.vignette = func.load_animation("anim/vignette", 0, 10)
+        app.bloodvignette = func.load_animation("anim/bloodvignette", 1, 44)
+        
     menu_i = 0
 
     def start_map_creator(arg):

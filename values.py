@@ -25,6 +25,9 @@ multi_kill = 0
 camera_pan = 0.03
 respawn_ticks = 0
 
+
+BLOODSINK_TILESIZE = 50
+
 class GlobalVars():
     def __init__(self):
         self.blockClick = False
@@ -606,6 +609,15 @@ assault_rifle_sounds2 = {
 nrg_sounds = {
     "fire": get_sound_Variants("sound", "nrg_fire"),
     "reload": get_Sound("sound/nrg_reload.wav"),
+    "chargeCancelSound" : chargeCancelSound,
+    "chargeSound" : chargeSound,
+}
+
+washer_sounds = {
+    "fire": get_Sound("sound/sfx/powerwasherfire.wav"),
+    "reload": get_Sound("sound/nrg_reload.wav"),
+    "chargeCancelSound" : chargeCancelSound,
+    "chargeSound" : get_Sound("sound/sfx/powerwashercharge.wav"),
 }
 
 turret_fire1 = get_Sound("sound/turret_fire1.wav")

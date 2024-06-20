@@ -224,7 +224,7 @@ guns = {
         bullets_at_once=10,
         shotgun=True,
         semi_auto=False,
-        sounds=shotgun_sounds,
+        sounds=nrg_sounds,
         ammo_cap_lvlup=2,
         image="shll.png",
         ammo="Energy Cell",
@@ -377,7 +377,11 @@ guns = {
 }
 melees = {}
 grenades = {}
-__weapons_map = {"gun": guns, "melee": melees, "grenade": grenades}
+
+powerWasher = W.Gun("POWERWASHER", image = "powerwasher.png", powerwasher = True, handling=0.9, view=0.017, spread_r = 0.9, clip_s=999, fire_r=2000, spread=3, ammo="INF", bullets_at_once = 1, charge_up=True, charge_time=30,
+                    sounds = washer_sounds)
+
+__weapons_map = {"gun": guns, "melee": melees, "grenade": grenades, "powerwasher" : {"POWERWASHER" : powerWasher}}
 
 upgradeMap = {
     "Full Auto" : {"Desc" : "Turns the weapon to fully automatic.", "stat": "semi_auto", "set" : False},

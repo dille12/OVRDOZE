@@ -1217,8 +1217,8 @@ class Particle:
         self.fire_x_vel = random.randint(-1, 1) * self.fire_velocity_mod
         self.intensity = random.uniform(0.03, 0.10)
 
-        if len(particle_list) > 500:
-            particle_list.remove(particle_list[0])
+        #if len(particle_list) > 500:
+        #    particle_list.remove(particle_list[0])
 
         if pre_defined_angle == False:
             self.direction = math.radians(random.randint(0, 360))
@@ -1388,6 +1388,8 @@ class Particle:
                         self.color3[2] / self.lifetime,
                     ]
 
+
+
                 # if map != None:
                 #     if (
                 #         list(level.getcollisionspoint(map.rectangles, self.pos))
@@ -1432,6 +1434,9 @@ class Particle:
                     [round(self.color[0] * mult), round(self.color[1] * mult), round(self.color[2] * mult)],
                     [pos[0] + random.randint(-10,10) + random.randint(0, round(pos[2])), pos[1] + random.randint(-10,10) + random.randint(0,round(pos[3])), random.randint(1,3), random.randint(1,3)],
                 )
+                map.bloodPoints[round(pos[0]/BLOODSINK_TILESIZE), round(pos[1]/BLOODSINK_TILESIZE)] += 0.01
+                map.bloodPoints[round(pos[0]/BLOODSINK_TILESIZE), round(pos[1]/BLOODSINK_TILESIZE)] = min(map.bloodPoints[round(pos[0]/BLOODSINK_TILESIZE), round(pos[1]/BLOODSINK_TILESIZE)], 1)
+
 
             elif self.type == "fire":
                 surf = pygame.Surface((round(pos[2]), round(pos[3])))
@@ -1494,6 +1499,8 @@ class Player:
         self.preferred_nade = "HE Grenade"
         self.inv = inv
         self.scrollLimit = len(ruperts_shop_selections)
+        self.bloodSink = 0
+        self.sinking = False
 
     def update_nade(self, inventory):
         nade_types = ["HE Grenade", "Molotov"]

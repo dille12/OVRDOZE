@@ -178,6 +178,7 @@ class Zombie(pygame.sprite.Sprite):
         list.remove(self)
 
 
+
         if not zevent:
             self.issue_event("terminate_1")
 

@@ -62,6 +62,11 @@ class App:
         self.start_game_with_mp = []
         self.menu_animations = []
 
+        self.vignetteCounter = 0
+        self.bloodCounter = 0
+
+        self.weaponInvToggle = False
+
         self.dontIncreaseDay = False
 
         self.reloadOnQuit = False
