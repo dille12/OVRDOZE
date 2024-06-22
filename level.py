@@ -573,7 +573,7 @@ class Map:
 
 
         try:
-            file = open(f"texture/maps/{self.nav_mesh_name}", "r")
+            file = open(fp(f"texture/maps/{self.nav_mesh_name}"), "r")
             lines = file.readlines()
             file.close()
             for line in lines:

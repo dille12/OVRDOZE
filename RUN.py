@@ -268,7 +268,7 @@ def main(ms = "start", TEST = False):
 
         app.vignette = func.load_animation("anim/vignette", 0, 10)
         app.bloodvignette = func.load_animation("anim/bloodvignette", 1, 44)
-        
+
     menu_i = 0
 
     def start_map_creator(arg):
@@ -930,7 +930,7 @@ def main(ms = "start", TEST = False):
 
 
         app.clock.tick(60)
-        
+
 
         app.name = textbox_name.text
         app.ip = textbox_ip.text
@@ -1066,7 +1066,7 @@ def main(ms = "start", TEST = False):
         text = terminal.render(f"Version {VERSION}", False, [255, 255, 255] if not dirty else [255,0,0])
         screen.blit(text, [10, size[1]-30])
 
-        
+
 
 
         for x in particle_list:

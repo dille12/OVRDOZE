@@ -1,16 +1,14 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1381, in <module>
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1381, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1273, in main
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1273, in main
     s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 138, in tick
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\button.py", line 138, in tick
     return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 399, in start_sp
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 399, in start_sp
     app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 280, in start_sp
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\app.py", line 280, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1629, in main
-    x.tick(screen, camera_pos, map)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\utilities\powerWashParticle.py", line 128, in tick
-    c = [10 + 37*self.colorMod, 42-42*self.colorMod, 47-47*self.colorMod]
-TypeError: unsupported operand type(s) for *: 'int' and 'NoneType'
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\game.py", line 2029, in main
+    "POINT POS: " + str(min_dist_point["point"]),
+TypeError: 'NoneType' object is not subscriptable
