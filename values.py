@@ -421,32 +421,39 @@ ID_container = ID_container()
 class TimeDelta:
     def __init__(self):
         self.timedelta = 1
+        self.nonMutableTimeDelta = 1
 
     def tick(self, am):
         return round(am / self.timedelta)
 
-    def mod(self, am):
-        return am * self.timedelta
+    def mod(self, am, nonMutable = False):
+        if nonMutable:
+            return am * self.nonMutableTimeDelta
+        else:
+            return am * self.timedelta
 
     def exp(self, am):
         return am**self.timedelta
 
     def exp_rev(self, am):
         return am ** (1 / self.timedelta)
+    
+    
 
 
 timedelta = TimeDelta()
 
 
 class GameTick:
-    def __init__(self, max_value=30, oneshot=False):
+    def __init__(self, max_value=30, oneshot=False, nonMutable = False):
         self.value = 0
         self.max_value = max_value
         self.oneshot = oneshot
+        self.nonMutable = nonMutable
 
     def tick(self):
         if self.value < self.max_value:
-            self.value += timedelta.mod(1)
+            self.value += timedelta.mod(1, self.nonMutable)
         if self.value < self.max_value:
             return False
         else:
@@ -456,6 +463,9 @@ class GameTick:
 
     def rounded(self):
         return round(self.value)
+    
+    def isMaxed(self):
+        return self.value > self.max_value
 
 
 dialogue = []
@@ -639,7 +649,7 @@ hints = [
 "By moving you disorient your enemies.",
 "Armor-Piercing rounds and energy rounds pierce zombies.",
 "Clear a gun jam by spamming the firing button.",
-"You can exit the basement after 5 waves, but you may stay as long as you wish.",
+"You sink in to the blood of your enemies. Remember to clean it up.",
 "Wave time increases after every wave, but resets on death.",
 "Time slows down while your health is below 30%.",
 "Take them all with no hesitation.",

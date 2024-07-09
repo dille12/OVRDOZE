@@ -10,6 +10,7 @@ from pathfind import find_shortest_path
 from _thread import start_new_thread
 from tools.video_to_frames import getFrames
 from utilities.compareGuns import compareGuns
+from unit_status import UnitStatus
 
 pygame.init()
 pygame.font.init()
@@ -791,6 +792,8 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
         if not click and c_weapon.charge_tick.value != 0:
             c_weapon.soundBank["chargeSound"].stop()
             c_weapon.soundBank["chargeCancelSound"].play()
+            if c_weapon.fired == False:
+                UnitStatus(screen, player_actor, "CHARGE CANCELLED!", [255,0,0], smaller = True)
 
         if click and c_weapon.reload_tick() == 0:
             if c_weapon.charge_tick.value == 0:
@@ -798,11 +801,27 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
                 c_weapon.soundBank["chargeCancelSound"].stop()
             if not c_weapon.charge_tick.tick():
                 return
+            else:
+                if c_weapon.incremental_fire_r:
+                    if c_weapon.fire_r_time > c_weapon.fire_r_time_curr:
+                        c_weapon.fire_r_time_curr += timedelta.mod(1)
+                    else:
+                        c_weapon.fire_r_time_curr = c_weapon.fire_r_time
         else:
             c_weapon.charge_tick.value = 0
+            c_weapon.fired = False
+
+        if not click:
+            c_weapon.fire_r_time_curr = 0
+
+        if c_weapon.incremental_fire_r:
+
+            fire_r = c_weapon._bullet_per_min + (c_weapon.max_fire_r - c_weapon._bullet_per_min) * (c_weapon.fire_r_time_curr/c_weapon.fire_r_time)
+
+            c_weapon._firerate = 60 / (fire_r / 60)
 
     if c_weapon.get_semi_auto():
-        if c_weapon.check_for_Fire(click) == True and c_weapon.reload_tick() == 0:
+        if c_weapon.check_for_Fire(click, player_inventory) == True and c_weapon.reload_tick() == 0:
             reload.stop()
             c_weapon.fire(app, player_pos, angle, screen, player_actor, ai = ai, distanceMP = distanceMP)
             firing_tick = True
@@ -822,7 +841,7 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
             c_weapon.burst_tick -= 1
 
         if (
-            c_weapon.check_for_Fire(click) == True
+            c_weapon.check_for_Fire(click, player_inventory) == True
             and c_weapon.reload_tick() == 0
             and c_weapon.weapon_fire_Tick() <= 0
         ):
@@ -856,13 +875,13 @@ def weapon_fire(app, c_weapon, player_inventory, angle, player_pos, player_actor
 
     else:
         if (
-            c_weapon.check_for_Fire(click) == True
+            c_weapon.check_for_Fire(click, player_inventory) == True
             and c_weapon.weapon_fire_Tick() <= 0
             and c_weapon.reload_tick() == 0
         ):  ##FIRE
             while (
                 c_weapon.weapon_fire_Tick() <= 0
-                and c_weapon.check_for_Fire(click) == True
+                and c_weapon.check_for_Fire(click, player_inventory) == True
                 and not c_weapon.jammed
             ):
                 reload.stop()
@@ -977,9 +996,19 @@ def draw_HUD(
         print(e)
 
     hp_d = 10 - player_actor.hp / 10
+    if app.vibrateTick.tick():
+        app.vibrateTargetPos.update(random.uniform(-hp_d, hp_d), random.uniform(-hp_d, hp_d))
 
-    x_d += random.uniform(-hp_d, hp_d)
-    y_d += random.uniform(-hp_d, hp_d)
+    app.vibrateVel *= 0.9
+    
+    app.vibrateVel += (app.vibrateTargetPos - app.vibratePos) * 0.1
+    app.vibratePos += app.vibrateVel
+
+    x_d += app.vibratePos[0]
+    y_d += app.vibratePos[1]
+
+
+
     clip_size = weapon.get_clip_size()
     clip = round(weapon.get_Ammo())
     pl_pos = minus_list(player_actor.get_pos(), camera_pos)
@@ -1294,7 +1323,14 @@ def draw_HUD(
 
     if not weapon.jammed:
 
-        if weapon.__dict__["_reload_tick"] == 0:
+        if weapon.skip_mags:
+
+            available_ammo = player_inventory.get_amount_of_type(weapon.ammo) + clip
+
+            text = terminal.render(str(available_ammo) + " res.", False, color)
+            screen.blit(text, (15 + x_d, 45 + y_d))  #
+
+        elif weapon.__dict__["_reload_tick"] == 0:
             if clip == clip_size + 1:
                 text = terminal.render(
                     str(clip - 1) + "+1/" + str(clip_size), False, hud_color
@@ -1351,7 +1387,7 @@ def draw_HUD(
             screen.blit(text, (80 + x_d, 65 + y_d))  #
 
             text = terminal3.render(
-                str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color
+                str(round(3600 / weapon._firerate)) + "RPM", False, hud_color
             )
             screen.blit(text, (150 + x_d, 65 + y_d))  #
 
@@ -1368,9 +1404,36 @@ def draw_HUD(
             # print(ammo_text_len)
 
             text = terminal3.render(
-                str(weapon.__dict__["_bullet_per_min"]) + "RPM", False, hud_color
+                str(round(3600 / weapon._firerate)) + "RPM", False, hud_color
             )
             screen.blit(text, (max([150 + x_d, ammo_text_len + x_d]), 65 + y_d))  #
+
+
+        if weapon == app.powerWasher:
+            c = 0
+        else:
+            c = 1
+
+        t = terminal3.render("1", False, [255,255,255] if not c else [255,0,0])
+        screen.blit(t, [220 + x_d, 5 + y_d])
+
+        if c:
+            r = t.get_rect()
+            r.x = 220 + x_d
+            r.y = 5 + y_d
+            pygame.draw.rect(screen, [255,0,0], r, width=1)
+
+        t = terminal3.render("T", False, [255,255,255])
+        screen.blit(t, [220 + x_d, 15 + y_d])
+
+        t = terminal3.render("2", False, [255,255,255] if c else [255, 0,0])
+        screen.blit(t, [220 + x_d, 25 + y_d])
+
+        if not c:
+            r = t.get_rect()
+            r.x = 220 + x_d
+            r.y = 25 + y_d
+            pygame.draw.rect(screen, [255,0,0], r, width=1)
 
     else:
         if app.three_second_tick%10 < 5:
@@ -1378,6 +1441,9 @@ def draw_HUD(
             screen.blit(text, [5 + x_d, 40 + y_d])  #
 
     player_actor.update_nade(player_inventory)
+
+    t = terminal3.render("Q", False, [255,255,255])
+    screen.blit(t, [265 + x_d, 5 + y_d])
 
     if player_actor.preferred_nade == "HE Grenade":
         screen.blit(grenade_ico, [240 + x_d, 5 + y_d])

@@ -78,6 +78,7 @@ def quit(app):
     app.pygame.mixer.music.unload()
     app.write_prefs()
     print("Quitting game")
+    particle_list.clear()
 
     RUN.main()
 
@@ -97,6 +98,7 @@ songDrops = {
     "Thorn in my heart.wav" : [[28.44, 71.11], [97.77, 140.44]],
     "Lucid.wav" : [[27.82, 69.56], [111.30, 153.04]],
     "Call It Love.wav" : [[45.45, 74.54], [105.45, 149.09]],
+    "Fly With Me.wav" : [[27.42, 68.57], [101.14, 142.28]],
 }
 
 
@@ -232,6 +234,7 @@ def main(
     ### load
 
     player_inventory = classes.Inventory(app, interactables, player=True)
+    player_inventory.items = items
     turret_bro.clear()
 
     
@@ -308,7 +311,9 @@ def main(
         fn.ammo = "INF"
         player_weapons.append(fn)
 
-        #player_weapons.append(give_weapon("gun", "SPAS-12"))
+        app.startGun = fn
+
+        player_weapons.append(give_weapon("gun", "R13-TYPE2"))
         #player_weapons.append(give_weapon("gun", "AK47"))
         #player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
         #player_weapons.append(give_weapon("gun", "P90"))
@@ -318,6 +323,7 @@ def main(
         endless = False
         dialogue.append(Dialogue("Intro", app))
         player_pos = [25 * multiplier2,950 * multiplier2]
+        app.startGun = player_weapons[0]
 
 
     app.endless = endless
@@ -522,6 +528,9 @@ def main(
             # pygame.display.set_gamma(1,random.randint(1,3),1.1)
 
         timedelta.timedelta = timedelta.timedelta * 0.75 + tick_delta * 0.25
+        timedelta.nonMutableTimeDelta = timedelta.nonMutableTimeDelta * 0.75 + tick_delta * 0.25
+
+        app.weaponSwitchTick.tick()
 
         app.clock.tick(app.clocktick if not pause else 60)
 
@@ -791,18 +800,21 @@ def main(
 
         pressed = app.pygame.key.get_pressed()
 
-        for i in range(1,len(player_weapons) + 1):
-            if pressed[pygame.key.key_code(str(i))] and not pause:
-                if not gunKeys[i-1]:
-                    app.c_weapon = player_weapons[i-1]
-                    app.weaponChangeTick.value = 0
-                    weapon_scroll = i-1
-                
-                gunKeys[i-1] = 1
-                break
+        if app.weaponSwitchTick.isMaxed():
 
-            else:
-                gunKeys[i-1] = 0
+            for i in range(1,len(player_weapons) + 1):
+                if pressed[pygame.key.key_code(str(i))] and not pause:
+                    if not gunKeys[i-1]:
+                        app.c_weapon = player_weapons[i-1]
+                        app.weaponChangeTick.value = 0
+                        weapon_scroll = i-1
+                        app.weaponSwitchTick.value = 0
+                    
+                    gunKeys[i-1] = 1
+                    break
+
+                else:
+                    gunKeys[i-1] = 0
 
         
         if app.c_weapon != app.powerWasher:
@@ -830,66 +842,68 @@ def main(
             if event.type == pygame.JOYBUTTONDOWN:
                 app.joystickEvents.append(event.button)
 
+            if app.weaponSwitchTick.isMaxed():
+                if event.type == app.pygame.MOUSEBUTTONDOWN or event.type == pygame.JOYBUTTONDOWN:
+                    if event.button == 5:
 
-            if event.type == app.pygame.MOUSEBUTTONDOWN or event.type == pygame.JOYBUTTONDOWN:
-                if event.button == 5:
+                        if block_movement:
+                            scroll[1] = True
+                            continue
+                        
 
-                    if block_movement:
-                        scroll[1] = True
-                        continue
-                    
-                    
+                        searching = True
+                        while searching:
+                            weapon_scroll -= 1
+                            if weapon_scroll == -1:
+                                weapon_scroll = len(player_weapons) - 1
 
-                    searching = True
-                    while searching:
-                        weapon_scroll -= 1
-                        if weapon_scroll == -1:
-                            weapon_scroll = len(player_weapons) - 1
+                            app.c_weapon = player_weapons[weapon_scroll]
 
-                        app.c_weapon = player_weapons[weapon_scroll]
+                            app.weaponChangeTick.value = 0
+                            app.weaponSwitchTick.value = 0
 
-                        app.weaponChangeTick.value = 0
+                            if (
+                                app.c_weapon.get_Ammo() != 0
+                                or player_inventory.get_amount_of_type(
+                                    app.c_weapon.__dict__["ammo"]
+                                )
+                                != 0
+                                or app.c_weapon.__dict__["ammo"] == "INF"
+                            ) or True:
+                                searching = False
 
-                        if (
-                            app.c_weapon.get_Ammo() != 0
-                            or player_inventory.get_amount_of_type(
-                                app.c_weapon.__dict__["ammo"]
-                            )
-                            != 0
-                            or app.c_weapon.__dict__["ammo"] == "INF"
-                        ) or True:
-                            searching = False
+                    elif event.button == 4:
 
-                elif event.button == 4:
+                        if block_movement:
+                            scroll[0] = True
+                            continue
 
-                    if block_movement:
-                        scroll[0] = True
-                        continue
+                        
 
-                    
+                        searching = True
+                        while searching:
+                            weapon_scroll += 1
+                            if weapon_scroll == len(player_weapons):
+                                weapon_scroll = 0
 
-                    searching = True
-                    while searching:
-                        weapon_scroll += 1
-                        if weapon_scroll == len(player_weapons):
-                            weapon_scroll = 0
+                            app.weaponChangeTick.value = 0
+                            app.weaponSwitchTick.value = 0
 
-                        app.weaponChangeTick.value = 0
+                            app.c_weapon = player_weapons[weapon_scroll]
 
-                        app.c_weapon = player_weapons[weapon_scroll]
-
-                        if (
-                            app.c_weapon.get_Ammo() != 0
-                            or player_inventory.get_amount_of_type(
-                                app.c_weapon.ammo
-                            )
-                            != 0
-                            or app.c_weapon.ammo == "INF"
-                        ) or True:
-                            searching = False
+                            if (
+                                app.c_weapon.get_Ammo() != 0
+                                or player_inventory.get_amount_of_type(
+                                    app.c_weapon.ammo
+                                )
+                                != 0
+                                or app.c_weapon.ammo == "INF"
+                            ) or True:
+                                searching = False
 
         if last_gun != app.c_weapon.name:
             app.send_data(f"self.game_ref.multiplayer_actors['{self_name}'].set_gun({time.perf_counter()}, '{app.c_weapon.name}')")
+            app.c_weapon.reload_sound.play()
         
         if pressed[app.pygame.K_ESCAPE] and not pause_tick:
 
@@ -1168,13 +1182,13 @@ def main(
                     if (
                         len(enemy_list)
                         < (enemy_count / (player_actor.sanity / 100 + 0.25))
-                        and wave
+                        and wave # MUUTA TÄÄ!!!
                     ):
                         type = weighted_random_choice(enemyDropRate)
 
                         zombo = Zombie(
                             app,
-                            map.get_random_point(p_pos=player_pos),
+                            map.getPointBasedOnBlood(p_pos=player_pos),
                             interactables,
                             player_actor,
                             NAV_MESH,
@@ -1454,7 +1468,10 @@ def main(
                     player_melee.tick(screen, r_click_tick)
 
 
-                    if app.c_weapon._bullets_in_clip == 0 and click_single_tick:
+                    if app.c_weapon._bullets_in_clip == 0 and player_inventory.get_amount_of_type(app.c_weapon.ammo) == 0 and app.c_weapon.__dict__["ammo"] != "INF" and click_single_tick:
+                                
+                            
+                            
                         gun_jam.play()
                         UnitStatus(screen, player_actor, "NO AMMO!", [255,0,0])
 

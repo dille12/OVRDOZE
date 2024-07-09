@@ -74,8 +74,25 @@ class Item:
 
     def sound(self):
         return self.pickup_sound
+    
+    def renderDescription(self, mouse_pos):
+        text = terminal2.render(self.name, False, [255, 255, 255])
+        t_s = text.get_rect().size
+        alpha_surf = pygame.Surface(t_s).convert()
+        alpha_surf.fill((0, 0, 0))
+        alpha_surf.set_alpha(200)
+        screen.blit(alpha_surf, func.minus(mouse_pos, [0, 40]))
+        screen.blit(text, func.minus(mouse_pos, [0, 40]))
+        text = prompt.render(self.desc, False, [255, 255, 255])
+        t_s2 = text.get_rect().size
+        alpha_surf = pygame.Surface(t_s2).convert()
+        alpha_surf.fill((0, 0, 0))
+        alpha_surf.set_alpha(200)
+        screen.blit(alpha_surf, func.minus(mouse_pos, [0, 40 + t_s[1]]))
+        screen.blit(text, func.minus(mouse_pos, [0, 40 + t_s[1]]))
 
-    def render(self, screen, pos, mouse_pos, clicked, r_click_tick, transfer = False):
+
+    def render(self, inventory, screen, pos, mouse_pos, clicked, r_click_tick, transfer = False):
         render_pos = [pos[0] - self.center[0], pos[1] - self.center[1]]
         screen.blit(self.image, render_pos)
         if transfer:
@@ -84,20 +101,9 @@ class Item:
             render_pos[0] < mouse_pos[0] < render_pos[0] + self.rect[0]
             and render_pos[1] < mouse_pos[1] < render_pos[1] + self.rect[1]
         ) or transfer:
-            text = terminal2.render(self.name, False, [255, 255, 255])
-            t_s = text.get_rect().size
-            alpha_surf = pygame.Surface(t_s).convert()
-            alpha_surf.fill((0, 0, 0))
-            alpha_surf.set_alpha(200)
-            screen.blit(alpha_surf, func.minus(mouse_pos, [0, 40]))
-            screen.blit(text, func.minus(mouse_pos, [0, 40]))
-            text = prompt.render(self.desc, False, [255, 255, 255])
-            t_s2 = text.get_rect().size
-            alpha_surf = pygame.Surface(t_s2).convert()
-            alpha_surf.fill((0, 0, 0))
-            alpha_surf.set_alpha(200)
-            screen.blit(alpha_surf, func.minus(mouse_pos, [0, 40 + t_s[1]]))
-            screen.blit(text, func.minus(mouse_pos, [0, 40 + t_s[1]]))
+            
+            inventory.OnTop = self
+            
             pressed = pygame.key.get_pressed()
             if r_click_tick:
                 return (True, "consume")
@@ -304,6 +310,8 @@ class Inventory:
         self.click = False
         self.columns = 3
 
+        self.OnTop = False
+
         self.interctables_reference = list
 
     def set_inventory(self, dict):
@@ -438,6 +446,8 @@ class Inventory:
     def draw_contents(self, screen, x_d, y_d, obj, default_pos, mouse_pos, clicked, r_click_tick, player_actor, app, inv_2=False):
         self.picked_up_slot = None
 
+        self.OnTop = False
+
         content = obj.contents
         auto_transfer = inv_2 and 3 in app.joystickEvents
 
@@ -449,7 +459,7 @@ class Inventory:
             x = (slot - 1) % obj.columns + 1
             pos = [default_pos[0] + x * 62 + x_d, default_pos[1] + y * 62 + y_d]
 
-            item_clicked, item_type = slot_data["item"].render(screen, pos, mouse_pos, clicked, r_click_tick, transfer=auto_transfer)
+            item_clicked, item_type = slot_data["item"].render(self, screen, pos, mouse_pos, clicked, r_click_tick, transfer=auto_transfer)
             auto_transfer = False
 
             if item_clicked and self.hand_tick == 0:
@@ -474,6 +484,9 @@ class Inventory:
 
         if self.picked_up_slot is not None:
             del content[self.picked_up_slot]
+
+        if self.OnTop:
+            self.OnTop.renderDescription(mouse_pos)
 
     def handle_consumable_item(self, item, player_actor, app):
         if item.name == "Sentry Turret":
@@ -600,9 +613,11 @@ class Inventory:
             self.handle_item_placement(mouse_pos, x_d, y_d, player_actor)
         else:
             self.item_in_hand["item"].render(
-                screen, mouse_pos, mouse_pos, clicked, r_click_tick
+                self, screen, mouse_pos, mouse_pos, clicked, r_click_tick
             )
             self.display_stack_count(screen, self.item_in_hand["amount"], mouse_pos)
+
+            self.item_in_hand["item"].renderDescription(mouse_pos)
 
     def handle_item_placement(self, mouse_pos, x_d, y_d, player_actor):
         inserted = False

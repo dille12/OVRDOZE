@@ -5,11 +5,15 @@ import func
 from values import *
 
 terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+terminal1 = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 
 class UnitStatus:
-    def __init__(self, screen, parent, text, color):
+    def __init__(self, screen, parent, text, color, smaller = False):
         self.parent = parent
-        self.surface_perm = terminal2.render(text, False, color)
+        if smaller:
+            self.surface_perm = terminal1.render(text, False, color)
+        else:
+            self.surface_perm = terminal2.render(text, False, color)
         self.angle = 0
         self.screen = screen
         self.velocity = [random.uniform(-2,2), -2]

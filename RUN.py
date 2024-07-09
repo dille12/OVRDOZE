@@ -266,8 +266,8 @@ def main(ms = "start", TEST = False):
         else:
             IS.menu_animations = [intro1]
 
-        app.vignette = func.load_animation("anim/vignette", 0, 10)
-        app.bloodvignette = func.load_animation("anim/bloodvignette", 1, 44)
+    app.vignette = func.load_animation("anim/vignette", 0, 10)
+    app.bloodvignette = func.load_animation("anim/bloodvignette", 1, 44)
 
     menu_i = 0
 
@@ -429,8 +429,8 @@ def main(ms = "start", TEST = False):
 
     button_sp= Button(
         [x_s, 200],
-        "Singleplayer",
-        sp,
+        "Play",
+        sp_lob,
         None,
         gameInstance=app,
         glitchInstance=glitch,
@@ -497,7 +497,7 @@ def main(ms = "start", TEST = False):
 
 
     button_settings = Button(
-        [x_s, 320],
+        [x_s, 260],
         "Settings",
         settings,
         None,
@@ -506,7 +506,7 @@ def main(ms = "start", TEST = False):
     )
 
     button_map_creator = Button(
-        [x_s, 440],
+        [x_s, 320],
         "Map Editor",
         launch_map_editor,
         None,
@@ -884,6 +884,8 @@ def main(ms = "start", TEST = False):
         time.sleep(0.5)
         start_sp("NORMAL")
 
+    clicked = False
+
 
     while 1:
 
@@ -959,9 +961,9 @@ def main(ms = "start", TEST = False):
                 check_box_fps2.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
                 check_box_fps3.update_checkbox(event, mouse_pos, part_of_list=check_box_fps)
 
-                check_box_res1.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
-                check_box_res2.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
-                check_box_res3.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
+                #check_box_res1.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
+                #check_box_res2.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
+                #check_box_res3.update_checkbox(event, mouse_pos, part_of_list=check_box_res)
 
             if menu_status == "single_player_lobby":
 
@@ -1106,7 +1108,8 @@ def main(ms = "start", TEST = False):
             )
 
             s1 = button_sp.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            #s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s2 = None
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
@@ -1155,8 +1158,8 @@ def main(ms = "start", TEST = False):
                 if x.checked:
                     app.fps = x.caption
 
-            for x in check_box_res:
-                x.render_checkbox()
+            #for x in check_box_res:
+                #x.render_checkbox()
 
 
 
@@ -1280,7 +1283,7 @@ def main(ms = "start", TEST = False):
                 menu_status = s7_2
                 mouse_single_tick = False
             if s8_2 != None:
-                menu_status = "sp"
+                menu_status = "start"
                 mouse_single_tick = False
 
         if menu_status == "lobby":

@@ -56,6 +56,11 @@ class Gun(Weapon):
         bullets_in_clip = -1,
         fragRounds = False,
         powerwasher = False,
+        max_fire_r = 0,
+        fire_r_time = 0,
+        incremental_fire_r = False,
+        skip_mags = False,
+
     ):
         super().__init__(
             name,
@@ -81,6 +86,13 @@ class Gun(Weapon):
         self.owner = None
         self.app = None
         self.activatedUpgrades = activatedUpgrades
+
+        self.skip_mags = skip_mags
+
+        self.max_fire_r = max_fire_r
+        self.fire_r_time = fire_r_time
+        self.incremental_fire_r = incremental_fire_r
+        self.fire_r_time_curr = 0
 
         self.spread_per_bullet = spread_per_bullet
         self.piercing_bullets = piercing
@@ -113,9 +125,12 @@ class Gun(Weapon):
 
         self.availableUpgrades = availableUpgrades
 
+
+        
+
         self.jammed = False
         self.explosive = explosive
-
+        self.fired = False
         self.DPS = self.calcDPS()
 
         self.rocket_explosion_range = rocket_explosion_range
@@ -168,7 +183,11 @@ class Gun(Weapon):
             rocket_explosion_range = self.rocket_explosion_range,
             bullets_in_clip = self._bullets_in_clip,
             fragRounds = self.fragRounds,
-            powerwasher = self.powerwasher
+            powerwasher = self.powerwasher,
+            max_fire_r = self.max_fire_r,
+            fire_r_time = self.fire_r_time,
+            incremental_fire_r = self.incremental_fire_r,
+            skip_mags = self.skip_mags,
         )
 
     def get_semi_auto(self):
@@ -276,6 +295,8 @@ class Gun(Weapon):
 
         bulletsAtOnce = self._bullets_at_once if self._shotgun else 1
 
+        self.fired = True
+
         for x in range(bulletsAtOnce):
 
             if self._bullets_in_clip > 0:
@@ -324,7 +345,12 @@ class Gun(Weapon):
     def spread_recoverial(self):
         self._c_bullet_spread *= timedelta.exp(self._spread_recovery)
 
-    def check_for_Fire(self, click):
+    def check_for_Fire(self, click, player_inventory):
+
+        if self.skip_mags:
+            if self._bullets_in_clip > 1:
+                player_inventory.append_to_inv(player_inventory.items[self.ammo], self._bullets_in_clip - 1)
+                self._bullets_in_clip = 1
 
         if self.semi_auto:
             if click and self.semi_auto_click == False and self._bullets_in_clip > 0:

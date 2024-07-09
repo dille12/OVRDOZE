@@ -76,6 +76,7 @@ class App:
         self.jamTick = GameTick(5)
 
         self.musicDisplayTick = GameTick(180, oneshot=True)
+        self.weaponSwitchTick = GameTick(30, oneshot=True, nonMutable = True)
 
         self.jamIm = False
 
@@ -85,6 +86,11 @@ class App:
 
         self.fPressTick = GameTick(15, oneshot=True)
         self.f_press_cont_monitor = False
+
+        self.vibrateTick = GameTick(5, nonMutable=True)
+        self.vibratePos = pygame.math.Vector2()
+        self.vibrateTargetPos = pygame.math.Vector2()
+        self.vibrateVel = pygame.math.Vector2()
 
     def introScreen(self, screen, clock):
 

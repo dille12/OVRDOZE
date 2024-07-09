@@ -495,11 +495,6 @@ class Map:
 
         return objects
 
-
-    
-
-
-
     def generate_navmesh(self, NAV_MESH, level, loading_screen = True):
         i = 0
         for ref_point in NAV_MESH:
@@ -771,7 +766,6 @@ class Map:
             self.numpy_array_wall_no_los[i][3] = y[1]
 
         print(self.numpy_array_wall_no_los)
-
 
     def generate_wall_structure2(self):
         print("CHECKING POINTS INSIDE WALLS")
@@ -1420,6 +1414,49 @@ class Map:
                         break
                 if not collision:
                     self.nav_mesh_available_spots.append(point)
+
+    def getPointBasedOnBlood(self, p_pos, max_tries = 13):
+        averageBlood = np.average(self.bloodPoints)
+        threshold = averageBlood - 0.025
+        tries = 0
+        nonVisiblePoints = []
+        nonVisibleBloodPoints = []
+        allPoints = []
+        while tries < max_tries:
+            point = func.pick_random_from_list(self.nav_mesh_available_spots)
+            visible = los.check_los_jit(np.array(p_pos), np.array(point), self.numpy_array_wall_los)
+            blood = self.bloodPoints[round(point[0] / BLOODSINK_TILESIZE), round(point[1] / BLOODSINK_TILESIZE)] > threshold
+
+            if not visible:
+                nonVisiblePoints.append(point)
+
+                if blood:
+                    nonVisibleBloodPoints.append(point)
+
+            allPoints.append(point)
+
+            tries += 1
+
+        if nonVisibleBloodPoints:
+            point = self.getFurthest(p_pos, nonVisibleBloodPoints)
+        elif nonVisiblePoints:
+            point = self.getFurthest(p_pos, nonVisiblePoints)
+        else:
+            point = self.getFurthest(p_pos, allPoints)
+        return point
+
+    def getFurthest(self, pos, l):
+        furthest = 0
+        furthest_p = None
+        for x in l:
+            d = los.get_dist_points(pos, x)
+            if d > furthest:
+                furthest_p = x
+                furthest = d
+
+        return furthest_p
+
+
 
     def get_random_point(
         self, p_pos=None, enemies=None, visible_from_origin_point=None, visibility=True, max_tries=100, furthest_point_from_point = False, max_dist = 0, max_dist_point = None,

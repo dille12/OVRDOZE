@@ -16,3 +16,5 @@ Version 0.9.74 - Added new song, using the upgrade station and picking up new gu
 
 Version 0.9.75 - Maps load navmesh correctly
 
+Version 0.9.76 - Blood sinking, powerwasher, new gun, multiple fixes
+
