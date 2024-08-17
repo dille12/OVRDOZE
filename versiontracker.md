@@ -18,3 +18,5 @@ Version 0.9.75 - Maps load navmesh correctly
 
 Version 0.9.76 - Blood sinking, powerwasher, new gun, multiple fixes
 
+Version 0.9.77 - added outros to song + a new song
+

@@ -1161,14 +1161,36 @@ class kill_count_render:
         self.images = rgb_list
         self.lifetime = 0
         self.max_lifetime = 45
+
+        
+
         for x in range(kills):
             self.x_poses.append(start_x)
 
             start_x += 50
 
-    def tick(self, screen, cam_delta, kill_counter):
+    def tick(self, screen, cam_delta, kill_counter, app):
 
-        if len(self.x_poses) >= 10:
+        if not app.ovrdozeGT.tick():
+            #print("Drawing OVRDOZE")
+            if self.lifetime <= self.max_lifetime / 6:
+                y = size[1] - 80 + 1 / ((self.lifetime + 1) ** 1.5) * 200
+            elif self.max_lifetime / 6 < self.lifetime <= 4 * self.max_lifetime / 6:
+                y = size[1] - 80
+            else:
+                y = size[1] - 80 + 1 / ((self.max_lifetime + 3 - self.lifetime) ** 1.2) * (200)
+
+            #print([size[0] / 2 - menu_rgb[0].get_size()[0]/2, y-200])
+
+            func.rgb_render(
+                ovrdoze_rgb,
+                30,
+                [size[0] / 2 - ovrdoze_rgb[0].get_size()[0]/2, y-40],
+                cam_delta,
+                screen,
+            )
+
+        elif len(self.x_poses) >= 10:
             if self.lifetime <= self.max_lifetime / 6:
                 y = size[1] - 80 + 1 / ((self.lifetime + 1) ** 1.5) * 200
             elif self.max_lifetime / 6 < self.lifetime <= 4 * self.max_lifetime / 6:

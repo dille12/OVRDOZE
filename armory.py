@@ -455,4 +455,5 @@ statMap = {
     "ammo" : "Ammo type",
     "fragRounds" : "Frag Rounds",
     "handling" : "Handling",
+    "_shotgun" : "Multishot",
 }

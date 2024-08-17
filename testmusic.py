@@ -132,6 +132,7 @@ tempoLookUp = {
     "gamebegin.wav" : 130,
     "Call It Love.wav" : 132,
     "Fly With Me.wav" : 140,
+    "Echoes and Acid.wav" : 138
 }
 
 songDrops = {
@@ -147,6 +148,7 @@ songDrops = {
     "Lucid.wav" : [[27.82, 69.56], [111.30, 153.04]],
     "Call It Love.wav" : [[45.45, 74.54], [105.45, 149.09]],
     "Fly With Me.wav" : [[27.42, 68.57], [101.14, 142.28]],
+    "Echoes and Acid.wav" : [[29.56, 71.30], [100.87, 142.60]],
 }
 
 class MixInfo:
@@ -170,7 +172,7 @@ class MixInfo:
         self.lastSong = fp("sound/sfx/gamebegin.wav")
         self.nextup = self.lastSong
         #MInfo.nextup = "sound/songs/Narcosis.wav"
-
+        print(songs)
         while self.lastSong == self.nextup:
             self.nextup = random.choice(songs)
         self.output = True

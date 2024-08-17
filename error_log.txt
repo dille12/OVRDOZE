@@ -7,10 +7,8 @@ Traceback (most recent call last):
     return self.action(arg) if arg != None else self.action(self.args)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 399, in start_sp
     app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 281, in start_sp
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 289, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1939, in main
-    func.draw_HUD(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\func.py", line 1320, in draw_HUD
-    text = terminal.render(str(available_ammo) + " res.", False, color)
-UnboundLocalError: local variable 'color' referenced before assignment
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1675, in main
+    kill_counter.ovrdozeGT.value = 0
+AttributeError: 'kill_count_render' object has no attribute 'ovrdozeGT'

@@ -124,7 +124,7 @@ def load_level(map, mouse_conversion, player_inventory, app, screen, death = Fal
     barricade_list.clear()
     app.zombiegroup.empty()
 
-
+    app.kills = 0
 
     app.update_fps()
 

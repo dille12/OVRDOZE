@@ -276,7 +276,7 @@ for x in range(10, 101):
 
 kill_rgb = rgb_image_load("texture/kill.png")
 menu_rgb = rgb_image_load("texture/menu_image.png")
-
+ovrdoze_rgb = rgb_image_load("texture/ovrdoze.png")
 
 jam1 = load("texture/jam1.png", size = [60, 88])
 jam2 = load("texture/jam2.png", size = [60, 88])

@@ -187,6 +187,7 @@ class Zombie(pygame.sprite.Sprite):
             player_actor.money += random.randint(5, 10)
             money_tick.value = 0
 
+
             func.list_play(death_sounds)
             func.list_play(kill_sounds)
 

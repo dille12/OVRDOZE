@@ -1672,9 +1672,12 @@ def main(
                 if multi_kill > 99:
                     multi_kill = 1
                     player_actor.set_sanity(10, add = True)
+                    app.ovrdozeGT.value = 0
+                    kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
                 multi_kill_ticks = 45
-                kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
+                if app.ovrdozeGT.value >= app.ovrdozeGT.max_value:
+                    kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
         for pos, type, blastSize in append_explosions:
             if type == "small":
@@ -1726,7 +1729,9 @@ def main(
             x.tick(screen, map_render)
 
         if mp != multi_kill:
-            kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
+
+            if app.ovrdozeGT.value >= app.ovrdozeGT.max_value:
+                kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
 
         time_stamps["misc"] = time.time() - t
         t = time.time()
@@ -2306,9 +2311,10 @@ def main(
         beat_blink.tick()
 
         try:
-            kill_counter.tick(screen, cam_delta, kill_counter)
-        except:
-            pass
+            kill_counter.tick(screen, cam_delta, kill_counter, app)
+        except Exception as e:
+            if app.ovrdozeGT.value < app.ovrdozeGT.max_value:
+                print(e)
 
         if endless:
             text = terminal3.render("ENDLESS MODE", False, [255, 255, 255])

@@ -13,7 +13,7 @@ from values import *
 import func
 import ast
 import pygame
-
+from classes import kill_count_render
 class App:
     def __init__(self, pygame):
         self.pygame = pygame
@@ -91,6 +91,9 @@ class App:
         self.vibratePos = pygame.math.Vector2()
         self.vibrateTargetPos = pygame.math.Vector2()
         self.vibrateVel = pygame.math.Vector2()
+
+        self.ovrdozeGT = GameTick(45, oneshot=True)
+        self.ovrdozeGT.value = self.ovrdozeGT.max_value
 
     def introScreen(self, screen, clock):
 
