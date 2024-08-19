@@ -1,6 +1,6 @@
 # OVRDOZE: 2d-shooter project
 
-![alt text](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/coverArt.png "OVRDOZE")
+![alt text](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/coverArt2.png "OVRDOZE")
 
 A single/multiplayer co-op survival small space zombie shooter.
 
