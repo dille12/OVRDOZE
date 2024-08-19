@@ -75,21 +75,63 @@ class Item:
     def sound(self):
         return self.pickup_sound
     
-    def renderDescription(self, mouse_pos):
+    def renderDescription(self, mouse_pos, inv_2 = False):
+
+        mp = [min(mouse_pos[0], 600), mouse_pos[1]]
+
+
         text = terminal2.render(self.name, False, [255, 255, 255])
         t_s = text.get_rect().size
         alpha_surf = pygame.Surface(t_s).convert()
         alpha_surf.fill((0, 0, 0))
         alpha_surf.set_alpha(200)
-        screen.blit(alpha_surf, func.minus(mouse_pos, [0, 40]))
-        screen.blit(text, func.minus(mouse_pos, [0, 40]))
+        screen.blit(alpha_surf, func.minus(mp, [0, 40]))
+        screen.blit(text, func.minus(mp, [0, 40]))
+
         text = prompt.render(self.desc, False, [255, 255, 255])
         t_s2 = text.get_rect().size
         alpha_surf = pygame.Surface(t_s2).convert()
         alpha_surf.fill((0, 0, 0))
         alpha_surf.set_alpha(200)
-        screen.blit(alpha_surf, func.minus(mouse_pos, [0, 40 + t_s[1]]))
-        screen.blit(text, func.minus(mouse_pos, [0, 40 + t_s[1]]))
+        screen.blit(alpha_surf, func.minus(mp, [0, 40 + t_s[1]]))
+        screen.blit(text, func.minus(mp, [0, 40 + t_s[1]]))
+
+        y = 40 + t_s[1] + t_s2[1]
+
+        if self.consumable:
+            text = prompt.render("Right Click to consume", False, [255, 255, 255])
+            t_s3 = text.get_rect().size
+            alpha_surf = pygame.Surface(t_s3).convert()
+            alpha_surf.fill((0, 0, 0))
+            alpha_surf.set_alpha(200)
+
+            screen.blit(alpha_surf, func.minus(mp, [0, y]))
+            screen.blit(text, func.minus(mp, [0, y]))
+
+            y += t_s3[1]
+
+        elif self.name in ["HE Grenade", "Molotov"]:
+            text = prompt.render("Press G to throw", False, [255, 255, 255])
+            t_s3 = text.get_rect().size
+            alpha_surf = pygame.Surface(t_s3).convert()
+            alpha_surf.fill((0, 0, 0))
+            alpha_surf.set_alpha(200)
+
+            screen.blit(alpha_surf, func.minus(mp, [0, y]))
+            screen.blit(text, func.minus(mp, [0, y]))
+
+            y += t_s3[1]
+
+        if inv_2:
+            text = prompt.render("Shift + Click to move instantly", False, [255, 255, 255])
+            t_s3 = text.get_rect().size
+            alpha_surf = pygame.Surface(t_s3).convert()
+            alpha_surf.fill((0, 0, 0))
+            alpha_surf.set_alpha(200)
+
+            screen.blit(alpha_surf, func.minus(mp, [0, y]))
+            screen.blit(text, func.minus(mp, [0, y]))
+        
 
 
     def render(self, inventory, screen, pos, mouse_pos, clicked, r_click_tick, transfer = False):
@@ -140,7 +182,7 @@ items = {
     ),
     "Heroin": Item(
         "Heroin",
-        "Restores +25% sanity.",
+        "Restores +50% sanity.",
         "heroin.png",
         max_stack=1,
         pick_up_sound=needle_pickup,
@@ -150,7 +192,7 @@ items = {
     ),
     "Cocaine": Item(
         "Cocaine",
-        "Restores +10% sanity.",
+        "Restores +20% sanity.",
         "coca.png",
         max_stack=3,
         pick_up_sound=sniff_sound,
@@ -161,7 +203,7 @@ items = {
     ),
     "Diazepam": Item(
         "Diazepam",
-        "Restores +2.5% sanity.",
+        "Restores +10% sanity.",
         "pills.png",
         max_stack=5,
         pick_up_sound=pill_pickup,
@@ -250,9 +292,9 @@ items = {
         "Molotov",
         "Makeshift firebomb.",
         "molotov.png",
-        max_stack=10,
+        max_stack=3,
         pick_up_sound=molotov_pickup,
-        drop_weight=3,
+        drop_weight=0.5,
         drop_stack=1,
     ),
     "5.56x45MM NATO": Item(
@@ -486,7 +528,7 @@ class Inventory:
             del content[self.picked_up_slot]
 
         if self.OnTop:
-            self.OnTop.renderDescription(mouse_pos)
+            self.OnTop.renderDescription(mouse_pos, inv_2 = inv_2)
 
     def handle_consumable_item(self, item, player_actor, app):
         if item.name == "Sentry Turret":
@@ -1154,7 +1196,10 @@ class button_prompt:
 
 
 class kill_count_render:
-    def __init__(self, kills, rgb_list):
+    def __init__(self, app, rgb_list):
+
+        kills = app.multi_kill
+
         mid = size[0] / 2
         start_x = mid - kills * 50 / 2
         self.x_poses = []

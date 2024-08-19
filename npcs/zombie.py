@@ -171,8 +171,8 @@ class Zombie(pygame.sprite.Sprite):
         player_actor,
         silent=False,
         zevent=False,
+        firedFrom = None,
     ):
-
         self.kill()
         self.quadrant.enemies.remove(self)
         list.remove(self)
@@ -187,6 +187,13 @@ class Zombie(pygame.sprite.Sprite):
             player_actor.money += random.randint(5, 10)
             money_tick.value = 0
 
+            self.app.multi_kill += 1
+            self.app.multi_kill_tick.value = 0
+            self.app.kills += 1
+            self.app.killedThisTick = True
+
+            if firedFrom:
+                self.app.weaponKills[firedFrom] += 1
 
             func.list_play(death_sounds)
             func.list_play(kill_sounds)
@@ -211,7 +218,7 @@ class Zombie(pygame.sprite.Sprite):
             self.inventory.drop_inventory(self.pos)
 
             if random.uniform(0,1) < (0.002 if not self.app.endless else self.app.storyTeller.getGunDropRate()):
-                weapon = func.pick_random_from_dict(armory.guns, key = True)
+                weapon = random.choice(self.app.ownedGuns)
                 if self.app.storyTeller.checkGun(armory.guns[weapon]):
                     interactables.append(classes.Interactable(self.app, self.pos, self.target.inv, player_weapons = player_weapons, type = "gun_drop", item = armory.guns[weapon]))
                     self.app.storyTeller.gunDropped = True          
@@ -283,7 +290,7 @@ class Zombie(pygame.sprite.Sprite):
             start_new_thread(self.search_route, ())
 
     def hit_detection(
-        self, camera_pos, pos, lastpos, damage, enemy_list, map_render, player_actor
+        self, camera_pos, pos, lastpos, damage, enemy_list, map_render, player_actor, firedFrom
     ):
 
 
@@ -339,7 +346,8 @@ class Zombie(pygame.sprite.Sprite):
 
             self.hp -= damage
             if self.hp < 0:
-                self.kill_actor(camera_pos, enemy_list, map_render, player_actor)
+                self.kill_actor(camera_pos, enemy_list, map_render, player_actor, firedFrom=firedFrom)
+                
 
             else:
                 func.list_play(hit_sounds)

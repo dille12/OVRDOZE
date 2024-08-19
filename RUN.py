@@ -32,9 +32,10 @@ import map_creator
 import scipy
 import highscores
 import traceback
-
+import armory
 from utilities.version import frozenVersion
-
+from weapon_button import weapon_button
+from dialog import open_shop
 VERSION = "0.9"
 if FROZEN:
     subversion = str(frozenVersion)
@@ -49,6 +50,9 @@ prompt = pygame.font.Font(fp("texture/terminal.ttf"), 14)
 
 
 dirty = False
+
+def give_weapon(kind, name):
+    return armory.__weapons_map[kind][name].copy()
 
 
 def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):
@@ -219,9 +223,47 @@ def main(ms = "start", TEST = False):
     if not quick_load:
         app.introScreen(screen, app.clock)
 
+
+    if True:
+        app.MAXDPS = 1
+
+        gun_name_list = [
+            "M1911",
+            "FN57-S",
+            "GLOCK",
+            "AR-15",
+            "DESERTEAGLE",
+            "MP5",
+            "AWP",
+            "AK47",
+            "SPAS-12",
+            "P90",
+            "SCAR18",
+            "RPG-7",
+            "M134-MINIGUN",
+            "NRG-LMG.Mark1",
+            "USAS-15",
+            "NRG-SHLL",
+            "R13-TYPE2",
+        ]
+        ruperts_shop_selections.clear()
+        for i, x in enumerate(gun_name_list):
+            g = give_weapon("gun", x)
+            ruperts_shop_selections.append(weapon_button(g, i))
+            if app.MAXDPS < g.DPS:
+                app.MAXDPS = g.DPS
+                print(g.name)
+        a = sorted(ruperts_shop_selections, key=lambda x: x.weapon.price)
+        print("MAX DPS:", app.MAXDPS)
+        ruperts_shop_selections.clear()
+
+        for i, x in enumerate(a):
+            x.slot = i
+            ruperts_shop_selections.append(x)
+
     func.load_screen(app, screen, "Loading")
 
-
+    
 
 
 
@@ -336,6 +378,9 @@ def main(ms = "start", TEST = False):
         app.write_prefs()
         os.execv(sys.executable, ['python'] + sys.argv)
 
+    def loadout(arg):
+        return "loadout"
+
 
     def main_menu_save(arg):
         res = app.res
@@ -415,6 +460,14 @@ def main(ms = "start", TEST = False):
 
     def sp_lob(arg):
         return "single_player_lobby"
+    
+    def unlockUpgrade(arg):
+        app = arg
+
+        for x in app.upgradeWeapon.availableUpgrades:
+            if x not in app.ownedUpgrades[app.upgradeWeapon.name]:
+                app.ownedUpgrades[app.upgradeWeapon.name].append(x)
+                return
 
     host = False
     background_tick = 1
@@ -505,6 +558,22 @@ def main(ms = "start", TEST = False):
         glitchInstance=glitch,
     )
 
+    def setStartingPistol(arg):
+        app, pistol = arg
+        app.startingPistol = pistol
+
+    button_setstartingpistol = Button(
+        [2 * size[0] / 8, 7 * size[1] / 8],
+        "Starting Pistol",
+        setStartingPistol,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+        tooltip="Set this gun as your starting pistol. The starting pistol will have infinite ammo."
+    )
+
+    
+
     button_map_creator = Button(
         [x_s, 320],
         "Map Editor",
@@ -512,7 +581,70 @@ def main(ms = "start", TEST = False):
         None,
         gameInstance=app,
         glitchInstance=glitch,
+        tooltip="Launch the map editor. Requires an image of a level, and can only be used as a tool to make it playable. WIP!"
     )
+
+    def quitUpgrades(app):
+        app.upgradeWeapon = None
+
+    button_back_from_upgrades = Button(
+        [7 * size[0] / 8, 7 * size[1] / 8],
+        "Back",
+        quitUpgrades,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+    )
+
+    button_unlock = Button(
+        [x_s, 200],
+        "Unlock",
+        unlockUpgrade,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+        click_sound = upgradeSound,
+        tooltip="Unlock the next upgrade."
+    )
+
+    def purchase_weapon(arg):
+        app = arg
+        for x in ruperts_shop_selections:
+            if x.active:
+                app.ownedGuns.append(x.weapon.name)
+                app.money -= x.weapon.price
+                app.ownedUpgrades[x.weapon.name] = []
+                app.weaponKills[x.weapon.name] = 0
+                app.write_prefs()
+                return
+            
+    def viewUpgrades(arg):
+        app = arg
+        for x in ruperts_shop_selections:
+            if x.active:
+                app.upgradeWeapon = x.weapon
+
+    shop_buy_button = Button(
+        [3 * size[0] / 8, 7 * size[1] / 8],
+        "Buy",
+        purchase_weapon,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+        click_sound = upgradeSound,
+        tooltip="Purchase the weapon. This will make it spawn occasionally during gameplay.",
+    )
+
+    loadout_viewupgrades_button = Button(
+        [3.5 * size[0] / 8, 7 * size[1] / 8],
+        "Upgrades",
+        viewUpgrades,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+        tooltip="View and purchase the available upgrades for this weapon."
+    )
+
 
     button_quit_game = Button(
         [x_s, 380], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
@@ -558,6 +690,17 @@ def main(ms = "start", TEST = False):
         gameInstance=app,
         glitchInstance=glitch,
     )
+
+    button_viewloadout = Button(
+        [428, 440],
+        "Loadout",
+        loadout,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+        tooltip = "View weapons that spawn into the match, and unlock upgrades."
+    )
+
     buttonUpnp = Button(
         [x_s, 280],
         "dev-test-upnp",
@@ -831,6 +974,7 @@ def main(ms = "start", TEST = False):
         button_back_sp,
         button_map_creator,
         button_WarnContinue,
+        button_viewloadout,
     ]
     checkboxes = [
         check_box_difficulties,
@@ -880,9 +1024,9 @@ def main(ms = "start", TEST = False):
     last_beat = time.perf_counter()
     app.loading = False
 
-    if quick_load:
-        time.sleep(0.5)
-        start_sp("NORMAL")
+    #if quick_load:
+    #    time.sleep(0.5)
+    #    start_sp("NORMAL")
 
     clicked = False
 
@@ -890,6 +1034,8 @@ def main(ms = "start", TEST = False):
     while 1:
 
         app.loading = False
+
+        app.toolTipSurf = None
 
         # game_menu.update(game_state)
         # menu should cover a lot of the while loop -
@@ -949,7 +1095,18 @@ def main(ms = "start", TEST = False):
 
         mouse_pos = [mouse_pos[0] / mouse_conversion, mouse_pos[1] / mouse_conversion]
         game_state["mouse_pos"] = mouse_pos
+
+        scroll = [False, False]
+
         for event in events:
+
+            if event.type == app.pygame.MOUSEBUTTONDOWN:
+                if event.button == 5:
+                    scroll[1] = True
+                elif event.button == 4:
+                    scroll[0] = True
+
+
             if menu_status == "settings":
                 check_box_fov.update_checkbox(event, mouse_pos)
                 check_box_dev_commands.update_checkbox(event, mouse_pos)
@@ -967,7 +1124,7 @@ def main(ms = "start", TEST = False):
 
             if menu_status == "single_player_lobby":
 
-                check_box_inter.update_checkbox(event, mouse_pos)
+                #check_box_inter.update_checkbox(event, mouse_pos)
 
                 for x in check_box_difficulties:
                     x.update_checkbox(
@@ -1267,14 +1424,46 @@ def main(ms = "start", TEST = False):
             for diff in check_box_difficulties:
                 diff.render_checkbox()
 
-                if diff.__dict__["checked"]:
-                    difficulty = diff.__dict__["caption"]
+                if diff.checked:
+                    difficulty = diff.caption
                     button_start_single_player.__dict__["args"] = difficulty
 
             render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = True)
 
             s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s8_2 = button_client_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            s9_2 = button_viewloadout.tick(screen, mouse_pos, mouse_single_tick, glitch)
+
+            purchaseAvailable = False
+            for x in ruperts_shop_selections:
+                if not x.weapon.name in app.ownedGuns and app.money >= x.weapon.price:
+                    purchaseAvailable = True
+                    break
+
+            upgradeAvailable = False
+            for x in app.ownedGuns:
+                req = [100, 250, 500]
+                if x in app.ownedUpgrades and x in app.weaponKills:
+                    if len(app.ownedUpgrades[x]) < 3:
+                        amount = req[len(app.ownedUpgrades[x])]
+                        upgradeAvailable = amount <= app.weaponKills[x]
+                        if upgradeAvailable:
+                            break
+            y_pos = 420
+
+            app.notificationBlink.tick()
+
+            colorIndex = abs((app.notificationBlink.value - app.notificationBlink.max_value/2) / app.notificationBlink.max_value/2)
+            colorNotification = [255, colorIndex*255, colorIndex*255]
+            if purchaseAvailable:
+                text = prompt.render("Guns available!", False, colorNotification)
+                screen.blit(text, [530, y_pos])
+                y_pos += 20
+
+            if upgradeAvailable:
+                text = prompt.render("Upgrades available!", False, colorNotification)
+                screen.blit(text, [530, y_pos])
+            
 
             text = terminal2.render(diff_captions[difficulty], False, [255, 255, 255])
             screen.blit(text, [20, 370])
@@ -1285,6 +1474,41 @@ def main(ms = "start", TEST = False):
             if s8_2 != None:
                 menu_status = "start"
                 mouse_single_tick = False
+
+            if s9_2 != None:
+                menu_status = "loadout"
+                mouse_single_tick = False
+
+        if menu_status == "loadout":
+
+
+            if scroll[0] and app.y_pos_abs > 0:
+                app.y_pos_abs -= 1
+
+            elif scroll[1] and app.y_pos_abs < app.max_y_pos - 3:
+                app.y_pos_abs += 1
+
+
+            if app.upgradeWeapon:
+                app.inspectUpgrades(button_unlock, mouse_pos, mouse_single_tick, glitch, button_back_from_upgrades, button_setstartingpistol)
+
+
+            else:
+                open_shop(screen, mouse_single_tick, mouse_pos, app, shop_buy_button, loadout_viewupgrades_button)
+
+            delta = (app.y_pos_abs - app.y_pos) * 0.2
+
+            if abs(delta) < 0.02:
+                app.y_pos = app.y_pos_abs
+            else:
+                app.y_pos += delta
+
+            if app.shop_quit:
+                app.shop_quit = False
+                menu_status = "single_player_lobby"
+
+            
+
 
         if menu_status == "lobby":
 
@@ -1366,6 +1590,10 @@ def main(ms = "start", TEST = False):
 
             else:
                 screen.fill([0, 0, 0])
+
+
+        if app.toolTipSurf:
+            screen.blit(app.toolTipSurf, [min(size[0] - app.toolTipSurf.get_size()[0]-10, mouse_pos[0] + 30), min(size[1] - app.toolTipSurf.get_size()[1]-10, mouse_pos[1] + 30)])
 
 
         if glitch.glitch_tick > 0:

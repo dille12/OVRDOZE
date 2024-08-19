@@ -74,7 +74,12 @@ def write_packet(object):
     return string
 
 
-def quit(app):
+def quit(args):
+
+    app, money = args
+
+    app.money += money
+
     app.pygame.mixer.music.unload()
     app.write_prefs()
     print("Quitting game")
@@ -283,6 +288,7 @@ def main(
 
     player_actor = classes.Player(app, self_name, turret_bullets, inv = player_inventory)
     app.player_actor_ref = player_actor
+    player_actor.ownedUpgrades = app.ownedUpgrades
 
 
     app.storyTeller = storyTeller(app, player_inventory)
@@ -307,13 +313,13 @@ def main(
 
     if map.name != "Overworld":
         endless = True
-        fn = armory.__weapons_map["gun"]["FN57-S"].copy()
+        fn = armory.__weapons_map["gun"][app.startingPistol].copy()
         fn.ammo = "INF"
         player_weapons.append(fn)
 
         app.startGun = fn
 
-        player_weapons.append(give_weapon("gun", "R13-TYPE2"))
+        #player_weapons.append(give_weapon("gun", "R13-TYPE2"))
         #player_weapons.append(give_weapon("gun", "AK47"))
         #player_weapons.append(give_weapon("gun", "DESERTEAGLE"))
         #player_weapons.append(give_weapon("gun", "P90"))
@@ -348,6 +354,7 @@ def main(
         "NRG-LMG.Mark1",
         "USAS-15",
         "NRG-SHLL",
+        "R13-TYPE2",
     ]
     ruperts_shop_selections.clear()
     for i, x in enumerate(gun_name_list):
@@ -478,14 +485,14 @@ def main(
 
     gunKeys = [0,0,0,0,0]
 
-    interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
+    #interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
 
     while 1:
         app.loading = False
         app.phase = phase
         tick_time = time.time() - last_tick
         last_tick = time.time()
-
+        app.killedThisTick = False
         tick_delta = tick_time / (1 / 60)
 
 
@@ -612,7 +619,7 @@ def main(
                 MInfo.trackTimer += tick_time
 
             s1 = resume_button.tick(screen, mouse_pos, click_single_tick, glitch)
-            quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=app)
+            quit_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
 
             scroll_bar_volume.tick(screen, mouse_pos, clicked, click_single_tick, arg = globals())
             scroll_bar_music.tick(screen, mouse_pos, clicked, click_single_tick)
@@ -1372,7 +1379,7 @@ def main(
 
             player_actor.set_angle(player_angle)
 
-            if app.c_weapon.__dict__["name"] in ["GLOCK", "M1911", "FN57-S", "DESERTEAGLE"]:
+            if app.c_weapon.__dict__["name"] in PISTOLS:
                 pl = player_pistol
             else:
                 pl = player
@@ -1503,6 +1510,7 @@ def main(
                 respawn_ticks = 300 if not endless else 120
                 death_wave = wave_number
                 deathMoney = player_actor.money
+                
 
                 if endless and not multiplayer:
                     app.pygame.mouse.set_visible(True)
@@ -1594,10 +1602,10 @@ def main(
         #     )
 
         last_hp = player_actor.get_hp()
-        if multi_kill_ticks > 0:
-            multi_kill_ticks -= timedelta.mod(1)
-        else:
-            multi_kill = 0
+
+        if app.multi_kill_tick.tick():
+            app.multi_kill = 0
+
 
         time_stamps["prompts"] = time.time() - t
         t = time.time()
@@ -1667,17 +1675,15 @@ def main(
             )
             if kills_bullet != 0 and kills_bullet != None:
                 kills += kills_bullet
-                multi_kill += kills_bullet
 
-                if multi_kill > 99:
-                    multi_kill = 1
+                if app.multi_kill > 99:
+                    app.multi_kill = 1
                     player_actor.set_sanity(10, add = True)
                     app.ovrdozeGT.value = 0
-                    kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
+                    
 
-                multi_kill_ticks = 45
-                if app.ovrdozeGT.value >= app.ovrdozeGT.max_value:
-                    kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
+
+                
 
         for pos, type, blastSize in append_explosions:
             if type == "small":
@@ -1728,10 +1734,10 @@ def main(
         for x in burn_list:
             x.tick(screen, map_render)
 
-        if mp != multi_kill:
+        if app.ovrdozeGT.value >= app.ovrdozeGT.max_value and app.killedThisTick:
+            kill_counter = classes.kill_count_render(app, kill_rgb)
 
-            if app.ovrdozeGT.value >= app.ovrdozeGT.max_value:
-                kill_counter = classes.kill_count_render(multi_kill, kill_rgb)
+
 
         time_stamps["misc"] = time.time() - t
         t = time.time()
@@ -2293,7 +2299,7 @@ def main(
                     )
 
                 retry_button.tick(screen, mouse_pos, click_single_tick, glitch)
-                quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch)
+                quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
 
             else:
                 text = terminal.render(f"Respawning", False, [255, 255, 255])

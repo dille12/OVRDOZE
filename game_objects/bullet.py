@@ -24,10 +24,12 @@ class Bullet(Game_Object):
         owner=None,
         explosive=False,
         rocket_explosion_range = 300,
-        fragRounds = False
+        fragRounds = False,
+        firedFrom = "",
     ):
         self.id = id
         self.owner = owner
+        self.firedFrom = firedFrom
 
         pos = func.mult(pos, multiplier2)
 
@@ -344,6 +346,7 @@ class Bullet(Game_Object):
                     enemy_list,
                     draw_blood_parts,
                     player,
+                    self.firedFrom,
                 )
                 == True
             ):
@@ -356,13 +359,13 @@ class Bullet(Game_Object):
 
                 if self.fragRounds:
                     bullet_list.append(Bullet(self._pos, self._angle + 30, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
-                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner, firedFrom=self.firedFrom))
                     bullet_list.append(Bullet(self._pos, self._angle + 15, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
-                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner, firedFrom=self.firedFrom))
                     bullet_list.append(Bullet(self._pos, self._angle - 15, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
-                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner, firedFrom=self.firedFrom))
                     bullet_list.append(Bullet(self._pos, self._angle - 30, self._damage, hostile = self.hostile, speed= self.speed/2, piercing=self.piercing, energy=self.energy, 
-                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner))
+                                              rocket = self.rocket, rocket_explosion_range=self.rocket_explosion_range, owner=self.owner, firedFrom=self.firedFrom))
                     
                     self.fragRounds = False
 

@@ -12,24 +12,27 @@ class weapon_button:
         self.slot = slot
         self.active = False
 
-    def tick(self, screen, y_pos, mouse_pos, click):
+    def tick(self, app, screen, y_pos, mouse_pos, click):
         visible = True
         if self.slot < y_pos - 0.5 or self.slot > y_pos + 2.5:
             visible = False
 
         def_pos = [20, 100 + (self.slot - y_pos) * 100]
         owned = False
-        for x in player_weapons:
-            if x.name == self.weapon.name:
-
-                owned = True
-                break
+        if self.weapon.name in app.ownedGuns:
+            owned = True
 
         if visible:
 
-            if 20 < mouse_pos[0] < 320 and def_pos[1] < mouse_pos[1] < def_pos[1] + 67:
+            
 
-                screen.blit(self.weapon.image_non_alpha, def_pos)
+
+            if 20 < mouse_pos[0] < 320 and def_pos[1] < mouse_pos[1] < def_pos[1] + 67:
+                
+                if owned:
+                    screen.blit(self.weapon.image_non_alpha, def_pos)
+                else:
+                    func.blit_glitch(screen, self.weapon.image_red, def_pos, glitch = 5)
 
                 if click:
                     menu_click.play()
@@ -43,9 +46,16 @@ class weapon_button:
                                 x.active = False
 
             elif self.active:
-                screen.blit(self.weapon.image_non_alpha, def_pos)
+                if owned:
+                    screen.blit(self.weapon.image_non_alpha, def_pos)
+                else:
+                    func.blit_glitch(screen, self.weapon.image_red, def_pos, glitch = 5)
             else:
-                screen.blit(self.weapon.image, def_pos)
+                if owned:
+                    screen.blit(self.weapon.image, def_pos)
+                else:
+                    func.blit_glitch(screen, self.weapon.image_red, def_pos, glitch = 5)
+
 
             if self.active:
                 pygame.draw.rect(
@@ -56,7 +66,7 @@ class weapon_button:
                 )
                 color = [255, 0, 0]
 
-        if self.active:
+        if self.active and owned:
             text = terminal2.render(self.weapon.name, False, [255, 255, 255])
             screen.blit(text, [size[0] / 3, 60])
 
@@ -208,25 +218,53 @@ class weapon_button:
                 text = terminal.render(f"Visibility : Bad", False, [255, 0, 0])
                 screen.blit(text, [size[0] / 3, 320])
 
-            text = terminal2.render(
-                f"PRICE : {self.weapon.price}$", False, [255, 255, 255]
-            )
-            screen.blit(text, [size[0] / 3, 350])
+        
 
         else:
             color = [255, 255, 255]
 
-        if visible:
+        if self.active:
+
+            if not owned:
+
+                priceColor = [100, 255, 100] if self.weapon.price <= app.money else [255,0,0]
+
+                text = terminal2.render(
+                    f"PRICE : {self.weapon.price}$", False, priceColor
+                )
+
+            elif self.weapon.name in app.ownedUpgrades:
+                text = terminal2.render(
+                    f"UPGRADES : {len(app.ownedUpgrades[self.weapon.name])}/{len(self.weapon.availableUpgrades)}", False, [255,255,255]
+                )
+
+            screen.blit(text, [size[0] / 3, 350])
+            
+            text = terminal2.render(self.weapon.name if owned else "UNKNOWN", False, [255, 255, 255])
+            screen.blit(text, [size[0] / 3, 60])
+
+        if visible and owned:
 
             text = terminal.render(self.weapon.name, False, color)
             screen.blit(text, def_pos)
 
+        elif visible:
+            if self.weapon.price <= app.money:
+                if app.upgradeBlink.value < app.upgradeBlink.max_value/2:
+                    screen.blit(buyIcon, [20, def_pos[1] + 47])
+
+        if owned:
+            req = [100, 250, 500]
+            fulfilled = False
+            if self.weapon.name in app.ownedUpgrades and self.weapon.name in app.weaponKills:
+                if len(app.ownedUpgrades[self.weapon.name]) != 3:
+                    amount = req[len(app.ownedUpgrades[self.weapon.name])]
+                    fulfilled = amount <= app.weaponKills[self.weapon.name]
+
+                if fulfilled:
+                    if app.upgradeBlink.value < app.upgradeBlink.max_value/2:
+                        screen.blit(upgradeIcon, [20, def_pos[1] + 47])
+
         self.owned = owned
 
-        if owned and visible:
 
-            text = terminal2.render("OWNED", False, [255, 0, 0])
-            screen.blit(
-                text,
-                func.minus_list(func.minus(def_pos, [100, 34]), text.get_rect().center),
-            )

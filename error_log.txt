@@ -1,14 +1,30 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1384, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1612, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1276, in main
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1433, in main
     s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 138, in tick
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 141, in tick
     return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 399, in start_sp
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 444, in start_sp
     app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 289, in start_sp
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 447, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1675, in main
-    kill_counter.ovrdozeGT.value = 0
-AttributeError: 'kill_count_render' object has no attribute 'ovrdozeGT'
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 2302, in main
+    quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 141, in tick
+    return self.action(arg) if arg != None else self.action(self.args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 88, in quit
+    RUN.main()
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1433, in main
+    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 141, in tick
+    return self.action(arg) if arg != None else self.action(self.args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 444, in start_sp
+    app.start_sp(args)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 447, in start_sp
+    game.main(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1666, in main
+    kills_bullet = x.move_and_draw_Bullet(
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game_objects\bullet.py", line 341, in move_and_draw_Bullet
+    x.hit_detection(
+TypeError: Soldier.hit_detection() takes 8 positional arguments but 9 were given

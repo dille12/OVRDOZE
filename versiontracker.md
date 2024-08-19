@@ -20,3 +20,5 @@ Version 0.9.76 - Blood sinking, powerwasher, new gun, multiple fixes
 
 Version 0.9.77 - added outros to song + a new song
 
+Version 0.9.78 - Added a progression system. Weapons can be bought with money, and upgrades are unlocked with kills
+

@@ -98,7 +98,11 @@ class upgradeButton:
                 if self.upgradeI > len(self.weapon.availableUpgrades) - 1:
                     self.upgradeI = 0
 
-                t = terminal.render(self.weapon.availableUpgrades[self.upgradeI], False, [255,255,255])
+                unlocked = self.weapon.availableUpgrades[self.upgradeI] in player_actor.ownedUpgrades[self.weapon.name]
+
+                self.lockedUpgrade = not unlocked
+                
+                t = terminal.render(self.weapon.availableUpgrades[self.upgradeI] if unlocked else "LOCKED", False, [255,255,255])
 
                 screen.blit(t, [487 - t.get_size()[0]/2, 120])
 
@@ -106,9 +110,10 @@ class upgradeButton:
 
                 screen.blit(t, [620, 120])
 
+                
                 u = self.weapon.availableUpgrades[self.upgradeI]
 
-                if u in upgradeMap and self.upgradeI not in self.weapon.activatedUpgrades:
+                if u in upgradeMap and self.upgradeI not in self.weapon.activatedUpgrades and unlocked:
                     t = terminal.render(upgradeMap[u]["Desc"], False, [155,155,155])
 
                     screen.blit(t, [350, 150])
@@ -146,6 +151,11 @@ class upgradeButton:
                         t = terminal.render(f"Value: {origVal} ] {self.convValue(self.weapon.__dict__[stat] * v)}", False, [155,155,155])
 
                     screen.blit(t, [350, 210])
+
+                elif not unlocked:
+                    t = terminal.render("Upgrade locked. Unlock it from loadout.", False, [155,155,155])
+                    screen.blit(t, [350, 180])
+                
                 else:
                     t = terminal.render("Upgrade already owned.", False, [155,155,155])
                     screen.blit(t, [350, 180])

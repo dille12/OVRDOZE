@@ -3,7 +3,7 @@ import func
 import pygame
 
 class Button:
-    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False, controller = -1, click_sound = menu_click2):
+    def __init__(self, pos, text, action, args, gameInstance, glitchInstance=None, locked = False, controller = -1, click_sound = menu_click2, tooltip = ""):
         self.glitch = glitchInstance
         self.app = gameInstance
         self.pos = pos
@@ -32,7 +32,7 @@ class Button:
         self.anim_tick = 0
         self.target_tick = 0
         self.locked = locked
-    
+        self.tooltip = tooltip
         self.click_sound = click_sound
 
     def tick(self, screen, mouse_pos, click, glitch, arg=None):
@@ -111,11 +111,14 @@ class Button:
             if CI:
                 self.app.joystickEvents = []
 
-        if (
-            pos[0] < mouse_pos[0] < pos[0] + self.size[0] + 4
-            and pos[1] - 2 < mouse_pos[1] < pos[1] + self.size[1]
-            and not self.locked
-        ) or CI:
+        underMouse = pos[0] < mouse_pos[0] < pos[0] + self.size[0] + 4 and pos[1] - 2 < mouse_pos[1] < pos[1] + self.size[1]
+        
+        if underMouse:
+            if self.app and self.tooltip:
+                self.app.toolTip(pos, mouse_pos, text, self.tooltip)
+
+        if (underMouse and not self.locked) or CI:
+            
 
             if self.targeted == False:
                 self.targeted = True
@@ -136,6 +139,8 @@ class Button:
                 if glitch != None:
                     glitch.glitch_tick = 5
                 return self.action(arg) if arg != None else self.action(self.args)
+            
+
         else:
             self.targeted = False
 

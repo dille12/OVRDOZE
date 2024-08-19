@@ -14,6 +14,15 @@ import func
 import ast
 import pygame
 from classes import kill_count_render
+from armory import upgradeMap
+import pickle
+
+
+terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
+terminal1 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
+
+
+
 class App:
     def __init__(self, pygame):
         self.pygame = pygame
@@ -22,6 +31,11 @@ class App:
         except:
             print("Could not create a server!")
         self.ip = None
+
+
+        self.loadProgression()
+
+
         self.preferences()
         self.chat = Chat(self)
         self.data_collector = DataGatherer(self)
@@ -76,7 +90,7 @@ class App:
         self.jamTick = GameTick(5)
 
         self.musicDisplayTick = GameTick(180, oneshot=True)
-        self.weaponSwitchTick = GameTick(30, oneshot=True, nonMutable = True)
+        self.weaponSwitchTick = GameTick(10, oneshot=True, nonMutable = True)
 
         self.jamIm = False
 
@@ -94,6 +108,57 @@ class App:
 
         self.ovrdozeGT = GameTick(45, oneshot=True)
         self.ovrdozeGT.value = self.ovrdozeGT.max_value
+
+        self.kills = 0
+        self.multi_kill = 0
+        self.multi_kill_tick = GameTick(45, oneshot=True)
+        self.killedThisTick = False
+
+        self.upgradeBlink = GameTick(40)
+        self.notificationBlink = GameTick(40)
+        
+
+        self.y_pos_abs = 0
+        self.y_pos = 0
+        self.max_y_pos = 0
+
+        self.shop_quit = False
+        print("APP INITTED")
+        self.loadProgression()
+        self.upgradeWeapon = None
+
+
+    def saveProgression(self):
+        path = get_preferences.get_path("ovrdoze_data/data.pkl")
+        with open(path, 'wb') as file:
+            # Save the data to the file
+            pickle.dump({"money" : self.money, "ownedGuns" : self.ownedGuns, "ownedUpgrades" : self.ownedUpgrades, "weaponKills" : self.weaponKills, 
+                         "startingPistol" : self.startingPistol}, file) 
+
+    def loadProgression(self):
+        path = get_preferences.get_path("ovrdoze_data/data.pkl")
+
+        if not os.path.exists(path):
+            print("No progression")
+            self.money = 0
+            self.ownedGuns = ["M1911"]
+            self.ownedUpgrades = {"M1911" : []}
+            self.weaponKills = {"M1911" : 0}
+            self.startingPistol = "M1911"
+            self.saveProgression()
+            return
+
+        # Open the file in binary read mode
+        with open(path, 'rb') as file:
+            # Load the data from the file
+            loaded_data = pickle.load(file)
+
+        self.money = loaded_data["money"]
+        self.ownedGuns = loaded_data["ownedGuns"]
+        self.ownedUpgrades = loaded_data["ownedUpgrades"]
+        self.weaponKills = loaded_data["weaponKills"]
+        self.startingPistol = loaded_data["startingPistol"]
+        print("Progression loaded")
 
     def introScreen(self, screen, clock):
 
@@ -116,6 +181,97 @@ class App:
         IS.introPlayed = True
 
 
+    def inspectUpgrades(self, button_unlock, mouse_pos, mouse_single_tick, glitch, button_back_from_upgrades, button_setstartingpistol):
+        text = terminal2.render(self.upgradeWeapon.name, False, [255, 255, 255])
+        screen.blit(text, [40 + self.upgradeWeapon.image_non_alpha.get_size()[0]/2 - text.get_size()[0]/2, 20])
+        screen.blit(self.upgradeWeapon.image_non_alpha, [40, 60])
+
+        text = terminal2.render(f"Kills: {self.weaponKills[self.upgradeWeapon.name]}", False, [255, 255, 255])
+        screen.blit(text, [40 + self.upgradeWeapon.image_non_alpha.get_size()[0]/2 - text.get_size()[0]/2, 120])
+
+        fulfilled = False
+        req = [100, 250, 500]
+        if len(self.ownedUpgrades[self.upgradeWeapon.name]) < 3:
+            amount = req[len(self.ownedUpgrades[self.upgradeWeapon.name])]
+            fulfilled = amount <= self.weaponKills[self.upgradeWeapon.name]
+        if fulfilled:
+            button_unlock.locked = False
+            button_unlock.tooltip = "Unlock this upgrade"
+        elif len(self.ownedUpgrades[self.upgradeWeapon.name]) < 3:
+            button_unlock.locked = True
+            button_unlock.tooltip = f"You have to reach {amount} kills with this weapon to unlock this upgrade."
+
+        buttonPos = [300, 50 + 60 * min(2, (len(self.ownedUpgrades[self.upgradeWeapon.name])))]
+
+        if len(self.ownedUpgrades[self.upgradeWeapon.name]) < 3:
+
+            text = terminal1.render(f"Required kills: {amount}", False, [255, 255, 255])
+            screen.blit(text, [buttonPos[0], buttonPos[1] + 60])
+
+        if len(self.ownedUpgrades[self.upgradeWeapon.name]) < 3:
+            button_unlock.pos = buttonPos
+            button_unlock.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = self)
+
+        y_pos = 60
+
+        nonActive = False
+
+
+        for x in self.upgradeWeapon.availableUpgrades:
+
+            unlocked = x in self.ownedUpgrades[self.upgradeWeapon.name]
+            color = [255, 255, 255]
+            if not unlocked and nonActive:
+                color = [100, 100, 100]
+            elif not unlocked:
+                nonActive = True
+            
+            text = terminal2.render(x if unlocked else "?", False, color)
+            p = [500 - text.get_size()[0]/2, y_pos]
+            screen.blit(text, p)
+            if unlocked:
+                self.toolTip(p, mouse_pos, text, upgradeMap[x]["Desc"])
+            
+            y_pos += 60
+
+
+        if self.upgradeWeapon.name in PISTOLS:
+
+            if self.startingPistol == self.upgradeWeapon.name:
+                button_setstartingpistol.locked = True
+                button_setstartingpistol.tooltip="Already your starting pistol."
+                
+            else:
+                button_setstartingpistol.locked = False
+                button_setstartingpistol.tooltip="Set this gun as your starting pistol. The starting pistol will have infinite ammo."
+
+            button_setstartingpistol.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = [self, self.upgradeWeapon.name])
+
+        button_back_from_upgrades.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = self)
+        
+
+        
+
+    def toolTip(self, pos, mouse_pos, surf, text):
+        if surf.get_rect().collidepoint([mouse_pos[0] - pos[0], mouse_pos[1] - pos[1]]):
+            t = splitText(text, maxLength=25)
+            renderedText = []
+            maxPos = [0,0]
+            for x in t:
+                renderedText.append(terminal1.render(x, False, [255,255,255]))
+                maxPos[0] = max(maxPos[0], renderedText[-1].get_size()[0])
+                maxPos[1] = max(maxPos[1], renderedText[-1].get_size()[1])
+
+
+            s = pygame.Surface([maxPos[0], len(t) * maxPos[1]], pygame.SRCALPHA, 32).convert_alpha()
+            s.fill((0, 0, 0, 150))
+        
+            y = 0
+            for x in renderedText:
+                s.blit(x, [0, y])
+                y += maxPos[1]
+            
+            self.toolTipSurf = s
 
 
 
@@ -195,6 +351,8 @@ class App:
         get_preferences.write_prefs(
             self.name, self.draw_los, self.dev, self.fs, self.ultraviolence, self.ip, self.fps, self.vsync, self.res, self.volume, self.music, self.MULT_ACKNOWLEDGEMENT
         )
+
+        self.saveProgression()
 
 
     def threaded_player_info_gathering(self):

@@ -23,23 +23,8 @@ def upgrade_backpack(arg):
     advance(None)
 
 
-def purchase_weapon(arg):
-    player_inventory, items, player_actor = arg
-    for x in ruperts_shop_selections:
-        if x.active:
-            player_weapons.append(x.weapon.copy())
 
-            player_actor.money -= x.weapon.price
-
-            x.active = False
-            if x.weapon.ammo != "INF":
-
-                amount = max([50, x.weapon._clip_size * 3])
-
-                amount = min([amount, 300])
-
-                player_inventory.append_to_inv(items[x.weapon.ammo], amount)
-
+            
 
 def upgrade_weapon(arg):
     player_inventory, items, player_actor = arg
@@ -75,7 +60,9 @@ def upgrade_weapon(arg):
 
 
 
-
+def quitLoadout(arg):
+    app = arg
+    app.shop_quit = True
 
 
 def advance(arg):
@@ -92,14 +79,19 @@ shop_quit_button = Button(
     gameInstance=None,
     glitchInstance=None,
 )
-shop_buy_button = Button(
-    [3 * size[0] / 8, 7 * size[1] / 8],
-    "BUY",
-    purchase_weapon,
+
+
+
+loadout_quit_button = Button(
+    [7 * size[0] / 8, 7 * size[1] / 8],
+    "Exit",
+    quitLoadout,
     None,
     gameInstance=None,
     glitchInstance=None,
 )
+
+
 
 shop_upgrade_button = Button(
     [3 * size[0] / 8, 7 * size[1] / 8],
@@ -114,7 +106,7 @@ shop_upgrade_button = Button(
 
 upgrade_backpack_button = Button(
     [3 * size[0] / 8, 7 * size[1] / 8],
-    "UPGRADE",
+    "Upgrade",
     upgrade_backpack,
     None,
     gameInstance=None,
@@ -178,7 +170,7 @@ def open_upgrade_station(screen, click, mouse_pos, player_inventory, items, play
     for x in player_actor.upgradeButtons:
         x.tick(screen, dialogue[0].y_pos, mouse_pos, click, player_actor)
 
-        if x.active and not x.owned and x.upgradeI not in x.weapon.activatedUpgrades:
+        if x.active and not x.owned and x.upgradeI not in x.weapon.activatedUpgrades and not x.lockedUpgrade:
             shop_upgrade_button.tick(
                     screen,
                     mouse_pos,
@@ -214,26 +206,28 @@ def open_shop_backpack(screen, click, mouse_pos, player_inventory, items, player
     #     screen.blit(text, [40+x_len, 400])
 
 
-def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor, map):
-    screen.blit(surf_back, [0, 0])
+def open_shop(screen, click, mouse_pos, app, shop_buy_button, loadout_viewupgrades_button):
+    #screen.blit(surf_back, [0, 0])
 
-    text = terminal2.render("RUPERTS WEAPON SHOP", False, [255, 255, 255])
+    app.upgradeBlink.tick()
+
+    text = terminal2.render("WEAPON SHOP", False, [255, 255, 255])
     screen.blit(text, [20, 20])
 
     text = terminal.render("In stock:", False, [255, 255, 255])
     screen.blit(text, [20, 70])
 
-    text = terminal2.render(f"Money : {player_actor.money}$", False, [255, 255, 255])
+    text = terminal2.render(f"Money : {app.money}$", False, [255, 255, 255])
     screen.blit(text, [20, 400])
 
-    shop_quit_button.tick(screen, mouse_pos, click, None)
+    loadout_quit_button.tick(screen, mouse_pos, click, None, arg = app)
 
-    dialogue[0].max_y_pos = len(ruperts_shop_selections)
+    app.max_y_pos = len(ruperts_shop_selections)
 
     pygame.draw.rect(screen, [255, 255, 255], [5, 100, 10, 267], 1)
     scroll_bar = pygame.Rect(
         7,
-        102 + 263 * dialogue[0].y_pos / len(ruperts_shop_selections),
+        102 + 263 * app.y_pos / len(ruperts_shop_selections),
         6,
         263 * (3 / len(ruperts_shop_selections)),
     )
@@ -241,15 +235,23 @@ def open_shop(screen, click, mouse_pos, player_inventory, items, player_actor, m
     pygame.draw.rect(screen, [255, 255, 255], scroll_bar)
 
     for x in ruperts_shop_selections:
-        x.tick(screen, dialogue[0].y_pos, mouse_pos, click)
+        x.tick(app, screen, app.y_pos, mouse_pos, click)
 
-        if x.active and not x.owned and x.weapon.price <= player_actor.money:
+        if x.active and not x.owned and x.weapon.price <= app.money:
             shop_buy_button.tick(
                 screen,
                 mouse_pos,
                 click,
                 None,
-                arg=[player_inventory, items, player_actor],
+                arg=app,
+            )
+        elif x.active and x.owned:
+            loadout_viewupgrades_button.tick(
+                screen,
+                mouse_pos,
+                click,
+                None,
+                arg=app,
             )
 
 

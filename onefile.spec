@@ -1,30 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 added_data = [
-	( 'texture', 'texture' ), 
-	( 'texture/guns', 'texture/guns' ), 
-	( 'texture/items', 'texture/items' ), 
-	( 'texture/maps', 'texture/maps' ), 
-	( 'sound', 'sound' ), 
-	( 'sound/item_sounds', 'sound/item_sounds' ), 
-	( 'sound/radio_chatter', 'sound/radio_chatter' ), 
-	( 'sound/scrollbarclicks', 'sound/scrollbarclicks' ), 	
-	( 'sound/sfx', 'sound/sfx' ), 
-	( 'sound/songs', 'sound/songs' ), 
-	( 'bended', 'bended' ), 
-	( 'anim/expl_blood', 'anim/expl_blood' ), 
-	( 'anim/expl1', 'anim/expl1' ), 
-	( 'anim/glitch', 'anim/glitch' ), 
-	( 'anim/intro1', 'anim/intro1' ), 
-	( 'anim/intro2', 'anim/intro2' ), 
-	( 'anim/intro3', 'anim/intro3' ), 
-	( 'anim/intro4', 'anim/intro4' ), 
-	( 'anim/intro5', 'anim/intro5' ), 
-	( 'anim/intro6', 'anim/intro6' ), 
-	( 'anim/intro7', 'anim/intro7' ), 
-	( 'anim/intro8', 'anim/intro8' ), 
-	( 'anim/vs', 'anim/vs' ), 
-	( 'anim_compressed', 'anim_compressed' ), 
+	('assets', "assets"), 
 ]
 
 block_cipher = None
@@ -67,5 +44,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='texture/coverArt.png',
+    icon='assets/texture/coverArt.png',
 )

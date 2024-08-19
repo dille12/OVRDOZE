@@ -319,6 +319,7 @@ class Gun(Weapon):
                         owner=self,
                         explosive = self.explosive,
                         fragRounds = self.fragRounds,
+                        firedFrom=self.name
                     )
 
                     bullet_list.append(bullet_temp)  # BULLET

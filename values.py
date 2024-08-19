@@ -259,6 +259,19 @@ def load_alpha(image):
     ).convert_alpha()
     return im
 
+def splitText(text, maxLength = 50):
+    textSplitten = text.split(" ")
+    returnText = []
+    currText = ""
+    for word in textSplitten:
+        if len(word) + len(currText) <= maxLength:
+            currText += word + " "
+        else:
+            returnText.append(currText)
+            currText = word + " "
+    returnText.append(currText)
+    return returnText
+
 
 multikill_fonts = []
 for i in range(5):
@@ -293,12 +306,13 @@ for x in range(45):
     t.set_alpha(x*155/45)
     player_indicator.append(t)
 
-
+upgradeIcon = pygame.image.load("assets/texture/upgradeIcon.png").convert_alpha()
+buyIcon = pygame.image.load("assets/texture/buyIcon.png").convert_alpha()
 
 soldierSprite = load("texture/soldier.png", size = [180,119])
 soldierPistolSprite = load("texture/soldierPistol.png", size = [180,119])
 
-
+PISTOLS = ["GLOCK", "M1911", "FN57-S", "DESERTEAGLE"]
 
 zombie = load("texture/zombie.png", size = [119,119])
 zombie2 = load("texture/zombie2.png", size = [119,119])
