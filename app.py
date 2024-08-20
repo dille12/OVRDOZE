@@ -130,13 +130,14 @@ class App:
 
         highscores.write_default_highscore()
         highscores.checkHighscores(self)
+        self.inLoadLoop = False
 
         
 
     def checkLevelProgression(self):
 
-        self.levelProgression = {"Manufactory" : [5, "NORMAL", "Requiem"], "Liberation" : [10, "NORMAL", "Manufactory"], "Contamination" : [15, "HARD", "Liberation"],
-                            "Downtown" : [20, "ONSLAUGHT", "Contamination"],}
+        self.levelProgression = {"Manufactory" : [5, "NORMAL", "Requiem"], "Liberation" : [10, "NORMAL", "Manufactory"], "Contamination" : [10, "HARD", "Liberation"],
+                            "Downtown" : [15, "ONSLAUGHT", "Contamination"],}
 
         for x in self.maps_dict:
             map = self.maps_dict[x]["map"]
@@ -205,6 +206,10 @@ class App:
 
 
     def inspectUpgrades(self, button_unlock, mouse_pos, mouse_single_tick, glitch, button_back_from_upgrades, button_setstartingpistol):
+
+        text = terminal2.render(f"Money : {self.money}$", False, [255, 255, 255])
+        screen.blit(text, [20, 150])
+
         text = terminal2.render(self.upgradeWeapon.name, False, [255, 255, 255])
         screen.blit(text, [40 + self.upgradeWeapon.image_non_alpha.get_size()[0]/2 - text.get_size()[0]/2, 20])
         screen.blit(self.upgradeWeapon.image_non_alpha, [40, 60])
@@ -218,8 +223,13 @@ class App:
             amount = req[len(self.ownedUpgrades[self.upgradeWeapon.name])]
             fulfilled = amount <= self.weaponKills[self.upgradeWeapon.name]
         if fulfilled:
-            button_unlock.locked = False
-            button_unlock.tooltip = "Unlock this upgrade"
+
+            if self.money < amount*5:
+                button_unlock.locked = True
+                button_unlock.tooltip = f"Price of unlocking this upgrade is {amount*5}$"
+            else:
+                button_unlock.locked = False
+                button_unlock.tooltip = "Unlock this upgrade"
         elif len(self.ownedUpgrades[self.upgradeWeapon.name]) < 3:
             button_unlock.locked = True
             button_unlock.tooltip = f"You have to reach {amount} kills with this weapon to unlock this upgrade."
@@ -230,6 +240,8 @@ class App:
 
             text = terminal1.render(f"Required kills: {amount}", False, [255, 255, 255])
             screen.blit(text, [buttonPos[0], buttonPos[1] + 60])
+            text = terminal1.render(f"Price: {amount*5}$", False, [255, 255, 255])
+            screen.blit(text, [buttonPos[0], buttonPos[1] + 75])
 
         if len(self.ownedUpgrades[self.upgradeWeapon.name]) < 3:
             button_unlock.pos = buttonPos
@@ -254,6 +266,7 @@ class App:
             screen.blit(text, p)
             if unlocked:
                 self.toolTip(p, mouse_pos, text, upgradeMap[x]["Desc"])
+                screen.blit(upgradeIcons[x.replace(" ", "").lower()][0], [510 + text.get_size()[0]/2, y_pos+5])
             
             y_pos += 60
 

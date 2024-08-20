@@ -137,6 +137,16 @@ def main(
         difficulty
     ]
 
+    payouts = {
+        "NO ENEMIES": 1,
+        "EASY": 1,
+        "NORMAL": 2,
+        "HARD": 3,
+        "ONSLAUGHT": 4,
+    }
+
+    app.payOut = payouts[difficulty]
+
     print("Enemy count:", enemy_count)
 
     self_name = app.name
@@ -242,7 +252,7 @@ def main(
     player_inventory.items = items
     turret_bro.clear()
 
-    
+    player_inventory.append_to_inv(items["Upgrade Token"], 3)
 
     app.day = -1
 
@@ -1685,11 +1695,19 @@ def main(
 
                 
 
-        for pos, type, blastSize in append_explosions:
-            if type == "small":
-                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = 100))
+        for l in append_explosions:
+
+            if len(l) == 3:
+                pos, e_type, blastSize = l
+                firedFrom = ""
             else:
-                explosions.append(Explosion(pos, type, player_nade = True, player_damage_mult = 0.25, range = blastSize))
+                pos, e_type, blastSize, firedFrom = l
+
+
+            if e_type == "small":
+                explosions.append(Explosion(pos, e_type, player_nade = True, player_damage_mult = 0.25, range = 100, firedFrom = firedFrom))
+            else:
+                explosions.append(Explosion(pos, e_type, player_nade = True, player_damage_mult = 0.25, range = blastSize, firedFrom = firedFrom))
         append_explosions.clear()
 
         last_bullet_list = tuple(bullet_list)
@@ -2530,7 +2548,8 @@ def main(
 
             
 
-        app.pygame.display.update()
+        if not app.inLoadLoop:
+            app.pygame.display.update()
 
 
 if __name__ == "__main__":

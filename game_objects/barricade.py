@@ -80,7 +80,6 @@ class Barricade(Game_Object):
             xy = np.array([x, y])
             closestWalls = [False, False, False, False]
             for i in range(detectPoints.shape[0]):
-                print(i)
                 xy2 = detectPoints[i]
 
                 minDist = self.maxLength

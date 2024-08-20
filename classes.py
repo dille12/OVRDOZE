@@ -317,7 +317,7 @@ items = {
     ),
     "Upgrade Token": Item(
         "Upgrade Token",
-        "Vagabond will trade you these for upgrades.",
+        "Can be exchanged for powerful upgrades.",
         "upgradeToken.png",
         max_stack = 3,
         pick_up_sound=energy_cell_sound,

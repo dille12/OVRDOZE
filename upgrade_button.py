@@ -63,6 +63,20 @@ class upgradeButton:
             else:
                 screen.blit(self.weapon.image, def_pos)
 
+            for i, x in enumerate(self.weapon.activatedUpgrades):
+
+                upgr = self.weapon.availableUpgrades[x]
+
+                y_pos = 2 + i*21
+                x_pos = 178
+
+                if self.active:
+                    iIm = 1
+                else:
+                    iIm = 0
+                
+                screen.blit(upgradeIcons[upgr.replace(" ", "").lower()][iIm], [def_pos[0] + x_pos, def_pos[1] + y_pos])
+
             if self.active:
                 pygame.draw.rect(
                     screen,
@@ -97,6 +111,39 @@ class upgradeButton:
                     self.upgradeI = len(self.weapon.availableUpgrades) - 1
                 if self.upgradeI > len(self.weapon.availableUpgrades) - 1:
                     self.upgradeI = 0
+
+                midPoint = 487 - 40
+
+                for x_I in range(3):
+                    upgr = self.weapon.availableUpgrades[x_I]
+                    unlockedIcon = self.weapon.availableUpgrades[x_I] in player_actor.ownedUpgrades[self.weapon.name]
+                    xPos = midPoint + 30*x_I
+                    overMouse = False
+                    if xPos <= mouse_pos[0] <= xPos + 20 and 95 <= mouse_pos[1] <= 115:
+                        overMouse = True
+                        if click:
+                            self.upgradeI = x_I
+                            menu_click.stop()
+                            menu_click.play()
+
+                    if x_I == self.upgradeI or overMouse:
+                        iIm = 1
+                    else:
+                        iIm = 0
+
+                    if unlockedIcon:
+                        im = upgradeIcons[upgr.replace(" ", "").lower()][iIm]
+                    else:
+                        if x_I == self.upgradeI or overMouse:
+                            iIm = 1
+                        else:
+                            iIm = 2
+                        im = upgradeIcons["locked"][iIm]
+
+                    screen.blit(im, [xPos, 95])
+                    if x_I in self.weapon.activatedUpgrades:
+                        screen.blit(checkIcon, [xPos, 95])
+
 
                 unlocked = self.weapon.availableUpgrades[self.upgradeI] in player_actor.ownedUpgrades[self.weapon.name]
 

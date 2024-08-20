@@ -105,11 +105,11 @@ class Bullet(Game_Object):
         self.quadrant.bullets.remove(self)
 
         if self.explosive:
-            append_explosions.append([self._pos, "small", 100])
+            append_explosions.append([self._pos, "small", 100, self.firedFrom])
             self.added_explosion = True
 
         if self.rocket and add_expl and not self.added_explosion:
-            append_explosions.append([self._pos, expl1, self.rocket_explosion_range])
+            append_explosions.append([self._pos, expl1, self.rocket_explosion_range, self.firedFrom])
             self.added_explosion = True
             #explosions.append(Explosion(self._pos, expl1))
         if self in bullet_list:

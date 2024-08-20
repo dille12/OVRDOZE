@@ -136,7 +136,8 @@ class Explosion:
         range=200,
         particles="normal",
         color_override="red",
-        player_damage_mult = 1
+        player_damage_mult = 1,
+        firedFrom = ""
     ):
         self.pos = pos
         if expl1 != "small":
@@ -151,6 +152,7 @@ class Explosion:
         self.particles = particles
         self.c_o = color_override
         self.player_damage = player_damage_mult
+        self.firedFrom = firedFrom
 
     def damage_actor(
         self,
@@ -184,7 +186,7 @@ class Explosion:
                 if self.player:
                     multi_kill += 1
                     multi_kill_ticks = 120
-                actor.kill_actor(camera_pos, enemy_list, blood_surf, player_actor)
+                actor.kill_actor(camera_pos, enemy_list, blood_surf, player_actor, firedFrom = self.firedFrom)
 
         if self.player:
             return multi_kill, multi_kill_ticks

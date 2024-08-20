@@ -480,6 +480,10 @@ def main(ms = "start", TEST = False):
     def unlockUpgrade(arg):
         app = arg
 
+        req = [100, 250, 500]
+        amount = req[len(app.ownedUpgrades[app.upgradeWeapon.name])]
+        app.money -= amount*5
+
         for x in app.upgradeWeapon.availableUpgrades:
             if x not in app.ownedUpgrades[app.upgradeWeapon.name]:
                 app.ownedUpgrades[app.upgradeWeapon.name].append(x)
@@ -1465,7 +1469,7 @@ def main(ms = "start", TEST = False):
                 if x in app.ownedUpgrades and x in app.weaponKills:
                     if len(app.ownedUpgrades[x]) < 3:
                         amount = req[len(app.ownedUpgrades[x])]
-                        upgradeAvailable = amount <= app.weaponKills[x]
+                        upgradeAvailable = amount <= app.weaponKills[x] and amount*5 <= app.money
                         if upgradeAvailable:
                             break
             y_pos = 420
@@ -1620,7 +1624,9 @@ def main(ms = "start", TEST = False):
             screen.fill((menu_alpha,menu_alpha,menu_alpha))
             func.blit_glitch(screen, image_copy, [0,0], round(10*glitch.glitch_tick))
 
-        app.pygame.display.update()
+        if not app.inLoadLoop:
+
+            app.pygame.display.update()
 
         if TEST:
             return

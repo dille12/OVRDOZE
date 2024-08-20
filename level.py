@@ -606,10 +606,10 @@ class Map:
             collider = pos
         else:
             collider = pygame.Rect(
-                pos[0] - collider_size,
-                pos[1] - collider_size,
-                collider_size * 2,
-                collider_size * 2,
+                round(pos[0] - collider_size),
+                round(pos[1] - collider_size),
+                round(collider_size * 2),
+                round(collider_size * 2),
             )
         map_rect = pygame.Rect(0, 0, map_size[0], map_size[1])
 

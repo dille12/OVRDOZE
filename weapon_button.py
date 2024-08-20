@@ -56,6 +56,18 @@ class weapon_button:
                 else:
                     func.blit_glitch(screen, self.weapon.image_red, def_pos, glitch = 5)
 
+            if owned:
+
+                if self.active:
+                    iIm = 1
+                else:
+                    iIm = 0
+
+                for i, x in enumerate(app.ownedUpgrades[self.weapon.name]):
+                    y_pos = 2 + i*21
+                    x_pos = 178
+                    screen.blit(upgradeIcons[x.replace(" ", "").lower()][iIm], [def_pos[0] + x_pos, def_pos[1] + y_pos])
+
 
             if self.active:
                 pygame.draw.rect(

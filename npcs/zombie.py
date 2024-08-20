@@ -184,7 +184,7 @@ class Zombie(pygame.sprite.Sprite):
 
         if not silent:
 
-            player_actor.money += random.randint(5, 10)
+            player_actor.money += self.app.payOut
             money_tick.value = 0
 
             self.app.multi_kill += 1

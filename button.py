@@ -130,7 +130,6 @@ class Button:
                 self.click_sound.play()
 
                 GV.blockClick = True
-                print("GV CHANGED!", GV.blockClick)
 
                 if self.app:
                     for x in self.app.buttons:

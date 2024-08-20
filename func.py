@@ -679,6 +679,7 @@ def rot_center(image, angle, x, y):
     return rotated_image, new_rect
 
 def load_loop(app, screen, text):
+    app.inLoadLoop = True
     while app.loading:
 
         app.clock.tick(30)
@@ -702,6 +703,7 @@ def load_loop(app, screen, text):
         screen.blit(hintSurf, [10, size[1] - 20])
 
         pygame.display.update()
+    app.inLoadLoop = False
 
 
 def load_screen(app, screen, text):
@@ -1322,6 +1324,21 @@ def draw_HUD(
         print(e)
 
     if not weapon.jammed:
+
+        for i, x in enumerate(weapon.activatedUpgrades):
+
+            upgr = weapon.availableUpgrades[x]
+
+            y_pos = 2 + i*21
+            x_pos = 178
+
+            iIm = 0
+
+            def_pos = [5 + x_d, 5 + y_d]
+            
+            screen.blit(upgradeIcons[upgr.replace(" ", "").lower()][iIm], [def_pos[0] + x_pos, def_pos[1] + y_pos])
+
+
 
         if weapon.skip_mags:
 

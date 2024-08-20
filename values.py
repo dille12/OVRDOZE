@@ -308,6 +308,8 @@ for x in range(45):
 
 upgradeIcon = pygame.image.load("assets/texture/upgradeIcon.png").convert_alpha()
 buyIcon = pygame.image.load("assets/texture/buyIcon.png").convert_alpha()
+checkIcon = pygame.image.load("assets/texture/check.png").convert_alpha()
+checkIcon.set_alpha(150)
 
 soldierSprite = load("texture/soldier.png", size = [180,119])
 soldierPistolSprite = load("texture/soldierPistol.png", size = [180,119])
@@ -648,6 +650,22 @@ turret_fire1 = get_Sound("sound/turret_fire1.wav")
 turret_fire2 = get_Sound("sound/turret_fire1.wav")
 turret_fire3 = get_Sound("sound/turret_fire1.wav")
 turret_fire = [turret_fire1, turret_fire2, turret_fire3]
+
+upgradeIcons = {}
+uPath = "assets/texture/upgradeIcons"
+for x in os.listdir(uPath):
+    p = os.path.join(uPath, x)
+
+    im = pygame.image.load(p).convert_alpha()
+
+    imRed = colorize(im.copy(), pygame.Color(255, 0, 0))
+
+    imAlpha = im.copy()
+    imAlpha.set_alpha(100)
+    
+    upgradeIcons[x.lower().removesuffix(".png")] = [im, imRed, imAlpha]
+
+
 
 class Hint:
     def __init__(self):

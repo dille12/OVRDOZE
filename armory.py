@@ -118,7 +118,7 @@ guns = {
         piercing=3,
         view=0.03,
         handling=0.35,
-        availableUpgrades = ["Quickdraw Mag", "Fragmentation rounds", "Improved Firerate"],
+        availableUpgrades = ["Quickdraw Mag", "Fragmentation Rounds", "Improved Firerate"],
     ),
     "SCAR18": W.Gun(
         name="SCAR18",
@@ -277,7 +277,7 @@ guns = {
         ammo="9MM",
         view=0.02,
         handling=0.5,
-        availableUpgrades = ["Recoil Recovery", "Double Firerate", "Fragmentation rounds"],
+        availableUpgrades = ["Recoil Recovery", "Double Firerate", "Fragmentation Rounds"],
     ),
     "MP5": W.Gun(
         name="MP5",
@@ -432,7 +432,7 @@ upgradeMap = {
     "Energy Efficiency" : {"Desc" : "Energy depletes half as fast.", "stat" : "ammo_per_shot", "multval" : 0.5},
     "Armor Annihilating" : {"Desc" : "The bullet wont stop for anything.", "stat" : "piercing_bullets", "set" : 50},
     "Bigger Blasts" : {"Desc" : "Yeah be careful with this one.", "stat" : "rocket_explosion_range", "set" : 600},
-    "Fragmentation rounds" : {"Desc" : "Bullets fragment into three bullets after impact.", "stat" : "fragRounds", "set" : True},
+    "Fragmentation Rounds" : {"Desc" : "Bullets fragment into three bullets after impact.", "stat" : "fragRounds", "set" : True},
     "Featherweight" : {"Desc" : "Handling of the weapon becomes incredibly easy.", "stat" : "handling", "set" : 0.99},
 
 
