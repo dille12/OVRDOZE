@@ -1,30 +1,8 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1612, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1628, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1433, in main
-    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 141, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 444, in start_sp
-    app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 447, in start_sp
-    game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 2302, in main
-    quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 141, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 88, in quit
-    RUN.main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1433, in main
-    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 141, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 444, in start_sp
-    app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 447, in start_sp
-    game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1666, in main
-    kills_bullet = x.move_and_draw_Bullet(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game_objects\bullet.py", line 341, in move_and_draw_Bullet
-    x.hit_detection(
-TypeError: Soldier.hit_detection() takes 8 positional arguments but 9 were given
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1447, in main
+    render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = True)
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 203, in render_selected_map
+    minRounds, diff, reqMap = app.levelProgression[maps_dict[app.selected_map]["map"].name]
+KeyError: 'Requiem'

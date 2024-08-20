@@ -57,7 +57,7 @@ def give_weapon(kind, name):
 
 def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = False):
     rect_map = maps_dict[app.selected_map]["image"].get_rect()
-
+    levelLocked = app.selected_map in app.lockedLevels
     map_pos = [size[0]/2 - rect_map.center[0], 80 * (size[0]/854)]
 
     text = terminal.render("MAP", False, [255, 255, 255])
@@ -81,8 +81,11 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
 
         app.pygame.draw.rect(screen, [255, 255, 255], rect_map.move(map_pos), 5)
 
-    if app.map_tick > 0:
-        app.map_tick -= 1
+    if app.map_tick > 0 or levelLocked:
+        if levelLocked:
+            app.map_tick = 3
+        else:
+            app.map_tick -= 1
         func.blit_glitch(screen, maps_dict[app.selected_map]["image"], map_pos, glitch = app.map_tick*4, black_bar_chance = 15-app.map_tick*2)
 
         func.render_text_glitch(screen,  maps_dict[app.selected_map]["map"].name, [size[0]/2, map_pos[1]-40], glitch = 5, centerx = True, font = terminal)
@@ -128,7 +131,10 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
         elif  maps_dict[x]["map"].name == maps_dict[app.selected_map]["map"].name:
             color = [255,255,255]
         else:
-            color = [100,100,100]
+            if x in app.lockedLevels:
+                color = [100,10,10]
+            else:
+                color = [100,100,100]
 
         text = terminal.render(maps_dict[x]["map"].name, False, color)
         screen.blit(text, pos)
@@ -189,19 +195,30 @@ def render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, di
     screen.blit(text, [map_pos[0] + rect_map2.w / 2  - text.get_rect().size[0] / 2, map_pos[1]+ 12 + rect_map2.h])
     if difficulty == 0 or difficulty == "NO ENEMIES":
         return
+    
+    if app.selected_map in app.lockedLevels:
+        text = terminal.render(f"Level locked! Unlocked by reaching:", False, [255, 255, 255])
+        screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 30])
 
-    if maps_dict[app.selected_map]["map"].name not in app.highscore:
-        return
+        minRounds, diff, reqMap = app.levelProgression[maps_dict[app.selected_map]["map"].name]
 
-    wave = app.highscore[maps_dict[app.selected_map]["map"].name][difficulty][0]
-    text = terminal.render(f"Highest wave: {wave}", False, [255, 255, 255])
+        text = terminal.render(f"Wave {minRounds} on {diff} in {reqMap}.", False, [255, 0, 0])
+        screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 60])
 
-    screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 30])
+    else:
 
-    money = app.highscore[maps_dict[app.selected_map]["map"].name][difficulty][1]
-    text = terminal.render(f"Most money earned: {money}$", False, [255, 255, 255])
+        if maps_dict[app.selected_map]["map"].name not in app.highscore:
+            return
 
-    screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 60])
+        wave = app.highscore[maps_dict[app.selected_map]["map"].name][difficulty][0]
+        text = terminal.render(f"Highest wave: {wave}", False, [255, 255, 255])
+
+        screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 30])
+
+        money = app.highscore[maps_dict[app.selected_map]["map"].name][difficulty][1]
+        text = terminal.render(f"Most money earned: {money}$", False, [255, 255, 255])
+
+        screen.blit(text, [map_pos[0], map_pos[1]+rect_map.height + 60])
 
 
 
@@ -215,8 +232,7 @@ def main(ms = "start", TEST = False):
     maps_dict = app.getMaps()
     app.clock = app.pygame.time.Clock()
 
-    highscores.write_default_highscore()
-    highscores.checkHighscores(app)
+    app.checkLevelProgression()
 
 
     screen, mouse_conversion = app.update_screen()
@@ -1415,8 +1431,6 @@ def main(ms = "start", TEST = False):
             # text = terminal.render("SINGLEPLAYER LOBBY", False, [255,255,255])
             # screen.blit(text, [400,20])
 
-
-
             check_box_inter.render_checkbox()
 
             intervals = check_box_inter.__dict__["checked"]
@@ -1429,6 +1443,11 @@ def main(ms = "start", TEST = False):
                     button_start_single_player.__dict__["args"] = difficulty
 
             render_selected_map(screen, maps_dict, app, mouse_pos, mouse_single_tick, difficulty, mp = False, host = True)
+
+            if app.selected_map in app.lockedLevels:
+                button_start_single_player.locked = True
+            else:
+                button_start_single_player.locked = False
 
             s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
             s8_2 = button_client_quit.tick(screen, mouse_pos, mouse_single_tick, glitch)

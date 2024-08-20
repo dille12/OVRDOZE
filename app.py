@@ -16,7 +16,7 @@ import pygame
 from classes import kill_count_render
 from armory import upgradeMap
 import pickle
-
+import highscores
 
 terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
 terminal1 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
@@ -126,6 +126,29 @@ class App:
         print("APP INITTED")
         self.loadProgression()
         self.upgradeWeapon = None
+        self.lockedLevels = []
+
+        highscores.write_default_highscore()
+        highscores.checkHighscores(self)
+
+        
+
+    def checkLevelProgression(self):
+
+        self.levelProgression = {"Manufactory" : [5, "NORMAL", "Requiem"], "Liberation" : [10, "NORMAL", "Manufactory"], "Contamination" : [15, "HARD", "Liberation"],
+                            "Downtown" : [20, "ONSLAUGHT", "Contamination"],}
+
+        for x in self.maps_dict:
+            map = self.maps_dict[x]["map"]
+            if map.name in self.levelProgression:
+
+                minRounds, diff, reqMap = self.levelProgression[map.name]
+
+                if self.highscore[reqMap][diff][0] < minRounds:
+                    self.lockedLevels.append(x)
+
+        print("Locked levels:", self.lockedLevels)
+
 
 
     def saveProgression(self):

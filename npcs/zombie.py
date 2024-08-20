@@ -48,7 +48,7 @@ class Zombie(pygame.sprite.Sprite):
         self.pos = pos
         self.target_pos = pos
         self.tick_every = 1
-        self.moving_speed = (power**0.75)*0.65
+        self.moving_speed = (power**0.9)*0.65
         self.detection_range = 300 * power
         self.detection_rate = 0.05 * self.tick_every
         self.target_angle = 0
@@ -56,7 +56,7 @@ class Zombie(pygame.sprite.Sprite):
         self.killed = False
         self.damage = 2 * power * dam_diff
         self.knockback_resistance = 1
-        self.hp = 75 * hp_diff * (1 + power/10)
+        self.hp = 75 * hp_diff * (1 + power/7)
         self.attack_speed = 30
         self.target = target_actor
         self.navmesh_ref = NAV_MESH.copy()
