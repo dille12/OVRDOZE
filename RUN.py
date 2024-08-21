@@ -530,6 +530,23 @@ def main(ms = "start", TEST = False):
         locked = True,
     )
 
+    def tutorial(arg):
+        app = arg
+        app.tutorialIndex = 0
+        return "tutorial"
+
+
+    button_howtoplay = Button(
+        [x_s, 260],
+        "How To Play",
+        tutorial,
+        None,
+        gameInstance=app,
+        glitchInstance=glitch,
+        tooltip="View a quick tutorial.",
+    )
+
+
     button_sp_continue_game = Button(
         [x_s, 160],
         "Continue",
@@ -570,7 +587,7 @@ def main(ms = "start", TEST = False):
 
 
     button_settings = Button(
-        [x_s, 260],
+        [x_s, 320],
         "Settings",
         settings,
         None,
@@ -595,7 +612,7 @@ def main(ms = "start", TEST = False):
     
 
     button_map_creator = Button(
-        [x_s, 320],
+        [x_s, 380],
         "Map Editor",
         launch_map_editor,
         None,
@@ -667,7 +684,7 @@ def main(ms = "start", TEST = False):
 
 
     button_quit_game = Button(
-        [x_s, 380], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
+        [x_s, 440], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
     )
 
     button_back_beta = Button(
@@ -995,6 +1012,8 @@ def main(ms = "start", TEST = False):
         button_map_creator,
         button_WarnContinue,
         button_viewloadout,
+        button_howtoplay,
+
     ]
     checkboxes = [
         check_box_difficulties,
@@ -1285,8 +1304,7 @@ def main(ms = "start", TEST = False):
             )
 
             s1 = button_sp.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            #s2 = button_mp_menu.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            s2 = None
+            s2 = button_howtoplay.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = app)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
@@ -1301,6 +1319,26 @@ def main(ms = "start", TEST = False):
             if s3 != None:
                 menu_status = s3
                 mouse_single_tick = False
+
+        if menu_status == "tutorial":
+            
+            if app.tutorialIndex < len(tutorialTexts):
+                app.tutorial()
+            else:
+                menu_status = "start"
+
+                
+            if mouse_single_tick:
+                app.tutorialIndex += 1
+
+                glitch.glitch_tick = 5
+                menu_click2.play()
+
+                if app.tutorialIndex >= len(tutorialTexts):
+                    menu_status = "start"
+                    
+
+            
 
         if menu_status == "settings":
 

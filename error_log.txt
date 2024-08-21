@@ -1,22 +1,8 @@
 Traceback (most recent call last):
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1637, in <module>
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1675, in <module>
     main()
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1456, in main
-    s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\button.py", line 140, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 460, in start_sp
-    app.start_sp(args)
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\app.py", line 483, in start_sp
-    game.main(
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\game.py", line 2320, in main
-    quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\button.py", line 140, in tick
-    return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\game.py", line 88, in quit
-    RUN.main()
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1516, in main
-    app.inspectUpgrades(button_unlock, mouse_pos, mouse_single_tick, glitch, button_back_from_upgrades, button_setstartingpistol)
-  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\app.py", line 268, in inspectUpgrades
-    self.toolTip(p, mouse_pos, text, upgradeMap[x]["Desc"])
-KeyError: 'Fragmentation rounds'
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\RUN.py", line 1326, in main
+    app.tutorial()
+  File "c:\Users\Omistaja\Documents\GitHub\2dshooter\app.py", line 211, in tutorial
+    a = terminal3.render(f"{self.tutorialIndex+1}/{len(tutorialTexts)}")
+TypeError: function takes at least 3 arguments (1 given)

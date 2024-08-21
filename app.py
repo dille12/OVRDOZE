@@ -18,6 +18,7 @@ from armory import upgradeMap
 import pickle
 import highscores
 
+terminal3 = pygame.font.Font(fp("texture/terminal.ttf"), 50)
 terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)
 terminal1 = pygame.font.Font(fp("texture/terminal.ttf"), 10)
 
@@ -131,6 +132,7 @@ class App:
         highscores.write_default_highscore()
         highscores.checkHighscores(self)
         self.inLoadLoop = False
+        self.tutorialIndex = 0
 
         
 
@@ -203,6 +205,27 @@ class App:
             pygame.display.update()
 
         IS.introPlayed = True
+
+    def tutorial(self):
+
+        a = terminal3.render(f"{self.tutorialIndex+1}/{len(tutorialTexts)}", False, [255,255,255])
+        screen.blit(a, [size[0]/2 - a.get_width()/2, 20])
+
+        a = terminal3.render(f"{tutorialTitles[self.tutorialIndex]}", False, [255,255,255])
+        screen.blit(a, [size[0]/2 - a.get_width()/2, 80])
+
+
+
+        text = tutorialTexts[self.tutorialIndex]
+
+        t = splitText(text, maxLength=35)
+        y_pos = 150
+        for x in t:
+            a = terminal2.render(x, False, [255,255,255])
+            screen.blit(a, [size[0]/2 - a.get_width()/2, y_pos])
+            y_pos += 40
+
+
 
 
     def inspectUpgrades(self, button_unlock, mouse_pos, mouse_single_tick, glitch, button_back_from_upgrades, button_setstartingpistol):

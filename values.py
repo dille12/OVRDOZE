@@ -651,6 +651,24 @@ turret_fire2 = get_Sound("sound/turret_fire1.wav")
 turret_fire3 = get_Sound("sound/turret_fire1.wav")
 turret_fire = [turret_fire1, turret_fire2, turret_fire3]
 
+tutorialTexts = [
+    "Welcome to OVRDOZE, a tight-space wave survival game. Click to advance.",
+    "You can move using WASD. Run by holding SHIFT, and dodge by pressing SPACE.",
+    "Mouse placement aims your equipped weapon. The current bullet spread is indicated by the distance between the aim lines.",
+    "LEFT MOUSE CLICK fires your currently equipped weapon. Guns have a chance of jamming, which can be cleared by rapidly clicking the firing button.",
+    "RIGHT MOUSE CLICK performs a melee attack around you, dealing significant damage and knockback. Melee has a short cooldown, so use it liberally.",
+    "Zombies deal damage, but your HP heals back quickly. However, healing drains your SANITY.",
+    "SANITY affects the number of zombies present during a wave and the chance of your gun jamming. Consume narcotics to maintain your sanity.",
+    "Zombies occasionally drop weapons. First, you need to unlock weapons in LOADOUT to make them spawn in-game. You can carry up to five guns. The pistol you start with can be switched in LOADOUT, and it has infinite ammo.",
+    "Each weapon has three upgrades, ranging from useful to overpowered. These must first be unlocked in LOADOUT by reaching a set number of kills. After unlocking, they can be exchanged for UPGRADE TOKENS in-game at the UPGRADE STATION.",
+    "You sink into the blood of killed enemies. Avoid walking over blood or clean it up by switching to the POWERWASHER using T.",
+    "Press G to throw GRENADES, which can be cycled by pressing Q. GRENADES are dangerous to everyone and can easily kill you too, so remember to take cover.",
+    "TURRETS and BARRICADES assist in point defense and should be used in tight situations."
+]
+
+tutorialTitles = ["", "MOVEMENT", "AIMING", "FIRING", "MELEE", "HP", "SANITY", "GUNS", "UPGRADES", "BLOOD SINKING", "GRENADES", "UTILITIES"]
+
+
 upgradeIcons = {}
 uPath = "assets/texture/upgradeIcons"
 for x in os.listdir(uPath):

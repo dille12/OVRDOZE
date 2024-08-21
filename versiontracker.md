@@ -24,3 +24,7 @@ Version 0.9.78 - Added a progression system. Weapons can be bought with money, a
 
 Version 0.9.79 - Levels are locked behind certain wave goals, added icons for upgrades 
 
+Version 0.9.80 - Added a "how to play" in to the menu
+
+Version 0.9.81 - added a tutorial into the menu
+

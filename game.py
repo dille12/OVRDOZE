@@ -160,6 +160,12 @@ def main(
 
     def restart(arg):
 
+        app, money = arg
+
+        app.money += money
+
+        app.write_prefs()
+
         args = (app, self_name, difficulty, draw_los, dev_tools, skip_intervals, map)
 
         app.start_sp(args)
@@ -2316,7 +2322,7 @@ def main(
                         ],
                     )
 
-                retry_button.tick(screen, mouse_pos, click_single_tick, glitch)
+                retry_button.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
                 quit_button_alt.tick(screen, mouse_pos, click_single_tick, glitch, arg=[app, player_actor.money])
 
             else:
