@@ -659,6 +659,7 @@ tutorialTexts = [
     "RIGHT MOUSE CLICK performs a melee attack around you, dealing significant damage and knockback. Melee has a short cooldown, so use it liberally.",
     "Zombies deal damage, but your HP heals back quickly. However, healing drains your SANITY.",
     "SANITY affects the number of zombies present during a wave and the chance of your gun jamming. Consume narcotics to maintain your sanity.",
+    "Zombies spawn during WAVES, which are synced with the currently playing music. Between waves, you should clean up the map and upgrade your weapons.",
     "Zombies occasionally drop weapons. First, you need to unlock weapons in LOADOUT to make them spawn in-game. You can carry up to five guns. The pistol you start with can be switched in LOADOUT, and it has infinite ammo.",
     "Each weapon has three upgrades, ranging from useful to overpowered. These must first be unlocked in LOADOUT by reaching a set number of kills. After unlocking, they can be exchanged for UPGRADE TOKENS in-game at the UPGRADE STATION.",
     "You sink into the blood of killed enemies. Avoid walking over blood or clean it up by switching to the POWERWASHER using T.",
@@ -666,7 +667,7 @@ tutorialTexts = [
     "TURRETS and BARRICADES assist in point defense and should be used in tight situations."
 ]
 
-tutorialTitles = ["", "MOVEMENT", "AIMING", "FIRING", "MELEE", "HP", "SANITY", "GUNS", "UPGRADES", "BLOOD SINKING", "GRENADES", "UTILITIES"]
+tutorialTitles = ["", "MOVEMENT", "AIMING", "FIRING", "MELEE", "HP", "SANITY", "WAVES", "GUNS", "UPGRADES", "BLOOD SINKING", "GRENADES", "UTILITIES"]
 
 
 upgradeIcons = {}

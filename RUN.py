@@ -1271,7 +1271,7 @@ def main(ms = "start", TEST = False):
             x.tick(screen, [0, 0])
 
         if menu_status == "beta":
-            text = terminal.render("Thank you for playing the story beta! Stay tuned for more.", False, [255, 255, 255])
+            text = terminal.render("There was an error during the loading. Report this as a bug!", False, [255, 255, 255])
             x,y = text.get_rect().center
             screen.blit(text, [size[0]/2 - x, size[1]/4 - y])
 
@@ -1327,7 +1327,7 @@ def main(ms = "start", TEST = False):
             else:
                 menu_status = "start"
 
-                
+
             if mouse_single_tick:
                 app.tutorialIndex += 1
 
