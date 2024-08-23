@@ -1952,7 +1952,7 @@ def main(
             screen.blit(text, [200, 20])
 
 
-        bloodVal = map.bloodPoints[round(player_actor.pos[0]/BLOODSINK_TILESIZE), round(player_actor.pos[1]/BLOODSINK_TILESIZE)]
+        bloodVal = float(map.bloodPoints[round(player_actor.pos[0]/BLOODSINK_TILESIZE), round(player_actor.pos[1]/BLOODSINK_TILESIZE)])
         player_actor.sinking = False
         if bloodVal > 0.25:
             player_actor.sinking = True
