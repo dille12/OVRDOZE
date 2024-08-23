@@ -258,7 +258,7 @@ def main(
     player_inventory.items = items
     turret_bro.clear()
 
-    player_inventory.append_to_inv(items["Upgrade Token"], 3)
+    #player_inventory.append_to_inv(items["Upgrade Token"], 3)
 
     app.day = -1
 

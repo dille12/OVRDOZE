@@ -78,11 +78,11 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
     
     time.sleep(easeCalc)
     print("Mixing next song...")
-    y_Octane = utilities.highpassfilter.mix_audio_files2(y_Octane2, y_Octane, exponent = 1)
+    y_Octane = utilities.highpassfilter.mix_audio_files2(y_Octane2, y_Octane, exponent = 2)
     
     time.sleep(easeCalc)
     print("Mixing songs together...")
-    yTotal = utilities.highpassfilter.mix_audio_files2(y_Narcosis, y_Octane, exponent = 2, exponent2 = 5)
+    yTotal = utilities.highpassfilter.mix_audio_files2(y_Narcosis, y_Octane, exponent = 0.5, exponent2 = 4)
     #yTotal = y_Narcosis
     
     time.sleep(easeCalc)
@@ -167,8 +167,8 @@ class MixInfo:
 
     def startPlaying(self):
         pygame.mixer.music.unload()
-        self.lastSong = random.choice(songs)
-        #MInfo.lastSong = "sound/songs/Octane.wav"
+        #self.lastSong = random.choice(songs)
+        #self.lastSong = fp("sound/songs/Octane.wav")
         self.lastSong = fp("sound/sfx/gamebegin.wav")
         self.nextup = self.lastSong
         #MInfo.nextup = "sound/songs/Narcosis.wav"
@@ -226,11 +226,13 @@ class MixInfo:
             self.dropIndices = []
             self.currentSpeedUp = self.lastTrackSpeedUp
 
-            if song in songDrops:
-                drops = songDrops[song]
+            if self.app:
 
-                for s, e in drops:
-                    self.dropIndices.append(self.beat_map.index(func.closest_value(s, self.beat_map)))
+                if song in songDrops:
+                    drops = songDrops[song]
+
+                    for s, e in drops:
+                        self.dropIndices.append(self.beat_map.index(func.closest_value(s, self.beat_map)))
 
 
 

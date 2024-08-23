@@ -1529,6 +1529,14 @@ def main(ms = "start", TEST = False):
             text = terminal2.render(diff_captions[difficulty], False, [255, 255, 255])
             screen.blit(text, [20, 370])
 
+            text = terminal2.render("Starting pistol:", False, [255, 255, 255])
+            screen.blit(text, [600, 370])
+
+            w = armory.guns[app.startingPistol]
+            screen.blit(w.image, [570,390])
+
+            app.toolTip([570,390], mouse_pos, w.image, "This is your starting pistol, which will have infinite ammo. You can change it from LOADOUT if you have unlocked more pistols.")
+
             if s7_2 != None:
                 menu_status = s7_2
                 mouse_single_tick = False
