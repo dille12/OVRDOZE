@@ -9,7 +9,6 @@ import traceback
 import sys
 import time
 import pygame.gfxdraw
-import func
 from values import *
 from numba import jit
 walls = []

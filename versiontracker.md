@@ -28,3 +28,5 @@ Version 0.9.80 - Added a "how to play" in to the menu
 
 Version 0.9.81 - added a tutorial into the menu
 
+Version 0.9.82 - Added the crawler, a boss that runs fast
+

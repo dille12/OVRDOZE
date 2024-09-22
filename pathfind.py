@@ -1,5 +1,4 @@
 import los
-from maps import get_maps
 import time
 import random
 import numpy as np

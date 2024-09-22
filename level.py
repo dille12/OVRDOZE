@@ -1415,6 +1415,48 @@ class Map:
                 if not collision:
                     self.nav_mesh_available_spots.append(point)
 
+        rect = pygame.Rect(0,0,self.size[0]/conv,self.size[1]/conv)
+        self.crawlerGrabSpots = []
+
+        print("Starting crawler spots")
+
+        for x1 in range(round(self.size[0]/conv/20)):
+
+            x1 *= 20
+
+            for y1 in range(round(self.size[1]/conv/20)):
+                y1 *= 20
+                
+
+                point = [x1, y1]
+                point[0] += 10
+                point[1] += 10
+
+                point = [round(point[0]), round(point[1])]
+                r = pygame.Rect(point, [0,0])
+                r.inflate_ip(50, 50)
+
+                if not rect.colliderect(r):
+                    continue
+
+                collision = False
+
+                for polygon in self.polygons:
+                    a, b, c, d = polygon
+                    x = [a[0], b[0], c[0], d[0]]
+                    y = [a[1], b[1], c[1], d[1]]
+
+                    poly = pygame.Rect(min(x), min(y), max(x) - min(x), max(y) - min(y))
+
+                    if poly.colliderect(r):
+                        collision = True
+                        break
+                if not collision:
+                    self.crawlerGrabSpots.append(point)
+        print("Done")
+        print(self.crawlerGrabSpots)
+            
+
     def getPointBasedOnBlood(self, p_pos, max_tries = 13):
         averageBlood = np.average(self.bloodPoints)
         threshold = averageBlood - 0.025

@@ -420,6 +420,27 @@ arrowRightRed = colorize(arrowRight.copy(), pygame.Color((255,0,0)))
 arrowLeft = pygame.transform.flip(arrowRight.copy(), True, False)
 arrowLeftRed = colorize(arrowLeft.copy(), pygame.Color((255,0,0)))
 
+crawlerBody = load("texture/crawlerBody.png", alpha=True)
+crawlerArm = load("texture/arm.png")
+crawlerHand = load("texture/hand.png")
+
+crawlerFootSteps = [
+    get_Sound("sound/sfx/crawlerFootstep1.wav"),
+    get_Sound("sound/sfx/crawlerFootstep2.wav"),
+    get_Sound("sound/sfx/crawlerFootstep3.wav"),
+    get_Sound("sound/sfx/crawlerFootstep4.wav"),
+]
+
+crawlerAttack = [
+    get_Sound("sound/sfx/crawlerAttack.wav"),
+    get_Sound("sound/sfx/crawlerAttack2.wav"),
+
+]
+
+#crawlerBody = pygame.image.load("assets/texture/crawlerBody.png").convert_alpha()
+#crawlerArm = pygame.image.load("assets/texture/arm.png").convert_alpha()
+#crawlerHand = pygame.image.load("assets/texture/hand.png").convert_alpha()
+
 hud_color = [255, 255, 255]
 
 
@@ -701,7 +722,6 @@ hints = [
 "Armor-Piercing rounds and energy rounds pierce zombies.",
 "Clear a gun jam by spamming the firing button.",
 "You sink in to the blood of your enemies. Remember to clean it up.",
-"Wave time increases after every wave, but resets on death.",
 "Time slows down while your health is below 30%.",
 "Take them all with no hesitation.",
 "You can dodge by pressing the spacebar.",
@@ -710,13 +730,14 @@ hints = [
 "Zombies drop weapons from time to time.",
 "All upgrades are not created equal. Use your upgrade tokens wisely",
 "Reaching 100 multikills awards you 10% sanity",
-"Upgrade your backpack if you have trouble managing your inventory.",
 "Energy weapons do not jam.",
-"You can tank one hit that would kill you."
+"You can tank one hit that would kill you.",
+"Crawlers run right through your barricades. Reposition quickly if one enters the basement.",
+"If you are told to run, run.",
 ]
 
 
-enemyDropRate = {"big" : 0.02, "bomber" : 0.03, "runner" : 0.05, "normal" : 0.9, "psycho" : 0.02, "firestarter" : 0.02}
+enemyDropRate = {"big" : 0.02, "bomber" : 0.03, "runner" : 0.05, "normal" : 0.9, "psycho" : 0.02, "firestarter" : 0.02, "crawler" : 0.002}
 
 
 def weighted_random_choice(weighted_dict):

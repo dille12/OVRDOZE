@@ -117,7 +117,9 @@ class App:
 
         self.upgradeBlink = GameTick(40)
         self.notificationBlink = GameTick(40)
-        
+        self.bosses = 0
+        self.bossTick = GameTick(120, oneshot=True)
+        self.bossTick.value = self.bossTick.max_value
 
         self.y_pos_abs = 0
         self.y_pos = 0

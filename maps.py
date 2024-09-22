@@ -1,7 +1,8 @@
-from level import *
+from level import Map
 from values import *
 import classes
 import os
+import ast
 
 mouse_conversion = fs_size[0] / size[0]
 

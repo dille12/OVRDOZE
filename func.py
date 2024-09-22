@@ -4,9 +4,9 @@ import math
 import random
 import time
 from values import *
-import classes
 import los
 from pathfind import find_shortest_path
+from pathfind_ASTAR import find_shortest_path_astar
 from _thread import start_new_thread
 from tools.video_to_frames import getFrames
 from utilities.compareGuns import compareGuns
@@ -926,7 +926,12 @@ def calc_route(start_pos, end_pos, NAV_MESH, walls, quick=True, cache = False):
     Calculates the shortest route to a point using the navmesh points
     """
 
-    return find_shortest_path(start_pos, end_pos, NAV_MESH, walls, quick=quick, cache = cache)
+    r, i = find_shortest_path_astar(start_pos, end_pos, NAV_MESH, walls)
+    correctedRoute = []
+    for x in r:
+        correctedRoute.append(list(x))
+
+    return correctedRoute, i
 
 
 def draw_HUD(
@@ -1564,9 +1569,45 @@ def draw_HUD(
     text = terminal2.render("SANITY", False, hud_color)
     screen.blit(text, (size[0] - 10 + x_d - text.get_rect().size[0], size[1] - 68 + y_d))  #
 
+
+
     pygame.draw.rect(screen, hud_color, [size[0] - 223 + x_d, size[1] - 40 + y_d, 210, 30], 3)
     for i in range(bars_s):
         pygame.draw.rect(screen, hud_color, [size[0] - 36 - i * 20 + x_d, size[1] - 34 + y_d, 16, 18])
+
+    #pygame.draw.rect(screen, hud_color, [size[0] - 40 + x_d, size[1] - 223 + y_d, 30, 210], 3)
+
+
+    # STRIKES
+
+    strikeSurface = pygame.Surface([30, 190])
+    posStrike = [size[0] - 40 + x_d, size[1] - 303 + y_d]
+    
+    indexStrikes = player_actor.stamina/2
+    if indexStrikes > 1:
+        overDrive = True
+        indexStrikes = 1
+    else:
+        overDrive = False
+
+    bars_strikes = round(indexStrikes*9)
+    TEXT = "WILLPOWER"
+    colorMod = min(1,indexStrikes*4)
+    colorMod = max(0, colorMod)
+    colorStrikes = [hud_color[0] * colorMod, hud_color[1] * colorMod, hud_color[2] * colorMod]
+    pygame.draw.rect(strikeSurface, colorStrikes, [0, 0, 30, 190], 3)
+    
+    for i in range(bars_strikes):
+        l = TEXT[-(i+1)]
+        r = [6, 167 - 20 * i, 18, 16]
+        p = pygame.math.Vector2([6 + 9, 167 - 20 * i + 8])
+        pygame.draw.rect(strikeSurface, colorStrikes if not overDrive else [255,0,0], r)
+        t = terminal.render(l, False, [0,0,0])
+        s = pygame.math.Vector2(t.get_size())
+        strikeSurface.blit(t, p-s/2 - [1,-1])
+
+    screen.blit(strikeSurface, posStrike, special_flags=pygame.BLEND_RGB_ADD)
+    
 
     text = terminal2.render("HP", False, hud_color)
     screen.blit(text, (12 + x_d, size[1] - 68 + y_d))  #

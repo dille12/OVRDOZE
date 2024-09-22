@@ -34,7 +34,7 @@ import armory
 import objects
 from npcs.mp_dummy import Player_Multi
 from utilities.storyTeller import storyTeller
-
+from npcs.crawler import Crawler
 
 import RUN
 from testmusic import MixInfo
@@ -250,6 +250,9 @@ def main(
     turret_list.clear()
     burn_list.clear()
 
+
+    
+
     fps = []
 
     ### load
@@ -279,7 +282,7 @@ def main(
         ) = load_level(map, mouse_conversion, player_inventory, app, screen)
 
     except Exception as e:
-        print(e)
+        traceback.print_exc()
 
         with open("error_log.txt", "w") as file:
             traceback.print_exc(file=file)
@@ -502,6 +505,8 @@ def main(
     gunKeys = [0,0,0,0,0]
 
     #interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
+
+    #enemy_list.append(Crawler(app, [100,100], map, NAV_MESH, [walls_filtered, map.no_los_walls], player_actor))
 
     while 1:
         app.loading = False
@@ -1127,6 +1132,8 @@ def main(
         pvp = overworld
         SyncSongs = True
 
+        app.wave = wave
+
         if not pvp:
 
             if wave:
@@ -1157,7 +1164,7 @@ def main(
                         rand_enemy = func.pick_random_from_list(enemy_list)
                         if not los.check_los(
                             player_actor.pos, rand_enemy.pos, walls_filtered
-                        ):
+                        ) and rand_enemy.class_type != "CRAWLER":
                             rand_enemy.kill_actor(
                                 camera_pos,
                                 enemy_list,
@@ -1209,22 +1216,29 @@ def main(
                     ):
                         type = weighted_random_choice(enemyDropRate)
 
-                        zombo = Zombie(
-                            app,
-                            map.getPointBasedOnBlood(p_pos=player_pos),
-                            interactables,
-                            player_actor,
-                            NAV_MESH,
-                            [walls_filtered, map.no_los_walls],
-                            hp_diff=zombie_hp,
-                            dam_diff=zombie_damage,
-                            powerMult = powerMult,
-                            type=type,
-                            wall_points=wall_points,
-                            player_ref=player_actor,
-                            identificator=random.randint(0, 4096),
-                            map=map
-                        )
+                        if type == "crawler" and app.bosses > 0:
+                            type = "normal"
+
+                        if type == "crawler":
+                            zombo = Crawler(app, map.getPointBasedOnBlood(p_pos=player_pos), map, NAV_MESH, [walls_filtered, map.no_los_walls], player_actor)
+                            
+                        else:
+                            zombo = Zombie(
+                                app,
+                                map.getPointBasedOnBlood(p_pos=player_pos),
+                                interactables,
+                                player_actor,
+                                NAV_MESH,
+                                [walls_filtered, map.no_los_walls],
+                                hp_diff=zombie_hp,
+                                dam_diff=zombie_damage,
+                                powerMult = powerMult,
+                                type=type,
+                                wall_points=wall_points,
+                                player_ref=player_actor,
+                                identificator=random.randint(0, 4096),
+                                map=map
+                            )
                     # print(f"Zombie spawned with id {zombo.identificator}")
                         enemy_list.append(zombo)
 
@@ -1799,8 +1813,8 @@ def main(
 
             # draw_time = 0
             start = time.time()
-
-            screen.blit(los_image, (0, 0))
+            if phase != 6:
+                screen.blit(los_image, (0, 0))
 
             draw_time2 = time.time() - start
 
@@ -1994,7 +2008,21 @@ def main(
             if not overworld:
                 player_actor.set_sanity(timedelta.mod(0.003 * sanity_drain))
 
+            if player_actor.stamina > 0:
+                player_actor.stamina -= timedelta.mod(0.01)
+            else:
+                player_actor.stamina = 0
+
             if phase == 3:
+
+                for p in map.crawlerGrabSpots:
+                    pygame.draw.circle(
+                        screen,
+                        [255, 255, 0],
+                        [p[0] - camera_pos[0], p[1] - camera_pos[1]],
+                        5,
+                    )
+
                 map_points = map.__dict__["points_inside_polygons"]
                 map_polygons = map.__dict__["polygons"]
                 for point in map_points:
@@ -2479,6 +2507,32 @@ def main(
                 app.storyTeller.playerPerformanceLowHealth *= 0.99
                 app.storyTeller.playerPerformanceHighHealth *= 0.99
                 app.storyTeller.playerPerformace = (1 - min([1, app.enemies_within_range/30])) * app.storyTeller.playerPerformanceHighHealth / (app.storyTeller.playerPerformanceHighHealth + app.storyTeller.playerPerformanceLowHealth)
+
+        if not app.bossTick.tick():
+            
+            if app.bossTick.value < 20 or app.bossTick.value > 100:
+                g = True
+                c = [255,0,0]
+                alpha = 1 - (abs(60 - app.bossTick.value) - 40)/20
+            else:
+                g = False
+                c = [255,255,255]
+                alpha = -1
+
+
+            text = terminal_waveSecs[0].render(f"RUN FOR YOUR LIFE", False, c)
+            if alpha >= 0:
+                text.set_alpha(alpha*255)
+            pos = [
+                            size[0] / 2 - text.get_rect().center[0],
+                            size[1] / 3 - text.get_rect().center[1],
+                        ]
+
+            if g:
+                func.blit_glitch(screen, text, pos, 15)
+            else:
+                func.blit_glitch(screen, text, pos, 1)
+        
 
         if map.name != "Downtown":
             for dropBeat in dropIndices:

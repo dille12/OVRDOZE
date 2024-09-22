@@ -19,12 +19,13 @@ class Melee:
         self.strikes_used = 0
         self.strikes = strike_count
         self.damage = damage
+        self.owner.stamina = 0
 
     def get_string(self):
         return super().get_string("MEELE")
 
     def check_for_strike(self, r_click):
-        if r_click == True and self.strikes_used < self.strikes:  ##FIRE
+        if r_click == True and self.owner.stamina < self.strikes:  ##FIRE
             return True
         else:
             return False
@@ -46,11 +47,7 @@ class Melee:
                     "arc": self.arc,
                 }
             )  # BULLET
-            self.strikes_used += 1
-        if self.strikes_used > 0:
-            self.strikes_used -= 0.01
-        else:
-            self.strikes_used = 0
+            self.owner.stamina += 1
+        
 
-    def get_remaining_strikes(self):
-        return self.__strikes - self._strikes_used
+
