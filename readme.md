@@ -6,12 +6,15 @@ A single/multiplayer co-op survival small space zombie shooter.
 
 # INSTALL
 
+You can install a compiled executable file from the [Releases](https://github.com/dille12/OVRDOZE/releases) tab, or run the game from source code by:
+
 1. Clone repo and extract the zip
 2. Copy the directory of the game
 3. Open command prompt and type in "cd directory/of/game" (i.e "cd C:\tmp\OVRDOZE")
-4. Type in:
-python -m venv venv
-venv/bin/pip3 -r requirements.txt
+4. Type in: "python -m venv venv" AND "venv/bin/pip3 -r requirements.txt"
+
+
+
 5. Run RUN.py
 
 ![](https://github.com/dille12/OVRDOZE/blob/main/assets/texture/output2.gif)
