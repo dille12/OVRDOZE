@@ -1,5 +1,5 @@
 import pygame
-from values import fp
+from core.values import fp
 
 terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 15)

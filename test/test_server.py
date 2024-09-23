@@ -2,7 +2,7 @@ import unittest
 import threading
 import os, sys
 from server import *
-from network import *
+from utilities.network import *
 
 # cwd = os.getcwd();
 # sys.path.append(f'{cwd}/test')

@@ -1,5 +1,5 @@
 import unittest
-from network import *
+from utilities.network import *
 import threading
 import os
 

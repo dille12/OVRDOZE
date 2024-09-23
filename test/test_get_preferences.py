@@ -1,5 +1,5 @@
 import unittest
-from get_preferences import *
+from utilities.get_preferences import *
 
 
 class TestGetPreferences(unittest.TestCase):

@@ -4,15 +4,15 @@ import math
 import random
 import time
 pygame.init()
-import func
-from values import *
-import level
-import los
+import core.func as func
+from core.values import *
+import core.level as level
+import core.los as los
 import pyperclip
-import classes
-from classes import items, drop_index, drop_table
-import get_preferences
-from armory import guns
+import core.classes as classes
+from core.classes import items, drop_index, drop_table
+import utilities.get_preferences as get_preferences
+from weapons.armory import guns
 from _thread import *
 import numpy as np
 

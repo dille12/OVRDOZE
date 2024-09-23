@@ -1,5 +1,5 @@
 import unittest
-from hud_elements import *
+from hud_elements.hud_elements import *
 
 
 class TestTextBox(unittest.TestCase):

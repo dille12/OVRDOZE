@@ -1,11 +1,11 @@
 import math
-import los
-import func
-from values import *
-import classes
-import level
+import core.los as los
+import core.func as func
+from core.values import *
+import core.classes as classes
+import core.level as level
 from weapons.weapon import Weapon
-from objects import *
+from game_objects.objects import *
 from game_objects.bullet import Bullet
 
 

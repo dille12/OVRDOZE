@@ -1,4 +1,4 @@
-from values import *
+from core.values import *
 
 class storyTeller:
     def __init__(self, app, player_inventory):

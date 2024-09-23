@@ -1,7 +1,7 @@
 import sys
 import os.path
-import func
-from values import *
+import core.func as func
+from core.values import *
 
 
 class Weapon:

@@ -1,5 +1,5 @@
 import unittest
-from glitch import *
+from hud_elements.glitch import *
 
 
 class TestGlitch(unittest.TestCase):

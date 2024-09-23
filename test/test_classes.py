@@ -1,5 +1,5 @@
 import unittest
-from classes import *
+from core.classes import *
 
 
 class TestClasses(unittest.TestCase):

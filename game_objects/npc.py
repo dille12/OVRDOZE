@@ -1,9 +1,9 @@
 from game_objects.game_object import Game_Object
-import level
-from values import *
-import los
-import func
-import classes
+import core.level as level
+from core.values import *
+import core.los as los
+import core.func as func
+import core.classes as classes
 
 
 class NPC(Game_Object):

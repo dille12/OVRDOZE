@@ -2,12 +2,12 @@ import pygame
 from pygame.math import Vector2 as v2
 import math
 import random
-import func
+import core.func as func
 from _thread import start_new_thread
-import los
+import core.los as los
 import numpy as np
-from values import *
-import classes
+from core.values import *
+import core.classes as classes
 
 def smoothRotationFactor(angleVel, gainFactor, diff):
     dir = 1 if diff > 0 else -1
@@ -473,7 +473,7 @@ class Crawler:
             if self.app.wave:
                 self.MOVEMENTMOD = timedelta.mod(0.3)
             else:
-                self.MOVEMENTMOD = timedelta.mod(0.5)
+                self.MOVEMENTMOD = timedelta.mod(0.35)
 
             if not self.spottedPlayer:
                 func.list_play(crawlerAttack)
@@ -520,7 +520,6 @@ class Crawler:
 
         if not next_route_point:
             next_route_point = self.pos.copy()
-            print("IDLING")
 
         
         

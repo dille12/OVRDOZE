@@ -1,9 +1,9 @@
 from game_objects.game_object import Game_Object
 from game_objects.bullet import Bullet
-from values import *
-import los
-import classes
-import func
+from core.values import *
+import core.los as los
+import core.classes as classes
+import core.func as func
 import numpy as np
 
 

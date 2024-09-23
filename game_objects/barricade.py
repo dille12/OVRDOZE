@@ -1,11 +1,11 @@
 # how to normalize this more to a game object?
 from game_objects.game_object import Game_Object
-import level
-from values import *
+import core.level as level
+from core.values import *
 import numpy as np
-import jit_tools
-import func
-import los
+import core.jit_tools as jit_tools
+import core.func as func
+import core.los as los
 
 tolerance = 10
 
@@ -34,6 +34,14 @@ class Barricade(Game_Object):
             self.pos[0], self.pos[1], self.width, self.height
         )
 
+        self.quadrants = []
+
+        for x in map.quadrants:
+            for y in x:
+                if self.rect.colliderect(y.rect):
+                    y.rectangles.append(self.rect)
+                    self.quadrants.append(y)
+
         self.surf = self.ref.Surface([w, h]).convert()
 
         for x in range(round(w / 100 + 0.49)):
@@ -61,8 +69,10 @@ class Barricade(Game_Object):
         if self.blink_tick > 4:
             self.blink_tick = 1
         if self.hp <= 0:
-            map.__dict__["rectangles"].remove(self.rect)
-            map.__dict__["barricade_rects"].remove([self.rect, self])
+            map.rectangles.remove(self.rect)
+            map.barricade_rects.remove([self.rect, self])
+            for x in self.quadrants:
+                x.rectangles.remove(self.rect)
             return "KILL"
 
         if self.stage == "building_1":

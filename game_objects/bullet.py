@@ -1,10 +1,10 @@
 from game_objects.game_object import Game_Object
-from values import *
-import func
-import classes
-from anim_list import *
-from level import getcollisionspoint
-import los
+from core.values import *
+import core.func as func
+import core.classes as classes
+from utilities.anim_list import *
+from core.level import getcollisionspoint
+import core.los as los
 
 
 class Bullet(Game_Object):

@@ -1,9 +1,9 @@
 import os, sys
 import math
 import random
-import func
-from values import *
-from anim_list import *
+import core.func as func
+from core.values import *
+from utilities.anim_list import *
 from networking.server_object import MP_Object
 
 

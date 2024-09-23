@@ -2,7 +2,7 @@ import socket
 from _thread import *
 import sys
 import traceback
-from values import *
+from core.values import *
 import time
 
 

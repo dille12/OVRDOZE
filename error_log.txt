@@ -1,18 +1,17 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1683, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1673, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1494, in main
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1484, in main
     s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\button.py", line 140, in tick
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\hud_elements\button.py", line 140, in tick
     return self.action(arg) if arg != None else self.action(self.args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 460, in start_sp
+                                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 461, in start_sp
     app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\app.py", line 506, in start_sp
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\app.py", line 508, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\game.py", line 1660, in main
-    enemy.tick(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\npcs\crawler.py", line 656, in tick
-    self.move(map_boundaries)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\npcs\crawler.py", line 472, in move
-    playSound(crawlerAttack)
-NameError: name 'playSound' is not defined
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 465, in main
+    scroll_bar_volume = ScrollBar("Game volume", [20,335], 200, mixer.set_sound_volume, max_value=100, init_value = app.volume, app = app)
+                                                                ^^^^^
+NameError: name 'mixer' is not defined

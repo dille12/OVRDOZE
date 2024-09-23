@@ -1,5 +1,5 @@
 import random
-from values import *
+from core.values import *
 
 class MP_Object:
     def __init__(self):

@@ -1,6 +1,6 @@
 import unittest
-from jit_tools import *
-from render_los_image_jit import *
+from core.jit_tools import *
+from core.render_los_image_jit import *
 
 class TestJit(unittest.TestCase):
     def test_jit_los(self):

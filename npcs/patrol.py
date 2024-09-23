@@ -1,5 +1,5 @@
 from npcs.soldier import Soldier
-from values import *
+from core.values import *
 class Patrol:
     def __init__(
             self,

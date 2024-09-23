@@ -10,32 +10,33 @@ import pygame
 import math
 import random
 import time
-from values import *
+from core.values import *
 from _thread import *
-from network import Network
+from utilities.network import Network
 import socket
-import classes
+import core.classes as classes
 import time
-import game
-import hud_elements
-import get_preferences
-import func
-from glitch import Glitch
-from button import Button
-import mixer
-from scroll_bar import ScrollBar
+import core.game as game
+import hud_elements.hud_elements as hud_elements
+import utilities.get_preferences as get_preferences
+import core.func as func
+from hud_elements.glitch import Glitch
+from hud_elements.button import Button
+from hud_elements.scroll_bar import ScrollBar
 # import path_finding
-from app import App
-import map_creator
-from menu import Menu
-import map_creator
+from core.app import App
+import utilities.map_creator as map_creator
+import utilities.map_creator as map_creator
 import scipy
-import highscores
+import utilities.highscores as highscores
 import traceback
-import armory
+import weapons.armory as armory
 from utilities.version import frozenVersion
-from weapon_button import weapon_button
-from dialog import open_shop
+from hud_elements.weapon_button import weapon_button
+from hud_elements.dialog import open_shop
+
+import utilities.mixer as mixer
+
 VERSION = "0.9"
 if FROZEN:
     subversion = str(frozenVersion)
@@ -1038,17 +1039,6 @@ def main(ms = "start", TEST = False):
         "get_mouse_pos": app.pygame.mouse.get_pos,  # ref to func to call from menue
         "mouse_pos": app.pygame.mouse.get_pos(),
     }
-
-    game_menu = Menu(
-        buttons=app.buttons,
-        checkboxes=checkboxes,
-        background=background,
-        screen=screen,
-        terminal1=terminal,
-        terminal2=terminal2,
-        particle_list=particle_list,
-    )
-
 
 
 

@@ -1,13 +1,13 @@
-from values import *
+from core.values import *
 import os, sys
 import pygame
 import math
 import random
 import time
-import func
+import core.func as func
 from networking.server_object import MP_Object
-import los
-import classes
+import core.los as los
+import core.classes as classes
 
 terminal = pygame.font.Font(fp("texture/terminal.ttf"), 20)
 terminal2 = pygame.font.Font(fp("texture/terminal.ttf"), 30)

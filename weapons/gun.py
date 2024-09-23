@@ -6,12 +6,12 @@ import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 )
-from values import *
-from objects import *
-import classes
+from core.values import *
+from game_objects.objects import *
+import core.classes as classes
 
 from weapons.weapon import Weapon
-from unit_status import UnitStatus
+from hud_elements.unit_status import UnitStatus
 from game_objects.casing import Casing
 from utilities.powerWashParticle import powerWashParticle
 

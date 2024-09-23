@@ -1,5 +1,5 @@
-from values import *
-from func import minus
+from core.values import *
+from core.func import minus
 import random
 import math
 class Casing:

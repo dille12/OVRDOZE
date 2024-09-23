@@ -2,7 +2,7 @@ from _thread import *
 import time
 import ast
 import traceback
-from values import *
+from core.values import *
 import sys
 
 from game_objects.bullet import Bullet

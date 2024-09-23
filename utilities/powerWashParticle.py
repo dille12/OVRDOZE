@@ -1,6 +1,6 @@
 import random
-from values import *
-import func
+from core.values import *
+import core.func as func
 import math
 import pygame
 

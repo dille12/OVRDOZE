@@ -1,5 +1,5 @@
-import los
-import func
+import core.los as los
+import core.func as func
 import pygame
 
 

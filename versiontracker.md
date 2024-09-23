@@ -30,3 +30,5 @@ Version 0.9.81 - added a tutorial into the menu
 
 Version 0.9.82 - Added the crawler, a boss that runs fast
 
+Version 0.9.83 - Cleaned up the repository
+

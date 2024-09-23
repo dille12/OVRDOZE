@@ -1,5 +1,5 @@
 import unittest
-from los import *
+from core.los import *
 
 
 class TestLos(unittest.TestCase):

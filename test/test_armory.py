@@ -1,5 +1,5 @@
 import unittest
-from armory import *
+from weapons.armory import *
 
 
 class TestArmory(unittest.TestCase):

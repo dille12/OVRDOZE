@@ -1,5 +1,5 @@
 import math
-from values import *
+from core.values import *
 
 
 class Melee:

@@ -1,5 +1,5 @@
 import unittest
-from map_generator import *
+from utilities.map_generator import *
 
 
 class TestMapGenerator(unittest.TestCase):

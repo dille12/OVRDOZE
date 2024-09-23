@@ -1,5 +1,5 @@
 import unittest
-from maps import *
+from game_objects.maps import *
 
 
 class TestMaps(unittest.TestCase):

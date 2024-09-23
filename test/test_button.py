@@ -1,5 +1,5 @@
 import unittest
-from button import *
+from hud_elements.button import *
 
 
 class TestButton(unittest.TestCase):

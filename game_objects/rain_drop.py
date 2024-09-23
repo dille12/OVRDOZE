@@ -1,8 +1,8 @@
 import pygame
-import los
-import func
+import core.los as los
+import core.func as func
 import random
-from values import *
+from core.values import *
 
 def gen_point_from_map_on_screen(map, camera_pos):
     return (point for point in map.nav_mesh_available_spots if func.get_dist_points(point, camera_pos) < 1000*multiplier2)
