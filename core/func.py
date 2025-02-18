@@ -1026,7 +1026,7 @@ def draw_HUD(
         screen.blit(app.bloodvignette[round(app.bloodCounter)], [-42.5+x_d,-24+y_d])
 
 
-    if wave:
+    if wave or app.inIntense:
         pygame.draw.rect(
             screen,
             [255, 0, 0],
@@ -1252,7 +1252,8 @@ def draw_HUD(
             ind = player_indicator[round(wave_end_tick)]
 
         else:
-            ind = player_indicator[round(30 + beat_red*3)]
+            br = min(3, beat_red)
+            ind = player_indicator[round(30 + br*3)]
 
         indTemp = pygame.transform.rotate(ind.copy(), wave_text_tick)
 

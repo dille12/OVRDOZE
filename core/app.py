@@ -136,12 +136,14 @@ class App:
         self.inLoadLoop = False
         self.tutorialIndex = 0
 
+        self.inIntense = 0
+
         
 
     def checkLevelProgression(self):
 
-        self.levelProgression = {"Manufactory" : [5, "NORMAL", "Requiem"], "Liberation" : [10, "NORMAL", "Manufactory"], "Contamination" : [10, "HARD", "Liberation"],
-                            "Downtown" : [15, "ONSLAUGHT", "Contamination"],}
+        self.levelProgression = {"Manufactory" : [5, "NORMAL", "Requiem"], "Liberation" : [10, "NORMAL", "Manufactory"], "Contamination" : [10, "NORMAL", "Liberation"],
+                            "Downtown" : [15, "NORMAL", "Contamination"],}
 
         for x in self.maps_dict:
             map = self.maps_dict[x]["map"]

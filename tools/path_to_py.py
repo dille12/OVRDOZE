@@ -1,5 +1,5 @@
 import pyperclip
-i = input("Path: ")
+i = pyperclip.paste()
 i = i.replace("\\", "/")
 print(i)
 pyperclip.copy(i)

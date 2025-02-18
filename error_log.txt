@@ -1,17 +1,22 @@
 Traceback (most recent call last):
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1673, in <module>
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1679, in <module>
     main()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1484, in main
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 1490, in main
     s7_2 = button_start_single_player.tick(screen, mouse_pos, mouse_single_tick, glitch)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\hud_elements\button.py", line 140, in tick
     return self.action(arg) if arg != None else self.action(self.args)
                                                 ^^^^^^^^^^^^^^^^^^^^^^
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 461, in start_sp
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\RUN.py", line 467, in start_sp
     app.start_sp(args)
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\app.py", line 508, in start_sp
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\app.py", line 510, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 465, in main
-    scroll_bar_volume = ScrollBar("Game volume", [20,335], 200, mixer.set_sound_volume, max_value=100, init_value = app.volume, app = app)
-                                                                ^^^^^
-NameError: name 'mixer' is not defined
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 502, in main
+    MInfo.startPlaying()
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\testmusic.py", line 185, in startPlaying
+    self.lastSong = fp(firstTrack)
+                    ^^^^^^^^^^^^^^
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\values.py", line 14, in fp
+    file_name = file_name.split("assets/")[-1]
+                ^^^^^^^^^^^^^^^
+AttributeError: 'bool' object has no attribute 'split'

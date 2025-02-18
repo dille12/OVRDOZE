@@ -103,6 +103,50 @@ def mix_audio_files(y1, y2, exponent=5, exponent2 = 1):
     return mixed_audio
 
 
+@jit(nopython=True)
+def custom_mix_audio(y1, y2):
+    # Determine the length of the shorter track
+    len_y1 = y1.shape[1]
+    len_y2 = y2.shape[1]
+    shorter_length = min(len_y1, len_y2)
+
+    # Cut both audio files to the same length
+    y1_cut = y1[:, :shorter_length]
+    y2_cut = y2[:, :shorter_length]
+
+    # Divide the track into segments
+    first_half = shorter_length // 2
+    middle_quarter = shorter_length // 4
+    last_quarter = shorter_length - first_half - middle_quarter
+
+    # Initialize the mixing ratios
+    ratios1 = np.ones(shorter_length)
+    ratios2 = np.zeros(shorter_length)
+
+    # First half: fade-in secondary track
+    ratios2[:first_half] = np.linspace(0, 1, first_half)
+
+    # Middle quarter: both at full volume
+    ratios1[first_half:first_half + middle_quarter] = 1
+    ratios2[first_half:first_half + middle_quarter] = 1
+
+    # Last quarter: fade-out primary track
+    ratios1[first_half + middle_quarter:] = np.linspace(1, 0, last_quarter) ** 0.25
+    ratios2[first_half + middle_quarter:] = 1
+
+    totalRatios = ratios1 + ratios2
+
+    # Apply the ratios to the audio
+    mixed_audio = y1_cut * ratios1 + y2_cut * ratios2
+
+    # Normalize to the -1,1 range
+    max_amplitude = np.max(np.abs(mixed_audio))
+    mixed_audio = np.clip(mixed_audio, -1, 1)
+
+    return mixed_audio
+
+
+
 def gradual_stretch_audio(y, tempo_ratio1, tempo_ratio2, num_segments=16):
     # Ensure y is a two-dimensional array
     if y.ndim != 2:

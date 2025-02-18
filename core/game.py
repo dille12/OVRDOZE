@@ -139,9 +139,9 @@ def main(
     payouts = {
         "NO ENEMIES": 1,
         "EASY": 1,
-        "NORMAL": 2,
-        "HARD": 3,
-        "ONSLAUGHT": 4,
+        "NORMAL": 3,
+        "HARD": 5,
+        "ONSLAUGHT": 7,
     }
 
     app.payOut = payouts[difficulty]
@@ -531,7 +531,17 @@ def main(
                 app.c_weapon.owner = player_actor
                 app.c_weapon.app = app
 
+        if MInfo.checkIfIntense():
+            app.inIntense += 0.3
 
+        app.inIntense *= 0.9
+        if app.inIntense < 0.1:
+            app.inIntense = 0
+
+        
+        
+
+        vigMod = 0
 
         if player_actor.hp > 0:
 
@@ -541,18 +551,23 @@ def main(
 
                 timedelta.timedelta *= 0.5
 
-                app.vignetteCounter += 1
-                app.vignetteCounter = min(app.vignetteCounter, 9)
+                vigMod = 1
 
 
             else:
                 killProtection = True
 
-                app.vignetteCounter -= 1
-                app.vignetteCounter = max(app.vignetteCounter, 0)
+                vigMod = -1
 
 
-            # pygame.display.set_gamma(1,random.randint(1,3),1.1)
+        #if app.inIntense:
+        #    vigMod = 1
+                
+
+        if vigMod:
+            app.vignetteCounter += vigMod
+            app.vignetteCounter = min(app.vignetteCounter, 9)
+            app.vignetteCounter = max(app.vignetteCounter, 0)
 
         timedelta.timedelta = timedelta.timedelta * 0.75 + tick_delta * 0.25
         timedelta.nonMutableTimeDelta = timedelta.nonMutableTimeDelta * 0.75 + tick_delta * 0.25
@@ -747,9 +762,10 @@ def main(
 
 
         beat_red = (beat_red - 1) * timedelta.exp(0.85) + 1
+        
         try:
             if MInfo.timeIntoTrack > beat_map[MInfo.beat_index] > 0:
-                beat_red = 3
+                beat_red += 3
                 MInfo.beat_index += 1
 
                 beat_blink.value = 0
@@ -761,6 +777,12 @@ def main(
 
         except:
             pass
+
+        if app.inIntense:
+            beat_red = 1 + random.uniform(app.inIntense, app.inIntense*1.5)
+
+        beat_red = max(0, beat_red)
+
 
 
 
@@ -2538,11 +2560,11 @@ def main(
                 if dropBeat - 4 <= MInfo.beat_index-1 <= dropBeat:
 
                     i = 5 - (dropBeat - MInfo.beat_index+1)
-
+                    cl = min(3, beat_red)
                     color = [
-                                round(min([255, (beat_red-1)*255])), 
-                                round((beat_red-1)*127.5), 
-                                round((beat_red-1)*127.5)
+                                round(min([255, (cl-1)*255])), 
+                                round((cl-1)*127.5), 
+                                round((cl-1)*127.5)
                             ]
                     
                     #print(color)
@@ -2554,7 +2576,7 @@ def main(
 
                         text = terminal_waveSecs[4 - (dropBeat - MInfo.beat_index+1)].render(str(dropBeat - MInfo.beat_index+1), False, color)
                                                                                         
-                    text.set_alpha(round((beat_red-1)*127.5))
+                    text.set_alpha(round((cl-1)*127.5))
 
                     pos = [
                             size[0] / 2 - text.get_rect().center[0],
@@ -2593,6 +2615,9 @@ def main(
         melee_list.clear()
 
         playerhealth.health = player_actor.hp
+
+        if app.inIntense:
+            app.screen_glitch = app.inIntense/3
 
         if app.screen_glitch > 0:
             image_copy = screen.copy()

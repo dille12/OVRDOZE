@@ -52,6 +52,12 @@ prompt = pygame.font.Font(fp("texture/terminal.ttf"), 14)
 
 dirty = False
 
+class SaveData:
+    def __init__(self, beats, drops, INTENSEBEATS):
+        self.beats = beats
+        self.drops = drops
+        self.intensebeats = INTENSEBEATS
+
 def give_weapon(kind, name):
     return armory.__weapons_map[kind][name].copy()
 
@@ -685,7 +691,7 @@ def main(ms = "start", TEST = False):
 
 
     button_quit_game = Button(
-        [x_s, 440], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
+        [x_s, 380], "Exit", quit, None, gameInstance=app, glitchInstance=glitch
     )
 
     button_back_beta = Button(
@@ -1297,7 +1303,7 @@ def main(ms = "start", TEST = False):
             s2 = button_howtoplay.tick(screen, mouse_pos, mouse_single_tick, glitch, arg = app)
             s3 = button_settings.tick(screen, mouse_pos, mouse_single_tick, glitch)
             button_quit_game.tick(screen, mouse_pos, mouse_single_tick, glitch)
-            button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
+            #button_map_creator.tick(screen, mouse_pos, mouse_single_tick, glitch)
 
             if s1 != None:
                 menu_status = s1

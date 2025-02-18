@@ -10,9 +10,13 @@ import random
 import time
 import ast
 from _thread import start_new_thread
-import core.func as func
 from core.values import fp
 import utilities.get_preferences as get_preferences
+import pickle
+
+
+def closest_value(target, lst):
+    return min(lst, key=lambda x: abs(x - target))
 
 
 def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
@@ -47,11 +51,12 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
     print("Applying next song...")
     yOctOrig = yOctOrig[:, timestamp:]
     yOctOrig = yOctOrig[:, :-timestamp]
+
     
     
     time.sleep(easeCalc)
     print("Applying highpass to next song...")
-    y_Octane2 = utilities.highpassfilter.butter_highpass_filter(y_Octane, 300, sr)
+    #y_Octane2 = utilities.highpassfilter.butter_highpass_filter(y_Octane, 300, sr)
 
     time.sleep(easeCalc)
     print("Loading current song...")
@@ -78,11 +83,12 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
     
     time.sleep(easeCalc)
     print("Mixing next song...")
-    y_Octane = utilities.highpassfilter.mix_audio_files2(y_Octane2, y_Octane, exponent = 2)
+    #y_Octane = utilities.highpassfilter.mix_audio_files2(y_Octane2, y_Octane, exponent = 2)
     
     time.sleep(easeCalc)
     print("Mixing songs together...")
-    yTotal = utilities.highpassfilter.mix_audio_files2(y_Narcosis, y_Octane, exponent = 0.5, exponent2 = 4)
+    #yTotal = utilities.highpassfilter.mix_audio_files2(y_Narcosis, y_Octane, exponent = 0.5, exponent2 = 4)
+    yTotal = utilities.highpassfilter.custom_mix_audio(y_Narcosis, y_Octane)
     #yTotal = y_Narcosis
     
     time.sleep(easeCalc)
@@ -105,8 +111,7 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
 
 
 
-pygame.mixer.init()
-clock = pygame.time.Clock()
+
 
 path = fp("sound/songs/")
 songs = []
@@ -132,7 +137,13 @@ tempoLookUp = {
     "gamebegin.wav" : 130,
     "Call It Love.wav" : 132,
     "Fly With Me.wav" : 140,
-    "Echoes and Acid.wav" : 138
+    "Echoes and Acid.wav" : 138,
+    "Murder In My Mind.wav" : 120,
+    "Live Another Day.wav" : 115,
+    "VUK VUK.wav" : 118,
+    "I FEEL ALIVE.wav" : 118,
+    "Fate is Against me.wav" : 125,
+
 }
 
 songDrops = {
@@ -152,7 +163,7 @@ songDrops = {
 }
 
 class MixInfo:
-    def __init__(self, app=False):
+    def __init__(self, app=False, initalSpeed = 1):
         self.timeUntilSwitch = 0
         self.timeOnSwitch = 0
         self.trackMade = False
@@ -160,18 +171,23 @@ class MixInfo:
         self.lastSong = ""
         self.output = True
         self.app = app
+        
 
-        self.trackSpeedUp = 1
-        self.lastTrackSpeedUp = 1
-        self.currentSpeedUp = 1
+        self.trackSpeedUp = initalSpeed
+        self.lastTrackSpeedUp = initalSpeed
+        self.currentSpeedUp = initalSpeed
 
-    def startPlaying(self):
+    def startPlaying(self, firstTrack = True):
         pygame.mixer.music.unload()
         #self.lastSong = random.choice(songs)
         #self.lastSong = fp("sound/songs/Octane.wav")
-        self.lastSong = fp("sound/sfx/gamebegin.wav")
+        if firstTrack:
+            self.lastSong = fp("sound/sfx/gamebegin.wav")
+        else:
+            self.lastSong = random.choice(songs)
+        self.tempo = 130
         self.nextup = self.lastSong
-        #MInfo.nextup = "sound/songs/Narcosis.wav"
+        #self.nextup = fp("sound/songs/Narcosis.wav")
         print(songs)
         while self.lastSong == self.nextup:
             self.nextup = random.choice(songs)
@@ -191,7 +207,22 @@ class MixInfo:
         self.timeIntoTrack = 0
         self.dropIndices = []
         self.beat_map = []
+        self.intenseBeats = []
         self.beat_index = 0
+
+    def checkIfIntense(self):
+        return False
+        for x in self.intenseBeats:
+            t = self.beatToTime(x)
+            t1 = self.beatToTime(x+1)
+            if t <= self.timeIntoTrack / self.currentSpeedUp <= t1:
+                return True
+            
+        return False
+
+
+    def beatToTime(self, beat):
+        return beat * 60/self.tempo
 
     def handleLoop(self):
         if pygame.mixer.music.get_pos() > 30*1000 and not self.trackMade:
@@ -217,10 +248,22 @@ class MixInfo:
             if self.app:
                 self.app.musicDisplayTick.value = 0
 
-            with open(
-                f"{self.currentlyPlaing}_timestamps.txt"
-            ) as file:  # Use file to refer to the file object
-                self.beat_map = ast.literal_eval(file.read())
+
+            datafile = self.currentlyPlaing.removesuffix("wav") + "pkl"
+
+            #with open(f"{datafile}" , "rb") as file:  # Use file to refer to the file object
+                #self.beat_map = ast.literal_eval(file.read())
+            dbfile = open(datafile, 'rb')
+            db = pickle.load(dbfile)    
+            self.beat_map = db.beats
+            DROPS = db.drops
+            self.dropsFormatted = []
+            for i, x in enumerate(DROPS):
+                if not i % 2:
+                    self.dropsFormatted.append([DROPS[i], DROPS[i+1]])
+
+            self.intenseBeats = db.intensebeats
+            self.tempo = tempoLookUp[self.currentlyPlaing.split("/")[-1]] * self.currentSpeedUp
 
             song = self.currentlyPlaing.split("/")[-1]
             self.dropIndices = []
@@ -228,17 +271,14 @@ class MixInfo:
 
             if self.app:
 
-                if song in songDrops:
-                    drops = songDrops[song]
-
-                    for s, e in drops:
-                        self.dropIndices.append(self.beat_map.index(func.closest_value(s, self.beat_map)))
+                for s, e in self.dropsFormatted:
+                    self.dropIndices.append(self.beat_map.index(closest_value(s, self.beat_map)))
 
 
 
         if self.trackTimer:
             dropFound = False
-            for x in songDrops[self.currentlyPlaing.split("/")[-1]]:
+            for x in self.dropsFormatted:
                 if time.time() - self.trackTimer > x[0] / self.currentSpeedUp and time.time() - self.trackTimer < x[1] / self.currentSpeedUp:
                     dropFound = True
                     break

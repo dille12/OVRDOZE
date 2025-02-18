@@ -684,10 +684,11 @@ tutorialTexts = [
     "Each weapon has three upgrades, ranging from useful to overpowered. These must first be unlocked in LOADOUT by reaching a set number of kills. After unlocking, they can be exchanged for UPGRADE TOKENS in-game at the UPGRADE STATION.",
     "You sink into the blood of killed enemies. Avoid walking over blood or clean it up by switching to the POWERWASHER using T.",
     "Press G to throw GRENADES, which can be cycled by pressing Q. GRENADES are dangerous to everyone and can easily kill you too, so remember to take cover.",
-    "TURRETS and BARRICADES assist in point defense and should be used in tight situations."
+    "TURRETS and BARRICADES assist in point defense and should be used in tight situations.",
+    "Playing on NORMAL gives the default experience, but HARD and ONSLAUGHT difficulties award more money per kill."
 ]
 
-tutorialTitles = ["", "MOVEMENT", "AIMING", "FIRING", "MELEE", "HP", "SANITY", "WAVES", "GUNS", "UPGRADES", "BLOOD SINKING", "GRENADES", "UTILITIES"]
+tutorialTitles = ["", "MOVEMENT", "AIMING", "FIRING", "MELEE", "HP", "SANITY", "WAVES", "GUNS", "UPGRADES", "BLOOD SINKING", "GRENADES", "UTILITIES", "DIFFICULTY"]
 
 
 upgradeIcons = {}
