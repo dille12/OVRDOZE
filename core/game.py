@@ -139,9 +139,9 @@ def main(
     payouts = {
         "NO ENEMIES": 1,
         "EASY": 1,
-        "NORMAL": 3,
-        "HARD": 5,
-        "ONSLAUGHT": 7,
+        "NORMAL": 5,
+        "HARD": 10,
+        "ONSLAUGHT": 15,
     }
 
     app.payOut = payouts[difficulty]

@@ -34,3 +34,5 @@ Version 0.9.83 - Cleaned up the repository
 
 Version 0.9.84 - idk
 
+Version 0.9.85 - QOL
+
