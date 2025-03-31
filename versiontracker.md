@@ -36,3 +36,5 @@ Version 0.9.84 - idk
 
 Version 0.9.85 - QOL
 
+Version 0.9.86 - Fixed exe music erroring
+

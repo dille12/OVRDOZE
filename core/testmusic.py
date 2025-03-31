@@ -1,3 +1,4 @@
+import utilities.get_preferences
 import utilities.highpassfilter
 import librosa
 import soundfile
@@ -315,7 +316,7 @@ def threadedMixCreation(MInfo):
     
     MInfo.lastSong = MInfo.nextup
     
-    pygame.mixer.music.queue("ovrdoze_data/track1.wav" if MInfo.output else "ovrdoze_data/track2.wav")
+    pygame.mixer.music.queue(utilities.get_preferences.get_path("ovrdoze_data/track1.wav") if MInfo.output else utilities.get_preferences.get_path("ovrdoze_data/track2.wav"))
 
 
 if __name__ == "__main__":

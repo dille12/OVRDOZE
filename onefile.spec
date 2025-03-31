@@ -1,15 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 added_data = [
-	('audio', "audio"), 
-	('texture', "texture"), 
+	('assets', 'assets'), 
 ]
 
 block_cipher = None
 
 
 a = Analysis(
-    ['C:\Users\Reset\Documents\GitHub\obunga\main.py'],
+    ['C:/Users/Reset/Documents/GitHub/OVRDOZE/RUN.py'],
     pathex=[],
     binaries=[],
     datas=added_data,
@@ -32,18 +31,18 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='OBUNGA',
+    name='OVRDOZE',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='texture/obungaHead.png',
+    icon='assets/texture/icon.png',
 )
