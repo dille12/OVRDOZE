@@ -11,12 +11,7 @@ Traceback (most recent call last):
     app.start_sp(args)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\app.py", line 510, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 502, in main
-    MInfo.startPlaying()
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\testmusic.py", line 185, in startPlaying
-    self.lastSong = fp(firstTrack)
-                    ^^^^^^^^^^^^^^
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\values.py", line 14, in fp
-    file_name = file_name.split("assets/")[-1]
-                ^^^^^^^^^^^^^^^
-AttributeError: 'bool' object has no attribute 'split'
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 1729, in main
+    if PARALLELENEMY:
+       ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'PARALLELENEMY' where it is not associated with a value

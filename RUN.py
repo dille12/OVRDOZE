@@ -812,7 +812,7 @@ def main(ms = "start", TEST = False):
     scroll_bar_music.on_change_function(None, scroll_bar_music.value/100)
 
     i_song = random.randint(0, 2)
-    i_song = 1
+    i_song = 2
     song = ["sound/songs/menu_loop.wav", "sound/songs/menu_loop_new.wav", "sound/songs/menu_loop_new2.wav"][i_song]
 
     app.pygame.mixer.music.load(fp(song))

@@ -36,6 +36,9 @@ from utilities.storyTeller import storyTeller
 from npcs.crawler import Crawler
 import utilities.mixer as mixer
 
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
+
 import RUN
 from core.testmusic import MixInfo
 
@@ -148,6 +151,26 @@ def main(
 
     print("Enemy count:", enemy_count)
 
+    def process_enemy(enemy, screen, map_boundaries, player_actor, camera_pos, map, walls, NAV_MESH, map_render, phase, wall_points):
+        if enemy.class_type == "SOLDIER":
+            return enemy.tick(phase)
+        else:
+            return enemy.tick(
+                screen,
+                map_boundaries,
+                player_actor,
+                camera_pos,
+                map,
+                walls,
+                NAV_MESH,
+                map_render,
+                phase=phase,
+                wall_points=wall_points,
+            )
+        
+
+
+
     self_name = app.name
 
     if multiplayer:
@@ -189,7 +212,7 @@ def main(
     current_threading = False
     data_collector = None
     collision_check_player = True
-
+    PARALLELENEMY = False
 
     death_wave = -1
     deathMoney = -1
@@ -219,6 +242,9 @@ def main(
     print(app)
 
     screen, mouse_conversion = app.update_screen(return_screen = True)
+
+
+    
 
     weapon_keys = list(armory.__weapons_map["gun"].keys())
     print("KEYS", weapon_keys)
@@ -502,6 +528,9 @@ def main(
         MInfo.startPlaying()
 
     gunKeys = [0,0,0,0,0]
+
+
+    
 
     #interactables.append(classes.Interactable(app, [500,500], player_inventory, player_weapons = player_weapons, type = "gun_drop", item = armory.guns["AWP"]))
 
@@ -1064,6 +1093,20 @@ def main(
             f11 = True
         elif pressed[app.pygame.K_F11] == False:
             f11_pressed = False
+
+
+        f10 = False
+
+        if pressed[app.pygame.K_F10] and f10_pressed == False:
+            f10_pressed = True
+            f10 = True
+        elif pressed[app.pygame.K_F10] == False:
+            f10_pressed = False
+
+
+        if f10:
+            PARALLELENEMY = not PARALLELENEMY
+
 
         if f11:
             app.fs = not app.fs
@@ -1678,22 +1721,49 @@ def main(
 
         app.enemies_within_range = 0
 
-        for enemy in enemy_list:
-            if enemy.class_type == "SOLDIER":
-                enemy.tick(phase)
-            else:
-                enemy.tick(
-                    screen,
-                    map_boundaries,
-                    player_actor,
-                    camera_pos,
-                    map,
-                    [walls_filtered, map.no_los_walls],
-                    NAV_MESH,
-                    map_render,
-                    phase=phase,
-                    wall_points=wall_points,
-                )
+        # Process enemies in parallel using a thread pool
+
+        
+
+
+        if PARALLELENEMY:
+
+            # Create a partial function with all the common arguments
+            process_enemy_partial = partial(
+                process_enemy,
+                screen=screen,
+                map_boundaries=map_boundaries,
+                player_actor=player_actor,
+                camera_pos=camera_pos,
+                map=map,
+                walls=[walls_filtered, map.no_los_walls],
+                NAV_MESH=NAV_MESH,
+                map_render=map_render,
+                phase=phase,
+                wall_points=wall_points
+            )
+
+
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                executor.map(process_enemy_partial, enemy_list)
+        else:
+
+            for enemy in enemy_list:
+                if enemy.class_type == "SOLDIER":
+                    enemy.tick(phase)
+                else:
+                    enemy.tick(
+                        screen,
+                        map_boundaries,
+                        player_actor,
+                        camera_pos,
+                        map,
+                        [walls_filtered, map.no_los_walls],
+                        NAV_MESH,
+                        map_render,
+                        phase=phase,
+                        wall_points=wall_points,
+                    )
 
 
         time_stamps["enemies"] = time.time() - t

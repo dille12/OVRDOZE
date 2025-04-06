@@ -172,6 +172,7 @@ class MixInfo:
         self.lastSong = ""
         self.output = True
         self.app = app
+        self.recentlyPlayed = []
         
 
         self.trackSpeedUp = initalSpeed
@@ -192,6 +193,9 @@ class MixInfo:
         print(songs)
         while self.lastSong == self.nextup:
             self.nextup = random.choice(songs)
+
+        self.recentlyPlayed.append(self.nextup)
+
         self.output = True
         self.timeUntilSwitch, self.timeOnSwitch = createMix(self.lastSong, tempoLookUp[self.lastSong.split("/")[-1]], self.nextup, tempoLookUp[self.nextup.split("/")[-1]], self, self.output)
         self.lastSong = self.nextup
@@ -306,9 +310,13 @@ class MixInfo:
 def threadedMixCreation(MInfo):
     MInfo.trackMade = True
     MInfo.nextup = MInfo.lastSong
-
-    while MInfo.lastSong == MInfo.nextup:
+    print("Picking newx song...")
+    while MInfo.nextup in MInfo.recentlyPlayed:
         MInfo.nextup = random.choice(songs)
+
+    MInfo.recentlyPlayed.append(MInfo.nextup)
+    if len(MInfo.recentlyPlayed) > len(songs) / 2:
+        MInfo.recentlyPlayed.pop(0)
 
     MInfo.output = not MInfo.output
 
@@ -320,9 +328,10 @@ def threadedMixCreation(MInfo):
 
 
 if __name__ == "__main__":
-    MInfo = MixInfo()
+    MInfo = MixInfo(initalSpeed=1.2)
     MInfo.startPlaying()
     pygame.init()
+    clock = pygame.time.Clock()
     while 1:
         clock.tick(60)
 
