@@ -38,6 +38,8 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
     print("Loading next song...")
     yOctOrig, sr = librosa.load(song2, sr=None, mono=False)
 
+    yOctOrig = yOctOrig / np.max(np.abs(yOctOrig)) * 0.8
+
     if speedUp != 1:
         yOctOrig = utilities.highpassfilter.stretch_audio(yOctOrig, 1/speedUp)
     time.sleep(easeCalc)
@@ -65,6 +67,8 @@ def createMix(song1, tempo1, song2, tempo2, MInfo, output, easeCalc = 0):
 
     if lastSpeedUp != 1:
         y = utilities.highpassfilter.stretch_audio(y, 1/lastSpeedUp)
+
+    y = y / np.max(np.abs(y)) * 0.8
 
     time.sleep(easeCalc)
     print("Chopping current song...")
@@ -144,6 +148,7 @@ tempoLookUp = {
     "VUK VUK.wav" : 118,
     "I FEEL ALIVE.wav" : 118,
     "Fate is Against me.wav" : 125,
+    "So Shy.wav" : 132,
 
 }
 
@@ -179,7 +184,7 @@ class MixInfo:
         self.lastTrackSpeedUp = initalSpeed
         self.currentSpeedUp = initalSpeed
 
-    def startPlaying(self, firstTrack = True):
+    def startPlaying(self, firstTrack = True, nextup = ""):
         pygame.mixer.music.unload()
         #self.lastSong = random.choice(songs)
         #self.lastSong = fp("sound/songs/Octane.wav")
@@ -188,7 +193,10 @@ class MixInfo:
         else:
             self.lastSong = random.choice(songs)
         self.tempo = 130
-        self.nextup = self.lastSong
+        if nextup:
+            self.nextup = nextup
+        else:
+            self.nextup = self.lastSong
         #self.nextup = fp("sound/songs/Narcosis.wav")
         print(songs)
         while self.lastSong == self.nextup:

@@ -12,11 +12,11 @@ pygame.init()
 
 TERMINAL = pygame.font.Font("assets/texture/terminal.ttf", 20)
 
-SONGNAME = "Lucid"
+SONGNAME = "So Shy"
 
 # Load audio file and set parameters
 audio_file = f"assets/sound/songs/{SONGNAME}.wav"  # Replace with your audio file path
-tempo = 138  # Beats per minute (can adjust this)
+tempo = 132  # Beats per minute (can adjust this)
 
 # Configuration
 WIDTH, HEIGHT = 800, 400

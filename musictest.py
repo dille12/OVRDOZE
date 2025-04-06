@@ -9,8 +9,8 @@ class SaveData:
         self.intensebeats = INTENSEBEATS
 
 if __name__ == "__main__":
-    MInfo = MixInfo(initalSpeed=1.1)
-    MInfo.startPlaying(firstTrack=False)
+    MInfo = MixInfo(initalSpeed=1.25)
+    MInfo.startPlaying(firstTrack=False, nextup="C:\\Users\\Reset\\Documents\\GitHub\\OVRDOZE\\assets/sound/songs/So Shy.wav")
     pygame.init()
     pygame.mixer.init()
     clock = pygame.time.Clock()

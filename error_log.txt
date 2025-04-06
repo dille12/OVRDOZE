@@ -11,7 +11,7 @@ Traceback (most recent call last):
     app.start_sp(args)
   File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\app.py", line 510, in start_sp
     game.main(
-  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 1729, in main
-    if PARALLELENEMY:
-       ^^^^^^^^^^^^^
-UnboundLocalError: cannot access local variable 'PARALLELENEMY' where it is not associated with a value
+  File "c:\Users\Reset\Documents\GitHub\OVRDOZE\core\game.py", line 282, in main
+    enemy_list.clear()
+    ^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'enemy_list' where it is not associated with a value

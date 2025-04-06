@@ -40,3 +40,5 @@ Version 0.9.86 - Fixed exe music erroring
 
 Version 0.9.87 - Music fix
 
+Version 0.9.88 - New song
+

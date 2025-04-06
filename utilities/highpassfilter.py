@@ -141,7 +141,7 @@ def custom_mix_audio(y1, y2):
 
     # Normalize to the -1,1 range
     max_amplitude = np.max(np.abs(mixed_audio))
-    mixed_audio = np.clip(mixed_audio, -1, 1)
+    mixed_audio = np.clip(mixed_audio, -0.8, 0.8)
 
     return mixed_audio
 

@@ -9,7 +9,7 @@ def write_default_settings():
 
     with open(path, "w", encoding="UTF8") as file:
         file.write(
-            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=60\nVSYNC=False\nRES=[854, 480]\nVOL=50\nMUSIC=50\nMULT_ACKNOWLEDGEMENT=False")
+            "username=Default\nFOV=True\nDEV=False\nFS=True\nULTRA=False\nLASTIP=\nFPS=144\nVSYNC=False\nRES=[854, 480]\nVOL=50\nMUSIC=50\nMULT_ACKNOWLEDGEMENT=False")
 
 
 def get_path(path):
